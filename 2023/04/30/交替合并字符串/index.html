@@ -16,27 +16,28 @@
   <meta name="author" content="zyxelva">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、为什么要学习Spring源码 学习大神优秀的思想和代码风格 面试专业吹牛逼的法宝 写出更加优秀的代码  二、怎样学习源码 java基础需要过硬 跟着demo跟代码 记录每个知识点，方便以后查阅和修正 注释关键点代码 有规律的复习 反复Do Exercise(不断练习)-&gt;Learning(由浅到深，由窄到宽)-&gt;Trying(尝试自己去实现)-&gt;Teaching(把自己理解的">
+    <meta name="description" content="一、问题    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。  二、解题思路1.双指针1）i，j分别指向字符串word1，word2;2）循环遍历word1，word2，只要i，j均遍历完成 2.单指针其实，只要一个指针就可以搞定，而且遍历次数最">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【Spring源码学习】简介">
-<meta property="og:url" content="http://example.com/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:title" content="【LeetCode】1768.交替合并字符串">
+<meta property="og:url" content="http://example.com/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/index.html">
 <meta property="og:site_name" content="Kezade的技术博客">
-<meta property="og:description" content="一、为什么要学习Spring源码 学习大神优秀的思想和代码风格 面试专业吹牛逼的法宝 写出更加优秀的代码  二、怎样学习源码 java基础需要过硬 跟着demo跟代码 记录每个知识点，方便以后查阅和修正 注释关键点代码 有规律的复习 反复Do Exercise(不断练习)-&gt;Learning(由浅到深，由窄到宽)-&gt;Trying(尝试自己去实现)-&gt;Teaching(把自己理解的">
+<meta property="og:description" content="一、问题    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。  二、解题思路1.双指针1）i，j分别指向字符串word1，word2;2）循环遍历word1，word2，只要i，j均遍历完成 2.单指针其实，只要一个指针就可以搞定，而且遍历次数最">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/Spring.jpeg">
-<meta property="article:published_time" content="2023-04-30T02:40:38.000Z">
-<meta property="article:modified_time" content="2023-04-30T04:24:52.868Z">
+<meta property="og:image" content="http://example.com/img/LeetCode.jpg">
+<meta property="article:published_time" content="2023-04-30T04:38:07.000Z">
+<meta property="article:modified_time" content="2023-04-30T05:31:25.193Z">
 <meta property="article:author" content="zyxelva">
-<meta property="article:tag" content="源码">
-<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="LeetCode">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="指针">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/img/Spring.jpeg">
+<meta name="twitter:image" content="http://example.com/img/LeetCode.jpg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【Spring源码学习】简介 - Kezade的技术博客</title>
+  <title>【LeetCode】1768.交替合并字符串 - Kezade的技术博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -214,7 +215,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【Spring源码学习】简介"></span>
+            <span id="subtitle" data-typed-text="【LeetCode】1768.交替合并字符串"></span>
           
         </div>
 
@@ -225,8 +226,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-04-30 10:40" pubdate>
-          2023年4月30日 上午
+        <time datetime="2023-04-30 12:38" pubdate>
+          2023年4月30日 下午
         </time>
       </span>
     
@@ -237,7 +238,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.6k 字
+          1.6k 字
         
       </span>
     
@@ -248,7 +249,7 @@
         
         
         
-          22 分钟
+          14 分钟
         
       </span>
     
@@ -294,45 +295,25 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【Spring源码学习】简介</h1>
+            <h1 style="display: none">【LeetCode】1768.交替合并字符串</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="一、为什么要学习Spring源码"><a href="#一、为什么要学习Spring源码" class="headerlink" title="一、为什么要学习Spring源码"></a>一、为什么要学习Spring源码</h1><ul>
-<li>学习大神优秀的思想和代码风格</li>
-<li>面试专业吹牛逼的法宝</li>
-<li>写出更加优秀的代码</li>
+                <h1 id="一、问题"><a href="#一、问题" class="headerlink" title="一、问题"></a>一、问题</h1><pre><code class="hljs">    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。
+</code></pre>
+<h1 id="二、解题思路"><a href="#二、解题思路" class="headerlink" title="二、解题思路"></a>二、解题思路</h1><h2 id="1-双指针"><a href="#1-双指针" class="headerlink" title="1.双指针"></a>1.双指针</h2><p>1）i，j分别指向字符串word<del>1</del>，word<del>2</del>;<br>2）循环遍历word<del>1</del>，word<del>2</del>，只要i，j均遍历完成</p>
+<h2 id="2-单指针"><a href="#2-单指针" class="headerlink" title="2.单指针"></a>2.单指针</h2><p>其实，只要一个指针就可以搞定，而且遍历次数最多Math.min(word<del>1</del> 的长度, word<del>2</del> 的长度)，剩下的最长那个字符串，利用String.substring(index)即可得到需要的答案。伪代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">while</span>(i&lt;minLength)&#123;<br>	sb.append(word1[i]);<br>	sb.append(word2[i]);<br>	i++;<br>&#125;<br><span class="hljs-keyword">if</span>(i&lt;word1.length())&#123;<br>	sb.append(word1.substring(i));<br>&#125;<br><span class="hljs-keyword">if</span>(i&lt;word2.length())&#123;<br>	sb.append(word2.substring(i));<br>&#125;<br></code></pre></td></tr></table></figure>
+<h1 id="三、代码"><a href="#三、代码" class="headerlink" title="三、代码"></a>三、代码</h1><h2 id="1-双指针-1"><a href="#1-双指针-1" class="headerlink" title="1.双指针"></a>1.双指针</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">mergeAlternately</span><span class="hljs-params">(String word1, String word2)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">m</span> <span class="hljs-operator">=</span> word1.length();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> word2.length();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br><br>        <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">ans</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>        <span class="hljs-keyword">while</span> (i &lt; m || j &lt; n) &#123;<br>            <span class="hljs-keyword">if</span> (i &lt; m) &#123;<br>                ans.append(word1.charAt(i));<br>                ++i;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (j &lt; n) &#123;<br>                ans.append(word2.charAt(j));<br>                ++j;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> ans.toString();<br>    &#125;<br>&#125;<br><span class="hljs-comment">/**</span><br><span class="hljs-comment">作者：力扣官方题解</span><br><span class="hljs-comment">链接：https://leetcode.cn/problems/merge-strings-alternately/solutions/1913930/jiao-ti-he-bing-zi-fu-chuan-by-leetcode-ac4ih/</span><br><span class="hljs-comment">来源：力扣（LeetCode）</span><br><span class="hljs-comment">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
+<h2 id="2-单指针-1"><a href="#2-单指针-1" class="headerlink" title="2.单指针"></a>2.单指针</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">mergeAlternately</span><span class="hljs-params">(String word1, String word2)</span> &#123;<br>    <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;<br>    StringBuilder sb=<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>    <span class="hljs-type">int</span> minLength=Math.min(word1.length(), word2.length());<br>    <span class="hljs-keyword">while</span>(i&lt;minLength)&#123;<br>        sb.append(word1.charAt(i));<br>        sb.append(word2.charAt(i));<br>        i++;<br>    &#125;<br>    <span class="hljs-keyword">if</span>(i&lt;word1.length())&#123;<br>        sb.append(word1.substring(i));<br>    &#125;<br>    <span class="hljs-keyword">if</span>(i&lt;word2.length())&#123;<br>        sb.append(word2.substring(i));<br>    &#125;<br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><ul>
+<li><p>时间复杂度：O(m+n)，其中 m 和 n 分别是字符串 word<del>1</del> 和 word<del>2</del> 的长度。</p>
+</li>
+<li><p>空间复杂度：O(1)或 O(m+n)。如果使用的语言支持可修改的字符串，那么空间复杂度为 O(1)，否则为 O(m+n)，比如java。注意这里不计入返回值需要的空间。</p>
+</li>
 </ul>
-<h1 id="二、怎样学习源码"><a href="#二、怎样学习源码" class="headerlink" title="二、怎样学习源码"></a>二、怎样学习源码</h1><ul>
-<li>java基础需要过硬</li>
-<li>跟着demo跟代码</li>
-<li>记录每个知识点，方便以后查阅和修正</li>
-<li>注释关键点代码</li>
-<li>有规律的复习</li>
-<li>反复Do Exercise(不断练习)-&gt;Learning(由浅到深，由窄到宽)-&gt;Trying(尝试自己去实现)-&gt;Teaching(把自己理解的讲给别人听，查漏补缺，互相进步)</li>
-</ul>
-<h1 id="三、搭建Spring-Demo项目"><a href="#三、搭建Spring-Demo项目" class="headerlink" title="三、搭建Spring-Demo项目"></a>三、搭建Spring-Demo项目</h1><h2 id="1-前期准备"><a href="#1-前期准备" class="headerlink" title="1.前期准备"></a>1.前期准备</h2><ul>
-<li>JDK8</li>
-<li>Spring5.2.8Release</li>
-<li>Idea</li>
-<li>Maven</li>
-</ul>
-<h2 id="2-pom依赖导入"><a href="#2-pom依赖导入" class="headerlink" title="2.pom依赖导入"></a>2.pom依赖导入</h2><p>最最核心的spring依赖</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-context<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>$&#123;spring.version&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
-<p>当然还需要其他的辅助，比如测试、日志</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-test<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>   <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>$&#123;spring.version&#125;<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>ch.qos.logback<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>logback-classic<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>1.1.2<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
-<h2 id="3-spring-xml"><a href="#3-spring-xml" class="headerlink" title="3.spring.xml"></a>3.spring.xml</h2><p>Spring核心配置文件</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">beans</span> <span class="hljs-attr">xmlns</span>=<span class="hljs-string">&quot;http://www.springframework.org/schema/beans&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xmlns:xsi</span>=<span class="hljs-string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xmlns:context</span>=<span class="hljs-string">&quot;http://www.springframework.org/schema/context&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xmlns:aop</span>=<span class="hljs-string">&quot;http://www.springframework.org/schema/aop&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xmlns:p</span>=<span class="hljs-string">&quot;http://www.springframework.org/schema/p&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xmlns:c</span>=<span class="hljs-string">&quot;http://www.springframework.org/schema/c&quot;</span></span><br><span class="hljs-tag">       <span class="hljs-attr">xsi:schemaLocation</span>=<span class="hljs-string">&quot;</span></span><br><span class="hljs-string"><span class="hljs-tag">	http://www.springframework.org/schema/beans</span></span><br><span class="hljs-string"><span class="hljs-tag">	http://www.springframework.org/schema/beans/spring-beans.xsd</span></span><br><span class="hljs-string"><span class="hljs-tag">    http://www.springframework.org/schema/context</span></span><br><span class="hljs-string"><span class="hljs-tag">    http://www.springframework.org/schema/context/spring-context.xsd</span></span><br><span class="hljs-string"><span class="hljs-tag">    http://www.springframework.org/schema/aop</span></span><br><span class="hljs-string"><span class="hljs-tag">	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd&quot;</span></span><br><span class="hljs-tag">    <span class="hljs-attr">default-lazy-init</span>=<span class="hljs-string">&quot;false&quot;</span>&gt;</span><br><br>    <span class="hljs-comment">&lt;!--自定义标签--&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">context:component-scan</span> <span class="hljs-attr">base-package</span>=<span class="hljs-string">&quot;com.enjoy.jack&quot;</span> /&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">context:property-placeholder</span> <span class="hljs-attr">location</span>=<span class="hljs-string">&quot;classpath:application.properties&quot;</span>/&gt;</span><br></code></pre></td></tr></table></figure>
-<p>其中最重要namespace为</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs xml">xmlns:context=&quot;http://www.springframework.org/schema/context&quot;<br>http://www.springframework.org/schema/context<br>http://www.springframework.org/schema/context/spring-context.xsd<br></code></pre></td></tr></table></figure>
-<h1 id="四、Spring容器加载方式"><a href="#四、Spring容器加载方式" class="headerlink" title="四、Spring容器加载方式"></a>四、Spring容器加载方式</h1><ul>
-<li>类路径获取配置文件<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">ApplicationContext applicationContext= <span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathXmlApplicationContext</span>(<span class="hljs-string">&quot;spring.xml&quot;</span>);<br></code></pre></td></tr></table></figure></li>
-<li>文件系统路径获取配置文件【绝对路径】<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ApplicationContext</span> <span class="hljs-variable">applicationContext</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileSystemXmlApplicationContext</span>(<span class="hljs-string">&quot;E:\com\public\springdemo\src\main\resources\spring.xml&quot;</span>);<br></code></pre></td></tr></table></figure></li>
-<li>无配置文件加载容器<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ApplicationContext</span> <span class="hljs-variable">applicationContext</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AnnotationConfigApplicationContext</span>(<span class="hljs-string">&quot;com.xx.jack&quot;</span>);<br></code></pre></td></tr></table></figure></li>
-<li>Springboot加载容器<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">ApplicationContext</span> <span class="hljs-variable">applicationContext</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">EmbeddedWebApplicationContext</span>();<br></code></pre></td></tr></table></figure></li>
-</ul>
-<p>后续Spring源码跟进，我主要以ClassPathXmlApplicationContext的方式。</p>
 
                 
               </div>
@@ -351,7 +332,24 @@
     
       <span class="category-chain">
         
-  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/" class="category-chain-item">指针</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/LeetCode/" class="category-chain-item">LeetCode</a>
   
   
 
@@ -366,9 +364,11 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+        <a href="/tags/LeetCode/">#LeetCode</a>
       
-        <a href="/tags/Spring/">#Spring</a>
+        <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+      
+        <a href="/tags/%E6%8C%87%E9%92%88/">#指针</a>
       
     </div>
   
@@ -380,8 +380,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【Spring源码学习】简介</div>
-      <div>http://example.com/2023/04/30/【Spring源码学习】简介/</div>
+      <div>【LeetCode】1768.交替合并字符串</div>
+      <div>http://example.com/2023/04/30/交替合并字符串/</div>
     </div>
     <div class="license-meta">
       
@@ -425,18 +425,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/" title="【LeetCode】1768.交替合并字符串">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【LeetCode】1768.交替合并字符串</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E9%9B%86%E6%88%90Mybatis%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" title="【MyBatis源码学习】Spring集成MyBatis的原理分析">
-                        <span class="hidden-mobile">【MyBatis源码学习】Spring集成MyBatis的原理分析</span>
+                      <a href="/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/" title="【Spring源码学习】简介">
+                        <span class="hidden-mobile">【Spring源码学习】简介</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
