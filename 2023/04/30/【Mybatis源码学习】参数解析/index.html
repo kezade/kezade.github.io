@@ -19,11 +19,11 @@
     <meta name="description" content="一、几种入参形式这里只分析带有入参的方法。 1.单个入参1UserInfo selectByPrimaryKey(String id); 2.多个入参1List&lt;UserInfo&gt; getByOpenIdAndUsername2(@Param(&quot;openid&quot;) String openId, @Param(&quot;username&quot;) String u">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【MyBatis源码学习】参数解析">
-<meta property="og:url" content="http://example.com/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:url" content="https://zyxelva.github.io/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="Kezade的技术博客">
 <meta property="og:description" content="一、几种入参形式这里只分析带有入参的方法。 1.单个入参1UserInfo selectByPrimaryKey(String id); 2.多个入参1List&lt;UserInfo&gt; getByOpenIdAndUsername2(@Param(&quot;openid&quot;) String openId, @Param(&quot;username&quot;) String u">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/MyBatis.jpeg">
+<meta property="og:image" content="https://zyxelva.github.io/img/MyBatis.jpeg">
 <meta property="article:published_time" content="2023-04-30T02:15:43.000Z">
 <meta property="article:modified_time" content="2023-04-30T04:21:45.693Z">
 <meta property="article:author" content="zyxelva">
@@ -31,7 +31,7 @@
 <meta property="article:tag" content="源码">
 <meta property="article:tag" content="SQL">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/img/MyBatis.jpeg">
+<meta name="twitter:image" content="https://zyxelva.github.io/img/MyBatis.jpeg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -75,7 +75,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"zyxelva.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -378,7 +378,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>【MyBatis源码学习】参数解析</div>
-      <div>http://example.com/2023/04/30/【Mybatis源码学习】参数解析/</div>
+      <div>https://zyxelva.github.io/2023/04/30/【Mybatis源码学习】参数解析/</div>
     </div>
     <div class="license-meta">
       

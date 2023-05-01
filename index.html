@@ -18,7 +18,7 @@
   
     <meta property="og:type" content="website">
 <meta property="og:title" content="Kezade的技术博客">
-<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:url" content="https://zyxelva.github.io/index.html">
 <meta property="og:site_name" content="Kezade的技术博客">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="zyxelva">
@@ -60,7 +60,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"zyxelva.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -236,6 +236,144 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91FactoryBean-%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%8E%A5%E5%8F%A3/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】FactoryBean 类型的接口">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91FactoryBean-%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%8E%A5%E5%8F%A3/" target="_self">
+          【Spring源码学习】FactoryBean 类型的接口
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91FactoryBean-%E7%B1%BB%E5%9E%8B%E7%9A%84%E6%8E%A5%E5%8F%A3/" target="_self">
+        <div>
+          前言在【Spring源码学习】Spring Bean实例化过程-创建Bean实例一文中，实例在真正创建完成(完成了创建、依赖属性注入、初始化)后，会有FactoryBean的接口调用，我们先定位到这段代码来看看，本章也主要跟一下这个调用的流程。 12345678910111213141516171819202122232425262728293031323334353637383940414243
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 14:35" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91BeanPostProccessor%E7%9A%84%E7%90%86%E8%A7%A3/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】BeanPostProccessor的理解">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91BeanPostProccessor%E7%9A%84%E7%90%86%E8%A7%A3/" target="_self">
+          【Spring源码学习】BeanPostProccessor的理解
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91BeanPostProccessor%E7%9A%84%E7%90%86%E8%A7%A3/" target="_self">
+        <div>
+          BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在这个点会根据接口类型来过滤掉不关注这个点的其他类，只有真正关注的类才会在这个点进行相应的功能实现。 前言Spring 初始化核心流程spring容器初始化的核心方法AbstractApplicationContext#refresh，  refresh Spring 初始化核心流程入口 prepareRefresh ① 准
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 14:31" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E7%9A%84%E9%94%80%E6%AF%81/" target="_self">
           <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean的销毁">
         </a>
@@ -261,6 +399,75 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
             <time datetime="2023-05-01 14:08" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96-%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean实例化-循环依赖">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96-%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" target="_self">
+          【Spring源码学习】Spring Bean实例化-循环依赖
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96-%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/" target="_self">
+        <div>
+          一、什么是循环依赖如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致循环依赖。类似代码如下： 1234567public class A &#123;    private B b;&#125; public class B &#123;    private A a;&#125; 循环依赖
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 14:04" pubdate>
               2023-05-01
             </time>
           </div>
@@ -746,228 +953,6 @@
               <a href="/tags/BFS/">#BFS</a>
             
               <a href="/tags/DFS/">#DFS</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/" target="_self">
-          <img src="/img/LeetCode.jpg" srcset="/img/loading.gif" lazyload alt="【LeetCode】1768.交替合并字符串">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/" target="_self">
-          【LeetCode】1768.交替合并字符串
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/" target="_self">
-        <div>
-          一、问题    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。  二、解题思路1.双指针1）i，j分别指向字符串word1，word2;2）循环遍历word1，word2，只要i，j均遍历完成 2.单指针其实，只要一个指针就可以搞定，而且遍历次数最
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 12:38" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/" class="category-chain-item">指针</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/LeetCode/">#LeetCode</a>
-            
-              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
-            
-              <a href="/tags/%E6%8C%87%E9%92%88/">#指针</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/" target="_self">
-          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】简介">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/" target="_self">
-          【Spring源码学习】简介
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/" target="_self">
-        <div>
-          一、为什么要学习Spring源码 学习大神优秀的思想和代码风格 面试专业吹牛逼的法宝 写出更加优秀的代码  二、怎样学习源码 java基础需要过硬 跟着demo跟代码 记录每个知识点，方便以后查阅和修正 注释关键点代码 有规律的复习 反复Do Exercise(不断练习)-&gt;Learning(由浅到深，由窄到宽)-&gt;Trying(尝试自己去实现)-&gt;Teaching(把自己理解的
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:40" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/Spring/">#Spring</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E9%9B%86%E6%88%90Mybatis%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】Spring集成MyBatis的原理分析">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E9%9B%86%E6%88%90Mybatis%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
-          【MyBatis源码学习】Spring集成MyBatis的原理分析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E9%9B%86%E6%88%90Mybatis%E7%9A%84%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90/" target="_self">
-        <div>
-          前言上一章中【MyBatis源码学习】MyBatis与Spring整合，我们介绍了Mybatis与Spring、Spring Boot的融合，其中我们提到了mybatis-spring中的几个关键类，本章我们来跟踪下这几个关键类的源码，看看它们干了些啥. 一、源码下载和mybatis源码下载一样，从GitHub下载好后，本地打包部署一下，方便我们后面进行测试时方便查看。源码地址：这里是MyBati
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:32" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/Spring/">#Spring</a>
-            
-              <a href="/tags/Spring-Boot/">#Spring Boot</a>
             
           </div>
         

@@ -19,11 +19,11 @@
     <meta name="description" content="1.问题给定一个二叉树的 根节点 root，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。 ##示例 1   输入: [1,2,3,null,5,null,4]输出: [1,3,4]  ##示例 2  输入: [1,null,3]输出: [1,3]  ##示例 3  输入: []输出: []  提示:  二叉树的节点个数的范围是 [0,100] -100 &lt;&amp;#x">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【LeetCode】199.二叉树的右视图">
-<meta property="og:url" content="http://example.com/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/index.html">
+<meta property="og:url" content="https://zyxelva.github.io/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/index.html">
 <meta property="og:site_name" content="Kezade的技术博客">
 <meta property="og:description" content="1.问题给定一个二叉树的 根节点 root，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。 ##示例 1   输入: [1,2,3,null,5,null,4]输出: [1,3,4]  ##示例 2  输入: [1,null,3]输出: [1,3]  ##示例 3  输入: []输出: []  提示:  二叉树的节点个数的范围是 [0,100] -100 &lt;&amp;#x">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/img/LeetCode.jpg">
+<meta property="og:image" content="https://zyxelva.github.io/img/LeetCode.jpg">
 <meta property="article:published_time" content="2023-05-01T05:45:05.000Z">
 <meta property="article:modified_time" content="2023-05-01T06:06:30.814Z">
 <meta property="article:author" content="zyxelva">
@@ -35,7 +35,7 @@
 <meta property="article:tag" content="BFS">
 <meta property="article:tag" content="DFS">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/img/LeetCode.jpg">
+<meta name="twitter:image" content="https://zyxelva.github.io/img/LeetCode.jpg">
   
   
     <meta name="referrer" content="no-referrer-when-downgrade">
@@ -79,7 +79,7 @@
   <script id="fluid-configs">
     var Fluid = window.Fluid || {};
     Fluid.ctx = Object.assign({}, Fluid.ctx)
-    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+    var CONFIG = {"hostname":"zyxelva.github.io","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
 
     if (CONFIG.web_analytics.follow_dnt) {
       var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
@@ -323,7 +323,7 @@
 <li>二叉树的节点个数的范围是 [0,100]</li>
 <li>-100 &lt;&#x3D; Node.val &lt;&#x3D; 100</li>
 </ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><p>经历过前面几篇关于二叉树的层序遍历算法之后（参见<a target="_blank" rel="noopener" href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/">102.二叉树的层序遍历</a>，<a target="_blank" rel="noopener" href="https://zyxelva.github.io/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86II/">107.二叉树的层序遍历II</a>，非常容易的就可以通过这种算法解答此题，基本思想就是围绕队列性质，广度优先算法解决。当然，深度优先算法也是可以解决的。</p>
+<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><p>经历过前面几篇关于二叉树的层序遍历算法之后（参见<a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/">102.二叉树的层序遍历</a>，<a href="https://zyxelva.github.io/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86II/">107.二叉树的层序遍历II</a>，非常容易的就可以通过这种算法解答此题，基本思想就是围绕队列性质，广度优先算法解决。当然，深度优先算法也是可以解决的。</p>
 <h2 id="2-1-广度优先（BFS）"><a href="#2-1-广度优先（BFS）" class="headerlink" title="2.1 广度优先（BFS）"></a>2.1 广度优先（BFS）</h2><p>利用队列，遍历每层节点，并记录每层最后一个元素，直到遍历完最后一层，即可得到结果。访问顺序如下图所示：<br><img src="https://img-blog.csdnimg.cn/img_convert/25767cc8f2ce74adb672fd79bf3ddf17.png#pic_center" srcset="/img/loading.gif" lazyload><br>红色结点自上而下组成答案，边缘以<strong>访问顺序</strong>标号。<br><strong>复杂度</strong>：</p>
 <ul>
 <li>时间复杂度： O(N)，每个节点都入队出队了 1 次。 </li>
@@ -412,7 +412,7 @@
   <div class="license-box my-3">
     <div class="license-title">
       <div>【LeetCode】199.二叉树的右视图</div>
-      <div>http://example.com/2023/05/01/二叉树的右视图/</div>
+      <div>https://zyxelva.github.io/2023/05/01/二叉树的右视图/</div>
     </div>
     <div class="license-meta">
       
