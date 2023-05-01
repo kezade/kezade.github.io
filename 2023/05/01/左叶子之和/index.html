@@ -16,20 +16,24 @@
   <meta name="author" content="zyxelva">
   <meta name="keywords" content="">
   
-    <meta name="description" content="一、问题    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。  二、解题思路1.双指针1）i，j分别指向字符串word1，word2;2）循环遍历word1，word2，只要i，j均遍历完成 2.单指针其实，只要一个指针就可以搞定，而且遍历次数最">
+    <meta name="description" content="1.问题给定二叉树的根节点 root ，返回所有左叶子之和。 示例 1  输入: root &#x3D; [3,9,20,null,null,15,7]输出: 24  解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24 示例 2 输入: root &#x3D; [1]输出: 0  提示:  节点数在 [1, 1000] 范围内 -1000 &lt;&#x3D; Node.v">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【LeetCode】1768.交替合并字符串">
-<meta property="og:url" content="http://example.com/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/index.html">
+<meta property="og:title" content="【LeetCode】404. 左叶子之和">
+<meta property="og:url" content="http://example.com/2023/05/01/%E5%B7%A6%E5%8F%B6%E5%AD%90%E4%B9%8B%E5%92%8C/index.html">
 <meta property="og:site_name" content="Kezade的技术博客">
-<meta property="og:description" content="一、问题    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。  二、解题思路1.双指针1）i，j分别指向字符串word1，word2;2）循环遍历word1，word2，只要i，j均遍历完成 2.单指针其实，只要一个指针就可以搞定，而且遍历次数最">
+<meta property="og:description" content="1.问题给定二叉树的根节点 root ，返回所有左叶子之和。 示例 1  输入: root &#x3D; [3,9,20,null,null,15,7]输出: 24  解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24 示例 2 输入: root &#x3D; [1]输出: 0  提示:  节点数在 [1, 1000] 范围内 -1000 &lt;&#x3D; Node.v">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/LeetCode.jpg">
-<meta property="article:published_time" content="2023-04-30T04:38:07.000Z">
-<meta property="article:modified_time" content="2023-04-30T05:31:25.193Z">
+<meta property="article:published_time" content="2023-05-01T05:45:49.000Z">
+<meta property="article:modified_time" content="2023-05-01T06:06:05.987Z">
 <meta property="article:author" content="zyxelva">
+<meta property="article:tag" content="二叉树">
+<meta property="article:tag" content="数据结构">
 <meta property="article:tag" content="LeetCode">
 <meta property="article:tag" content="算法">
-<meta property="article:tag" content="指针">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="BFS">
+<meta property="article:tag" content="DFS">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="http://example.com/img/LeetCode.jpg">
   
@@ -37,7 +41,7 @@
     <meta name="referrer" content="no-referrer-when-downgrade">
   
   
-  <title>【LeetCode】1768.交替合并字符串 - Kezade的技术博客</title>
+  <title>【LeetCode】404. 左叶子之和 - Kezade的技术博客</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -215,7 +219,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="【LeetCode】1768.交替合并字符串"></span>
+            <span id="subtitle" data-typed-text="【LeetCode】404. 左叶子之和"></span>
           
         </div>
 
@@ -226,8 +230,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2023-04-30 12:38" pubdate>
-          2023年4月30日 下午
+        <time datetime="2023-05-01 13:45" pubdate>
+          2023年5月1日 下午
         </time>
       </span>
     
@@ -238,7 +242,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.6k 字
+          2.3k 字
         
       </span>
     
@@ -249,7 +253,7 @@
         
         
         
-          14 分钟
+          20 分钟
         
       </span>
     
@@ -295,26 +299,39 @@
         <div id="board">
           <article class="post-content mx-auto">
             <!-- SEO header -->
-            <h1 style="display: none">【LeetCode】1768.交替合并字符串</h1>
+            <h1 style="display: none">【LeetCode】404. 左叶子之和</h1>
             
             
               <div class="markdown-body">
                 
-                <h1 id="一、问题"><a href="#一、问题" class="headerlink" title="一、问题"></a>一、问题</h1><pre><code class="hljs">    给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。
-</code></pre>
-<h1 id="二、解题思路"><a href="#二、解题思路" class="headerlink" title="二、解题思路"></a>二、解题思路</h1><h2 id="1-双指针"><a href="#1-双指针" class="headerlink" title="1.双指针"></a>1.双指针</h2><p>1）i，j分别指向字符串word<del>1</del>，word<del>2</del>;<br>2）循环遍历word<del>1</del>，word<del>2</del>，只要i，j均遍历完成</p>
-<h2 id="2-单指针"><a href="#2-单指针" class="headerlink" title="2.单指针"></a>2.单指针</h2><p>其实，只要一个指针就可以搞定，而且遍历次数最多Math.min(word<del>1</del> 的长度, word<del>2</del> 的长度)，剩下的最长那个字符串，利用String.substring(index)即可得到需要的答案。伪代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">while</span>(i&lt;minLength)&#123;<br>	sb.append(word1[i]);<br>	sb.append(word2[i]);<br>	i++;<br>&#125;<br><span class="hljs-keyword">if</span>(i&lt;word1.length())&#123;<br>	sb.append(word1.substring(i));<br>&#125;<br><span class="hljs-keyword">if</span>(i&lt;word2.length())&#123;<br>	sb.append(word2.substring(i));<br>&#125;<br></code></pre></td></tr></table></figure>
-<h1 id="三、代码"><a href="#三、代码" class="headerlink" title="三、代码"></a>三、代码</h1><h2 id="1-双指针-1"><a href="#1-双指针-1" class="headerlink" title="1.双指针"></a>1.双指针</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">mergeAlternately</span><span class="hljs-params">(String word1, String word2)</span> &#123;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">m</span> <span class="hljs-operator">=</span> word1.length();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">n</span> <span class="hljs-operator">=</span> word2.length();<br>        <span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>        <span class="hljs-type">int</span> <span class="hljs-variable">j</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br><br>        <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">ans</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>        <span class="hljs-keyword">while</span> (i &lt; m || j &lt; n) &#123;<br>            <span class="hljs-keyword">if</span> (i &lt; m) &#123;<br>                ans.append(word1.charAt(i));<br>                ++i;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (j &lt; n) &#123;<br>                ans.append(word2.charAt(j));<br>                ++j;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> ans.toString();<br>    &#125;<br>&#125;<br><span class="hljs-comment">/**</span><br><span class="hljs-comment">作者：力扣官方题解</span><br><span class="hljs-comment">链接：https://leetcode.cn/problems/merge-strings-alternately/solutions/1913930/jiao-ti-he-bing-zi-fu-chuan-by-leetcode-ac4ih/</span><br><span class="hljs-comment">来源：力扣（LeetCode）</span><br><span class="hljs-comment">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span><br><span class="hljs-comment">*/</span><br></code></pre></td></tr></table></figure>
-<h2 id="2-单指针-1"><a href="#2-单指针-1" class="headerlink" title="2.单指针"></a>2.单指针</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> String <span class="hljs-title function_">mergeAlternately</span><span class="hljs-params">(String word1, String word2)</span> &#123;<br>    <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;<br>    StringBuilder sb=<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>    <span class="hljs-type">int</span> minLength=Math.min(word1.length(), word2.length());<br>    <span class="hljs-keyword">while</span>(i&lt;minLength)&#123;<br>        sb.append(word1.charAt(i));<br>        sb.append(word2.charAt(i));<br>        i++;<br>    &#125;<br>    <span class="hljs-keyword">if</span>(i&lt;word1.length())&#123;<br>        sb.append(word1.substring(i));<br>    &#125;<br>    <span class="hljs-keyword">if</span>(i&lt;word2.length())&#123;<br>        sb.append(word2.substring(i));<br>    &#125;<br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;  <br></code></pre></td></tr></table></figure>
-
-<h2 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h2><ul>
-<li><p>时间复杂度：O(m+n)，其中 m 和 n 分别是字符串 word<del>1</del> 和 word<del>2</del> 的长度。</p>
-</li>
-<li><p>空间复杂度：O(1)或 O(m+n)。如果使用的语言支持可修改的字符串，那么空间复杂度为 O(1)，否则为 O(m+n)，比如java。注意这里不计入返回值需要的空间。</p>
-</li>
+                <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p>给定二叉树的根节点 root ，返回所有左叶子之和。</p>
+<h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><p><img src="https://img-blog.csdnimg.cn/1c8275a05ba44dd4938411125d5f47dc.png" srcset="/img/loading.gif" lazyload alt="图1"></p>
+<blockquote>
+<p>输入: root &#x3D; [3,9,20,null,null,15,7]<br>输出: 24</p>
+</blockquote>
+<p>解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24</p>
+<h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
+<p>输入: root &#x3D; [1]<br>输出: 0</p>
+</blockquote>
+<p><strong>提示</strong>:</p>
+<ul>
+<li>节点数在 [1, 1000] 范围内</li>
+<li>-1000 &lt;&#x3D; Node.val &lt;&#x3D; 1000</li>
 </ul>
+<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-递归"><a href="#2-1-递归" class="headerlink" title="2.1 递归"></a>2.1 递归</h2><p>按照题目描述，我们需要遍历每个树节点，对于目标值，我们需要判定某个节点是否是需要的，既要判定是叶子节点，又要判定是左边的叶子节点，因而对于和的组成，进行分类谈论，如下：<br>1）节点为null，返回；<br>2）该节点左子树不为空，且为叶子节点，sum+&#x3D;该节点的value；否则递归左子树；<br>3）该节点右子树不为空，这里又要分类：<br>    3.1）右子树为叶子节点，不是题目需要的值的组成部分；<br>    3.2）右子树的子节点，只要左右其中一个不为空，继续递归。</p>
+<p>伪代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//sumOfLeftLeaves(TreeNode root)为计算root所有左叶子节点的和的函数。</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">sumOfLeftLeaves</span><span class="hljs-params">(TreeNode root)</span>&#123;<br>	<span class="hljs-comment">//节点为null</span><br>	<span class="hljs-keyword">if</span> root 为<span class="hljs-literal">null</span><br>		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>	<span class="hljs-comment">//左子树</span><br>	<span class="hljs-keyword">if</span> root.left 不为<span class="hljs-literal">null</span><br>		<span class="hljs-comment">//root.left为叶子节点</span><br>		<span class="hljs-keyword">if</span>(root.left为叶子节点)&#123;<br>			sum+=root.left.val;<br>		&#125;<br>		<span class="hljs-comment">//否则，继续递归左子树</span><br>		<span class="hljs-keyword">else</span> &#123;<br>			sum+=sumOfLeftLeaves(root.left);<br>		&#125;<br>	<br>	<span class="hljs-comment">//右子树</span><br>	<span class="hljs-keyword">if</span> root.right 不为<span class="hljs-literal">null</span><br>		<span class="hljs-comment">//只要不是叶子节点，继续递归</span><br>		<span class="hljs-keyword">if</span> root.right 不是叶子节点<br>		 sum+=sumOfLeftLeaves(root.right);<br>	<span class="hljs-keyword">return</span> sum;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<p>而判定是否是叶子节点，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//判定是叶子节点</span><br><span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isLeaf</span><span class="hljs-params">(TreeNode node)</span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>!=node &amp;&amp; <span class="hljs-literal">null</span>==node.left &amp;&amp; <span class="hljs-literal">null</span>==node.right;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-改进的递归"><a href="#2-2-改进的递归" class="headerlink" title="2.2 改进的递归"></a>2.2 改进的递归</h2><p>上述递归流程，过程是清晰明了的，但判定逻辑有点复杂，对于题目已知的条件，我们只需要抓重点，<strong>左叶子节点的和</strong>，其他都放在递归算法里了。<br>详细代码，见第3节代码。</p>
+<h2 id="2-3-BFS"><a href="#2-3-BFS" class="headerlink" title="2.3 BFS"></a>2.3 BFS</h2><p>前面讨论的算法，遍历路径类似前序遍历，先根节点，再左右子节点，本质思想还是深度优先（DFS）。在二叉树遍历系列文章中，我们可以利用层序遍历，同样可以解决本章问题，其思想还是广度优先算法（BFS）。</p>
+<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><h2 id="3-1-递归算法"><a href="#3-1-递归算法" class="headerlink" title="3.1 递归算法"></a>3.1 递归算法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sumOfLeftLeaves2</span><span class="hljs-params">(TreeNode root)</span> &#123;<br>   <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>==root)&#123;<br>       <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>   &#125;<br>   <span class="hljs-type">int</span> sum=<span class="hljs-number">0</span>;<br>   <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>!=root.left)&#123;<br>       <span class="hljs-comment">//左子树为叶子节点，直接加上，否则继续递归左子树</span><br>       <span class="hljs-keyword">if</span>(isLeaf(root.left))&#123;<br>           sum+=root.left.val;<br>       &#125;<span class="hljs-keyword">else</span> &#123;<br>           sum+=sumOfLeftLeaves(root.left);<br>       &#125;<br>   &#125;<br>   <span class="hljs-comment">//右子树只要不为空，且至少存在一个节点（不管是左还是右）</span><br>   <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>!=root.right)&#123;<br>       <span class="hljs-keyword">if</span>(!isLeaf(root.right))&#123;<br>           sum+=sumOfLeftLeaves(root.right);<br>       &#125;<br>   &#125;<br>   <span class="hljs-keyword">return</span> sum;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-改进的递归"><a href="#3-2-改进的递归" class="headerlink" title="3.2 改进的递归"></a>3.2 改进的递归</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">int</span> sum=<span class="hljs-number">0</span>;<br><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sumOfLeftLeaves</span><span class="hljs-params">(TreeNode root)</span> &#123;<br>    dfs(root);<br>    <span class="hljs-keyword">return</span> sum;<br>&#125;<br><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">dfs</span><span class="hljs-params">(TreeNode root)</span>&#123;<br>    <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>==root)&#123;<br>        <span class="hljs-keyword">return</span>;<br>    &#125;<br>    <span class="hljs-comment">//是左叶子节点</span><br>    <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>!=root.left &amp;&amp; isLeaf(root.left))&#123;<br>        sum+=root.left.val;<br>    &#125;<br>    <span class="hljs-comment">//继续遍历左右子树</span><br>    dfs(root.left);<br>    dfs(root.right);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-3-广度优先算法"><a href="#3-3-广度优先算法" class="headerlink" title="3.3 广度优先算法"></a>3.3 广度优先算法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">sumOfLeftLeaves</span><span class="hljs-params">(TreeNode root)</span> &#123;<br>   <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>==root)&#123;<br>       <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>   &#125;<br>   <span class="hljs-type">int</span> sum=<span class="hljs-number">0</span>;<br>   <span class="hljs-comment">//队列</span><br>   Queue&lt;TreeNode&gt; q=<span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedList</span>&lt;&gt;();<br>   q.offer(root);<br>   TreeNode node;<br>   <span class="hljs-comment">//遍历队列</span><br>   <span class="hljs-keyword">while</span>(!q.isEmpty())&#123;<br>       node=q.poll();<br>       <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>==node)&#123;<br>           <span class="hljs-keyword">continue</span>;<br>       &#125;<br>       <span class="hljs-comment">//左叶子节点</span><br>       <span class="hljs-keyword">if</span>(<span class="hljs-literal">null</span>!=node.left &amp;&amp; isLeaf(node.left))&#123;<br>           sum+=node.left.val;<br>       &#125;<br>       q.offer(node.left);<br>       q.offer(node.right);<br>   &#125;<br>   <span class="hljs-keyword">return</span> sum;<br>&#125;<br></code></pre></td></tr></table></figure>
                 
               </div>
             
@@ -337,7 +354,7 @@
   
     <span>></span>
     
-  <a href="/categories/%E7%AE%97%E6%B3%95/%E6%8C%87%E9%92%88/" class="category-chain-item">指针</a>
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="category-chain-item">二叉树</a>
   
   
 
@@ -364,11 +381,19 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
+        <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">#二叉树</a>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+      
         <a href="/tags/LeetCode/">#LeetCode</a>
       
         <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
       
-        <a href="/tags/%E6%8C%87%E9%92%88/">#指针</a>
+        <a href="/tags/Java/">#Java</a>
+      
+        <a href="/tags/BFS/">#BFS</a>
+      
+        <a href="/tags/DFS/">#DFS</a>
       
     </div>
   
@@ -380,8 +405,8 @@
 
   <div class="license-box my-3">
     <div class="license-title">
-      <div>【LeetCode】1768.交替合并字符串</div>
-      <div>http://example.com/2023/04/30/交替合并字符串/</div>
+      <div>【LeetCode】404. 左叶子之和</div>
+      <div>http://example.com/2023/05/01/左叶子之和/</div>
     </div>
     <div class="license-meta">
       
@@ -393,7 +418,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>发布于</div>
-          <div>2023年4月30日</div>
+          <div>2023年5月1日</div>
         </div>
       
       
@@ -425,9 +450,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/" title="【LeetCode】199.二叉树的右视图">
+                      <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%BA%E5%88%B6-xml%E5%BD%A2%E5%BC%8F/" title="【Spring源码学习】Spring初始化机制(xml形式)">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【LeetCode】199.二叉树的右视图</span>
+                        <span class="hidden-mobile">【Spring源码学习】Spring初始化机制(xml形式)</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -435,8 +460,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2023/04/30/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E7%AE%80%E4%BB%8B/" title="【Spring源码学习】简介">
-                        <span class="hidden-mobile">【Spring源码学习】简介</span>
+                      <a href="/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/" title="【LeetCode】199.二叉树的右视图">
+                        <span class="hidden-mobile">【LeetCode】199.二叉树的右视图</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

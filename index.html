@@ -236,6 +236,527 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E7%9A%84%E9%94%80%E6%AF%81/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean的销毁">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E7%9A%84%E9%94%80%E6%AF%81/" target="_self">
+          【Spring源码学习】Spring Bean的销毁
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E7%9A%84%E9%94%80%E6%AF%81/" target="_self">
+        <div>
+          上一章节中，我们跟完了bean的创建流程，而在创建完成以后，bean还会注册销毁相关的类，以便于像tomcat等容器关闭时相关的调用，本章我就聊这个。 一、注册bean销毁的类先定位到类AbstractAutowireCapableBeanFactory的doCreateBean()方法 123456789// Register bean as disposable.try &#123;	//注册
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 14:08" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9D%E5%A7%8B%E5%8C%96/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean实例化过程-初始化">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9D%E5%A7%8B%E5%8C%96/" target="_self">
+          【Spring源码学习】Spring Bean实例化过程-初始化
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9D%E5%A7%8B%E5%8C%96/" target="_self">
+        <div>
+          上一章讲完了populateBean的过程，这一章，我们来跟一下bean初始化的流程，主要分为这么几个步骤：  调用Aware方法 InitializingBean接口，afterPropertiesSet，init-method属性调用  一、调用Aware方法1.InitializeBean()12345678910111213141516171819202122232425262728293
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 14:03" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E4%BE%9D%E8%B5%96%E5%B1%9E%E6%80%A7%E6%B3%A8%E5%85%A5/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean实例化过程-依赖属性注入">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E4%BE%9D%E8%B5%96%E5%B1%9E%E6%80%A7%E6%B3%A8%E5%85%A5/" target="_self">
+          【Spring源码学习】Spring Bean实例化过程-依赖属性注入
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E4%BE%9D%E8%B5%96%E5%B1%9E%E6%80%A7%E6%B3%A8%E5%85%A5/" target="_self">
+        <div>
+          前言前面一章【Spring源码学习】Spring Bean实例化过程-创建Bean实例，我们着重跟踪了bean实例的创建过程，本章，我们主要跟一下bean实例化后的依赖属性注入的过程。先把代码定位到类AbstractAutowireCapableBeanFactory中的doCreateBean()方法 12345678910111213141516171819202122232425262728
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 13:59" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9B%E5%BB%BABean%E5%AE%9E%E4%BE%8B/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring Bean实例化过程-创建Bean实例">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9B%E5%BB%BABean%E5%AE%9E%E4%BE%8B/" target="_self">
+          【Spring源码学习】Spring Bean实例化过程-创建Bean实例
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring-Bean%E5%AE%9E%E4%BE%8B%E5%8C%96%E8%BF%87%E7%A8%8B-%E5%88%9B%E5%BB%BABean%E5%AE%9E%E4%BE%8B/" target="_self">
+        <div>
+          前言Spring 初始化核心流程spring容器初始化的核心方法AbstractApplicationContext#refresh，  refresh Spring 初始化核心流程入口 prepareRefresh ① 准备此上下文用于刷新，设置启动时间和active标志，初始化属性 obtainFreshBeanFactory ② 创建 BeanFactory 已经跟踪过的源码流程 prepa
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 13:57" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%BA%E5%88%B6-xml%E5%BD%A2%E5%BC%8F/" target="_self">
+          <img src="/img/Spring.jpeg" srcset="/img/loading.gif" lazyload alt="【Spring源码学习】Spring初始化机制(xml形式)">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%BA%E5%88%B6-xml%E5%BD%A2%E5%BC%8F/" target="_self">
+          【Spring源码学习】Spring初始化机制(xml形式)
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E3%80%90Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Spring%E5%88%9D%E5%A7%8B%E5%8C%96%E6%9C%BA%E5%88%B6-xml%E5%BD%A2%E5%BC%8F/" target="_self">
+        <div>
+          前言Spring 容器加载方式 类路径获取配置文件 1ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&quot;spring.xml&quot;);  文件系统路径获取配置文件[绝对路径] 12ApplicationContext applicationContext = newFileSyste
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 13:55" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">Spring源码学习</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
+            
+              <a href="/tags/Spring/">#Spring</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E5%B7%A6%E5%8F%B6%E5%AD%90%E4%B9%8B%E5%92%8C/" target="_self">
+          <img src="/img/LeetCode.jpg" srcset="/img/loading.gif" lazyload alt="【LeetCode】404. 左叶子之和">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E5%B7%A6%E5%8F%B6%E5%AD%90%E4%B9%8B%E5%92%8C/" target="_self">
+          【LeetCode】404. 左叶子之和
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E5%B7%A6%E5%8F%B6%E5%AD%90%E4%B9%8B%E5%92%8C/" target="_self">
+        <div>
+          1.问题给定二叉树的根节点 root ，返回所有左叶子之和。 示例 1  输入: root &#x3D; [3,9,20,null,null,15,7]输出: 24  解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24 示例 2 输入: root &#x3D; [1]输出: 0  提示:  节点数在 [1, 1000] 范围内 -1000 &lt;&#x3D; Node.v
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 13:45" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="category-chain-item">二叉树</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">#二叉树</a>
+            
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+            
+              <a href="/tags/LeetCode/">#LeetCode</a>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+            
+              <a href="/tags/Java/">#Java</a>
+            
+              <a href="/tags/BFS/">#BFS</a>
+            
+              <a href="/tags/DFS/">#DFS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/" target="_self">
+          <img src="/img/LeetCode.jpg" srcset="/img/loading.gif" lazyload alt="【LeetCode】199.二叉树的右视图">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/" target="_self">
+          【LeetCode】199.二叉树的右视图
+        </a>
+      </h1>
+
+      
+      <a class="index-excerpt " href="/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/" target="_self">
+        <div>
+          1.问题给定一个二叉树的 根节点 root，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。 ##示例 1   输入: [1,2,3,null,5,null,4]输出: [1,3,4]  ##示例 2  输入: [1,null,3]输出: [1,3]  ##示例 3  输入: []输出: []  提示:  二叉树的节点个数的范围是 [0,100] -100 &lt;&#x
+        </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-05-01 13:45" pubdate>
+              2023-05-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3 d-flex align-items-center">
+            <i class="iconfont icon-category"></i>
+            
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
+  
+  
+    <span>></span>
+    
+  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="category-chain-item">二叉树</a>
+  
+  
+
+  
+
+      </span>
+    
+  
+    
+  
+</span>
+
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">#二叉树</a>
+            
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
+            
+              <a href="/tags/LeetCode/">#LeetCode</a>
+            
+              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
+            
+              <a href="/tags/Java/">#Java</a>
+            
+              <a href="/tags/BFS/">#BFS</a>
+            
+              <a href="/tags/DFS/">#DFS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2023/04/30/%E4%BA%A4%E6%9B%BF%E5%90%88%E5%B9%B6%E5%AD%97%E7%AC%A6%E4%B8%B2/" target="_self">
           <img src="/img/LeetCode.jpg" srcset="/img/loading.gif" lazyload alt="【LeetCode】1768.交替合并字符串">
         </a>
@@ -454,521 +975,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Mybatis%E4%B8%8ESpring%E6%95%B4%E5%90%88/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】MyBatis与Spring整合">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Mybatis%E4%B8%8ESpring%E6%95%B4%E5%90%88/" target="_self">
-          【MyBatis源码学习】MyBatis与Spring整合
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Mybatis%E4%B8%8ESpring%E6%95%B4%E5%90%88/" target="_self">
-        <div>
-          前言目前大部分项目中运用MyBatis均与Spring有关，尤其是Spring Boot大行其道，普通程序员基本上可以无缝的完成一个简单的CRUD项目。通过前面对于MyBatis 源码的学习，我已经对其了（一）如（脸）指（懵）掌（逼），本章我们来玩玩MyBatis与Spring的结合以及它们的融合原理。 一、什么是Mybatis-Spring一句话：将 MyBatis 代码无缝地整合到 Sprin
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:30" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/Spring/">#Spring</a>
-            
-              <a href="/tags/Spring-Boot/">#Spring Boot</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E6%89%A7%E8%A1%8C/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】Sql执行">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E6%89%A7%E8%A1%8C/" target="_self">
-          【MyBatis源码学习】Sql执行
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E6%89%A7%E8%A1%8C/" target="_self">
-        <div>
-          前言上一篇【MyBatis源码学习】Sql解析中，我主要梳理了sql的源码解析过程，本章我通过同样的一个例子，来仔细瞧瞧sql是怎样执行下来的。主要分为三个步骤：  动态代理生成mapper sql执行 结果集处理  还是通过同样的例子来开始本章的源码sql执行过程跟踪。 123456789101112@Test// 程序员喜欢的风格public void quickStart() throws
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:19" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/SQL/">#SQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E8%A7%A3%E6%9E%90/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】Sql解析">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E8%A7%A3%E6%9E%90/" target="_self">
-          【MyBatis源码学习】Sql解析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91Sql%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          一、前言之前我在【Mybatis源码学习】初始化阶段中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。本章节中，我们重点跟一下XMLMapperBuilder、XMLStatementBuilder解析sql的源码过程。XMLMapperBuilder、XMLStatem
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:17" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/SQL/">#SQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】参数解析">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90/" target="_self">
-          【MyBatis源码学习】参数解析
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90/" target="_self">
-        <div>
-          一、几种入参形式这里只分析带有入参的方法。 1.单个入参1UserInfo selectByPrimaryKey(String id); 2.多个入参1List&lt;UserInfo&gt; getByOpenIdAndUsername2(@Param(&quot;openid&quot;) String openId, @Param(&quot;username&quot;) String u
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:15" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-              <a href="/tags/SQL/">#SQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E4%BB%A3%E7%90%86%E9%98%B6%E6%AE%B5/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】代理阶段">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E4%BB%A3%E7%90%86%E9%98%B6%E6%AE%B5/" target="_self">
-          【MyBatis源码学习】代理阶段
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E4%BB%A3%E7%90%86%E9%98%B6%E6%AE%B5/" target="_self">
-        <div>
-          一、Mybatis 的接口层1.SqlSessionsqlSession总结总之一句话： 123456/** * The primary Java interface for working with MyBatis. * Through this interface you can execute commands, get mappers and manage transactions. *
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:13" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5/" target="_self">
-          <img src="/img/MyBatis.jpeg" srcset="/img/loading.gif" lazyload alt="【MyBatis源码学习】初始化阶段">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5/" target="_self">
-          【MyBatis源码学习】初始化阶段
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E3%80%90Mybatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E3%80%91%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5/" target="_self">
-        <div>
-          一、核心配置类XMLConfigBuilder： 主要负责解析mybatis-config.xml；XMLMapperBuilder： 主要负责解析映射配置Mapper.xml 文件；XMLStatementBuilder： 主要负责解析映射配置文件中的SQL 节点三者之间的关系，如下图 1.XMLConfigBuilder主要负责解析mybatis关键配置文件mybatis-config.xml
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 10:08" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="category-chain-item">MyBatis源码学习</a>
-  
-  
-
-      </span>
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/MyBatis/">#MyBatis</a>
-            
-              <a href="/tags/%E6%BA%90%E7%A0%81/">#源码</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%9E%82%E5%BA%8F%E9%81%8D%E5%8E%86/" target="_self">
-          <img src="/img/LeetCode.jpg" srcset="/img/loading.gif" lazyload alt="【LeetCode】987.二叉树的垂序遍历">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%9E%82%E5%BA%8F%E9%81%8D%E5%8E%86/" target="_self">
-          【LeetCode】987.二叉树的垂序遍历
-        </a>
-      </h1>
-
-      
-      <a class="index-excerpt " href="/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%9E%82%E5%BA%8F%E9%81%8D%E5%8E%86/" target="_self">
-        <div>
-          1.问题给你二叉树的根结点 root ，请你设计算法计算二叉树的 垂序遍历 序列。 对位于 (row, col) 的每个结点而言，其左右子结点分别位于 (row + 1, col - 1) 和 (row + 1, col + 1) 。树的根结点位于 (0, 0) 。 二叉树的 垂序遍历 从最左边的列开始直到最右边的列结束，按列索引每一列上的所有结点，形成一个按出现位置从上到下排序的有序列表。如果同
-        </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-04-30 09:41" pubdate>
-              2023-04-30
-            </time>
-          </div>
-        
-        
-          <div class="post-meta mr-3 d-flex align-items-center">
-            <i class="iconfont icon-category"></i>
-            
-
-<span class="category-chains">
-  
-  
-    
-      <span class="category-chain">
-        
-  <a href="/categories/%E7%AE%97%E6%B3%95/" class="category-chain-item">算法</a>
-  
-  
-    <span>></span>
-    
-  <a href="/categories/%E7%AE%97%E6%B3%95/%E4%BA%8C%E5%8F%89%E6%A0%91/" class="category-chain-item">二叉树</a>
-  
-  
-
-  
-
-      </span>
-    
-  
-    
-  
-</span>
-
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">#二叉树</a>
-            
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#数据结构</a>
-            
-              <a href="/tags/LeetCode/">#LeetCode</a>
-            
-              <a href="/tags/%E7%AE%97%E6%B3%95/">#算法</a>
-            
-              <a href="/tags/Java/">#Java</a>
-            
-              <a href="/tags/DFS/">#DFS</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><a class="extend next" rel="next" href="/page/2/#board"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
 
