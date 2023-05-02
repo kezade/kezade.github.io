@@ -4,6 +4,35 @@
   
   
   <entry>
+    <title>【Hexo】Hexo基于Fluid主题固定背景图片</title>
+    <link href="/2023/05/02/Hexo%E5%9F%BA%E4%BA%8EFluid%E4%B8%BB%E9%A2%98%E5%9B%BA%E5%AE%9A%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87/"/>
+    <url>/2023/05/02/Hexo%E5%9F%BA%E4%BA%8EFluid%E4%B8%BB%E9%A2%98%E5%9B%BA%E5%AE%9A%E8%83%8C%E6%99%AF%E5%9B%BE%E7%89%87/</url>
+    
+    <content type="html"><![CDATA[<p>本文基于Fluid主题，设置固定背景。</p><p>博客的根目录为 ~&#x2F;blog，主题解压位置为 ~&#x2F;blog&#x2F;themes&#x2F;fluid</p><p>接下来创建三个文件</p><h1 id="一、创建-injector-js-文件"><a href="#一、创建-injector-js-文件" class="headerlink" title="一、创建 injector.js 文件"></a>一、创建 injector.js 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;scripts 创建 injector.js 文件<br>1</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-comment">// 全屏背景的需要导入这些js</span><br><span class="hljs-keyword">const</span> &#123; <span class="hljs-attr">root</span>: siteRoot = <span class="hljs-string">&quot;/themes/fluid/source/&quot;</span> &#125; = hexo.<span class="hljs-property">config</span>;<br>hexo.<span class="hljs-property">extend</span>.<span class="hljs-property">injector</span>.<span class="hljs-title function_">register</span>(<span class="hljs-string">&quot;body_begin&quot;</span>, <span class="hljs-string">`&lt;div id=&quot;web_bg&quot;&gt;&lt;/div&gt;`</span>);<br>hexo.<span class="hljs-property">extend</span>.<span class="hljs-property">injector</span>.<span class="hljs-title function_">register</span>(<br>  <span class="hljs-string">&quot;body_end&quot;</span>,<br>  <span class="hljs-string">`&lt;script src=&quot;<span class="hljs-subst">$&#123;siteRoot&#125;</span>js/backgroundize.js&quot;&gt;&lt;/script&gt;</span><br><span class="hljs-string">  &lt;link defer rel=&quot;stylesheet&quot; href=&quot;<span class="hljs-subst">$&#123;siteRoot&#125;</span>css/backgroundize.css&quot; /&gt;</span><br><span class="hljs-string">  `</span><br>);<br></code></pre></td></tr></table></figure><h1 id="二、创建-backgroundize-js-文件"><a href="#二、创建-backgroundize-js-文件" class="headerlink" title="二、创建 backgroundize.js 文件"></a>二、创建 backgroundize.js 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;source&#x2F;js 创建 backgroundize.js 文件</p><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> bannerContainer = $(<span class="hljs-string">&quot;#banner&quot;</span>);<br><span class="hljs-keyword">const</span> viewBg = $(<span class="hljs-string">&quot;#web_bg&quot;</span>);<br><span class="hljs-keyword">const</span> bannerMask = $(<span class="hljs-string">&quot;#banner .mask&quot;</span>);<br><span class="hljs-keyword">const</span> bg = $(bannerContainer).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-image&quot;</span>);<br>$(viewBg).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-image&quot;</span>, bg);<br>$(bannerContainer).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-image&quot;</span>, <span class="hljs-string">&quot;url()&quot;</span>);<br><span class="hljs-keyword">const</span> color = $(bannerMask).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-color&quot;</span>);<br>$(bannerMask).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-color&quot;</span>, <span class="hljs-string">`rgba(0,0,0,0)`</span>);<br>$(viewBg).<span class="hljs-title function_">css</span>(<span class="hljs-string">&quot;background-color&quot;</span>, color);<br></code></pre></td></tr></table></figure><h1 id="三、创建-backgroundize-css-文件"><a href="#三、创建-backgroundize-css-文件" class="headerlink" title="三、创建 backgroundize.css 文件"></a>三、创建 backgroundize.css 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;source&#x2F;css 创建 backgroundize.css 文件</p><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-id">#web_bg</span> &#123;<br>    <span class="hljs-attribute">position</span>: fixed;<br>    <span class="hljs-attribute">z-index</span>: -<span class="hljs-number">999</span>;<br>    <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;<br>    <span class="hljs-attribute">height</span>: <span class="hljs-number">100%</span>;<br>    <span class="hljs-attribute">background-attachment</span>: local;<br>    <span class="hljs-attribute">background-position</span>: center;<br>    -webkit-<span class="hljs-attribute">background-size</span>: cover;<br>    -moz-<span class="hljs-attribute">background-size</span>: cover;<br>    <span class="hljs-attribute">background-size</span>: cover;<br>    <span class="hljs-attribute">background-repeat</span>: repeat;<br>  &#125;<br></code></pre></td></tr></table></figure><h1 id="四、清理缓存、部署"><a href="#四、清理缓存、部署" class="headerlink" title="四、清理缓存、部署"></a>四、清理缓存、部署</h1><p>之后执行 hexo clean 和 hexo server查看效果吧。满足预期，即可推送至服务器部署。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Hexo主题</category>
+      
+      <category>Fluid</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Hexo</tag>
+      
+      <tag>Fluid</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>【多线程】ThreadPoolExcutor线程池</title>
     <link href="/2023/05/01/%E3%80%90%E5%A4%9A%E7%BA%BF%E7%A8%8B%E3%80%91ThreadPoolExcutor%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     <url>/2023/05/01/%E3%80%90%E5%A4%9A%E7%BA%BF%E7%A8%8B%E3%80%91ThreadPoolExcutor%E7%BA%BF%E7%A8%8B%E6%B1%A0/</url>
