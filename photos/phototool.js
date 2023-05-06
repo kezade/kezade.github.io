@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const imageSize = require('image-size');
 
-const rootPath="source/photos/"   //相册相对路径
+const rootPath="/Users/zyxelva/Documents/MyGit/picgo/images/"   //相册相对路径
 
 class PhotoExtension {
     constructor() {
