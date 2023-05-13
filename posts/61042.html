@@ -483,19 +483,19 @@
 </ul>
 <h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><p>二叉树有很多种遍历思路，如要解决本题，可以参考以下二叉树的遍历算法，序列化不用多说，反序列化就是逆向思考之前是怎么序列化的。本章主要讲解怎么利用层序遍历的思想解决反序列化问题。</p>
 <h2 id="二叉树遍历系列"><a href="#二叉树遍历系列" class="headerlink" title="二叉树遍历系列"></a>二叉树遍历系列</h2><ul>
-<li><a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%89%8D%E5%BA%8F%E9%81%8D%E5%8E%86/">144.二叉树的前序遍历</a></li>
-<li><a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86/">94.二叉树的中序遍历</a></li>
-<li><a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86/">145.二叉树的后续遍历</a></li>
-<li><a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/">102.二叉树的层序遍历</a></li>
-<li><a href="https://zyxelva.github.io/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86II/">107.二叉树的层序遍历II</a></li>
-<li><a href="https://zyxelva.github.io/2023/04/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%94%AF%E9%BD%BF%E5%BD%A2%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88%E4%B9%8B%E5%AD%97%E5%BD%A2%E9%81%8D%E5%8E%86%EF%BC%89/">103.二叉树的锯齿形层序遍历（之字形遍历）</a></li>
-<li><a href="https://zyxelva.github.io/2023/05/01/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE/">199.二叉树的右视图</a></li>
+<li><a href="https://zyxelva.github.io/posts/60831.html">144.二叉树的前序遍历</a></li>
+<li><a href="https://zyxelva.github.io/posts/41115.html">94.二叉树的中序遍历</a></li>
+<li><a href="https://zyxelva.github.io/posts/61239.html">145.二叉树的后续遍历</a></li>
+<li><a href="https://zyxelva.github.io/posts/46738.html">102.二叉树的层序遍历</a></li>
+<li><a href="https://zyxelva.github.io/posts/45075.html">107.二叉树的层序遍历II</a></li>
+<li><a href="https://zyxelva.github.io/posts/637.html">103.二叉树的锯齿形层序遍历（之字形遍历）</a></li>
+<li><a href="https://zyxelva.github.io/posts/26388.html">199.二叉树的右视图</a></li>
 </ul>
 <hr>
-<h2 id="2-1-BFS"><a href="#2-1-BFS" class="headerlink" title="2.1 BFS"></a>2.1 BFS</h2><p>在<a href="https://zyxelva.github.io/2023/04/29/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86/">102.二叉树的层序遍历</a>一文中，我们利用队列的性质对二叉树进行了层序遍历，本章，在序列化时我们也可以用队列，只是不需要分层标识，比如我们可以把它看成是这样：<br><img src="https://img-blog.csdnimg.cn/2d1b08b2f4e749fbbd5283931f47847a.png"><br>我们定义一个空节点，用以标识某个节点无左或右子节点。用下划线分割各个节点的值。</p>
+<h2 id="2-1-BFS"><a href="#2-1-BFS" class="headerlink" title="2.1 BFS"></a>2.1 BFS</h2><p>在<a href="https://zyxelva.github.io/posts/46738.html">102.二叉树的层序遍历</a> 一文中，我们利用队列的性质对二叉树进行了层序遍历，本章，在序列化时我们也可以用队列，只是不需要分层标识，比如我们可以把它看成是这样：<br><img src="https://img-blog.csdnimg.cn/2d1b08b2f4e749fbbd5283931f47847a.png"><br>我们定义一个空节点，用以标识某个节点无左或右子节点。用下划线分割各个节点的值。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">int</span> <span class="token constant">INF</span> <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2000</span><span class="token punctuation">;</span>
 <span class="token class-name">TreeNode</span> emptyNode <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TreeNode</span><span class="token punctuation">(</span><span class="token constant">INF</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>则序列化后的结果为：1_2_3_-2000_-2000_4_5_-2000_-2000_-2000_-2000;<br>反序列化时，利用队列，弹出头结点，包装成二叉树节点，对于序列化的序列，取出两个节点，只要值不是-2000，就可以将父子节点进行关联，再入队，依次循环。</p>
+<p>则序列化后的结果为：<code>1_2_3_-2000_-2000_4_5_-2000_-2000_-2000_-2000</code>;<br>反序列化时，利用队列，弹出头结点，包装成二叉树节点，对于序列化的序列，取出两个节点，只要值不是-2000，就可以将父子节点进行关联，再入队，依次循环。</p>
 <h2 id="2-2-递归"><a href="#2-2-递归" class="headerlink" title="2.2 递归"></a>2.2 递归</h2><p>这里以前序遍历思想为例，其他中序、后序遍历类似。<br>同样，利用上述2.1节中的自定义空节点标识二叉树的空子节点。序列化伪代码大致如下：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">String</span> <span class="token function">serialize</span><span class="token punctuation">(</span><span class="token class-name">TreeNode</span> root<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
 	<span class="token keyword">if</span> <span class="token punctuation">(</span>root <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -831,17 +831,16 @@ public class TreeNode &#123;
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/posts/61042.html">
+                <a href="/posts/3513331422.html">
                     <div class="card-image">
                         
-                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】297. 二叉树的序列化与反序列化">
+                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】637. 二叉树的层平均值">
                         
-                        <span class="card-title">【LeetCode】297. 二叉树的序列化与反序列化</span>
+                        <span class="card-title">【LeetCode】637. 二叉树的层平均值</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -851,9 +850,9 @@ public class TreeNode &#123;
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-07
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-12
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -870,7 +869,6 @@ public class TreeNode &#123;
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
@@ -1206,7 +1204,7 @@ public class TreeNode &#123;
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">56.5k</span>
+                        class="white-color">61.7k</span>
             
             
             

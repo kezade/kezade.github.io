@@ -6,9 +6,9 @@
     <meta charset="utf-8">
     <meta name="keywords" content="【Hexo】Hexo基于Fluid主题固定背景图片, Back-End Dev Java">
     <meta name="description" content="本文基于Fluid主题，设置固定背景。
-博客的根目录为 ~&amp;#x2F;blog，主题解压位置为 ~&amp;#x2F;blog&amp;#x2F;themes&amp;#x2F;fluid
+博客的根目录为 ~/blog，主题解压位置为 ~/blog/themes/fluid
 接下来创建三个文件
-一、创建 injector.js 文件进入 ~&amp;#x2">
+一、创建 injector.js 文件进入 ~/blog/themes/fluid/scrip">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -386,7 +386,7 @@
                                 Hexo主题
                             </a>
                         
-                            <a href="/categories/Fluid/" class="post-category">
+                            <a href="/categories/Hexo%E4%B8%BB%E9%A2%98/Fluid/" class="post-category">
                                 Fluid
                             </a>
                         
@@ -408,7 +408,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    292
+                    273
                 </div>
                 
 
@@ -439,9 +439,9 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>本文基于Fluid主题，设置固定背景。</p>
-<p>博客的根目录为 ~&#x2F;blog，主题解压位置为 ~&#x2F;blog&#x2F;themes&#x2F;fluid</p>
+<p>博客的根目录为 <code>~/blog</code>，主题解压位置为 <code>~/blog/themes/fluid</code></p>
 <p>接下来创建三个文件</p>
-<h1 id="一、创建-injector-js-文件"><a href="#一、创建-injector-js-文件" class="headerlink" title="一、创建 injector.js 文件"></a>一、创建 injector.js 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;scripts 创建 injector.js 文件<br>1</p>
+<h1 id="一、创建-injector-js-文件"><a href="#一、创建-injector-js-文件" class="headerlink" title="一、创建 injector.js 文件"></a>一、创建 <code>injector.js</code> 文件</h1><p>进入 <code>~/blog/themes/fluid/scripts</code> 创建 <code>injector.js</code> 文件</p>
 <pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// 全屏背景的需要导入这些js</span>
 <span class="token keyword">const</span> <span class="token punctuation">&#123;</span> <span class="token literal-property property">root</span><span class="token operator">:</span> siteRoot <span class="token operator">=</span> <span class="token string">"/themes/fluid/source/"</span> <span class="token punctuation">&#125;</span> <span class="token operator">=</span> hexo<span class="token punctuation">.</span>config<span class="token punctuation">;</span>
 hexo<span class="token punctuation">.</span>extend<span class="token punctuation">.</span>injector<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span><span class="token string">"body_begin"</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">&lt;div id="web_bg">&lt;/div></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -452,7 +452,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
   </span><span class="token template-punctuation string">`</span></span>
 <span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h1 id="二、创建-backgroundize-js-文件"><a href="#二、创建-backgroundize-js-文件" class="headerlink" title="二、创建 backgroundize.js 文件"></a>二、创建 backgroundize.js 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;source&#x2F;js 创建 backgroundize.js 文件</p>
+<h1 id="二、创建-backgroundize-js-文件"><a href="#二、创建-backgroundize-js-文件" class="headerlink" title="二、创建 backgroundize.js 文件"></a>二、创建 <code>backgroundize.js</code> 文件</h1><p>进入 <code>~/blog/themes/fluid/source/js</code> 创建 <code>backgroundize.js</code> 文件</p>
 <pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> bannerContainer <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">"#banner"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> viewBg <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">"#web_bg"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> bannerMask <span class="token operator">=</span> <span class="token function">$</span><span class="token punctuation">(</span><span class="token string">"#banner .mask"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -463,7 +463,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
 <span class="token function">$</span><span class="token punctuation">(</span>bannerMask<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">css</span><span class="token punctuation">(</span><span class="token string">"background-color"</span><span class="token punctuation">,</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">rgba(0,0,0,0)</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token function">$</span><span class="token punctuation">(</span>viewBg<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">css</span><span class="token punctuation">(</span><span class="token string">"background-color"</span><span class="token punctuation">,</span> color<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h1 id="三、创建-backgroundize-css-文件"><a href="#三、创建-backgroundize-css-文件" class="headerlink" title="三、创建 backgroundize.css 文件"></a>三、创建 backgroundize.css 文件</h1><p>进入 ~&#x2F;blog&#x2F;themes&#x2F;fluid&#x2F;source&#x2F;css 创建 backgroundize.css 文件</p>
+<h1 id="三、创建-backgroundize-css-文件"><a href="#三、创建-backgroundize-css-文件" class="headerlink" title="三、创建 backgroundize.css 文件"></a>三、创建 <code>backgroundize.css</code> 文件</h1><p>进入 <code>~/blog/themes/fluid/source/css</code> 创建 <code>backgroundize.css</code> 文件</p>
 <pre class="line-numbers language-css" data-language="css"><code class="language-css"><span class="token selector">#web_bg</span> <span class="token punctuation">&#123;</span>
     <span class="token property">position</span><span class="token punctuation">:</span> fixed<span class="token punctuation">;</span>
     <span class="token property">z-index</span><span class="token punctuation">:</span> -999<span class="token punctuation">;</span>
@@ -477,7 +477,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
     <span class="token property">background-repeat</span><span class="token punctuation">:</span> repeat<span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 
-<h1 id="四、清理缓存、部署"><a href="#四、清理缓存、部署" class="headerlink" title="四、清理缓存、部署"></a>四、清理缓存、部署</h1><p>之后执行 hexo clean 和 hexo server查看效果吧。满足预期，即可推送至服务器部署。</p>
+<h1 id="四、清理缓存、部署"><a href="#四、清理缓存、部署" class="headerlink" title="四、清理缓存、部署"></a>四、清理缓存、部署</h1><p>之后执行 <code>hexo clean</code> 和 <code>hexo server</code> 查看效果吧。满足预期，即可推送至服务器部署。</p>
 
                 
             </div>
@@ -989,7 +989,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">56.5k</span>
+                        class="white-color">61.7k</span>
             
             
             
