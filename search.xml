@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>【Zookeeper学习】1.架构演进</title>
+      <link href="/posts/1467106999.html"/>
+      <url>/posts/1467106999.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="1-集中式"><a href="#1-集中式" class="headerlink" title="1 集中式"></a>1 集中式</h1><h2 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h2><blockquote><p>由一台或多台主计算机组成中心节点，数据集中存储于该中心节点中，且其他相关业务单元全都集中部署在这个中心节点上，汇集系统所有功能并由其集中处理。</p></blockquote><h2 id="1-2-优点"><a href="#1-2-优点" class="headerlink" title="1.2 优点"></a>1.2 优点</h2><ul><li>性能优越<blockquote><p>此类系统基本部署在基于底层性能卓越的大型主机之上</p></blockquote></li><li>稳定性好<blockquote><p>钱花的多就要办好事</p></blockquote></li></ul><h2 id="1-3-缺点"><a href="#1-3-缺点" class="headerlink" title="1.3 缺点"></a>1.3 缺点</h2><ul><li>昂贵</li><li>单点问题</li><li>维护复杂</li></ul><h1 id="2-分布式"><a href="#2-分布式" class="headerlink" title="2 分布式"></a>2 分布式</h1><h2 id="2-1-定义"><a href="#2-1-定义" class="headerlink" title="2.1 定义"></a>2.1 定义</h2><p>引用《分布式系统概念与设计》一文对于分布式系统的定义：</p><blockquote><p>分布式系统是一个硬件或软件组件分布在不同的网络计算机上，彼此之间仅仅通过消息传递进行通信和协调的系统。</p></blockquote><h2 id="2-2-特点"><a href="#2-2-特点" class="headerlink" title="2.2 特点"></a>2.2 特点</h2><ul><li>分布性</li><li>对等性</li><li>并发性</li><li>缺乏全局时钟</li><li>故障总会发生</li></ul><h2 id="2-3-分布式带来的问题"><a href="#2-3-分布式带来的问题" class="headerlink" title="2.3 分布式带来的问题"></a>2.3 分布式带来的问题</h2><ul><li>通信异常<blockquote><p>网络系统本身是不可靠的，由于分布式系统需要通过网络进行数据传输，网络光纤，路由器等硬件难免出现问题。只要网络出现问题，也就会影响消息的发送与接受过程，因此数据消息的丢失或者延长就会变得非常普遍。</p></blockquote></li><li>网络分区<blockquote><p>由于网络延迟导致的分布式节点中只有部分能够进行正常通信，另一部分则不能，我们将这种现象叫做网络分区，俗称“脑裂”，当网络分区出现时会存在局部小集群，小集群完成了原来需要全部节点参与的分布式事务请求，这对分布式一致性挑战很大。</p></blockquote></li><li>三态<blockquote><p>成功、失败、超时。当出现超时现象时，就无法确定请求是否被处理成功</p></blockquote></li><li>节点故障<blockquote><p>节点故障在分布式系统下是比较常见的问题，指的是组成服务器集群的节点会出现的宕机或“僵死”的现象，这种现象经常会发生。</p></blockquote></li></ul><h2 id="2-4-方法论"><a href="#2-4-方法论" class="headerlink" title="2.4 方法论"></a>2.4 方法论</h2><h3 id="2-4-1-事务"><a href="#2-4-1-事务" class="headerlink" title="2.4.1 事务"></a>2.4.1 事务</h3><blockquote><p>事务是对数据进行访问与更新的最小执行逻辑单元。是保证数据一致性的方法。</p></blockquote><p>狭义上，事务特指<strong>数据库事务</strong>。</p><h3 id="2-4-2-事务特性"><a href="#2-4-2-事务特性" class="headerlink" title="2.4.2 事务特性"></a>2.4.2 事务特性</h3><ul><li><p>原子性（Atomicity）</p><blockquote><p>一个事务必须被视为一个不可分割的最小单元，整个事务中的所有操作要么全部提交成功，要么全部失败，对于一个事务来说，不能只执行其中的一部分操作。</p></blockquote></li><li><p>一致性（Consistency）</p><blockquote><p>事务将数据库从<strong>一种一致性状态</strong>转换到<strong>另外一种一致性状态</strong>，在事务开始之前和事务结束之后数据库中数据的完整性没有被破坏。</p></blockquote></li><li><p>隔离性（Isolation）</p><blockquote><p>一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，并发执行的各个事务之间不能互相干扰。</p></blockquote></li><li><p>持久性（Durability）</p><blockquote><p>一旦事务提交，则其所做的修改就会永久保存到数据库中。此时即使系统崩溃，已经提交的修改数据也不会丢失。</p></blockquote></li></ul><h3 id="2-4-3-分布式事务"><a href="#2-4-3-分布式事务" class="headerlink" title="2.4.3 分布式事务"></a>2.4.3 分布式事务</h3><blockquote><p>分布式事务是指<strong>事务的参与者</strong>、<strong>支持事务的服务器</strong>、<strong>资源服务器</strong>以及<strong>事务管理器</strong>分别位于不同的分布式系统的不同节点之上。</p></blockquote><p>对于本地事务或者集中式的事务处理系统，通过成熟的ACID模型就可以保证数据的一致性。但在分布式系统中，若通过一套严格满足ACID特性的分布式事务，很有可能出现系统的严格一致性和可用性冲突：</p><ul><li>当系统需要严格一致性时，必定涉及到数据同步，而同步过程会牺牲掉系统的可用性；</li><li>当系统需要时刻保持可用，则对于不同节点的数据就无法保证严格一致性。</li></ul><h3 id="2-4-5-CAP理论"><a href="#2-4-5-CAP理论" class="headerlink" title="2.4.5 CAP理论"></a>2.4.5 CAP理论</h3><p>一致性(Consistency)，可用性(Availability)，分区容错性(Partition tolerance)这三个词的缩写。</p><ul><li>一致性<blockquote><p>对于一个将数据分布到不同的分布式节点的系统来说，当你更新第一个节点的时候，要保证也能够更新第二个节点，不能是用户读第二个节点时出现脏读，这样的系统才是严格一致性的。</p></blockquote></li></ul><ul><li><p>与ACID中的C（一致性）区别</p><blockquote><p>ACID的C：逻辑上的一致性，即所有操作是符合现实当中的期望的，事务执行后不会出现任何无效的数据状态，强调数据的完整性。</p></blockquote><ul><li>比如：如果带有一个外键的一行记录被删除，那么其外键相关记录也应该被删除，这就是ACID一致性意思。</li></ul><blockquote><p>CAP的C：物理上的一致性，强调数据的正确性。</p></blockquote><ul><li>同样数据在分布式系统中所有地方都是被复制成相同。</li></ul></li></ul><ul><li><p>可用性</p><blockquote><p>对于用户的每一个请求，都希望在有限的时间内返回结果，有限的时间指的是系统设计的响应时间，返回结果是一个正常的要么成功要么失败的结果，而不是一个用户看不懂的结果。</p></blockquote></li><li><p>分区容错性</p><blockquote><p>在遇到网络分区的时候，仍然需要保证提供一致性的可用服务。</p></blockquote></li></ul><p><img src="/images/CAP.png" alt="upload successful"></p><p><strong>CAP理论告诉我们C、A、P三者不能同时满足，最多只能满足其中两个。</strong></p><p><img src="/images/pasted-0.png" alt="upload successful"></p><h3 id="2-4-6-BASE理论"><a href="#2-4-6-BASE理论" class="headerlink" title="2.4.6 BASE理论"></a>2.4.6 BASE理论</h3><p>即使无法做到强一致性，但分布式系统可以根据自己的业务特点，采用适当的方式来使系统达到<strong>最终的一致性</strong>。</p><ul><li><p>Basically Available（BA基本可用）</p><blockquote><p>允许损失部分可用性，不等价于系统不可用。具体损失表现在：</p></blockquote><ul><li>响应时间上的损失，</li><li>功能上的损失（峰值并发时可能会引导到一个降级的页面）</li></ul></li><li><p>Soft state（S软状态）</p><blockquote><p>允许数据存在中间状态，允许数据在不同节点进行数据同步时存在延时。</p></blockquote></li><li><p>Eventually consistent（E最终一致性）</p><blockquote><p>系统间的所有数据副本，在经过一段时间同步后，最终能够达到一致性。不需要实时一致性。</p></blockquote></li></ul><p><img src="/images/pasted-1.png" alt="upload successful"></p><p>下一章讨论分布式中的一致性协议。敬请期待！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Zookeeper学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 分布式 </tag>
+            
+            <tag> CAP </tag>
+            
+            <tag> BASE </tag>
+            
+            <tag> ACID </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【LeetCode】300. 最长递增子序列</title>
       <link href="/posts/1552474657.html"/>
       <url>/posts/1552474657.html</url>
