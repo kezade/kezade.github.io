@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>【Zookeeper学习】3.Zookeeper基础</title>
+      <link href="/posts/824710590.html"/>
+      <url>/posts/824710590.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="1-为什么学习-Zookeeper"><a href="#1-为什么学习-Zookeeper" class="headerlink" title="1 为什么学习 Zookeeper"></a>1 为什么学习 Zookeeper</h1><p>应该重点掌握分布式环境的演进过程，从一个单节点开始，慢慢过渡到分布式，为什么单节点不行，传统一个 tomcat 打天下有什么有点，缺点又是什么，当一个 tomcat 搞不定的时候，分布式的架构图又是什么样的，</p><p>传统的单节点架构自然有问题，到了分布式的架构中，问题肯定也有不少，这些问题就是我们学习 ZK 要解决的，但学习这些解决方案之前，还是需要有点理论基础。</p><p>接下来就要了解下什么是 zk，为什么学习 zk，zk 在分布式架构中扮演了什么样的角色。以及面试的时候经常会问到的问题，心里要有个大概的了解。</p><h1 id="2-Zookeeper-基础"><a href="#2-Zookeeper-基础" class="headerlink" title="2 Zookeeper 基础"></a>2 Zookeeper 基础</h1><p>了解 zk 是什么玩意后，接下来就把 zk 安装好，先来讲解的是 zk 单机部署，这个非常容易， 而且后面绝大部分的时间都是使用单节点来使用的，至于集群的配置放到后面来讲，正在工作中，集群的维护应该是运维来做，哪怕没有运维，在后面通过详细的学习通过也能在 20 分钟内完全搭建起来，同学们不用着急。</p><p>Zk 的特性：这块是重点之中的重点，后面学习的一切操作，包括实战，都是建立在这基础之上的。其中数据模型和 watch 机制又是最最重要的。</p><h1 id="3-Zookeeper-进阶"><a href="#3-Zookeeper-进阶" class="headerlink" title="3 Zookeeper 进阶"></a>3 Zookeeper 进阶</h1><p>安装好了zk,对 zk 基础有一定的了解后，接下来就学习怎么操作zk,首先了解基础zk客户端的使用。<br>客户端的简单使用能解决一些问题，方便查看信息，简单省事，但真正对于我们java架构师来说最重要的是java客户端，包括原生的，zkclient以及 curotor，同学们最少要熟练使用其中的一种，另外的在工作中也要很快的百度得出来。</p><h1 id="4-Zookeeper-高级知识"><a href="#4-Zookeeper-高级知识" class="headerlink" title="4 Zookeeper 高级知识"></a>4 Zookeeper 高级知识</h1><p>这一块不需要同学完全听懂，掌握 40%-50%就够了，工作中很少用到，但确实面试的时候的加分项，</p><h1 id="5-总结"><a href="#5-总结" class="headerlink" title="5 总结"></a>5 总结</h1><p>不管怎么样，其中的zk基础，zk进阶客户端的使用，以及zk项目实战请务必重视起来。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Zookeeper学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Zookeeper </tag>
+            
+            <tag> ZNode </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【Zookeeper学习】2.一致性协议</title>
       <link href="/posts/1339151935.html"/>
       <url>/posts/1339151935.html</url>
