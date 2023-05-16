@@ -4,6 +4,64 @@
   
     
     <entry>
+      <title>【LeetCode】15. 三数之和</title>
+      <link href="/posts/4286590179.html"/>
+      <url>/posts/4286590179.html</url>
+      
+        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"><h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p>给你一个整数数组 <code>nums</code> ，判断是否存在三元组 <code>[nums[i], nums[j], nums[k]]</code> 满足 <code>i != j、i != k 且 j != k</code> ，同时还满足 <code>nums[i] + nums[j] + nums[k] == 0</code> 。请你返回所有和为 0 且<code>不重复</code>的三元组。</p><p><strong>注意</strong>：答案中不可以包含重复的三元组。</p><h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote><p>输入：nums &#x3D; [-1,0,1,2,-1,-4]<br>输出：[[-1,-1,2],[-1,0,1]]<br>解释： nums[0] + nums[1] + nums[2] &#x3D; (-1) + 0 + 1 &#x3D; 0 。<br>nums[1] + nums[2] + nums[4] &#x3D; 0 + 1 + (-1) &#x3D; 0 。<br>nums[0] + nums[3] + nums[4] &#x3D; (-1) + 2 + (-1) &#x3D; 0 。<br>不同的三元组是 [-1,0,1] 和 [-1,-1,2] 。<br>注意，输出的顺序和三元组的顺序并不重要。</p></blockquote><h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote><p>输入：nums &#x3D; [0,1,1]<br>输出：[]<br>解释：唯一可能的三元组和不为 0 。</p></blockquote><h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote><p>输入：nums &#x3D; [0,0,0]<br>输出：[[0,0,0]]<br>解释：唯一可能的三元组和为 0 。</p></blockquote><p><strong>提示</strong>：</p><ul><li>3 &lt;&#x3D; nums.length &lt;&#x3D; 3000</li><li>-105 &lt;&#x3D; nums[i] &lt;&#x3D; 105</li></ul><h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-解法一"><a href="#2-1-解法一" class="headerlink" title="2.1 解法一"></a>2.1 解法一</h2><ul><li>先排序，假设第一个数就大于0了，则不用再遍历数组了，不可能存在三数均大于0且和为0.</li><li>固定第一个数<code>nums[i]</code>，然后第二个数<code>nums[j]</code>和第三个数<code>nums[k]</code>在数组索引<code>(i, nums.length)</code>范围：<ul><li>先对<code>nums[i]</code>去重</li><li>若<code>sum&gt;0</code>，则要减小元素，<code>k--</code></li><li>若<code>sum&lt;0</code>，则要增大元素，<code>j++</code></li><li>若<code>sum==0</code>，保存结果，且对第二个数，第三个数去重，继续遍历</li></ul></li></ul><p>时间复杂度：O($n^2$)，n 为数组长度.</p><h2 id="2-2-解法二（优化）"><a href="#2-2-解法二（优化）" class="headerlink" title="2.2 解法二（优化）"></a>2.2 解法二（优化）</h2><p>固定第一个数后，在对后面两数通过双指针遍历时，先不计算三数之和，先判定第二个数的重复性，这样可以减少对第三个数的判重。因为：</p><ul><li>第二个数先去重了，当第二个数第一次满足三数之和为0，则下一次第二个数已经比原来的大，第三个数即时相同，也不满足三和为零的结果；</li><li>当第二个数不满足三数之和为0，要么<code>j++</code>，要么<code>k--</code>，即使第三个数相同，也不会满足结果，继续遍历即可。</li></ul><h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span><span class="token comment">//解法一</span>    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">List</span><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span><span class="token punctuation">></span></span> <span class="token function">threeSum</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">List</span><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span><span class="token punctuation">></span></span> ans <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token keyword">int</span> len <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>        <span class="token keyword">if</span><span class="token punctuation">(</span>nums <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">||</span> len <span class="token operator">&lt;</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token keyword">return</span> ans<span class="token punctuation">;</span>        <span class="token punctuation">&#125;</span>        <span class="token comment">// 排序</span>        <span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>nums<span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> len <span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token comment">// 如果当前数字大于0，则三数之和一定大于0，所以结束循环</span>            <span class="token keyword">if</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>            <span class="token keyword">break</span><span class="token punctuation">;</span>            <span class="token punctuation">&#125;</span>            <span class="token comment">//对第一个数去重</span>            <span class="token keyword">if</span><span class="token punctuation">(</span>i <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> nums<span class="token punctuation">[</span>i<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>            <span class="token keyword">continue</span><span class="token punctuation">;</span>            <span class="token punctuation">&#125;</span>            <span class="token keyword">int</span> <span class="token class-name">L</span> <span class="token operator">=</span> i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">;</span>            <span class="token keyword">int</span> <span class="token class-name">R</span> <span class="token operator">=</span> len<span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">;</span>            <span class="token keyword">while</span><span class="token punctuation">(</span><span class="token class-name">L</span> <span class="token operator">&lt;</span> <span class="token class-name">R</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>                <span class="token keyword">int</span> sum <span class="token operator">=</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span><span class="token class-name">L</span><span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span><span class="token class-name">R</span><span class="token punctuation">]</span><span class="token punctuation">;</span>                <span class="token keyword">if</span><span class="token punctuation">(</span>sum <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>                    ans<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">,</span>nums<span class="token punctuation">[</span><span class="token class-name">L</span><span class="token punctuation">]</span><span class="token punctuation">,</span>nums<span class="token punctuation">[</span><span class="token class-name">R</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                    <span class="token comment">//第二个数去重</span>                    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token class-name">L</span><span class="token operator">&lt;</span><span class="token class-name">R</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span><span class="token class-name">L</span><span class="token punctuation">]</span> <span class="token operator">==</span> nums<span class="token punctuation">[</span><span class="token class-name">L</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token class-name">L</span><span class="token operator">++</span><span class="token punctuation">;</span>                    <span class="token comment">// 第三个数去重</span>                    <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token class-name">L</span><span class="token operator">&lt;</span><span class="token class-name">R</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span><span class="token class-name">R</span><span class="token punctuation">]</span> <span class="token operator">==</span> nums<span class="token punctuation">[</span><span class="token class-name">R</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token class-name">R</span><span class="token operator">--</span><span class="token punctuation">;</span>                    <span class="token class-name">L</span><span class="token operator">++</span><span class="token punctuation">;</span>                    <span class="token class-name">R</span><span class="token operator">--</span><span class="token punctuation">;</span>                <span class="token punctuation">&#125;</span>                <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>sum <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span>                 <span class="token class-name">L</span><span class="token operator">++</span><span class="token punctuation">;</span>                <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>sum <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span>                 <span class="token class-name">R</span><span class="token operator">--</span><span class="token punctuation">;</span>            <span class="token punctuation">&#125;</span>        <span class="token punctuation">&#125;</span>                <span class="token keyword">return</span> ans<span class="token punctuation">;</span>    <span class="token punctuation">&#125;</span><span class="token comment">//解法二</span><span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">List</span><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span><span class="token punctuation">></span></span> <span class="token function">threeSum</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">sort</span><span class="token punctuation">(</span>nums<span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token keyword">int</span> n <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>        <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">List</span><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span><span class="token punctuation">></span></span> ans <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>            <span class="token comment">//第一个数去重</span>            <span class="token keyword">if</span> <span class="token punctuation">(</span>i <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">==</span> nums<span class="token punctuation">[</span>i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>                 <span class="token keyword">continue</span><span class="token punctuation">;</span>            <span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>            <span class="token keyword">int</span> k <span class="token operator">=</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>            <span class="token keyword">while</span> <span class="token punctuation">(</span>j <span class="token operator">&lt;</span> k<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                <span class="token comment">//第二个数 去重</span>                <span class="token keyword">while</span> <span class="token punctuation">(</span>j <span class="token operator">></span> i <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">&amp;&amp;</span> j <span class="token operator">&lt;</span> n <span class="token operator">&amp;&amp;</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">==</span> nums<span class="token punctuation">[</span>j <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>                     j<span class="token operator">++</span><span class="token punctuation">;</span>                <span class="token keyword">if</span> <span class="token punctuation">(</span>j <span class="token operator">>=</span> k<span class="token punctuation">)</span>                     <span class="token keyword">break</span><span class="token punctuation">;</span>                <span class="token keyword">int</span> sum <span class="token operator">=</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">;</span>                <span class="token keyword">if</span> <span class="token punctuation">(</span>sum <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                    ans<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">asList</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">,</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">,</span> nums<span class="token punctuation">[</span>k<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                    j<span class="token operator">++</span><span class="token punctuation">;</span>                <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>sum <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                    k<span class="token operator">--</span><span class="token punctuation">;</span>                <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>sum <span class="token operator">&lt;</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                    j<span class="token operator">++</span><span class="token punctuation">;</span>                <span class="token punctuation">&#125;</span>            <span class="token punctuation">&#125;</span>        <span class="token punctuation">&#125;</span>        <span class="token keyword">return</span> ans<span class="token punctuation">;</span>    <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> LeetCode </tag>
+            
+            <tag> 算法 </tag>
+            
+            <tag> 双指针 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【LeetCode】1. 两数之和</title>
+      <link href="/posts/2798825052.html"/>
+      <url>/posts/2798825052.html</url>
+      
+        <content type="html"><![CDATA[<meta name="referrer" content="no-referrer"><h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h1><p>给定一个整数数组 <code>nums</code> 和一个整数目标值 <code>target</code>，请你在该数组中找出<code>和为目标值 target</code>的那 <code>两个</code> 整数，并返回它们的<code>数组下标</code>。</p><p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里<code>不能重复</code>出现。</p><p>你可以按任意顺序返回答案。</p><h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote><p>输入：nums &#x3D; [2,7,11,15], target &#x3D; 9<br>输出：[0,1]<br>解释：因为 nums[0] + nums[1] &#x3D;&#x3D; 9 ，返回 [0, 1] 。</p></blockquote><h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote><p>输入：nums &#x3D; [3,2,4], target &#x3D; 6<br>输出：[1,2]</p></blockquote><h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote><p>输入：nums &#x3D; [3,3], target &#x3D; 6<br>输出：[0,1]</p></blockquote><p><strong>提示</strong>：</p><ul><li>2 &lt;&#x3D; nums.length &lt;&#x3D; 104</li><li>-109 &lt;&#x3D; nums[i] &lt;&#x3D; 109</li><li>-109 &lt;&#x3D; target &lt;&#x3D; 109</li><li>只会存在一个有效答案</li></ul><p>进阶：你可以想出一个时间复杂度小于 O($n^2$) 的算法吗？</p><h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h1><h2 id="2-1-暴力"><a href="#2-1-暴力" class="headerlink" title="2.1 暴力"></a>2.1 暴力</h2><p>使用<code>两重循环</code>枚举下标 <code>i</code> 和 <code>j</code>，分别代表要找的两个数。判断</p><blockquote><p>nums[i] + nums[j] &#x3D;&#x3D; target</p></blockquote><p>是否成立。详见代码解法一。</p><p>复杂度：</p><ul><li>时间复杂度：两重循环，所以复杂度是 O($n^2$)。</li><li>空间复杂度：O(1)。</li></ul><h2 id="2-2-哈希表"><a href="#2-2-哈希表" class="headerlink" title="2.2 哈希表"></a>2.2 哈希表</h2><p>哈希查找的时间复杂度为 <code>O(1)</code>，所以可以利用哈希容器 map 降低时间复杂度</p><ul><li>遍历数组 <code>nums</code>，<code>i </code>为当前下标，每个值都判断map中是否存在 <code>target-nums[i]</code> 的 <code>key</code> 值;</li><li>如果存在，则找到了两个值;</li><li>如果不存在，则将当前的 <code>(nums[i], i)</code> 存入 map 中，继续遍历直到遍历结束。</li></ul><p>详见代码中解法二。</p><p>复杂度：</p><ul><li>时间复杂度：哈希表的做法只会对数组进行一遍扫描，复杂度是 <code>O(N)</code>；</li><li>空间复杂度：使用了哈希表进行记录，复杂度是 <code>O(N)</code>。</li></ul><h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span><span class="token comment">//解法一：暴力</span>    <span class="token keyword">public</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">twoSum</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> t<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token keyword">int</span> n <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                <span class="token keyword">if</span> <span class="token punctuation">(</span>t <span class="token operator">==</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>                <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span>i<span class="token punctuation">,</span>j<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>                <span class="token punctuation">&#125;</span>            <span class="token punctuation">&#125;</span>        <span class="token punctuation">&#125;</span>        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>    <span class="token punctuation">&#125;</span><span class="token comment">//解法二：哈希表</span><span class="token keyword">public</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">twoSum2</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> target<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>        <span class="token comment">//map 存储已扫描过的数字</span>        <span class="token class-name">Map</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">,</span> <span class="token class-name">Integer</span><span class="token punctuation">></span></span> map<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token comment">//结果集</span>        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>        <span class="token comment">//遍历</span>        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">&lt;</span>nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>            <span class="token comment">//另一个数是否存在map</span>            <span class="token keyword">if</span><span class="token punctuation">(</span>map<span class="token punctuation">.</span><span class="token function">containsKey</span><span class="token punctuation">(</span>target <span class="token operator">-</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>                res<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">=</span>i<span class="token punctuation">;</span>                res<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token operator">=</span>map<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>target <span class="token operator">-</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>                <span class="token keyword">return</span> res<span class="token punctuation">;</span>            <span class="token punctuation">&#125;</span>            map<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>        <span class="token punctuation">&#125;</span>        <span class="token keyword">return</span> res<span class="token punctuation">;</span>    <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> LeetCode </tag>
+            
+            <tag> 算法 </tag>
+            
+            <tag> 哈希表 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>【Netty学习】1.网络协议</title>
       <link href="/posts/3253867670.html"/>
       <url>/posts/3253867670.html</url>
@@ -266,13 +324,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -305,13 +363,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -344,13 +402,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -381,13 +439,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -418,13 +476,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -457,13 +515,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -496,13 +554,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -533,13 +591,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -881,13 +939,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -926,13 +984,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -1230,13 +1288,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -1269,13 +1327,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -1308,13 +1366,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
             <tag> Java </tag>
             
@@ -1347,13 +1405,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
         </tags>
       
@@ -1382,13 +1440,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
         </tags>
       
@@ -1417,13 +1475,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
         </tags>
       
@@ -1465,13 +1523,13 @@
       
         <tags>
             
-            <tag> 二叉树 </tag>
-            
-            <tag> 数据结构 </tag>
-            
             <tag> LeetCode </tag>
             
             <tag> 算法 </tag>
+            
+            <tag> 二叉树 </tag>
+            
+            <tag> 数据结构 </tag>
             
         </tags>
       
