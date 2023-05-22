@@ -90,3 +90,28 @@
         column-gap: 1em;
     }
 }
+
+.miaoshus {
+    padding: 20px;
+    border: 1px dashed #e6e6e6;
+    color: #969696;
+    position: relative;
+    display: inline-block;
+    width: 95%;
+    background: #fbfbfb50;
+    border-radius: 10px;
+    font-size: 16px;
+    margin: 12px auto;
+}
+
+.tag-title {
+    margin-bottom: 10px;
+    color: #3C4858;
+    font-size: 1.4rem;
+    font-weight: 400;
+    font-family: 'Architects Daughter', cursive!important;
+}
+
+.center-align {
+    text-align: center;
+}
