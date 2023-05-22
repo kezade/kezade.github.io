@@ -10,8 +10,7 @@
     display: block;
     overflow: hidden;
     background-color: #fff;
-    padding: 5px;
-    padding-bottom: 0;
+    padding: 5px 5px 0;
     position: relative;
     -moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.22);
     -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.22);
@@ -57,8 +56,7 @@
 
 .photo-item {
     display: block;
-    padding: 10px;
-    padding-bottom: 0;
+    padding: 10px 10px 0;
     margin-bottom: 14px;
     font-size: 0;
     -moz-page-break-inside: avoid;
@@ -93,12 +91,12 @@
 
 .miaoshus {
     padding: 20px;
-    border: 1px dashed #e6e6e6;
+    /*border: 1px dashed #e6e6e6;*/
     color: #969696;
     position: relative;
     display: inline-block;
     width: 95%;
-    background: #fbfbfb50;
+    /*background: #fbfbfb50;*/
     border-radius: 10px;
     font-size: 16px;
     margin: 12px auto;
@@ -109,7 +107,7 @@
     color: #3C4858;
     font-size: 1.4rem;
     font-weight: 400;
-    font-family: 'Architects Daughter', cursive!important;
+    font-family: 'Architects Daughter', cursive !important;
 }
 
 .center-align {
