@@ -4,12 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="【LeetCode】1. 两数之和, Back-End Dev Java">
-    <meta name="description" content="
-
-1. 问题给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出和为目标值 target的那 两个 整数，并返回它们的数组下标。
-你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。
-">
+    <meta name="keywords" content="leonus的memos, Back-End Dev Java">
+    <meta name="description" content="7 年 Java 开发经验，其中 3 年以上大型系统架构设计经验，以及 2 年以上的团队管理经验 | 具有分布式、高并发、高可用、大数据量的系统架构设计以及研发经验 | 对 Zookeeper、Netty、Dubbo、Spring Cloud、 Spring 等开源框架源码有过深入研究，并且有一定的框架定制开发经验">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -21,7 +17,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>【LeetCode】1. 两数之和 | Kezade</title>
+    <title>leonus的memos | Kezade</title>
     <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/avatar.png">
     
     <style>
@@ -388,12 +384,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/LeetCode.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/featureimages/11.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">【LeetCode】1. 两数之和</h1>
+                    <h1 class="description center-align post-title">leonus的memos</h1>
                 </div>
             </div>
         </div>
@@ -415,33 +411,12 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                    <div class="article-tag">
-                        
-                            <a href="/tags/LeetCode/">
-                                <span class="chip bg-color">LeetCode</span>
-                            </a>
-                        
-                            <a href="/tags/%E7%AE%97%E6%B3%95/">
-                                <span class="chip bg-color">算法</span>
-                            </a>
-                        
-                            <a href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/">
-                                <span class="chip bg-color">哈希表</span>
-                            </a>
-                        
-                    </div>
+                          <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                          </div>
                     
                 </div>
                 <div class="col s5 right-align">
-                    
-                    <div class="post-cate">
-                        <i class="fas fa-bookmark fa-fw icon-category"></i>
-                        
-                            <a href="/categories/%E7%AE%97%E6%B3%95/" class="post-category">
-                                算法
-                            </a>
-                        
-                    </div>
                     
                 </div>
             </div>
@@ -450,7 +425,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2023-05-16
+                    2023-05-21
                 </div>
                 
 
@@ -459,14 +434,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    625
+                    718
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    2 分
+                    4 分
                 </div>
                 
 
@@ -489,83 +464,270 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
+                <style>
+/* 页面初始化 */
+div#page {
+    background: none;
+    border: 0;
+    padding: 0;
+}
 
-<h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h1><p>给定一个整数数组 <code>nums</code> 和一个整数目标值 <code>target</code>，请你在该数组中找出<code>和为目标值 target</code>的那 <code>两个</code> 整数，并返回它们的<code>数组下标</code>。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里<code>不能重复</code>出现。</p>
-<p>你可以按任意顺序返回答案。</p>
-<h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
-<p>输入：nums &#x3D; [2,7,11,15], target &#x3D; 9<br>输出：[0,1]<br>解释：因为 nums[0] + nums[1] &#x3D;&#x3D; 9 ，返回 [0, 1] 。</p>
-</blockquote>
-<h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入：nums &#x3D; [3,2,4], target &#x3D; 6<br>输出：[1,2]</p>
-</blockquote>
-<h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入：nums &#x3D; [3,3], target &#x3D; 6<br>输出：[0,1]</p>
-</blockquote>
-<p><strong>提示</strong>：</p>
-<ul>
-<li>2 &lt;&#x3D; nums.length &lt;&#x3D; 104</li>
-<li>-109 &lt;&#x3D; nums[i] &lt;&#x3D; 109</li>
-<li>-109 &lt;&#x3D; target &lt;&#x3D; 109</li>
-<li>只会存在一个有效答案</li>
-</ul>
-<p>进阶：你可以想出一个时间复杂度小于 O($n^2$) 的算法吗？</p>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h1><h2 id="2-1-暴力"><a href="#2-1-暴力" class="headerlink" title="2.1 暴力"></a>2.1 暴力</h2><p>使用<code>两重循环</code>枚举下标 <code>i</code> 和 <code>j</code>，分别代表要找的两个数。判断</p>
-<blockquote>
-<p>nums[i] + nums[j] &#x3D;&#x3D; target</p>
-</blockquote>
-<p>是否成立。详见代码解法一。</p>
-<p>复杂度：</p>
-<ul>
-<li>时间复杂度：两重循环，所以复杂度是 O($n^2$)。</li>
-<li>空间复杂度：O(1)。</li>
-</ul>
-<h2 id="2-2-哈希表"><a href="#2-2-哈希表" class="headerlink" title="2.2 哈希表"></a>2.2 哈希表</h2><p>哈希查找的时间复杂度为 <code>O(1)</code>，所以可以利用哈希容器 map 降低时间复杂度</p>
-<ul>
-<li>遍历数组 <code>nums</code>，<code>i </code>为当前下标，每个值都判断map中是否存在 <code>target-nums[i]</code> 的 <code>key</code> 值;</li>
-<li>如果存在，则找到了两个值;</li>
-<li>如果不存在，则将当前的 <code>(nums[i], i)</code> 存入 map 中，继续遍历直到遍历结束。</li>
-</ul>
-<p>详见代码中解法二。</p>
-<p>复杂度：</p>
-<ul>
-<li>时间复杂度：哈希表的做法只会对数组进行一遍扫描，复杂度是 <code>O(N)</code>；</li>
-<li>空间复杂度：使用了哈希表进行记录，复杂度是 <code>O(N)</code>。</li>
-</ul>
-<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span>
-	<span class="token comment">//解法一：暴力</span>
-    <span class="token keyword">public</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">twoSum</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> t<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">int</span> n <span class="token operator">=</span> nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
-        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-                <span class="token keyword">if</span> <span class="token punctuation">(</span>t <span class="token operator">==</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">+</span> nums<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-                	<span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span>i<span class="token punctuation">,</span>j<span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
-                <span class="token punctuation">&#125;</span>
-            <span class="token punctuation">&#125;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
+[data-theme=dark] #twikoo .tk-content,
+#twikoo .tk-content {
+    padding: 0;
+    background: transparent;
+}
 
-	<span class="token comment">//解法二：哈希表</span>
-	<span class="token keyword">public</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">twoSum2</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">,</span> <span class="token keyword">int</span> target<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token comment">//map 存储已扫描过的数字</span>
-        <span class="token class-name">Map</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">,</span> <span class="token class-name">Integer</span><span class="token punctuation">></span></span> map<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">HashMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment">//结果集</span>
-        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> res <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-        <span class="token comment">//遍历</span>
-        <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">&lt;</span>nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-            <span class="token comment">//另一个数是否存在map</span>
-            <span class="token keyword">if</span><span class="token punctuation">(</span>map<span class="token punctuation">.</span><span class="token function">containsKey</span><span class="token punctuation">(</span>target <span class="token operator">-</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-                res<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">=</span>i<span class="token punctuation">;</span>
-                res<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token operator">=</span>map<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>target <span class="token operator">-</span> nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token keyword">return</span> res<span class="token punctuation">;</span>
-            <span class="token punctuation">&#125;</span>
-            map<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>nums<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">,</span> i<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> res<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+.talk_item,
+.tk-expand,
+.tk-comments-container>.tk-comment,
+.tk-submit:nth-child(1){
+    background: var(--card-bg);
+    border: 1px solid #e0e3ed;
+    box-shadow: 0 5px 10px rgb(189 189 189 / 10%);
+    transition: all .3s ease-in-out;
+    border-radius: 12px;
+}
+.talk_item:hover,
+.tk-comments-container>.tk-comment:hover,
+.tk-submit:nth-child(1):hover {
+    border-color: #49b1f5;
+}
+
+.tk-submit {
+    padding: 20px 10px 0;
+}
+
+.tk-comments-container>.tk-comment {
+    padding: 15px;
+}
+
+/* 页面初始化结束 */
+
+#talk{
+    margin-top: 1rem;
+}
+
+#talk .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#talk .loading img {
+    width: 200px;
+}
+
+.talk_item {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.avatar {
+    margin: 0 !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+}
+
+
+.talk_bottom,
+.talk_meta {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    line-height: 1.5;
+}
+.talk_bottom{
+    justify-content: space-between;
+}
+.info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+span.talk_nick {
+    color: #6dbdc3;
+    font-size: 1.2rem;
+}
+svg.is-badge.icon {
+    width: 15px;
+    margin-left: 5px;
+    padding-top: 3px;
+}
+span.talk_date {
+    opacity: .6;
+}
+
+.talk_content {
+    line-height: 1.5;
+    margin-top: 10px;
+}
+.zone_imgbox {
+    display: flex;
+    flex-wrap: wrap;
+    --w: calc(25% - 8px);
+    gap: 10px;
+    margin-top: 5px;
+}
+.zone_imgbox a {
+    display: block;
+    border-radius: 12px;
+    width: var(--w);
+    aspect-ratio: 1/1;
+    position: relative;
+}
+
+.zone_imgbox img {
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+    object-fit: cover;
+}
+/* 底部 */
+
+.talk_bottom {
+    opacity: .9;
+}
+.talk_bottom .icon {
+    color: var(--font-color);
+    float: right;
+    transition: all .3s;
+}
+
+.talk_bottom .icon:hover {
+    color: #49b1f5;
+}
+
+span.talk_tag{
+    font-size: 14px;
+}
+.talk_content>a {
+    margin: 0 3px;
+    color: #ff7d73 !important;
+}
+.talk_content>a:hover{
+    text-decoration: none !important;
+    color: #ff5143 !important
+}
+
+/* 提醒 */
+
+.limit {
+    transition: all .3s ease-in-out;
+    color: rgba(76, 73, 72, 0.6);
+}
+
+[data-theme=dark] .limit {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.limit {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+    color: var(--font-color);
+}
+@media screen and (max-width: 900px) {
+    .zone_imgbox {
+        --w: calc(33% - 5px);
+    }
+    #talk{
+        margin: 10px 3px 0
+    }
+    #post-comment{
+        margin: 0 3px
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .zone_imgbox {
+        gap: 6px;
+    }
+    .zone_imgbox {
+        --w: calc(50% - 3px);
+    }
+    span.talk_date {
+        font-size: 14px;
+    }
+}
+</style>
+<meta name="referrer" content="no-referrer">
+<div id="talk">
+<div class="loading"><img src="/leonus/index/loading.svg" alt="加载中..."></div>
+</div>
+
+<div class="limit">- 只展示最近30条说说 -</div>
+<script>
+pageTalk();
+// 页面说说
+function pageTalk() {
+    fetch('https://memos.itisn.cyou/api/memo?creatorId=63&tag=说说&limit=30').then(res => res.json()).then(data => { // 注意修改域名和用户id
+        let items = [],
+            html = '',
+            icon = '<svg viewBox="0 0 512 512"xmlns="http://www.w3.org/2000/svg"class="is-badge icon"><path d="m512 268c0 17.9-4.3 34.5-12.9 49.7s-20.1 27.1-34.6 35.4c.4 2.7.6 6.9.6 12.6 0 27.1-9.1 50.1-27.1 69.1-18.1 19.1-39.9 28.6-65.4 28.6-11.4 0-22.3-2.1-32.6-6.3-8 16.4-19.5 29.6-34.6 39.7-15 10.2-31.5 15.2-49.4 15.2-18.3 0-34.9-4.9-49.7-14.9-14.9-9.9-26.3-23.2-34.3-40-10.3 4.2-21.1 6.3-32.6 6.3-25.5 0-47.4-9.5-65.7-28.6-18.3-19-27.4-42.1-27.4-69.1 0-3 .4-7.2 1.1-12.6-14.5-8.4-26-20.2-34.6-35.4-8.5-15.2-12.8-31.8-12.8-49.7 0-19 4.8-36.5 14.3-52.3s22.3-27.5 38.3-35.1c-4.2-11.4-6.3-22.9-6.3-34.3 0-27 9.1-50.1 27.4-69.1s40.2-28.6 65.7-28.6c11.4 0 22.3 2.1 32.6 6.3 8-16.4 19.5-29.6 34.6-39.7 15-10.1 31.5-15.2 49.4-15.2s34.4 5.1 49.4 15.1c15 10.1 26.6 23.3 34.6 39.7 10.3-4.2 21.1-6.3 32.6-6.3 25.5 0 47.3 9.5 65.4 28.6s27.1 42.1 27.1 69.1c0 12.6-1.9 24-5.7 34.3 16 7.6 28.8 19.3 38.3 35.1 9.5 15.9 14.3 33.4 14.3 52.4zm-266.9 77.1 105.7-158.3c2.7-4.2 3.5-8.8 2.6-13.7-1-4.9-3.5-8.8-7.7-11.4-4.2-2.7-8.8-3.6-13.7-2.9-5 .8-9 3.2-12 7.4l-93.1 140-42.9-42.8c-3.8-3.8-8.2-5.6-13.1-5.4-5 .2-9.3 2-13.1 5.4-3.4 3.4-5.1 7.7-5.1 12.9 0 5.1 1.7 9.4 5.1 12.9l58.9 58.9 2.9 2.3c3.4 2.3 6.9 3.4 10.3 3.4 6.7-.1 11.8-2.9 15.2-8.7z"fill="#1da1f2"></path></svg>';
+        data.data.forEach(item => { items.push(Format(item)) });
+        if (items.length == 30) document.querySelector('.limit').style.display = 'block';
+        items.forEach(item => {
+            html += `<div class="talk_item"><div class="talk_meta"><img class="no-lightbox no-lazyload avatar" src="https://cdn.jsdelivr.net/gh/zyxelva/picgo/markdown/chara_mitsuha_face01.png"><div class="info"><span class="talk_nick">${item.creatorName}${icon}</span><span class="talk_date">${item.date}</span></div></div><div class="talk_content">${item.content}</div><div class="talk_bottom"><div><span class="talk_tag"># ${item.tag}</span></div><a href="javascript:;"onclick="goComment('${item.text}')"><span class="icon"><i class="fa-solid fa-message fa-fw"></i></span></a></div></div>` // 注意修改头像链接和名称
+        })
+        document.getElementById('talk').innerHTML = html
+    })
+}
+// 页面评论
+function goComment(e) {
+    var n = document.querySelector(".el-textarea__inner")
+    n.value = `> ${e}\n\n`;
+    n.focus();
+    btf.snackbarShow("无需删除空行，直接输入评论即可", !1, 2e3);
+}
+// 页面内容格式化
+function Format(item) {
+    let date = formatTime(item.createdTs),
+        content = item.content,
+        tag = item.content.match(/\{(.*?)\}/g),
+        imgls = content.match(/!\[.*\]\(.*?\)/g), // 2023-02-06更新
+        text = ''
+    text = content.replace(/#(.*?)\s/g, '').replace(/\!\[(.*?)\]\((.*?)\)/g, '').replace(/\{(.*?)\}/g, '')
+    content = text.replace(/\[(.*?)\]\((.*?)\)/g, `<a href="$2">@$1</a>`);
+    if (imgls) {
+        content += `<div class="zone_imgbox">`
+        imgls.map(item => { return item.replace(/!\[.*\]\((.*?)\)/, '$1') }).forEach(e => content += `<a href="${e}" data-fancybox="gallery" class="fancybox" data-thumb="${e}"><img class="no-lazyload" src="${e}"></a>` // 2023-02-06更新
+        )
+        content += '</div>'
+    }
+    return {
+        content: content,
+        tag: tag ? tag[0].replace(/\{(.*?)\}/,'$1') : '无标签',
+        date: date,
+        text: text.replace(/\[(.*?)\]\((.*?)\)/g, '[链接]' + `${imgls?'[图片]':''}`),
+        creatorName: item.creatorName
+    }
+}
+// 页面时间格式化
+function formatTime(value) {
+    if(value) { 
+        let date = new Date(value * 1000);    // 时间戳为秒：10位数 
+        //let date = new Date(value); // 时间戳为毫秒：13位数 
+        let year = date.getFullYear();
+        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+        let day = date.getDate() < 10? `0${date.getDate()}` : date.getDate();
+        let hour = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
+        let minute = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+        let second = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds();
+        if (new Date().getFullYear() == year){
+            return `${month}-${day} ${hour}:${minute}:${second}`;
+        } else {
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+    } else { 
+        return ''
+    } 
+}
+</script>
                 
             </div>
             <hr/>
@@ -591,7 +753,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://zyxelva.github.io/posts/2798825052.html">https://zyxelva.github.io/posts/2798825052.html</a>
+                    <a href="https://zyxelva.github.io/leonus/index.html">https://zyxelva.github.io/leonus/index.html</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -628,19 +790,7 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            
-                                <a href="/tags/LeetCode/">
-                                    <span class="chip bg-color">LeetCode</span>
-                                </a>
-                            
-                                <a href="/tags/%E7%AE%97%E6%B3%95/">
-                                    <span class="chip bg-color">算法</span>
-                                </a>
-                            
-                                <a href="/tags/%E5%93%88%E5%B8%8C%E8%A1%A8/">
-                                    <span class="chip bg-color">哈希表</span>
-                                </a>
-                            
+                            <span class="chip bg-color">无标签</span>
                         </div>
                     
                 </div>
@@ -739,72 +889,18 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
-            <div class="card">
-                <a href="/posts/4286590179.html">
-                    <div class="card-image">
-                        
-                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】15. 三数之和">
-                        
-                        <span class="card-title">【LeetCode】15. 三数之和</span>
-                    </div>
-                </a>
-                <div class="card-content article-content">
-                    <div class="summary block-with-text">
-                        
-                            
-                        
-                    </div>
-                    <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-16
-                        </span>
-                        <span class="publish-author">
-                            
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/%E7%AE%97%E6%B3%95/" class="post-category">
-                                    算法
-                                </a>
-                            
-                            
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/LeetCode/">
-                        <span class="chip bg-color">LeetCode</span>
-                    </a>
-                    
-                    <a href="/tags/%E7%AE%97%E6%B3%95/">
-                        <span class="chip bg-color">算法</span>
-                    </a>
-                    
-                    <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/">
-                        <span class="chip bg-color">双指针</span>
-                    </a>
-                    
-                </div>
-                
-            </div>
-        </div>
-        
-        
-        <div class="article col s12 m6" data-aos="fade-up">
-            <div class="article-badge right-badge text-color">
-                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
             </div>
             <div class="card">
-                <a href="/posts/3253867670.html">
+                <a href="/leonus/index.html">
                     <div class="card-image">
                         
-                        <img src="/medias/Netty.png" class="responsive-img" alt="【Netty学习】1.网络协议">
                         
-                        <span class="card-title">【Netty学习】1.网络协议</span>
+                        <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/featureimages/11.jpg" class="responsive-img" alt="leonus的memos">
+                        
+                        <span class="card-title">leonus的memos</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -815,40 +911,55 @@
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-16
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-21
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-bookmark fa-fw icon-category"></i>
-                            
-                            <a href="/categories/Netty%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    Netty学习
-                                </a>
-                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Kezade
                             
                         </span>
                     </div>
                 </div>
+
                 
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/Netty/">
-                        <span class="chip bg-color">Netty</span>
-                    </a>
-                    
-                    <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">
-                        <span class="chip bg-color">网络协议</span>
-                    </a>
-                    
-                    <a href="/tags/TCP-IP/">
-                        <span class="chip bg-color">TCP/IP</span>
-                    </a>
-                    
-                    <a href="/tags/HTTP/">
-                        <span class="chip bg-color">HTTP</span>
-                    </a>
-                    
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                本篇&nbsp;<i class="far fa-dot-circle"></i>
+            </div>
+            <div class="card">
+                <a href="/leonus/index.html">
+                    <div class="card-image">
+                        
+                        
+                        <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/featureimages/11.jpg" class="responsive-img" alt="leonus的memos">
+                        
+                        <span class="card-title">leonus的memos</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-21
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-user fa-fw"></i>
+                            Kezade
+                            
+                        </span>
+                    </div>
                 </div>
+
                 
             </div>
         </div>
@@ -1006,13 +1117,6 @@
 
 </main>
 
-
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-<script>
-    MathJax.Hub.Config({
-        tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
-    });
-</script>
 
 
 
