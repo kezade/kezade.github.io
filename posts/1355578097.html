@@ -452,14 +452,14 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    5.2k
+                    7.7k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    19 分
+                    28 分
                 </div>
                 
 
@@ -639,9 +639,9 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <h2 id="4-6-ChannelHandlerContext"><a href="#4-6-ChannelHandlerContext" class="headerlink" title="4.6 ChannelHandlerContext"></a>4.6 ChannelHandlerContext</h2><p>通过使用作为参数传递到每个方法的 <code>ChannelHandlerContext</code>，事件可以被传递给当前 <code>ChannelHandler</code> 链中的<code>下一个 ChannelHandler</code>。虽然这个对象可以被用于获取底层的 Channel，但是它主要还是被用于<code>写出站数据</code>。</p>
 <p><code>ChannelHandlerContext</code> 代表了<code>ChannelHandler</code> 和 <code>ChannelPipeline</code> 之间的关联，每当有 <code>ChannelHandler</code> <code>添加</code>到 <code>ChannelPipeline</code> 中时，都会创建 <code>ChannelHandlerContext</code>。</p>
 <p><code>ChannelHandlerContext</code> 的主要功能是管理它所关联的 <code>ChannelHandler</code> 和在同一个 <code>ChannelPipeline</code> 中的其他 <code>ChannelHandler</code> 之间的交互。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/ChannelHandler-in-ChannelHandlerContext.png" alt="包含入站出站的pipeline"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/ChannelHandler-in-ChannelHandlerContext.png" alt="ChannelHandler与ChannelHandlerContext"></p>
 <p><code>ChannelHandlerContext</code> 有很多的方法，其中一些方法也存在于 <code>Channel</code> 和 <code>ChannelPipeline</code> 本身上，但是有一点重要不同。如果调用<code>Channel</code> 或者<code>ChannelPipeline</code> 上的这些方法，它们将沿着<code>整个 ChannelPipeline</code>进行传播。而调用位于 <code>ChannelHandlerContext</code>上的相同方法，则将从<code>当前所关联的 ChannelHandler</code> 开始，并且<code>只会</code>传播给位于该 <code>ChannelPipeline</code> 中的<code>下一个</code>(入站下一个，出站上一个)能够处理该事件的 <code>ChannelHandler</code>。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/ChannelPipeline2.png" alt="包含入站出站的pipeline"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/ChannelPipeline2.png" alt="ChannelPipeline、ChannelHandler与ChannelHandlerContext"></p>
 <h3 id="4-6-1-ChannelHandlerContext-的-API"><a href="#4-6-1-ChannelHandlerContext-的-API" class="headerlink" title="4.6.1 ChannelHandlerContext 的 API"></a>4.6.1 ChannelHandlerContext 的 API</h3><ul>
 <li><code>alloc</code> 返回和这个实例相关联的 <code>Channel</code> 所配置的 <code>ByteBufAllocator</code></li>
 <li><code>bind</code> 绑定到给定的 <code>SocketAddress</code>，并返回 <code>ChannelFuture</code></li>
@@ -719,7 +719,260 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <p>实际上，<code>ServerBootstrap类</code>也可以只使用<code>一个EventLoopGroup</code>，此时其将在两个场景下共用<code>同一个EventLoopGroup</code>。</p>
 </blockquote>
 <p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/Two-EventLoopGroups-of-a-Server.png" alt="具有两个 EventLoopGroup 的服务器"></p>
-<h2 id="4-9-ByteBuf"><a href="#4-9-ByteBuf" class="headerlink" title="4.9 ByteBuf"></a>4.9 ByteBuf</h2><p>Netty 的数据容器<code>ByteBuf</code>在后续章节中再细说，这个内容有点细并且多。</p>
+<h2 id="4-9-ByteBuf"><a href="#4-9-ByteBuf" class="headerlink" title="4.9 ByteBuf"></a>4.9 ByteBuf</h2><p>网络中的数据，其基本单位是字节，在<code>JAVA NIO</code>中，利用<code>ByteBuffer</code>作为字节的数据载体，但是之所以有Netty，不就是因为原生网络编程复杂，且API较晦涩咩？因而Netty提供了另外的载体—<code>ByteBuf</code>，一个强大的实现，既解决了 <code>JDK API</code> 的局限性， 又为网络应用程序的开发者提供了更好的 API。</p>
+<h3 id="4-9-1-工作原理"><a href="#4-9-1-工作原理" class="headerlink" title="4.9.1 工作原理"></a>4.9.1 工作原理</h3><p><code>ByteBuf</code> 维护了<strong>两个不同的索引</strong>：</p>
+<ul>
+<li>一个用于<code>读取</code></li>
+<li>一个用于<code>写入</code>。</li>
+</ul>
+<p>当你从 <code>ByteBuf</code> <code>读取</code>时， 它的 <code>readerIndex</code> 将会<code>被递增</code>已经被读取的字节数。同样地，当你<code>写入 ByteBuf </code>时，它的 <code>writerIndex</code> 也会<code>被递增</code>。下图展示了一个<code>空 ByteBuf</code> 的布局结构和状态。<br><img src="/images/A-Blank-ByteBuf.png" alt="一个读索引和写索引都设置为 0 的 16 字节 ByteBuf"></p>
+<p>要了解这些索引<code>两两之间</code>的关系，请考虑一下，如果打算<code>读取</code>字节直到 <code>readerIndex</code> 达到和 <code>writerIndex</code> 同样的值时会发生什么。在那时，你将会到达<code>可以读取的</code>数据的末尾。就如同试图读取<code>超出</code>数组末尾的数据一样，试图读取超出该点的数据将会触发一个 <code>IndexOutOfBoundsException</code>。</p>
+<p>名称以 <code>read</code> 或者 <code>write</code> 开头的 <code>ByteBuf</code> 方法，将会推进其对应的索引，而名称以 <code>set</code> 或 者 <code>get</code> 开头的操作则不会。后面的这些方法将在作为一个<code>参数</code>传入的一个<code>相对索引</code>上执行操作。</p>
+<p>可以指定 <code>ByteBuf</code> 的<strong>最大容量</strong>。试图移动<code>写索引</code>(即 <code>writerIndex</code>)超过这个值将会触发一个<code>异常</code>。(默认的限制是 <code>Integer.MAX_VALUE</code>。)</p>
+<h3 id="4-9-1-ByteBuf-API-的优点"><a href="#4-9-1-ByteBuf-API-的优点" class="headerlink" title="4.9.1 ByteBuf API 的优点"></a>4.9.1 ByteBuf API 的优点</h3><ul>
+<li>它可以被用户自定义的缓冲区类型<code>扩展</code>;</li>
+<li>通过内置的<code>复合缓冲区</code>类型实现了透明的<code>零拷贝</code>;</li>
+<li><code>容量</code>可以<code>按需增长</code>(类似于 JDK 的 <code>StringBuilder</code>);</li>
+<li>在<code>读</code>和<code>写</code>这两种模式之间切换<strong>不需要</strong>调用 <code>ByteBuffer</code> 的 <code>flip()</code>方法;</li>
+<li><code>读</code>和<code>写</code>使用了<strong>不同的索引</strong>;</li>
+<li>支持方法的<code>链式调用</code>;</li>
+<li>支持<code>引用计数</code>;</li>
+<li>支持<code>池化</code>.</li>
+</ul>
+<h3 id="4-9-2-使用模式"><a href="#4-9-2-使用模式" class="headerlink" title="4.9.2 使用模式"></a>4.9.2 使用模式</h3><ul>
+<li>堆缓冲区</li>
+</ul>
+<p>最常用的 <code>ByteBuf模式</code>是将数据存储在 JVM 的<code>堆空间</code>中。这种模式被称为<code>支撑数组</code> (backing array)，它能在没有使用<code>池化</code>的情况下提供快速的<code>分配和释放</code>。可以由 <code>hasArray()</code> 来判断检查 ByteBuf 是否由<code>数组</code>支撑。如果不是，则这是一个<code>直接缓冲区</code>。</p>
+<ul>
+<li>直接缓冲区</li>
+</ul>
+<p><code>直接缓冲区</code>是另外一种 ByteBuf 模式。直接缓冲区的<strong>主要缺点</strong>是，相对于基于堆的缓冲区，它们的分配和释放都较为<code>昂贵</code>。</p>
+<p>-复合缓冲区</p>
+<p><code>复合缓冲区CompositeByteBuf</code>，它为<strong>多个</strong>ByteBuf 提供一个<code>聚合视图</code>。比如HTTP 协议， 分为消息头和消息体，这两部分可能由应用程序的不同模块产生，各有各的 ByteBuf，将会在消息被发送的时候<code>组装</code>为<strong>一个 ByteBuf</strong>，此时可以将这两个 ByteBuf <code>聚合</code>为一个 <code>CompositeByteBuf</code>，然后使用统一和通用的 <code>ByteBuf API</code> 来操作。</p>
+<h3 id="4-9-3-分配方式"><a href="#4-9-3-分配方式" class="headerlink" title="4.9.3 分配方式"></a>4.9.3 分配方式</h3><p>如何在我们的程序中获得 <code>ByteBuf 的实例</code>，并使用它呢？Netty 提供了<strong>两种方式</strong>。</p>
+<ul>
+<li>按需分配：ByteBufAllocator 接口</li>
+</ul>
+<p>Netty的一种实例分配池化接口。通过 <code>interface ByteBufAllocator</code> 分配我们所描述过的<code>任意类型</code>的 <code>ByteBuf 实例</code>。</p>
+<p>下表列出了<code>ByteBufAllocator</code>提供的一些操作。</p>
+<table border="0" cellpadding="0" cellspacing="0" width="889" style="border-collapse:
+ collapse;table-layout:fixed;width:667pt">
+ <col width="429" style="mso-width-source:userset;mso-width-alt:13738;width:322pt">
+ <col width="460" style="mso-width-source:userset;mso-width-alt:14720;width:345pt">
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" width="429" style="height:18.0pt;width:322pt"><font class="font7">名称</font></td>
+  <td class="xl65" width="460" style="width:345pt"><font class="font7">描述</font></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">
+  <div title="Page 90">buffer();</div></td>
+  <td rowspan="3" class="xl65"><font class="font7">返回一个基于堆或者直接内存存储的</font><font class="font6"> ByteBuf</font></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">buffer(int initialCapacity);</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">buffer(int initialCapacity,
+  int maxCapacity);<span style="mso-spacerun:yes"> </span>
+  </td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">
+  <div title="Page 90">heapBuffer();</div></td>
+  <td rowspan="3" class="xl65"><font class="font7">返回一个基于堆内存存储的</font><font class="font6">ByteBuf</font></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">heapBuffer(int
+  initialCapacity);</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">heapBuffer(int
+  initialCapacity, int maxCapacity);
+  </td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">
+  <div title="Page 90">directBuffer();</div></td>
+  <td rowspan="3" class="xl65">
+  <div title="Page 90"><font class="font8">返回一个基于直接内存存储的</font><font class="font6">ByteBuf</font></div></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">directBuffer(int
+  initialCapacity);</td>
+ </tr>
+ <tr height="25" style="height:19.0pt">
+  <td height="25" class="xl66" width="429" style="height:19.0pt;width:322pt">directBuffer(int
+  initialCapacity, int maxCapacity);
+  </td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">
+  <div title="Page 90">compositeBuffer();</div></td>
+  <td rowspan="6" class="xl67" width="460" style="width:345pt"><font class="font8">返回一个可以通过添加最大到指定数目的基于堆的或者直接内存存储的缓冲区来扩展的</font><font class="font6"> CompositeByteBuf<span style="mso-spacerun:yes"> </span></font></td>
+ </tr>
+ <tr height="25" style="height:19.0pt">
+  <td height="25" class="xl66" width="429" style="height:19.0pt;width:322pt">compositeBuffer(int
+  maxNumComponents);
+  </td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">compositeDirectBuffer();</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">compositeDirectBuffer(int
+  maxNumComponents);</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">compositeHeapBuffer();</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">compositeHeapBuffer(int
+  maxNumComponents);<span style="mso-spacerun:yes"> </span></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+  <td height="24" class="xl65" style="height:18.0pt">
+  <div title="Page 90">ioBuffer()<span style="mso-spacerun:yes"> </span></div>
+  </td>
+  <td class="xl65"><font class="font8">返回一个用于套接字的</font><font class="font6"> I/O </font><font class="font8">操作的</font><font class="font6"> ByteBuf<span style="mso-spacerun:yes"> </span></font>
+  </td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height="0" style="display:none">
+  <td width="429" style="width:322pt"></td>
+  <td width="460" style="width:345pt"></td>
+ </tr>
+ <![endif]>
+</table>
+
+<p>可以通过 <code>Channel</code>(每个都可以有一个不同的 <code>ByteBufAllocator</code> 实例)或者绑定到 <code>ChannelHandler</code> 的 <code>ChannelHandlerContext</code> 获取一个到 <code>ByteBufAllocator</code> 的<code>引用</code>。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Channel</span> channel <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
+<span class="token class-name">ByteBufAllocator</span> allocator <span class="token operator">=</span> channel<span class="token punctuation">.</span><span class="token function">alloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 从 Channel 获取一个到 ByteBufAllocator 的引用</span>
+ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token class-name">ChannelHandlerContext</span> ctx <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
+<span class="token class-name">ByteBufAllocator</span> allocator2 <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">alloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 从 ChannelHandlerContext 获取一个到 ByteBufAllocator 的引用</span>
+ <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<blockquote>
+<p>两种ByteBufAllocator的实现</p>
+<ul>
+<li>PooledByteBufAllocator（默认）：<code>池化</code>了<code>ByteBuf</code>的实例以提高性能并最大限度地减少内存碎片。</li>
+<li>UnpooledByteBufAllocator：实现<code>不池化</code>ByteBuf实例，并且在每次它被调用时都会返回一个<code>新的实例</code>。</li>
+</ul>
+</blockquote>
+<ul>
+<li>Unpooled 缓冲区<br>Netty 提供了一个简单的称为 Unpooled 的工具类<code>ByteBufUtil</code>，它提供了<code>静态</code>的辅助方法来创建<code>未池化</code>的 ByteBuf 实例。<table border="0" cellpadding="0" cellspacing="0" width="854" style="border-collapse:
+ collapse;table-layout:fixed;width:640pt">
+ <col width="423" style="mso-width-source:userset;mso-width-alt:13525;width:317pt">
+ <col width="431" style="mso-width-source:userset;mso-width-alt:13781;width:323pt">
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" width="423" style="height:18.0pt;width:317pt"><font class="font7">名称</font></td>
+<td class="xl65" width="431" style="width:323pt"><font class="font7">描述</font></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">
+<div title="Page 91">buffer()</div></td>
+<td rowspan="3" class="xl65">
+<div title="Page 91"><font class="font8">返回一个未池化的基于堆内存存储的</font><font class="font6">ByteBuf</font></div></td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">buffer(int initialCapacity)</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">buffer(int initialCapacity,
+int maxCapacity)<span style="mso-spacerun:yes"> </span>
+</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">
+<div title="Page 91">directBuffer()</div></td>
+<td rowspan="3" class="xl65">
+<div title="Page 91"><font class="font8">返回一个未池化的基于直接内存存储的</font><font class="font6">ByteBuf</font></div>
+</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">directBuffer(int
+initialCapacity)
+</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">directBuffer(int
+initialCapacity, int maxCapacity)</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">
+<div title="Page 91">wrappedBuffer()<span style="mso-spacerun:yes"> </span></div>
+</td>
+<td class="xl65">
+<div title="Page 91"><font class="font8">返回一个包装了给定数据的</font><font class="font6">ByteBuf</font></div>
+</td>
+ </tr>
+ <tr height="24" style="height:18.0pt">
+<td height="24" class="xl65" style="height:18.0pt">
+<div title="Page 91">copiedBuffer()<span style="mso-spacerun:yes"> </span></div>
+</td>
+<td class="xl65"><font class="font7">返回一个复制了给定数据的</font><font class="font6">ByteBuf</font></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height="0" style="display:none">
+<td width="423" style="width:317pt"></td>
+<td width="431" style="width:323pt"></td>
+ </tr>
+ <![endif]>
+</table></li>
+</ul>
+<p><code>Unpooled 类</code>还使得 ByteBuf 同样可用于那些并不需要 Netty 的其他组件的<code>非网络项目</code>， 使得其能得益于高性能的可扩展的缓冲区 API。</p>
+<h3 id="4-9-4-字节级操作"><a href="#4-9-4-字节级操作" class="headerlink" title="4.9.4 字节级操作"></a>4.9.4 字节级操作</h3><h4 id="4-9-4-1-随机访问索引"><a href="#4-9-4-1-随机访问索引" class="headerlink" title="4.9.4.1 随机访问索引"></a>4.9.4.1 随机访问索引</h4><p>类似java的字节数组遍历。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ByteBuf</span> buffer <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> buffer<span class="token punctuation">.</span><span class="token function">capacity</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+  <span class="token keyword">byte</span> b <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">getByte</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<blockquote>
+<p>需要注意的是，使用那些需要<code>一个索引值参数</code>的方法(的其中)之一来访问数据既<code>不会改变 readerIndex</code> 也<code>不会改变 writerIndex</code>。如果有需要，也可以通过调用 <code>readerIndex(index)</code> 或者 <code>writerIndex(index)</code>来手动移动这两者。</p>
+</blockquote>
+<h4 id="4-9-4-2-顺序访问索引"><a href="#4-9-4-2-顺序访问索引" class="headerlink" title="4.9.4.2 顺序访问索引"></a>4.9.4.2 顺序访问索引</h4><p>虽然 ByteBuf 同时具有<code>读索引</code>和<code>写索引</code>，但是 JDK 的 <code>ByteBuffer</code> 却只有<code>一个索引</code>，这 也就是为什么必须调用 <code>flip()</code>方法来在<code>读模式</code>和<code>写模式</code>之间进行切换的原因。</p>
+<p><img src="/images/ByteBuf-Inner-Segments.png" alt="ByteBuf的内部分段"></p>
+<h4 id="4-9-4-3-可丢弃字节"><a href="#4-9-4-3-可丢弃字节" class="headerlink" title="4.9.4.3 可丢弃字节"></a>4.9.4.3 可丢弃字节</h4><p><code>可丢弃字节的分段</code>包含了已经<code>被读过</code>的字节。通过调用 <code>discardReadBytes()</code>方法，可以<code>丢弃</code>它们并<code>回收空间</code>。这个分段的初始大小为 0，存储在 <code>readerIndex</code> 中，会随着 <code>read</code> 操作的执行而增加(get*操作不会移动 readerIndex)。</p>
+<p>缓冲区上调用 <code>discardReadBytes()</code>方法后，<code>可丢弃字节分段</code>中的空间已经变为<code>可写</code>的了。 频繁地调用 <code>discardReadBytes()</code>方法以确保可写分段的最大化，但是<strong>请注意</strong>，这将极有可能会导致<code>内存复制</code>，因为<code>可读字节</code>必须被移动到缓冲区的开始位置。建议只在有真正需要的时候才这样做，例如，当内存非常宝贵的时候。</p>
+<p><img src="/images/discardReadBytes-ByteBuf.png" alt="丢弃已读字节之后的 ByteBuf"></p>
+<h4 id="4-9-4-4-可读字节"><a href="#4-9-4-4-可读字节" class="headerlink" title="4.9.4.4 可读字节"></a>4.9.4.4 可读字节</h4><p>ByteBuf 的可读字节分段存储了实际数据。新分配的、包装的或者复制的缓冲区的默认的 <code>readerIndex</code> 值为 0。</p>
+<h4 id="4-9-4-5-可写字节"><a href="#4-9-4-5-可写字节" class="headerlink" title="4.9.4.5 可写字节"></a>4.9.4.5 可写字节</h4><p>可写字节分段是指一个拥有<code>未定义内容的</code>、<code>写入就绪的</code>内存区域。新分配的缓冲区的 <code>writerIndex</code> 的默认值为 0。任何名称以 <code>write 开头</code>的操作都将从当前的 <code>writerIndex</code> 处开始 写数据，并将它增加已经写入的字节数。</p>
+<h4 id="4-9-4-6-索引管理"><a href="#4-9-4-6-索引管理" class="headerlink" title="4.9.4.6 索引管理"></a>4.9.4.6 索引管理</h4><p>调用 <code>markReaderIndex()</code>、<code>markWriterIndex()</code>、<code>resetWriterIndex()</code>和 <code>resetReaderIndex()</code>来<code>标记</code>和<code>重置</code> ByteBuf 的 <code>readerIndex</code> 和 <code>writerIndex</code>。</p>
+<p>也可以通过调用 <code>readerIndex(int)</code>或者 <code>writerIndex(int)</code>来将索引移动到指定位置。试图将任何一个索引设置到一个<code>无效的</code>位置都将导致一个 <code>IndexOutOfBoundsException</code>。</p>
+<p>可以通过调用 <code>clear()</code>方法来将 <code>readerIndex</code> 和 <code>writerIndex</code> 都设置为 0。注意，这并<code>不会清除</code>内存中的内容。</p>
+<h4 id="4-9-4-7-查找操作"><a href="#4-9-4-7-查找操作" class="headerlink" title="4.9.4.7 查找操作"></a>4.9.4.7 查找操作</h4><p>在 <code>ByteBuf</code> 中有多种可以用来确定指定值的索引的方法。最简单的是使用 <code>indexOf()</code>方法。较复杂的查找可以通过调用 <code>forEachByte()</code>。<br>代码展示了一个查找回车符(\r)的例子。</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ByteBuf</span> buffer <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span> index <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">forEachByte</span><span class="token punctuation">(</span><span class="token class-name">ByteBufProcessor</span><span class="token punctuation">.</span><span class="token constant">FIND_CR</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="4-9-4-8-派生缓冲区"><a href="#4-9-4-8-派生缓冲区" class="headerlink" title="4.9.4.8 派生缓冲区"></a>4.9.4.8 派生缓冲区</h4><p>派生缓冲区为 ByteBuf 提供了以专门的方式来呈现其内容的视图。这类视图是通过以下方法被创建的:</p>
+<ul>
+<li>duplicate();</li>
+<li>slice();</li>
+<li>slice(int, int);</li>
+<li>Unpooled.unmodifiableBuffer(…);</li>
+<li>order(ByteOrder);</li>
+<li>readSlice(int)。</li>
+</ul>
+<p>每个这些方法都将返回一个<code>新的 ByteBuf 实例</code>，它具有自己的<code>读索引</code>、<code>写索引</code>和<code>标记索引</code>。其内部存储和 JDK 的 <code>ByteBuffer</code> 一样也是<code>共享的</code>。</p>
+<blockquote>
+<p><code>ByteBuf 复制</code>如果需要一个现有缓冲区的真实副本，请使用 <code>copy()</code>或者 <code>copy(int, int)</code>方法。不同于派生缓冲区，由这个调用所返回的 <code>ByteBuf</code> 拥有<code>独立的数据副本</code>。</p>
+</blockquote>
+<h4 id="4-9-4-9-引用计数"><a href="#4-9-4-9-引用计数" class="headerlink" title="4.9.4.9 引用计数"></a>4.9.4.9 引用计数</h4><p><code>引用计数</code>是一种通过在某个对象所持有的资源不再被其他对象引用时释放该对象所持有的资源来优化内存使用和性能的技术。Netty 在第4 版中为ByteBuf引入了引用计数技术， <code>interface ReferenceCounted</code>。</p>
+<h4 id="4-9-4-10-资源释放"><a href="#4-9-4-10-资源释放" class="headerlink" title="4.9.4.10 资源释放"></a>4.9.4.10 资源释放</h4><p>当某个 <code>ChannelInboundHandler</code> 的实现<code>重写 channelRead()</code>方法时，它要负责<strong>显式地</strong>释放与池化的 <code>ByteBuf 实例</code>相关的内存。</p>
+<p>Netty 为此提供了一个实用方法 <code>ReferenceCountUtil.release()</code>。</p>
+<p>Netty 将使用 <code>WARN 级别</code>的<code>日志消息</code>记录<code>未释放</code>的资源，使得可以非常简单地在代码中发现违规的实例。但是以这种方式管理资源可能<code>很繁琐</code>。一个更加简单的方式是使用 <code>SimpleChannelInboundHandler</code>，它会<code>自动释放</code>资源。</p>
+<ul>
+<li><p>对于<code>入站请求</code>，Netty 的 <code>EventLoop</code> 在处理 Channel 的<code>读操作</code>时进行分配 ByteBuf，对于这类 ByteBuf，需要我们自行进行释放，有三种方式：</p>
+<ul>
+<li>使用 <code>SimpleChannelInboundHandler</code></li>
+<li>在<code>重写 channelRead()</code>方法使用 <code>ReferenceCountUtil.release()</code></li>
+<li>使用 <code>ctx.fireChannelRead</code> 继续向后传递;</li>
+</ul>
+</li>
+<li><p>对于<code>出站请求</code>，不管 ByteBuf 是否由我们的业务创建的，当调用了 <code>write</code> 或者 <code>writeAndFlush</code> 方法后，Netty 会自动替我们释放，不需要我们业务代码自行释放。</p>
+</li>
+</ul>
 <p>下一个章节将举个栗子，初识下Netty的应用基础用法。</p>
 <p>参考资料：</p>
 <ul>
@@ -891,17 +1144,16 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/posts/1355578097.html">
+                <a href="/posts/1535077223.html">
                     <div class="card-image">
                         
-                        <img src="/medias/Netty.png" class="responsive-img" alt="【Netty学习】3.Netty的组件">
+                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】1668.最大重复子字符串">
                         
-                        <span class="card-title">【Netty学习】3.Netty的组件</span>
+                        <span class="card-title">【LeetCode】1668.最大重复子字符串</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -911,27 +1163,30 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-19
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-23
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/Netty%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    Netty学习
+                            <a href="/categories/%E7%AE%97%E6%B3%95/" class="post-category">
+                                    算法
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/Netty/">
-                        <span class="chip bg-color">Netty</span>
+                    <a href="/tags/LeetCode/">
+                        <span class="chip bg-color">LeetCode</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">
+                        <span class="chip bg-color">动态规划</span>
                     </a>
                     
                 </div>
@@ -1176,7 +1431,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">88.4k</span>
+                        class="white-color">91.5k</span>
             
             
             
