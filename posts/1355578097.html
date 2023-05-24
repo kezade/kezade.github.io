@@ -364,7 +364,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 </header>
 
     
-
+<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/Netty.png')">
@@ -703,7 +703,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <li>一个用于<code>读取</code></li>
 <li>一个用于<code>写入</code>。</li>
 </ul>
-<p>当你从 <code>ByteBuf</code> <code>读取</code>时， 它的 <code>readerIndex</code> 将会<code>被递增</code>已经被读取的字节数。同样地，当你<code>写入 ByteBuf </code>时，它的 <code>writerIndex</code> 也会<code>被递增</code>。下图展示了一个<code>空 ByteBuf</code> 的布局结构和状态。<br><img src="/images/A-Blank-ByteBuf.png" alt="一个读索引和写索引都设置为 0 的 16 字节 ByteBuf"></p>
+<p>当你从 <code>ByteBuf</code> <code>读取</code>时， 它的 <code>readerIndex</code> 将会<code>被递增</code>已经被读取的字节数。同样地，当你<code>写入 ByteBuf </code>时，它的 <code>writerIndex</code> 也会<code>被递增</code>。下图展示了一个<code>空 ByteBuf</code> 的布局结构和状态。<br><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/A-Blank-ByteBuf.png" alt="一个读索引和写索引都设置为 0 的 16 字节 ByteBuf"></p>
 <p>要了解这些索引<code>两两之间</code>的关系，请考虑一下，如果打算<code>读取</code>字节直到 <code>readerIndex</code> 达到和 <code>writerIndex</code> 同样的值时会发生什么。在那时，你将会到达<code>可以读取的</code>数据的末尾。就如同试图读取<code>超出</code>数组末尾的数据一样，试图读取超出该点的数据将会触发一个 <code>IndexOutOfBoundsException</code>。</p>
 <p>名称以 <code>read</code> 或者 <code>write</code> 开头的 <code>ByteBuf</code> 方法，将会推进其对应的索引，而名称以 <code>set</code> 或 者 <code>get</code> 开头的操作则不会。后面的这些方法将在作为一个<code>参数</code>传入的一个<code>相对索引</code>上执行操作。</p>
 <p>可以指定 <code>ByteBuf</code> 的<strong>最大容量</strong>。试图移动<code>写索引</code>(即 <code>writerIndex</code>)超过这个值将会触发一个<code>异常</code>。(默认的限制是 <code>Integer.MAX_VALUE</code>。)</p>
@@ -910,10 +910,10 @@ initialCapacity, int maxCapacity)</td>
 <p>需要注意的是，使用那些需要<code>一个索引值参数</code>的方法(的其中)之一来访问数据既<code>不会改变 readerIndex</code> 也<code>不会改变 writerIndex</code>。如果有需要，也可以通过调用 <code>readerIndex(index)</code> 或者 <code>writerIndex(index)</code>来手动移动这两者。</p>
 </blockquote>
 <h4 id="4-9-4-2-顺序访问索引"><a href="#4-9-4-2-顺序访问索引" class="headerlink" title="4.9.4.2 顺序访问索引"></a>4.9.4.2 顺序访问索引</h4><p>虽然 ByteBuf 同时具有<code>读索引</code>和<code>写索引</code>，但是 JDK 的 <code>ByteBuffer</code> 却只有<code>一个索引</code>，这 也就是为什么必须调用 <code>flip()</code>方法来在<code>读模式</code>和<code>写模式</code>之间进行切换的原因。</p>
-<p><img src="/images/ByteBuf-Inner-Segments.png" alt="ByteBuf的内部分段"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/ByteBuf-Inner-Segments.png" alt="ByteBuf的内部分段"></p>
 <h4 id="4-9-4-3-可丢弃字节"><a href="#4-9-4-3-可丢弃字节" class="headerlink" title="4.9.4.3 可丢弃字节"></a>4.9.4.3 可丢弃字节</h4><p><code>可丢弃字节的分段</code>包含了已经<code>被读过</code>的字节。通过调用 <code>discardReadBytes()</code>方法，可以<code>丢弃</code>它们并<code>回收空间</code>。这个分段的初始大小为 0，存储在 <code>readerIndex</code> 中，会随着 <code>read</code> 操作的执行而增加(get*操作不会移动 readerIndex)。</p>
 <p>缓冲区上调用 <code>discardReadBytes()</code>方法后，<code>可丢弃字节分段</code>中的空间已经变为<code>可写</code>的了。 频繁地调用 <code>discardReadBytes()</code>方法以确保可写分段的最大化，但是<strong>请注意</strong>，这将极有可能会导致<code>内存复制</code>，因为<code>可读字节</code>必须被移动到缓冲区的开始位置。建议只在有真正需要的时候才这样做，例如，当内存非常宝贵的时候。</p>
-<p><img src="/images/discardReadBytes-ByteBuf.png" alt="丢弃已读字节之后的 ByteBuf"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/markdown/discardReadBytes-ByteBuf.png" alt="丢弃已读字节之后的 ByteBuf"></p>
 <h4 id="4-9-4-4-可读字节"><a href="#4-9-4-4-可读字节" class="headerlink" title="4.9.4.4 可读字节"></a>4.9.4.4 可读字节</h4><p>ByteBuf 的可读字节分段存储了实际数据。新分配的、包装的或者复制的缓冲区的默认的 <code>readerIndex</code> 值为 0。</p>
 <h4 id="4-9-4-5-可写字节"><a href="#4-9-4-5-可写字节" class="headerlink" title="4.9.4.5 可写字节"></a>4.9.4.5 可写字节</h4><p>可写字节分段是指一个拥有<code>未定义内容的</code>、<code>写入就绪的</code>内存区域。新分配的缓冲区的 <code>writerIndex</code> 的默认值为 0。任何名称以 <code>write 开头</code>的操作都将从当前的 <code>writerIndex</code> 处开始 写数据，并将它增加已经写入的字节数。</p>
 <h4 id="4-9-4-6-索引管理"><a href="#4-9-4-6-索引管理" class="headerlink" title="4.9.4.6 索引管理"></a>4.9.4.6 索引管理</h4><p>调用 <code>markReaderIndex()</code>、<code>markWriterIndex()</code>、<code>resetWriterIndex()</code>和 <code>resetReaderIndex()</code>来<code>标记</code>和<code>重置</code> ByteBuf 的 <code>readerIndex</code> 和 <code>writerIndex</code>。</p>
@@ -1126,12 +1126,12 @@ initialCapacity, int maxCapacity)</td>
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/posts/1535077223.html">
+                <a href="/posts/1478672774.html">
                     <div class="card-image">
                         
-                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】1668.最大重复子字符串">
+                        <img src="/medias/Netty.png" class="responsive-img" alt="【Netty学习】4.Netty的一个例子">
                         
-                        <span class="card-title">【LeetCode】1668.最大重复子字符串</span>
+                        <span class="card-title">【Netty学习】4.Netty的一个例子</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -1142,14 +1142,14 @@ initialCapacity, int maxCapacity)</td>
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-23
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-22
                         </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/%E7%AE%97%E6%B3%95/" class="post-category">
-                                    算法
+                            <a href="/categories/Netty%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    Netty学习
                                 </a>
                             
                             
@@ -1159,12 +1159,8 @@ initialCapacity, int maxCapacity)</td>
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/LeetCode/">
-                        <span class="chip bg-color">LeetCode</span>
-                    </a>
-                    
-                    <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/">
-                        <span class="chip bg-color">动态规划</span>
+                    <a href="/tags/Netty/">
+                        <span class="chip bg-color">Netty</span>
                     </a>
                     
                 </div>
@@ -1409,7 +1405,7 @@ initialCapacity, int maxCapacity)</td>
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">92k</span>
+                        class="white-color">98.6k</span>
             
             
             
