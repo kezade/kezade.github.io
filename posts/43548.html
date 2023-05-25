@@ -5,13 +5,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【Spring源码学习】Spring初始化机制(xml形式), Back-End Dev Java">
-    <meta name="description" content="
-
-前言Spring 容器加载方式
+    <meta name="description" content="前言Spring 容器加载方式
 类路径获取配置文件
 ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;spring.xml&#34;);
 
-文件">
+文件系统">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -365,7 +363,6 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/Spring.jpeg')">
@@ -465,9 +462,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><h2 id="Spring-容器加载方式"><a href="#Spring-容器加载方式" class="headerlink" title="Spring 容器加载方式"></a>Spring 容器加载方式</h2><ul>
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><h2 id="Spring-容器加载方式"><a href="#Spring-容器加载方式" class="headerlink" title="Spring 容器加载方式"></a>Spring 容器加载方式</h2><ul>
 <li><p>类路径获取配置文件</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ApplicationContext</span> applicationContext<span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ClassPathXmlApplicationContext</span><span class="token punctuation">(</span><span class="token string">"spring.xml"</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 </li>
@@ -588,7 +583,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 <li>调用该类的init()方法，注册各种标签包括自定义标签的解析类</li>
 <li>根据namespaceUri找到的对应的解析类，调用parse()方法完成标签的解析</li>
 </ul>
-<h1 id="二、Spring标签解析流程"><a href="#二、Spring标签解析流程" class="headerlink" title="二、Spring标签解析流程"></a>二、Spring标签解析流程</h1><p>先给出一个我自己画的时序图<br><img src="https://img-blog.csdnimg.cn/20210409181752149.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2tlemFkZQ==,size_16,color_FFFFFF,t_70#pic_center" alt="图1"></p>
+<h1 id="二、Spring标签解析流程"><a href="#二、Spring标签解析流程" class="headerlink" title="二、Spring标签解析流程"></a>二、Spring标签解析流程</h1><p>先给出一个我自己画的时序图<br><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/csdn/20210409181752149.png" alt="图1"></p>
 <h1 id="三、源码跟踪"><a href="#三、源码跟踪" class="headerlink" title="三、源码跟踪"></a>三、源码跟踪</h1><p>入口</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ConfigurableListableBeanFactory</span> beanFactory <span class="token operator">=</span> <span class="token function">obtainFreshBeanFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 
@@ -1674,7 +1669,7 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -1853,20 +1848,20 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/LeetCode/">
-                        <span class="chip bg-color">LeetCode</span>
-                    </a>
-                    
-                    <a href="/tags/%E7%AE%97%E6%B3%95/">
-                        <span class="chip bg-color">算法</span>
-                    </a>
-                    
                     <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
                         <span class="chip bg-color">二叉树</span>
                     </a>
                     
                     <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                         <span class="chip bg-color">数据结构</span>
+                    </a>
+                    
+                    <a href="/tags/LeetCode/">
+                        <span class="chip bg-color">LeetCode</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">算法</span>
                     </a>
                     
                     <a href="/tags/Java/">
@@ -2056,10 +2051,12 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -2321,6 +2318,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

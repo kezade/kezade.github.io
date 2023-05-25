@@ -5,9 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【Netty学习】2.Java原生网络编程, Back-End Dev Java">
-    <meta name="description" content="
-
-1 常见术语1.1 SocketSocket 是应用层与 TCP/IP 协议族通信的中间软件抽象层，它是一组接口。在设计模式 中，Socket 其实就是一个门面模式，它把复杂的 TCP&amp;#x2F;IP 协议族隐藏在 Socket 接口后">
+    <meta name="description" content="1 常见术语1.1 SocketSocket 是应用层与 TCP/IP 协议族通信的中间软件抽象层，它是一组接口。在设计模式 中，Socket 其实就是一个门面模式，它把复杂的 TCP&amp;#x2F;IP 协议族隐藏在 Socket 接口后面，">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -361,7 +359,6 @@
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/Netty.png')">
@@ -473,9 +470,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<h1 id="1-常见术语"><a href="#1-常见术语" class="headerlink" title="1 常见术语"></a>1 常见术语</h1><h2 id="1-1-Socket"><a href="#1-1-Socket" class="headerlink" title="1.1 Socket"></a>1.1 Socket</h2><p><code>Socket</code> 是应用层与 <code>TCP/IP 协议族</code>通信的中间软件抽象层，它是一组<strong>接口</strong>。在设计模式 中，Socket 其实就是一个<code>门面模式</code>，它把复杂的 TCP&#x2F;IP 协议族隐藏在 Socket 接口后面，对用户来说，一组简单的接口就是全部，让 Socket 去组织数据，以符合指定的协议。</p>
+                <h1 id="1-常见术语"><a href="#1-常见术语" class="headerlink" title="1 常见术语"></a>1 常见术语</h1><h2 id="1-1-Socket"><a href="#1-1-Socket" class="headerlink" title="1.1 Socket"></a>1.1 Socket</h2><p><code>Socket</code> 是应用层与 <code>TCP/IP 协议族</code>通信的中间软件抽象层，它是一组<strong>接口</strong>。在设计模式 中，Socket 其实就是一个<code>门面模式</code>，它把复杂的 TCP&#x2F;IP 协议族隐藏在 Socket 接口后面，对用户来说，一组简单的接口就是全部，让 Socket 去组织数据，以符合指定的协议。</p>
 <blockquote>
 <p><strong>主机 A</strong> 的应用程序要能和<strong>主机 B</strong> 的应用程序通信，必须通过 Socket 建立连接，而<strong>建立 Socket 连接</strong>必须需要底层 <code>TCP/IP协议</code>来建立 <code>TCP 连接</code>。建立 TCP 连接需要底层 <code>IP 协议</code>来<strong>寻址</strong>网络中的主机。我们知道网络层使用的 IP 协议可以帮助我们根据 IP 地址来找到目标主机，但是一台主机上可能运行着多个应用程序，如何才能与指定的应用程序通信就要通过 <code>TCP 或 UPD</code> 的地址也就是<code>端口号</code>来指定。这样就可以通过一个 Socket 实例<strong>唯一</strong>代表一个主机上的一个应用程序的通信链路了。</p>
 </blockquote>
@@ -829,7 +824,7 @@
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -1191,10 +1186,12 @@
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -1456,6 +1453,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

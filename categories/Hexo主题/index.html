@@ -435,20 +435,11 @@
                 </a>
                 
                 
-                <a href="/categories/%E7%AE%97%E6%B3%95/" title="算法: 26">
+                <a href="/categories/%E7%AE%97%E6%B3%95/" title="算法: 29">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
                             style="background-color: #F5EEF8;">算法
-                        <span class="tag-length">26</span>
-                    </span>
-                </a>
-                
-                
-                <a href="/categories/Hexo%E4%B8%BB%E9%A2%98/Fluid/" title="Fluid: 1">
-                    <span class="chip center-align waves-effect waves-light
-                             chip-default "
-                            style="background-color: #D5F5E3;">Fluid
-                        <span class="tag-length">1</span>
+                        <span class="tag-length">29</span>
                     </span>
                 </a>
                 
@@ -456,7 +447,7 @@
                 <a href="/categories/MySQL%E5%AD%A6%E4%B9%A0/" title="MySQL学习: 1">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            style="background-color: #E8F8F5;">MySQL学习
+                            style="background-color: #D5F5E3;">MySQL学习
                         <span class="tag-length">1</span>
                     </span>
                 </a>
@@ -465,7 +456,7 @@
                 <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" title="MyBatis源码学习: 7">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            style="background-color: #FEF9E7;">MyBatis源码学习
+                            style="background-color: #E8F8F5;">MyBatis源码学习
                         <span class="tag-length">7</span>
                     </span>
                 </a>
@@ -474,8 +465,17 @@
                 <a href="/categories/Netty%E5%AD%A6%E4%B9%A0/" title="Netty学习: 4">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            style="background-color: #F8F9F9;">Netty学习
+                            style="background-color: #FEF9E7;">Netty学习
                         <span class="tag-length">4</span>
+                    </span>
+                </a>
+                
+                
+                <a href="/categories/Python%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%BA%94%E7%94%A8/" title="Python学习与应用: 1">
+                    <span class="chip center-align waves-effect waves-light
+                             chip-default "
+                            style="background-color: #F8F9F9;">Python学习与应用
+                        <span class="tag-length">1</span>
                     </span>
                 </a>
                 
@@ -507,19 +507,10 @@
                 </a>
                 
                 
-                <a href="/categories/Fluid/" title="Fluid: 1">
-                    <span class="chip center-align waves-effect waves-light
-                             chip-default "
-                            style="background-color: #85C1E9;">Fluid
-                        <span class="tag-length">1</span>
-                    </span>
-                </a>
-                
-                
                 <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" title="分布式系统: 1">
                     <span class="chip center-align waves-effect waves-light
                              chip-default "
-                            style="background-color: #F8C471;">分布式系统
+                            style="background-color: #85C1E9;">分布式系统
                         <span class="tag-length">1</span>
                     </span>
                 </a>
@@ -549,10 +540,9 @@
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                
-
-本文是基于Hexo 6.3.0, Fluid 1.9.4进行开发，主要借鉴于hexo的fluid主题添加瀑布流懒加载相册功能，其中基于jsDelivr+Github 实现免费CDN加速可以参考这篇文章搭建自己的CDN。
+                                本文是基于Hexo 6.3.0, Fluid 1.9.4进行开发，主要借鉴于hexo的fluid主题添加瀑布流懒加载相册功能，其中基于jsDelivr+Github 实现免费CDN加速可以参考这篇文章搭建自己的CDN。
 1.创建相册页面
+在
                             
                         </div>
                         <div class="publish-info">
@@ -565,10 +555,6 @@
                                 
                                 <a href="/categories/Hexo%E4%B8%BB%E9%A2%98/" class="post-category">
                                     Hexo主题
-                                </a>
-                                
-                                <a href="/categories/Fluid/" class="post-category">
-                                    Fluid
                                 </a>
                                 
                                 
@@ -627,10 +613,6 @@
                                     Hexo主题
                                 </a>
                                 
-                                <a href="/categories/Hexo%E4%B8%BB%E9%A2%98/Fluid/" class="post-category">
-                                    Fluid
-                                </a>
-                                
                                 
                             </span>
                         </div>
@@ -673,10 +655,12 @@
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -938,6 +922,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

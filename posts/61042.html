@@ -5,10 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【LeetCode】297. 二叉树的序列化与反序列化, Back-End Dev Java">
-    <meta name="description" content="
-
-1.问题序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
-请设计一个算法来实现二叉树的序列化与反序列化。这里不">
+    <meta name="description" content="1.问题序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。
+请设计一个算法来实现二叉树的序列化与反序列化。这里不限定">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -362,7 +360,6 @@
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/LeetCode.jpg')">
@@ -394,20 +391,20 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/LeetCode/">
-                                <span class="chip bg-color">LeetCode</span>
-                            </a>
-                        
-                            <a href="/tags/%E7%AE%97%E6%B3%95/">
-                                <span class="chip bg-color">算法</span>
-                            </a>
-                        
                             <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
                                 <span class="chip bg-color">二叉树</span>
                             </a>
                         
                             <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                                 <span class="chip bg-color">数据结构</span>
+                            </a>
+                        
+                            <a href="/tags/LeetCode/">
+                                <span class="chip bg-color">LeetCode</span>
+                            </a>
+                        
+                            <a href="/tags/%E7%AE%97%E6%B3%95/">
+                                <span class="chip bg-color">算法</span>
                             </a>
                         
                             <a href="/tags/Java/">
@@ -482,12 +479,10 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p><strong>序列化</strong>是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。</p>
+                <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p><strong>序列化</strong>是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。</p>
 <p>请设计一个算法来实现二叉树的序列化与反序列化。这里不限定你的序列 &#x2F; 反序列化算法执行逻辑，你只需要保证一个二叉树可以被序列化为一个字符串并且将这个字符串反序列化为原始的树结构。</p>
 <p>提示: 输入输出格式与 LeetCode 目前使用的方式一致，详情请参阅 LeetCode 序列化二叉树的格式。你并非必须采取这种方式，你也可以采用其他的方法解决这个问题。</p>
-<h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><p><img src="https://img-blog.csdnimg.cn/c5186c114299495ebabab7a28745e79f.png"></p>
+<h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/csdn/c5186c114299495ebabab7a28745e79f.png"></p>
 <blockquote>
 <p>输入：root &#x3D; [1,2,3,null,null,4,5]<br>输出：[1,2,3,null,null,4,5]</p>
 </blockquote>
@@ -516,7 +511,7 @@
 <li><a href="https://zyxelva.github.io/posts/26388.html">199.二叉树的右视图</a></li>
 </ul>
 <hr>
-<h2 id="2-1-BFS"><a href="#2-1-BFS" class="headerlink" title="2.1 BFS"></a>2.1 BFS</h2><p>在<a href="https://zyxelva.github.io/posts/46738.html">102.二叉树的层序遍历</a> 一文中，我们利用队列的性质对二叉树进行了层序遍历，本章，在序列化时我们也可以用队列，只是不需要分层标识，比如我们可以把它看成是这样：<br><img src="https://img-blog.csdnimg.cn/2d1b08b2f4e749fbbd5283931f47847a.png"><br>我们定义一个空节点，用以标识某个节点无左或右子节点。用下划线分割各个节点的值。</p>
+<h2 id="2-1-BFS"><a href="#2-1-BFS" class="headerlink" title="2.1 BFS"></a>2.1 BFS</h2><p>在<a href="https://zyxelva.github.io/posts/46738.html">102.二叉树的层序遍历</a> 一文中，我们利用队列的性质对二叉树进行了层序遍历，本章，在序列化时我们也可以用队列，只是不需要分层标识，比如我们可以把它看成是这样：<br><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/csdn/2d1b08b2f4e749fbbd5283931f47847a.png"><br>我们定义一个空节点，用以标识某个节点无左或右子节点。用下划线分割各个节点的值。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">int</span> <span class="token constant">INF</span> <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2000</span><span class="token punctuation">;</span>
 <span class="token class-name">TreeNode</span> emptyNode <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TreeNode</span><span class="token punctuation">(</span><span class="token constant">INF</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>则序列化后的结果为：<code>1_2_3_-2000_-2000_4_5_-2000_-2000_-2000_-2000</code>;<br>反序列化时，利用队列，弹出头结点，包装成二叉树节点，对于序列化的序列，取出两个节点，只要值不是-2000，就可以将父子节点进行关联，再入队，依次循环。</p>
@@ -729,20 +724,20 @@ public class TreeNode &#123;
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/LeetCode/">
-                                    <span class="chip bg-color">LeetCode</span>
-                                </a>
-                            
-                                <a href="/tags/%E7%AE%97%E6%B3%95/">
-                                    <span class="chip bg-color">算法</span>
-                                </a>
-                            
                                 <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
                                     <span class="chip bg-color">二叉树</span>
                                 </a>
                             
                                 <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                                     <span class="chip bg-color">数据结构</span>
+                                </a>
+                            
+                                <a href="/tags/LeetCode/">
+                                    <span class="chip bg-color">LeetCode</span>
+                                </a>
+                            
+                                <a href="/tags/%E7%AE%97%E6%B3%95/">
+                                    <span class="chip bg-color">算法</span>
                                 </a>
                             
                                 <a href="/tags/Java/">
@@ -765,7 +760,7 @@ public class TreeNode &#123;
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -892,20 +887,20 @@ public class TreeNode &#123;
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/LeetCode/">
-                        <span class="chip bg-color">LeetCode</span>
-                    </a>
-                    
-                    <a href="/tags/%E7%AE%97%E6%B3%95/">
-                        <span class="chip bg-color">算法</span>
-                    </a>
-                    
                     <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
                         <span class="chip bg-color">二叉树</span>
                     </a>
                     
                     <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                         <span class="chip bg-color">数据结构</span>
+                    </a>
+                    
+                    <a href="/tags/LeetCode/">
+                        <span class="chip bg-color">LeetCode</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">算法</span>
                     </a>
                     
                     <a href="/tags/Java/">
@@ -964,20 +959,20 @@ public class TreeNode &#123;
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/LeetCode/">
-                        <span class="chip bg-color">LeetCode</span>
-                    </a>
-                    
-                    <a href="/tags/%E7%AE%97%E6%B3%95/">
-                        <span class="chip bg-color">算法</span>
-                    </a>
-                    
                     <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
                         <span class="chip bg-color">二叉树</span>
                     </a>
                     
                     <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
                         <span class="chip bg-color">数据结构</span>
+                    </a>
+                    
+                    <a href="/tags/LeetCode/">
+                        <span class="chip bg-color">LeetCode</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%AE%97%E6%B3%95/">
+                        <span class="chip bg-color">算法</span>
                     </a>
                     
                     <a href="/tags/Java/">
@@ -1163,10 +1158,12 @@ public class TreeNode &#123;
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -1428,6 +1425,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

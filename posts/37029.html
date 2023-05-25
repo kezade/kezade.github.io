@@ -5,10 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【Spring源码学习】BeanPostProccessor的理解, Back-End Dev Java">
-    <meta name="description" content="
-
-BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在这个点会根据接口类型来过滤掉不关注这个点的其他类，只有真正关注的类才会在这个点进行相应的功能实现。
-前言Spring 初始化核心流程spring容器初始化的核心">
+    <meta name="description" content="BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在这个点会根据接口类型来过滤掉不关注这个点的其他类，只有真正关注的类才会在这个点进行相应的功能实现。
+前言Spring 初始化核心流程spring容器初始化的核心方法">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -362,7 +360,6 @@ BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在�
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/Spring.jpeg')">
@@ -462,9 +459,7 @@ BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在�
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<p>BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在这个点会根据接口类型来过滤掉不关注这个点的其他类，只有真正关注的类才会在这个点进行相应的功能实现。</p>
+                <p>BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在这个点会根据接口类型来过滤掉不关注这个点的其他类，只有真正关注的类才会在这个点进行相应的功能实现。</p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><h2 id="Spring-初始化核心流程"><a href="#Spring-初始化核心流程" class="headerlink" title="Spring 初始化核心流程"></a>Spring 初始化核心流程</h2><p>spring容器初始化的核心方法AbstractApplicationContext#refresh，</p>
 <ul>
 <li>refresh Spring 初始化核心流程入口<ul>
@@ -996,7 +991,7 @@ BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在�
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -1358,10 +1353,12 @@ BeanPostProcessor 接口类型实例是针对某种特定功能的埋点，在�
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -1623,6 +1620,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

@@ -5,10 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【MySQL学习】1.基础, Back-End Dev Java">
-    <meta name="description" content="
-
-1 推荐书籍-《深入浅出 MySQL》-《深入理解 MySQL 核心技术》-《高性能 MySQL》-《MySQL 技术内幕 : InnoDB 存储引擎 第 2 版》-《MySql必知必会》
-2 MySQL 的分支、变种与替代MySQL ">
+    <meta name="description" content="1 推荐书籍-《深入浅出 MySQL》-《深入理解 MySQL 核心技术》-《高性能 MySQL》-《MySQL 技术内幕 : InnoDB 存储引擎 第 2 版》-《MySql必知必会》
+2 MySQL 的分支、变种与替代MySQL 变种">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -362,7 +360,6 @@
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/MySQL2.webp')">
@@ -458,9 +455,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<h1 id="1-推荐书籍"><a href="#1-推荐书籍" class="headerlink" title="1 推荐书籍"></a>1 推荐书籍</h1><p>-《深入浅出 MySQL》<br>-《深入理解 MySQL 核心技术》<br>-《高性能 MySQL》<br>-《MySQL 技术内幕 : InnoDB 存储引擎 第 2 版》<br>-《MySql必知必会》</p>
+                <h1 id="1-推荐书籍"><a href="#1-推荐书籍" class="headerlink" title="1 推荐书籍"></a>1 推荐书籍</h1><p>-《深入浅出 MySQL》<br>-《深入理解 MySQL 核心技术》<br>-《高性能 MySQL》<br>-《MySQL 技术内幕 : InnoDB 存储引擎 第 2 版》<br>-《MySql必知必会》</p>
 <h1 id="2-MySQL-的分支、变种与替代"><a href="#2-MySQL-的分支、变种与替代" class="headerlink" title="2 MySQL 的分支、变种与替代"></a>2 MySQL 的分支、变种与替代</h1><p>MySQL 变种有好几个，主要有<strong>三个</strong>久经考验的主流变种:<code>Percona Server</code>， <code>MariaDB</code> 和 <code>Drizzle</code>。它们都有活跃的用户社区和某种程度上的商业支持，均由独立的服务供应商支持。</p>
 <h2 id="2-1-Drizzle"><a href="#2-1-Drizzle" class="headerlink" title="2.1 Drizzle"></a>2.1 Drizzle</h2><p><code>Drizzle</code> 是真正的 <code>MySQL</code> 分支，而且是<code>完全开源</code>的产品，而非只是个变种或增强版本。它<strong>并不与 MySQL 兼容</strong>，不能简单地将 MySQL 后端替换为 Drizzle。</p>
 <p>Drizzle 与 MySQL 有很大差别，进行了一些<code>重大更改</code>，甚至 SQL 语法的变化都非常大，<code>设计目标之一</code>是<strong>提供一种出色的解决方案来解决高可用性问题</strong>。在实现上，Drizzle 清除了一些表现不佳和不必要的功能，将很多代码重写，对它们进行了优化，甚至将所用语言从 <code>C</code> 换成了 <code>C++</code>。</p>
@@ -512,9 +507,9 @@
 </ul>
 </li>
 </ul>
-<h2 id="3-7-2-MylSAM-存储引擎"><a href="#3-7-2-MylSAM-存储引擎" class="headerlink" title="3.7.2 MylSAM 存储引擎"></a>3.7.2 MylSAM 存储引擎</h2><p>提供如<code>压缩表</code>、<code>空间数据索引</code>、<code>全文索引</code>等特性。</p>
+<h3 id="3-7-2-MylSAM-存储引擎"><a href="#3-7-2-MylSAM-存储引擎" class="headerlink" title="3.7.2 MylSAM 存储引擎"></a>3.7.2 MylSAM 存储引擎</h3><p>提供如<code>压缩表</code>、<code>空间数据索引</code>、<code>全文索引</code>等特性。</p>
 <p><strong>不支持</strong><code>事务</code>和<code>行级锁</code>，崩溃后<code>无法安全恢复</code>，但它绝不是一无是处的。对于<code>只读</code>的数据，或者<code>表比较小</code>、可以忍受修复(repair)操作，则依然可以继续使用 <code>MyISAM</code>。</p>
-<h2 id="3-7-3-MyISAM和InnoDB的比较"><a href="#3-7-3-MyISAM和InnoDB的比较" class="headerlink" title="3.7.3 MyISAM和InnoDB的比较"></a>3.7.3 MyISAM和InnoDB的比较</h2><p><code>MyISAM</code>和<code>InnoDB</code>是MySQL数据库中<code>最常用</code>的两个引擎，下面比较一下两个引擎的<code>区别</code>。</p>
+<h3 id="3-7-3-MyISAM和InnoDB的比较"><a href="#3-7-3-MyISAM和InnoDB的比较" class="headerlink" title="3.7.3 MyISAM和InnoDB的比较"></a>3.7.3 MyISAM和InnoDB的比较</h3><p><code>MyISAM</code>和<code>InnoDB</code>是MySQL数据库中<code>最常用</code>的两个引擎，下面比较一下两个引擎的<code>区别</code>。</p>
 <table border="0" cellpadding="0" cellspacing="0" width="764" style="border-collapse:
  collapse;table-layout:fixed;width:573pt;box-sizing: inherit;border-spacing: 0px;
  font-variant-ligatures: normal;font-variant-caps: normal;orphans: 2;
@@ -757,7 +752,7 @@
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -847,17 +842,16 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/posts/3577477089.html">
+                <a href="/posts/1974715365.html">
                     <div class="card-image">
                         
-                        <img src="/medias/MySQL2.webp" class="responsive-img" alt="【MySQL学习】1.基础">
+                        <img src="/medias/LeetCode.jpg" class="responsive-img" alt="【LeetCode】283.移动零">
                         
-                        <span class="card-title">【MySQL学习】1.基础</span>
+                        <span class="card-title">【LeetCode】283.移动零</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -867,27 +861,30 @@
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-24
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2023-05-25
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/MySQL%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    MySQL学习
+                            <a href="/categories/%E7%AE%97%E6%B3%95/" class="post-category">
+                                    算法
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/MySQL/">
-                        <span class="chip bg-color">MySQL</span>
+                    <a href="/tags/LeetCode/">
+                        <span class="chip bg-color">LeetCode</span>
+                    </a>
+                    
+                    <a href="/tags/%E5%8F%8C%E6%8C%87%E9%92%88/">
+                        <span class="chip bg-color">双指针</span>
                     </a>
                     
                 </div>
@@ -904,7 +901,7 @@
                 <a href="/posts/297429493.html">
                     <div class="card-image">
                         
-                        <img src="/medias/Zookeeper.png" class="responsive-img" alt="【Zookeeper学习】4.Zookeeper基础">
+                        <img src="/medias/zookeeper.png" class="responsive-img" alt="【Zookeeper学习】4.Zookeeper基础">
                         
                         <span class="card-title">【Zookeeper学习】4.Zookeeper基础</span>
                     </div>
@@ -1124,10 +1121,12 @@
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -1389,6 +1388,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     

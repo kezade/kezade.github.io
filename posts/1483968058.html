@@ -5,15 +5,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【LeetCode】14. 最长公共前缀, Back-End Dev Java">
-    <meta name="description" content="
-
-1. 问题编写一个函数来查找字符串数组中的最长公共前缀。
+    <meta name="description" content="1. 问题编写一个函数来查找字符串数组中的最长公共前缀。
 如果不存在公共前缀，返回空字符串 “”。
 示例 1
 输入：strs &amp;#x3D; [“flower”,”flow”,”flight”]输出：”fl”
 
 示例 2
-输入：strs ">
+输入：strs &amp;#">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -367,7 +365,6 @@
 </header>
 
     
-<meta name="referrer" content="no-referrer"/>
 
 
 <div class="bg-cover pd-header post-cover" style="background-image: url('/medias/LeetCode.jpg')">
@@ -467,9 +464,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <meta name="referrer" content="no-referrer">
-
-<h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h1><p>编写一个函数来查找字符串数组中的<code>最长公共前缀</code>。</p>
+                <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h1><p>编写一个函数来查找字符串数组中的<code>最长公共前缀</code>。</p>
 <p>如果不存在公共前缀，返回空字符串 “”。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
 <p>输入：strs &#x3D; [“flower”,”flow”,”flight”]<br>输出：”fl”</p>
@@ -488,7 +483,7 @@
 <li>将得到结果与后续字符串比较，得到新的公共前缀，以此类推。</li>
 </ul>
 <p>以下图为例：</p>
-<p><img src="https://img-blog.csdnimg.cn/3d6d20ea9eea494586a729dcffaf9fbc.png" alt="算法示意图"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/zyxelva/picgo@main/csdn/3d6d20ea9eea494586a729dcffaf9fbc.png" alt="算法示意图"></p>
 <ul>
 <li>$s_1$ 和 $s_2$ 的公共前缀是 <code>leet</code>;</li>
 <li><code>leet</code> 与 $s_3$ 的公共前缀还是 <code>leet</code>;</li>
@@ -611,7 +606,7 @@
 <div id="article-share">
 
     
-    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
     <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
     
 
@@ -708,7 +703,7 @@
                 <a href="/posts/297429493.html">
                     <div class="card-image">
                         
-                        <img src="/medias/Zookeeper.png" class="responsive-img" alt="【Zookeeper学习】4.Zookeeper基础">
+                        <img src="/medias/zookeeper.png" class="responsive-img" alt="【Zookeeper学习】4.Zookeeper基础">
                         
                         <span class="card-title">【Zookeeper学习】4.Zookeeper基础</span>
                     </div>
@@ -980,10 +975,12 @@
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             
+                <span id="translate">|&nbsp;繁/简：</span><a id="translateLink" href="javascript:translatePage();">繁</a>
+            
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">98.6k</span>
+                        class="white-color">101.5k</span>
             
             
             
@@ -1245,6 +1242,17 @@ $(function () {
 
     
 
+    
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript">
+          var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
+          var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
+          var cookieDomain = "https://zyxelva.github.io"; //Cookie地址, 一定要设定, 通常为你的网址
+          var msgToTraditionalChinese = "繁"; //此处可以更改为你想要显示的文字
+          var msgToSimplifiedChinese = "简"; //同上，但两处均不建议更改
+          var translateButtonId = "translateLink"; //默认互换id
+          translateInitilization();
+        </script>
     
     
     
