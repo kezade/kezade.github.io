@@ -442,6 +442,112 @@
              <!-- 隐藏某个文章 -->
             <div class="article col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
+                    <a href="/posts/2421.html">
+                        <div class="card-image">
+                            
+                            <img src="/medias/Spring.jpeg" class="responsive-img" alt="【Spring源码学习】Spring Bean的销毁">
+                            
+                            <span class="card-title">【Spring源码学习】Spring Bean的销毁</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                上一章节中，我们跟完了bean的创建流程，而在创建完成以后，bean还会注册销毁相关的类，以便于像tomcat等容器关闭时相关的调用，本章我就聊这个。
+一、注册bean销毁的类先定位到类AbstractAutowireCapableBean
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-01
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    Spring源码学习
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E6%BA%90%E7%A0%81/">
+                            <span class="chip bg-color">源码</span>
+                        </a>
+                        
+                        <a href="/tags/Spring/">
+                            <span class="chip bg-color">Spring</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+              <!-- 隐藏某个文章 -->
+            
+             <!-- 隐藏某个文章 -->
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
+                    <a href="/posts/5018.html">
+                        <div class="card-image">
+                            
+                            <img src="/medias/Spring.jpeg" class="responsive-img" alt="【Spring源码学习】Spring Bean实例化-循环依赖">
+                            
+                            <span class="card-title">【Spring源码学习】Spring Bean实例化-循环依赖</span>
+                        </div>
+                    </a>
+
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                一、什么是循环依赖如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致循环依赖。类似代码如下：
+public class A &#12
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2023-05-01
+                            </span>
+                            <span class="publish-author">
+                                
+                                <i class="fas fa-bookmark fa-fw icon-category"></i>
+                                
+                                <a href="/categories/Spring%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="post-category">
+                                    Spring源码学习
+                                </a>
+                                
+                                
+                            </span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="card-action article-tags">
+                        
+                        <a href="/tags/%E6%BA%90%E7%A0%81/">
+                            <span class="chip bg-color">源码</span>
+                        </a>
+                        
+                        <a href="/tags/Spring/">
+                            <span class="chip bg-color">Spring</span>
+                        </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+              <!-- 隐藏某个文章 -->
+            
+             <!-- 隐藏某个文章 -->
+            <div class="article col s12 m6 l4" data-aos="zoom-in">
+                <div class="card">
                     <a href="/posts/54230.html">
                         <div class="card-image">
                             
@@ -1055,124 +1161,6 @@ java基础需要过硬
             </div>
               <!-- 隐藏某个文章 -->
             
-             <!-- 隐藏某个文章 -->
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/posts/20551.html">
-                        <div class="card-image">
-                            
-                            <img src="/medias/MyBatis.jpeg" class="responsive-img" alt="【MyBatis源码学习】Sql执行">
-                            
-                            <span class="card-title">【MyBatis源码学习】Sql执行</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                                前言上一篇【MyBatis源码学习】Sql解析中，我主要梳理了sql的源码解析过程，本章我通过同样的一个例子，来仔细瞧瞧sql是怎样执行下来的。主要分为三个步骤：
-
-动态代理生成mapper
-sql执行
-结果集处理
-
-还是通过同样的例子来开
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-04-30
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fas fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    MyBatis源码学习
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/MyBatis/">
-                            <span class="chip bg-color">MyBatis</span>
-                        </a>
-                        
-                        <a href="/tags/%E6%BA%90%E7%A0%81/">
-                            <span class="chip bg-color">源码</span>
-                        </a>
-                        
-                        <a href="/tags/SQL/">
-                            <span class="chip bg-color">SQL</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-              <!-- 隐藏某个文章 -->
-            
-             <!-- 隐藏某个文章 -->
-            <div class="article col s12 m6 l4" data-aos="zoom-in">
-                <div class="card">
-                    <a href="/posts/45790.html">
-                        <div class="card-image">
-                            
-                            <img src="/medias/MyBatis.jpeg" class="responsive-img" alt="【MyBatis源码学习】Sql解析">
-                            
-                            <span class="card-title">【MyBatis源码学习】Sql解析</span>
-                        </div>
-                    </a>
-
-                    <div class="card-content article-content">
-                        <div class="summary block-with-text">
-                            
-                                一、前言之前我在【Mybatis源码学习】初始化阶段 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。本章节中
-                            
-                        </div>
-                        <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2023-04-30
-                            </span>
-                            <span class="publish-author">
-                                
-                                <i class="fas fa-bookmark fa-fw icon-category"></i>
-                                
-                                <a href="/categories/MyBatis%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" class="post-category">
-                                    MyBatis源码学习
-                                </a>
-                                
-                                
-                            </span>
-                        </div>
-                    </div>
-
-                    
-                    <div class="card-action article-tags">
-                        
-                        <a href="/tags/MyBatis/">
-                            <span class="chip bg-color">MyBatis</span>
-                        </a>
-                        
-                        <a href="/tags/%E6%BA%90%E7%A0%81/">
-                            <span class="chip bg-color">源码</span>
-                        </a>
-                        
-                        <a href="/tags/SQL/">
-                            <span class="chip bg-color">SQL</span>
-                        </a>
-                        
-                    </div>
-                    
-                </div>
-            </div>
-              <!-- 隐藏某个文章 -->
-            
         </div>
     </article>
 
@@ -1190,7 +1178,7 @@ sql执行
             
         </div>
         <div class="page-info col m4 l4 hide-on-small-only">
-            <div class="center-align b-text-gray">4 / 5</div>
+            <div class="center-align b-text-gray">4 / 6</div>
         </div>
         <div class="col s6 m4 l4">
             
@@ -1225,7 +1213,7 @@ sql执行
             <br>
             
                 &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                        class="white-color">101.5k</span>
+                        class="white-color">102.6k</span>
             
             
             
