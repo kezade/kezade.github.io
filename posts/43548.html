@@ -22,7 +22,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 
 
     <title>【Spring源码学习】Spring初始化机制(xml形式) | Kezade</title>
-    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/avatar.png">
+    <link rel="icon" type="image/png" href="/medias/avatar.png">
     
     <style>
         body{
@@ -39,31 +39,31 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 
 
 
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/awesome/css/all.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/materialize/materialize.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/aos/aos.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/animate/animate.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/lightGallery/css/lightgallery.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/css/matery.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/css/my.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/css/dark.css" media="none" onload="if(media!='all')media='all'">
+<link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+<link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+<link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+<link rel="stylesheet" type="text/css" href="/css/matery.css">
+<link rel="stylesheet" type="text/css" href="/css/my.css">
+<link rel="stylesheet" type="text/css" href="/css/dark.css" media="none" onload="if(media!='all')media='all'">
 
 
 
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/tocbot/tocbot.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/css/post.css">
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+    <link rel="stylesheet" href="/css/post.css">
 
 
 
 
     
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/css/reward.css">
+        <link rel="stylesheet" type="text/css" href="/css/reward.css">
     
 
 
 
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/jquery/jquery-3.6.0.min.js"></script>
+    <script src="/libs/jquery/jquery-3.6.0.min.js"></script>
 
 <meta name="generator" content="Hexo 6.3.0"></head>
 
@@ -75,7 +75,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
             <div class="brand-logo">
                 <a href="/" class="waves-effect waves-light">
                     
-                    <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/avatar.png" class="logo-img" alt="LOGO">
+                    <img src="/medias/avatar.png" class="logo-img" alt="LOGO">
                     
                     <span class="logo-span">Kezade</span>
                 </a>
@@ -144,6 +144,15 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
         </a>
       </li>
       
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -187,7 +196,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 
     <div class="mobile-head bg-color">
         
-        <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/avatar.png" class="logo-img circle responsive-img">
+        <img src="/medias/avatar.png" class="logo-img circle responsive-img">
         
         <div class="logo-name">Kezade</div>
         <div class="logo-desc">
@@ -258,6 +267,16 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
 			      
 		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -455,7 +474,7 @@ ApplicationContext applicationContext= new ClassPathXmlApplicationContext(&#34;s
 
         
         <!-- 是否加载使用自带的 prismjs. -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/prism/prism.min.css">
+        <link rel="stylesheet" href="/libs/prism/prism.min.css">
         
 
         
@@ -1665,12 +1684,12 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
                     
                 </div>
                 <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
-                    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/css/share.min.css">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
 <div id="article-share">
 
     
     <div class="social-share" data-sites="google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/share/js/social-share.min.js"></script>
+    <script src="/libs/share/js/social-share.min.js"></script>
     
 
     
@@ -1695,10 +1714,10 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
                         <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
                     </ul>
                     <div id="alipay">
-                        <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
                     </div>
                     <div id="wechat">
-                        <img src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
                     </div>
                 </div>
             </div>
@@ -1848,20 +1867,20 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
-                        <span class="chip bg-color">二叉树</span>
-                    </a>
-                    
-                    <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
-                        <span class="chip bg-color">数据结构</span>
-                    </a>
-                    
                     <a href="/tags/LeetCode/">
                         <span class="chip bg-color">LeetCode</span>
                     </a>
                     
                     <a href="/tags/%E7%AE%97%E6%B3%95/">
                         <span class="chip bg-color">算法</span>
+                    </a>
+                    
+                    <a href="/tags/%E4%BA%8C%E5%8F%89%E6%A0%91/">
+                        <span class="chip bg-color">二叉树</span>
+                    </a>
+                    
+                    <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+                        <span class="chip bg-color">数据结构</span>
                     </a>
                     
                     <a href="/tags/Java/">
@@ -1926,26 +1945,26 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
 
 
 <!-- 代码块功能依赖 -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/codeBlock/codeBlockFuction.js"></script>
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
 
 
   <!-- 是否加载使用自带的 prismjs. -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/prism/prism.min.js"></script>
+  <script type="text/javascript" src="/libs/prism/prism.min.js"></script>
 
 
 <!-- 代码语言 -->
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/codeBlock/codeLang.js"></script>
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
 
 
 <!-- 代码块复制 -->
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/codeBlock/codeCopy.js"></script>
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
 
 
 <!-- 代码块收缩 -->
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/codeBlock/codeShrink.js"></script>
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
 
 
 
@@ -1967,7 +1986,7 @@ DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认�
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/tocbot/tocbot.min.js"></script>
+<script src="/libs/tocbot/tocbot.min.js"></script>
 <script>
     $(function () {
         tocbot.init({
@@ -2309,17 +2328,17 @@ $(function () {
 </div>
 
 
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/materialize/materialize.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/masonry/masonry.pkgd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/aos/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/scrollprogress/scrollProgress.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/lightGallery/js/lightgallery-all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/matery.js"></script>
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
 
     
 
     
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/js/tw_cn.js"></script>
+        <script type="text/javascript" src="/js/tw_cn.js"></script>
         <script type="text/javascript">
           var defaultEncoding = 2; //网站编写字体是否繁体，1-繁体，2-简体
           var translateDelay = 0; //延迟时间,若不在前, 要设定延迟翻译时间, 如100表示100ms,默认为0
@@ -2337,7 +2356,7 @@ $(function () {
             // 只在桌面版网页启用特效
             var windowWidth = $(window).width();
             if (windowWidth > 768) {
-                document.write('<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/others/sakura.js"><\/script>');
+                document.write('<script type="text/javascript" src="/libs/others/sakura.js"><\/script>');
             }
         </script>
     
@@ -2348,7 +2367,7 @@ $(function () {
             // 只在桌面版网页启用特效
             var windowWidth = $(window).width();
             if (windowWidth > 768) {
-                document.write('<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/others/snow.js"><\/script>');
+                document.write('<script type="text/javascript" src="/libs/others/snow.js"><\/script>');
             }
         </script>
     
@@ -2377,10 +2396,10 @@ $(function () {
 </script>
 
     
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/others/clicklove.js" async="async"></script>
+    <script src="/libs/others/clicklove.js" async="async"></script>
     
     
-    <script async src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/others/busuanzi.pure.mini.js"></script>
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
     
 
     
@@ -2394,11 +2413,11 @@ $(function () {
     
 
     
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/background/ribbon-dynamic.js" async="async"></script>
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js" async="async"></script>
     
 
     
-    <script src="https://cdn.jsdelivr.net/gh/zyxelva/zyxelva.github.io/libs/instantpage/instantpage.js" type="module"></script>
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
     
 
 </body>
