@@ -1,1 +1,85 @@
-function bookShow(o,e,t){var a=localStorage.getItem(e),r=JSON.parse(a),s=r.rating.average,n=r.images.medium,i=toPercent(r.rating.average/10),d=r.title,l="";l+=`<div class="dfdORB"><div class="sc-hKFxyN HPRth"><div class="lazyload-wrapper"><img class="avatar" src="${n}" referrer-policy="no-referrer" loading="lazy" alt="${r.subtitle}" title="${d}" width="150" height="220" /></div></div><div class="sc-fujyAs eysHZq"><div class="rating"><span class="allstardark"><span class="allstarlight" style="width:${i}"></span></span><span class="rating_nums">${s}</span></div></div><div class="sc-iCoGMd kMthTr"><a rel="noreferrer" href="${o}" target="_blank">${d}</a></div></div>`,t&&t.insertAdjacentHTML("beforeend",l)}function toPercent(o){var e=Number(100*o).toFixed(1);return e+="%"}document.addEventListener("DOMContentLoaded",(()=>{const o=document.querySelector("#douban-book")||"";function e(e,t){let a=[],r=douban.api,s=0,n=/^https\:\/\/(movie|book)\.douban\.com\/subject\/([0-9]+)\/?/;var i=/(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g;e.forEach((o=>{a=a.concat(o.content.match(i))})),a.forEach((e=>{if(e&&s<t){var a=e.replace(n,"$1"),i=e.replace(n,"$2").toString();if("book"===a){s++;var d="book"+i,l=r+"v2/book/id/"+i;null===localStorage.getItem(d)||"undefined"===localStorage.getItem(d)?fetch(l).then((o=>o.json())).then((e=>{let t="book"+e.id,a="https://book.douban.com/subject/"+e.id+"/";localStorage.setItem(t,JSON.stringify(e)),bookShow(a,t,o)})):bookShow(e,d,o)}}})),window.Lately&&Lately.init({target:".photo-time"})}o&&function(o){var t={host:"https://demo.usememos.com/",limit:"10",creatorId:"101",domId:"#memos",username:"Admin",name:"Administrator"};if("undefined"!=typeof memos)for(var a in memos)memos[a]&&(t[a]=memos[a]);var r=t.host+"api/memo?creatorId="+t.creatorId+"&tag=豆瓣";let s=o||8;var n=localStorage.getItem("doubanBookUpdated")||"",i=JSON.parse(localStorage.getItem("doubanBookData"))||"";i?(e(i,s),console.log("memosDoubanBook 本地数据加载成功")):localStorage.setItem("doubanBookUpdated","");fetch(r).then((o=>o.json())).then((o=>{var t=o.data[0].updatedTs;if(t&&n!=t){var a=o.data;e(a,s),localStorage.setItem("doubanBookUpdated",JSON.stringify(t)),localStorage.setItem("doubanBookData",JSON.stringify(a)),console.log("memosDoubanBook 热更新完成")}else console.log("memosDoubanBook API 数据未更新")}))}(5)}));
+document.addEventListener("DOMContentLoaded", () => {
+    //memos module
+    const doubanBookDom = document.querySelector('#douban-book') || '';
+    let domain = '';
+    if (doubanBookDom) {
+        memosDouban(5);
+    }
+
+    //load Memos豆瓣
+    function memosDouban(count) {
+        var movieUrl = '';
+        if (typeof (myBooks) !== "undefined") {
+            movieUrl = myBooks.url;
+            domain = myBooks.domain;
+        }
+        let limit = count || 8;
+
+        var localDoubanBookUpdated = JSON.parse(localStorage.getItem("doubanBookUpdated")) || '';
+        var localDoubanBookData = JSON.parse(localStorage.getItem("doubanBookData")) || '';
+        if (localDoubanBookData) {
+            loadDoubanBooks(localDoubanBookData, limit)
+            console.log("memosDoubanBook 本地数据加载成功")
+        } else {
+            localStorage.setItem("doubanBookUpdated", "")
+        }
+        fetch(movieUrl).then(res => res.json()).then(resdata => {
+            var doubanBookUpdated = leonus.formatTimestamp(Date.parse(resdata.data[0].created_time) / 1000);
+            if (doubanBookUpdated && localDoubanBookUpdated != doubanBookUpdated) {
+                var doubanBookData = resdata.data
+                //开始布局
+                loadDoubanBooks(doubanBookData, limit)
+                localStorage.setItem("doubanBookUpdated", JSON.stringify(doubanBookUpdated))
+                localStorage.setItem("doubanBookData", JSON.stringify(doubanBookData))
+                console.log("memosDoubanBook 热更新完成")
+            } else {
+                console.log("memosDoubanBook API 数据未更新")
+            }
+        });
+    }
+
+    //loading
+    function loadDoubanBooks(doubanMovieData, limit) {
+        let nowNum = 0;
+        doubanMovieData.forEach(ddd => {
+            if (ddd && nowNum < limit) {
+                var item = ddd.item;
+                var db_type = item.category;
+                var db_id = item.uuid;
+                nowNum++;
+                var this_item = db_type + '-' + db_id;
+                var url = domain + item.url;
+                if (localStorage.getItem(this_item) == null || localStorage.getItem(this_item) === 'undefined') {
+                    localStorage.setItem(this_item, JSON.stringify(item));
+                    bookShow(url, this_item, doubanBookDom)
+                } else {
+                    bookShow(url, this_item, doubanBookDom)
+                }
+            }
+        });//end of  for
+        window.Lately && Lately.init({target: '.photo-time'});
+    }
+
+});
+
+function bookShow(fetch_href, fetch_item, doubanBookDom) {
+    var storage = localStorage.getItem(fetch_item);
+    var data = JSON.parse(storage);
+    var db_star = data.rating || 8;
+    var allstarPercent = toPercent(db_star / 10);
+    var img = data.cover_image_url;
+    var title = data.title;
+    var html = '';
+
+    html += `<div class="dfdORB"><div class="sc-hKFxyN HPRth"><div class="lazyload-wrapper"><img class="avatar" src="${img}" referrer-policy="no-referrer" loading="lazy" alt="${title}" title="${title}" width="150" height="220" /></div></div><div class="sc-fujyAs eysHZq"><div class="rating"><span class="allstardark"><span class="allstarlight" style="width:${allstarPercent}"></span></span><span class="rating_nums">${db_star}</span></div></div><div class="sc-iCoGMd kMthTr"><a rel="noreferrer" href="${fetch_href}" target="_blank">${title}</a></div></div>`;
+    if (doubanBookDom) {
+        doubanBookDom.insertAdjacentHTML('beforeend', html);
+    }
+}
+
+//小数-百分数
+function toPercent(point) {
+    var str = Number(point * 100).toFixed(1);
+    str += "%";
+    return str;
+}
