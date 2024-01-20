@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Kezade</title>
+    <link>https://zyxelva.github.io/</link>
+    
+    <atom:link href="https://zyxelva.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
+    
+    <description>7 年 Java 开发经验，其中 3 年以上大型系统架构设计经验，以及 2 年以上的团队管理经验 | 具有分布式、高并发、高可用、大数据量的系统架构设计以及研发经验 | 对 Zookeeper、Netty、Dubbo、Spring Cloud、 Spring 等开源框架源码有过深入研究，并且有一定的框架定制开发经验</description>
+    <pubDate>Sat, 20 Jan 2024 01:36:34 GMT</pubDate>
+    <generator>http://hexo.io/</generator>
+    
+    <item>
+      <title>【Docker学习】3.Dockerfile</title>
+      <link>https://zyxelva.github.io/posts/342586947.html</link>
+      <guid>https://zyxelva.github.io/posts/342586947.html</guid>
+      <pubDate>Tue, 26 Dec 2023 02:34:07 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      
+      <category domain="https://zyxelva.github.io/tags/Dockerfile/">Dockerfile</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/342586947.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Docker学习】2.命令备忘</title>
+      <link>https://zyxelva.github.io/posts/1372686241.html</link>
+      <guid>https://zyxelva.github.io/posts/1372686241.html</guid>
+      <pubDate>Tue, 19 Dec 2023 07:05:27 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-入门&quot;&gt;&lt;a href=&quot;#1-入门&quot; class=&quot;headerlink&quot; title=&quot;1 入门&quot;&gt;&lt;/a&gt;1 入门&lt;/h1&gt;&lt;h2 id=&quot;1-1-在后台创建和运行容器&quot;&gt;&lt;a href=&quot;#1-1-在后台创建和运行容器&quot;</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1372686241.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Docker学习】1.基础入门</title>
+      <link>https://zyxelva.github.io/posts/4128938191.html</link>
+      <guid>https://zyxelva.github.io/posts/4128938191.html</guid>
+      <pubDate>Tue, 19 Dec 2023 07:05:07 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-什么是Docker？&quot;&gt;&lt;a href=&quot;#1-什么是Docker？&quot; class=&quot;headerlink&quot; title=&quot;1 什么是Docker？&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/4128938191.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【新鲜事】Nacos2.3.0正式发布</title>
+      <link>https://zyxelva.github.io/posts/2185985940.html</link>
+      <guid>https://zyxelva.github.io/posts/2185985940.html</guid>
+      <pubDate>Wed, 13 Dec 2023 07:11:48 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;p&gt;Nacos，一个用于构建云原生应用的动态服务发现、配置管理和服务管理平台，由阿里巴巴开源，致力于发现、配置和管理微服务。&lt;/p&gt;
+&lt;p&gt;总体上，Nacos主要功能分为两大块：注册中心、配置中心。&lt;/p&gt;
+&lt;p&gt;11月30日，Nacos发布了2.3.0正式版，接下来就介绍下本</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/%E6%96%B0%E9%B2%9C%E4%BA%8B/">新鲜事</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Nacos/">Nacos</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">注册中心</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">配置中心</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/2185985940.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【每日一面】字节面试：加了什么锁，导致死锁的？</title>
+      <link>https://zyxelva.github.io/posts/1987568237.html</link>
+      <guid>https://zyxelva.github.io/posts/1987568237.html</guid>
+      <pubDate>Tue, 05 Dec 2023 03:34:26 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;p&gt;前段时间，一网友进行了字节面试，遇到了一道非常经典的有关MySQL锁相关的问题，咱们来复盘一下，看看这道题怎样才能回答的天衣无缝，能让面试官无地自容。&lt;/p&gt;
+&lt;h1 id=&quot;1-题目描述&quot;&gt;&lt;a href=&quot;#1-题目描述&quot; class=&quot;headerlink&quot;</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%9D%A2/">每日一面</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%84%8F%E5%90%91%E9%94%81/">意向锁</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E9%97%B4%E9%9A%99%E9%94%81/">间隙锁</category>
+      
+      <category domain="https://zyxelva.github.io/tags/MySQL%E9%94%81/">MySQL锁</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1987568237.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【每日一面】post为什么会发送两次请求？</title>
+      <link>https://zyxelva.github.io/posts/3237250370.html</link>
+      <guid>https://zyxelva.github.io/posts/3237250370.html</guid>
+      <pubDate>Tue, 05 Dec 2023 02:43:43 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-同源策略&quot;&gt;&lt;a href=&quot;#1-同源策略&quot; class=&quot;headerlink&quot; title=&quot;1 同源策略&quot;&gt;&lt;/a&gt;1 同源策略&lt;/h1&gt;&lt;p&gt;在浏览器中，内容是很开放的，任何资源都可以接入其中，如 JavaScript</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%9D%A2/">每日一面</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/post%E8%AF%B7%E6%B1%82/">post请求</category>
+      
+      <category domain="https://zyxelva.github.io/tags/cors/">cors</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3237250370.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Zookeeper学习】5.ZAB协议</title>
+      <link>https://zyxelva.github.io/posts/1354517512.html</link>
+      <guid>https://zyxelva.github.io/posts/1354517512.html</guid>
+      <pubDate>Thu, 14 Sep 2023 09:32:04 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1 前言&lt;/h1&gt;&lt;p&gt;&lt;code&gt;ZAB协议&lt;/code&gt;全称：Zookeeper Atomic</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Zookeeper%E5%AD%A6%E4%B9%A0/">Zookeeper学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Zookeeper/">Zookeeper</category>
+      
+      <category domain="https://zyxelva.github.io/tags/ZAB/">ZAB</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1354517512.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】8.缓存一致性</title>
+      <link>https://zyxelva.github.io/posts/1872711126.html</link>
+      <guid>https://zyxelva.github.io/posts/1872711126.html</guid>
+      <pubDate>Tue, 12 Sep 2023 02:57:42 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%80%E8%87%B4%E6%80%A7/">一致性</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1872711126.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】7.缓存设计</title>
+      <link>https://zyxelva.github.io/posts/3851986962.html</link>
+      <guid>https://zyxelva.github.io/posts/3851986962.html</guid>
+      <pubDate>Thu, 07 Sep 2023 07:10:18 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-收益与成本&quot;&gt;&lt;a href=&quot;#1-收益与成本&quot; class=&quot;headerlink&quot; title=&quot;1 收益与成本&quot;&gt;&lt;/a&gt;1 收益与成本&lt;/h1&gt;&lt;h2 id=&quot;1-1-收益&quot;&gt;&lt;a href=&quot;#1-1-收益&quot; class=&quot;headerlink&quot;</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/">缓存穿透</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9/">缓存雪崩</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF/">缓存击穿</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3851986962.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】6.理解内存</title>
+      <link>https://zyxelva.github.io/posts/3918025932.html</link>
+      <guid>https://zyxelva.github.io/posts/3918025932.html</guid>
+      <pubDate>Wed, 06 Sep 2023 01:34:43 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-内存消耗&quot;&gt;&lt;a href=&quot;#1-内存消耗&quot; class=&quot;headerlink&quot; title=&quot;1 内存消耗&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">内存结构</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/">回收策略</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96/">内存优化</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3918025932.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】5.高可用之集群</title>
+      <link>https://zyxelva.github.io/posts/2973021972.html</link>
+      <guid>https://zyxelva.github.io/posts/2973021972.html</guid>
+      <pubDate>Wed, 30 Aug 2023 02:42:13 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F/">集群模式</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/2973021972.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】4.高可用之Sentinel</title>
+      <link>https://zyxelva.github.io/posts/1235835282.html</link>
+      <guid>https://zyxelva.github.io/posts/1235835282.html</guid>
+      <pubDate>Wed, 30 Aug 2023 02:42:00 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">哨兵模式</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1235835282.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】3.高可用之主从复制</title>
+      <link>https://zyxelva.github.io/posts/2876861881.html</link>
+      <guid>https://zyxelva.github.io/posts/2876861881.html</guid>
+      <pubDate>Wed, 30 Aug 2023 02:41:40 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-概述&quot;&gt;&lt;a href=&quot;#1-概述&quot; class=&quot;headerlink&quot; title=&quot;1 概述&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/">主从模式</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/2876861881.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】2.持久化</title>
+      <link>https://zyxelva.github.io/posts/2249264199.html</link>
+      <guid>https://zyxelva.github.io/posts/2249264199.html</guid>
+      <pubDate>Mon, 28 Aug 2023 03:01:15 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      <category domain="https://zyxelva.github.io/tags/AOF/">AOF</category>
+      
+      <category domain="https://zyxelva.github.io/tags/RDB/">RDB</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/2249264199.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【Redis学习】1.常用的数据结构</title>
+      <link>https://zyxelva.github.io/posts/3971932782.html</link>
+      <guid>https://zyxelva.github.io/posts/3971932782.html</guid>
+      <pubDate>Thu, 24 Aug 2023 09:39:19 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</category>
+      
+      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3971932782.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【RocketMQ学习】16.SpringBoot整合RocketMQ实战</title>
+      <link>https://zyxelva.github.io/posts/218005482.html</link>
+      <guid>https://zyxelva.github.io/posts/218005482.html</guid>
+      <pubDate>Tue, 22 Aug 2023 02:51:17 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-SpringBoot整合RocketMQ&quot;&gt;&lt;a href=&quot;#1-SpringBoot整合RocketMQ&quot; class=&quot;headerlink&quot; title=&quot;1 SpringBoot整合RocketMQ&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/RocketMQ%E5%AE%9E%E6%88%98/">RocketMQ实战</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/218005482.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【RocketMQ学习】15.源码之顺序消息</title>
+      <link>https://zyxelva.github.io/posts/3931189064.html</link>
+      <guid>https://zyxelva.github.io/posts/3931189064.html</guid>
+      <pubDate>Fri, 18 Aug 2023 02:33:47 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-demo&quot;&gt;&lt;a href=&quot;#1-demo&quot; class=&quot;headerlink&quot; title=&quot;1 demo&quot;&gt;&lt;/a&gt;1 demo&lt;/h1&gt;&lt;h2 id=&quot;1-1-Producer&quot;&gt;&lt;a href=&quot;#1-1-Producer&quot;</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E9%A1%BA%E5%BA%8F%E6%B6%88%E6%81%AF/">顺序消息</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%89%E6%8A%8A%E9%94%81/">三把锁</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3931189064.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【RocketMQ学习】14.源码之延迟消息</title>
+      <link>https://zyxelva.github.io/posts/4231823649.html</link>
+      <guid>https://zyxelva.github.io/posts/4231823649.html</guid>
+      <pubDate>Fri, 18 Aug 2023 02:33:17 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-demo准备&quot;&gt;&lt;a href=&quot;#1-demo准备&quot; class=&quot;headerlink&quot; title=&quot;1 demo准备&quot;&gt;&lt;/a&gt;1 demo准备&lt;/h1&gt;&lt;h2 id=&quot;1-1-Producer&quot;&gt;&lt;a href=&quot;#1-1-Producer&quot;</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%BB%B6%E8%BF%9F%E6%B6%88%E6%81%AF/">延迟消息</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/4231823649.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【RocketMQ学习】13.源码之消息过滤与重试</title>
+      <link>https://zyxelva.github.io/posts/1780908168.html</link>
+      <guid>https://zyxelva.github.io/posts/1780908168.html</guid>
+      <pubDate>Fri, 11 Aug 2023 02:19:34 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      
+      <category domain="https://zyxelva.github.io/tags/TAG%E8%BF%87%E6%BB%A4/">TAG过滤</category>
+      
+      <category domain="https://zyxelva.github.io/tags/SQL%E8%BF%87%E6%BB%A4/">SQL过滤</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%B6%88%E6%81%AF%E9%87%8D%E8%AF%95/">消息重试</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/1780908168.html#disqus_thread</comments>
+      
+    </item>
+    
+    <item>
+      <title>【RocketMQ学习】12.源码之数据同步及异步机制</title>
+      <link>https://zyxelva.github.io/posts/3651213784.html</link>
+      <guid>https://zyxelva.github.io/posts/3651213784.html</guid>
+      <pubDate>Fri, 11 Aug 2023 02:16:20 GMT</pubDate>
+      
+        
+        
+          
+          
+      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+          
+        
+      
+      
+      
+      
+      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      
+      
+      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/">主从同步</category>
+      
+      
+      <comments>https://zyxelva.github.io/posts/3651213784.html#disqus_thread</comments>
+      
+    </item>
+    
+  </channel>
+</rss>

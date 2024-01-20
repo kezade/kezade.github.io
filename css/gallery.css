@@ -2,8 +2,17 @@
     padding-top: 30px;
 }
 
+.gallery-box:nth-child(odd) {
+    transform: rotateZ(-5deg);
+}
+
+.gallery-box:nth-child(even) {
+    transform: rotateZ(5deg);
+}
+
 .gallery-wrapper .gallery-box {
     padding: 5px !important;
+    margin: 1.5rem 0rem;
 }
 
 .gallery-wrapper .gallery-item {
@@ -91,7 +100,7 @@
 
 .miaoshus {
     padding: 20px;
-    /*border: 1px dashed #e6e6e6;*/
+    border: 1px dashed #e6e6e6;
     color: #969696;
     position: relative;
     display: inline-block;
