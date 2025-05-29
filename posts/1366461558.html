@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -829,11 +886,9 @@
 </ul>
 <p><img src="https://umami.is/images/v2/website-add.png" alt="添加需要被统计的网站"></p>
 <h1 id="4-获取跟踪代码"><a href="#4-获取跟踪代码" class="headerlink" title="4 获取跟踪代码"></a>4 获取跟踪代码</h1><p>在刚才添加的网站上点击<code>编辑</code>，<code>跟踪代码</code>，就能获取到跟踪代码了：<br><img src="https://umami.is/images/v2/website-tracking-code.png" alt="跟踪代码获取"></p>
-<h1 id="5-安装跟踪代码"><a href="#5-安装跟踪代码" class="headerlink" title="5 安装跟踪代码"></a>5 安装跟踪代码</h1><p>由于使用的是<code>Matery</code>主题，没有配置<code>Umami</code>，所以需要手动注入到<code>Hexo</code>中，使用 <code>hexo injector</code> 直接注入，<code>hexo 版本需要大于 5</code>：</p>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// &lt;博客项目根目录>/scripts/injector.js</span>
+<h1 id="5-安装跟踪代码"><a href="#5-安装跟踪代码" class="headerlink" title="5 安装跟踪代码"></a>5 安装跟踪代码</h1><p>由于使用的是<code>Matery</code>主题，没有配置<code>Umami</code>，所以需要手动注入到<code>Hexo</code>中，使用 <code>hexo injector</code> 直接注入，<code>hexo 版本需要大于 5</code>：<br><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token comment">// &lt;博客项目根目录>/scripts/injector.js</span>
 hexo<span class="token punctuation">.</span>extend<span class="token punctuation">.</span>injector<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span><span class="token string">'head_end'</span><span class="token punctuation">,</span> <span class="token string">'&lt;script async defer data-website-id="&lt;your-website-id>" src="&lt;your-umami-url>">&lt;/script>'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
 <h1 id="6-参考文档"><a href="#6-参考文档" class="headerlink" title="6 参考文档"></a>6 参考文档</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/himeka/p/16610706.html">使用 Umami 统计个人网站访问数据</a></li>
 <li><a target="_blank" rel="noopener" href="https://eallion.com/umami/">Umami Docker 部署及优化</a></li>
@@ -1516,7 +1571,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1534,7 +1589,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1797,6 +1852,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

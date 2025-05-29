@@ -6,13 +6,9 @@
     <meta charset="utf-8">
     <meta name="keywords" content="【RocketMQ学习】9.源码之Store, Back-End Dev Java">
     <meta name="description" content="1 整体流程消息存储整体流程
-
 消息存储架构设计
-
 2 核心类2.1 DefaultMessageStoreDefaultMessageStore
-
-部分属性：
-private final MessageStoreConfig messag">
+部分属性：private final MessageStoreConfig messageSto">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -68,7 +64,7 @@ private final MessageStoreConfig messag">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -186,7 +182,7 @@ private final MessageStoreConfig messag">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -262,6 +258,15 @@ private final MessageStoreConfig messag">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -284,6 +289,24 @@ private final MessageStoreConfig messag">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -464,7 +487,7 @@ private final MessageStoreConfig messag">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -548,6 +571,16 @@ private final MessageStoreConfig messag">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -570,6 +603,26 @@ private final MessageStoreConfig messag">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -831,13 +884,9 @@ private final MessageStoreConfig messag">
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-整体流程"><a href="#1-整体流程" class="headerlink" title="1 整体流程"></a>1 整体流程</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Store-Flow2.png"><div class="caption"><b class="center-caption">消息存储整体流程</b></div>
-
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Store-Arch.png"><div class="caption"><b class="center-caption">消息存储架构设计</b></div>
-
 <h1 id="2-核心类"><a href="#2-核心类" class="headerlink" title="2 核心类"></a>2 核心类</h1><h2 id="2-1-DefaultMessageStore"><a href="#2-1-DefaultMessageStore" class="headerlink" title="2.1 DefaultMessageStore"></a>2.1 DefaultMessageStore</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-DefaultMessageStore.png"><div class="caption"><b class="center-caption">DefaultMessageStore</b></div>
-
-<p>部分属性：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">MessageStoreConfig</span> messageStoreConfig<span class="token punctuation">;</span>	<span class="token comment">//消息配置属性</span>
+<p>部分属性：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">MessageStoreConfig</span> messageStoreConfig<span class="token punctuation">;</span>	<span class="token comment">//消息配置属性</span>
 <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">CommitLog</span> commitLog<span class="token punctuation">;</span>		<span class="token comment">//CommitLog文件存储的实现类</span>
 <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">ConcurrentMap</span><span class="token operator">&lt;</span><span class="token class-name">String</span><span class="token comment">/* topic */</span><span class="token punctuation">,</span> <span class="token class-name">ConcurrentMap</span><span class="token operator">&lt;</span><span class="token class-name">Integer</span><span class="token comment">/* queueId */</span><span class="token punctuation">,</span> <span class="token class-name">ConsumeQueue</span><span class="token operator">>></span> consumeQueueTable<span class="token punctuation">;</span>	<span class="token comment">//消息队列存储缓存表,按照消息主题分组</span>
 <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">FlushConsumeQueueService</span> flushConsumeQueueService<span class="token punctuation">;</span>	<span class="token comment">//消息队列文件刷盘线程</span>
@@ -854,10 +903,8 @@ private final MessageStoreConfig messag">
 <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">MessageArrivingListener</span> messageArrivingListener<span class="token punctuation">;</span>	<span class="token comment">//消息拉取长轮询模式消息达到监听器</span>
 <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">BrokerConfig</span> brokerConfig<span class="token punctuation">;</span>	<span class="token comment">//Broker配置类</span>
 <span class="token keyword">private</span> <span class="token class-name">StoreCheckpoint</span> storeCheckpoint<span class="token punctuation">;</span>	<span class="token comment">//文件刷盘监测点</span>
-<span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">LinkedList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">CommitLogDispatcher</span><span class="token punctuation">></span></span> dispatcherList<span class="token punctuation">;</span>	<span class="token comment">//CommitLog文件转发请求</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>以流程图为准，以<code>普通消息</code>为例，从<code>DefaultMessageStore#asyncPutMessage</code>出发，源码追踪。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMessageStore</span> <span class="token keyword">implements</span> <span class="token class-name">MessageStore</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">LinkedList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">CommitLogDispatcher</span><span class="token punctuation">></span></span> dispatcherList<span class="token punctuation">;</span>	<span class="token comment">//CommitLog文件转发请求</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>以流程图为准，以<code>普通消息</code>为例，从<code>DefaultMessageStore#asyncPutMessage</code>出发，源码追踪。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMessageStore</span> <span class="token keyword">implements</span> <span class="token class-name">MessageStore</span> <span class="token punctuation">&#123;</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageResult</span><span class="token punctuation">></span></span> <span class="token function">asyncPutMessage</span><span class="token punctuation">(</span><span class="token class-name">MessageExtBrokerInner</span> msg<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//1.检查Store状态</span>
@@ -938,8 +985,7 @@ private final MessageStoreConfig messag">
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> <span class="token class-name">PutMessageStatus</span><span class="token punctuation">.</span><span class="token constant">PUT_OK</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其中，<code>checkStoreStatus</code>检查Store状态，<code>checkMessage</code>检查消息本体。检查完毕没问题后，则调用<code>commitLog#asyncPutMessage</code>进行消息落地。</p>
 <h2 id="2-2-CommitLog"><a href="#2-2-CommitLog" class="headerlink" title="2.2 CommitLog"></a>2.2 CommitLog</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CommitLog</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageResult</span><span class="token punctuation">></span></span> <span class="token function">asyncPutMessage</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageExtBrokerInner</span> msg<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1065,9 +1111,7 @@ private final MessageStoreConfig messag">
         <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">AppendMessageResult</span><span class="token punctuation">(</span><span class="token class-name">AppendMessageStatus</span><span class="token punctuation">.</span><span class="token constant">UNKNOWN_ERROR</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>第2步写缓冲，采用了回调，调用了<code>CommitLog</code>的内部类<code>DefaultAppendMessageCallback</code>进行写，方法有点长。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">DefaultAppendMessageCallback</span> <span class="token keyword">implements</span> <span class="token class-name">AppendMessageCallback</span> <span class="token punctuation">&#123;</span>
+<p>第2步写缓冲，采用了回调，调用了<code>CommitLog</code>的内部类<code>DefaultAppendMessageCallback</code>进行写，方法有点长。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">DefaultAppendMessageCallback</span> <span class="token keyword">implements</span> <span class="token class-name">AppendMessageCallback</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">AppendMessageResult</span> <span class="token function">doAppend</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token keyword">long</span> fileFromOffset<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">ByteBuffer</span> byteBuffer<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token keyword">int</span> maxBlank<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">MessageExtBrokerInner</span> msgInner<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// STORETIMESTAMP + STOREHOSTADDRESS + OFFSET &lt;br></span>
 
@@ -1229,36 +1273,26 @@ private final MessageStoreConfig messag">
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> result<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>回到<code>DefaultMessageStore#asyncPutMessage</code>的第11步，写入mappedFile缓冲区完成，再刷盘、主从同步。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//12.flush，刷盘</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>回到<code>DefaultMessageStore#asyncPutMessage</code>的第11步，写入mappedFile缓冲区完成，再刷盘、主从同步。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//12.flush，刷盘</span>
 <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> flushResultFuture <span class="token operator">=</span> <span class="token function">submitFlushRequest</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">//13.主从同步</span>
-<span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> replicaResultFuture <span class="token operator">=</span> <span class="token function">submitReplicaRequest</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> replicaResultFuture <span class="token operator">=</span> <span class="token function">submitReplicaRequest</span><span class="token punctuation">(</span>result<span class="token punctuation">,</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="3-存储文件"><a href="#3-存储文件" class="headerlink" title="3 存储文件"></a>3 存储文件</h1><p>存储文件结构详见<a href="/posts/1040968382.html" title="【RocketMQ学习】3.RocketMQ的存储设计">3.1 存储文件</a>一节。</p>
-<h2 id="3-1-CommitLog文件"><a href="#3-1-CommitLog文件" class="headerlink" title="3.1 CommitLog文件"></a>3.1 CommitLog文件</h2><p>首先说说MappedFile的作用，如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MappedFile.png"><div class="caption"><b class="center-caption">MappedFile所处位置</b></div>
-
-<p>再从创建文件看看源码，定位到<code>CommitLog#asyncPutMessage()</code>第9~11步：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//9.判断mappedFile，如果为空或者已满，创建新的mappedFile文件</span>
+<h2 id="3-1-CommitLog文件"><a href="#3-1-CommitLog文件" class="headerlink" title="3.1 CommitLog文件"></a>3.1 CommitLog文件</h2><p>首先说说MappedFile的作用，如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MappedFile.png"><div class="caption"><b class="center-caption">MappedFile所处位置</b></div></p>
+<p>再从创建文件看看源码，定位到<code>CommitLog#asyncPutMessage()</code>第9~11步：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//9.判断mappedFile，如果为空或者已满，创建新的mappedFile文件</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">null</span> <span class="token operator">==</span> mappedFile <span class="token operator">||</span> mappedFile<span class="token punctuation">.</span><span class="token function">isFull</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     mappedFile <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>mappedFileQueue<span class="token punctuation">.</span><span class="token function">getLastMappedFile</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Mark: NewFile may be cause noise</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>老版本以前叫<code>protected MappedFile tryCreateMappedFile(long createOffset) &#123;&#125;</code>，这里我们看看<code>mappedFile</code>命名规则，看<code>UtilAll.offset2FileName(createOffset)</code>方法：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">String</span> <span class="token function">offset2FileName</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token keyword">long</span> offset<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><br>老版本以前叫<code>protected MappedFile tryCreateMappedFile(long createOffset) &#123;&#125;</code>，这里我们看看<code>mappedFile</code>命名规则，看<code>UtilAll.offset2FileName(createOffset)</code>方法：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">String</span> <span class="token function">offset2FileName</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token keyword">long</span> offset<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">final</span> <span class="token class-name">NumberFormat</span> nf <span class="token operator">=</span> <span class="token class-name">NumberFormat</span><span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token comment">//文件名长度：20</span>
     nf<span class="token punctuation">.</span><span class="token function">setMinimumIntegerDigits</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     nf<span class="token punctuation">.</span><span class="token function">setMaximumFractionDigits</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     nf<span class="token punctuation">.</span><span class="token function">setGroupingUsed</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">return</span> nf<span class="token punctuation">.</span><span class="token function">format</span><span class="token punctuation">(</span>offset<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>在<code>MappedFileQueue#getLastMappedFile(startOffset, true)</code>中，通过<code>AllocateMappedFileService#putRequestAndReturnMappedFile</code>创建<code>mappedFile</code>，这个是个异步操作。因为<code>AllocateMappedFileService</code>也是和<code>PullMessageService</code>、<code>RebalanceService</code>一样，继承自<code>ServiceThread</code>，而在上一章节中，我们说过<code>ServiceThread</code>继承自<code>Thread</code>.</p>
-<p>关注<code>AllocateMappedFileService#mmapOperation()</code>中如下代码即可：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">MappedFile</span> mappedFile<span class="token punctuation">;</span>
+<p>关注<code>AllocateMappedFileService#mmapOperation()</code>中如下代码即可：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">MappedFile</span> mappedFile<span class="token punctuation">;</span>
 <span class="token comment">//TransientStorePoolEnable为true并且开启异步刷盘，则消息数据先写入堆外内存，然后异步线程把堆外内存数据刷到 PageCache</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span>messageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isTransientStorePoolEnable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
@@ -1273,12 +1307,12 @@ private final MessageStoreConfig messag">
 <span class="token comment">//TransientStorePoolEnable为false，则直接写入 PageCache</span>
 <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
     mappedFile <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MappedFile</span><span class="token punctuation">(</span>req<span class="token punctuation">.</span><span class="token function">getFilePath</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> req<span class="token punctuation">.</span><span class="token function">getFileSize</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>写入消息时，</p>
 <ul>
 <li>如果 <code>isTransientStorePoolEnable</code> 方法返回 <code>true</code>，则消息数据<code>先写入堆外内存</code>，<code>然后异步线程把堆外内存数据刷到 PageCache</code>；</li>
-<li>如果返回 <code>false</code>，则直接写入 <code>PageCache</code>。后面根据刷盘策略把 PageCache 中数据持久化到磁盘。如下图：<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Write-Strategy.png"><div class="caption"><b class="center-caption">消息写入流程</b></div></li>
+<li>如果返回 <code>false</code>，则直接写入 <code>PageCache</code>。后面根据刷盘策略把 PageCache 中数据持久化到磁盘。如下图：<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Write-Strategy.png"><div class="caption"><b class="center-caption">消息写入流程</b></div>
+</li>
 </ul>
 <p>但无论先写对堆外内存还是直接写 PageCache，文件数据都会映射到 <code>MappedByteBuffer</code>。不同的是，如果消息先写入堆外内存，则 <code>MappedByteBuffer</code> 主要用来<code>读消息</code>，<code>堆外内存</code>用来<code>写消息</code>。这一定程度上实现了读写分离，减少 <code>PageCache</code> 写入压力。</p>
 <p>再来看看<code>mappedFile.init()</code>方法，对于上述两种情况，其实就是第一种情况多走了一步写对外内存(PS：这里有<code>零拷贝</code>出现，赶紧标记下)。</p>
@@ -1324,17 +1358,11 @@ private final MessageStoreConfig messag">
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p><code>writeBuffer</code>还有印象吗？看看2.3节。</p>
-<h2 id="3-2-ConsumeQueue-x2F-Index文件"><a href="#3-2-ConsumeQueue-x2F-Index文件" class="headerlink" title="3.2 ConsumeQueue&#x2F;Index文件"></a>3.2 ConsumeQueue&#x2F;Index文件</h2><p><code>消息消费队列文件</code>(ConsumeQueue)、<code>消息属性索引文件</code>(IndexFile)都是基于<code>CommitLog文件</code>构建的，当消息生产者提交的消息存储在CommitLog文件中，ConsumerQueue、IndexFile需要及时更新，否则消息<code>无法及时被消费</code>，根据消息属性查找消息也会出现较大延迟。</p>
-<p>RocketMQ通过开启一个线程<code>ReputMessageService</code>来<strong>准实时</strong>转发CommitLog文件更新事件，相应的<code>任务处理器</code>根据转发的消息及时更新ConsumerQueue、IndexFile文件。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher.png"><div class="caption"><b class="center-caption">RocketMQ Dispatcher</b></div>
-
-<p>在 DefaultMessageStore 初始化的时候会启动一个线程 <code>ReputMessageService</code>，这个线程的逻辑是死循环里面<code>每隔1ms</code>执行一次，从 CommitLog 中获取消息然后写入 <code>ConsumeQueue</code> 和 <code>indexFile</code> 文件。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ReputMessageService.png"><div class="caption"><b class="center-caption">ReputMessageService初始化</b></div>
-
-<p>其本质上也是一个线程：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">ReputMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span><span class="token punctuation">&#123;</span>
+<h2 id="3-2-ConsumeQueue-Index文件"><a href="#3-2-ConsumeQueue-Index文件" class="headerlink" title="3.2 ConsumeQueue/Index文件"></a>3.2 ConsumeQueue/Index文件</h2><p><code>消息消费队列文件</code>(ConsumeQueue)、<code>消息属性索引文件</code>(IndexFile)都是基于<code>CommitLog文件</code>构建的，当消息生产者提交的消息存储在CommitLog文件中，ConsumerQueue、IndexFile需要及时更新，否则消息<code>无法及时被消费</code>，根据消息属性查找消息也会出现较大延迟。</p>
+<p>RocketMQ通过开启一个线程<code>ReputMessageService</code>来<strong>准实时</strong>转发CommitLog文件更新事件，相应的<code>任务处理器</code>根据转发的消息及时更新ConsumerQueue、IndexFile文件。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher.png"><div class="caption"><b class="center-caption">RocketMQ Dispatcher</b></div></p>
+<p>在 DefaultMessageStore 初始化的时候会启动一个线程 <code>ReputMessageService</code>，这个线程的逻辑是死循环里面<code>每隔1ms</code>执行一次，从 CommitLog 中获取消息然后写入 <code>ConsumeQueue</code> 和 <code>indexFile</code> 文件。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ReputMessageService.png"><div class="caption"><b class="center-caption">ReputMessageService初始化</b></div></p>
+<p>其本质上也是一个线程：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">ReputMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span><span class="token punctuation">&#123;</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token class-name">DefaultMessageStore</span><span class="token punctuation">.</span>log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service started"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1350,43 +1378,32 @@ private final MessageStoreConfig messag">
 
         <span class="token class-name">DefaultMessageStore</span><span class="token punctuation">.</span>log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>调用路径：<code>ReputMessageService#doReput()</code>-&gt;<code>DefaultMessageStore.this.doDispatch</code>-&gt;<code>CommitLogDispatcher#dispatch()</code>.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doDispatch</span><span class="token punctuation">(</span><span class="token class-name">DispatchRequest</span> req<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>调用路径：<code>ReputMessageService#doReput()</code>-&gt;<code>DefaultMessageStore.this.doDispatch</code>-&gt;<code>CommitLogDispatcher#dispatch()</code>.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doDispatch</span><span class="token punctuation">(</span><span class="token class-name">DispatchRequest</span> req<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">CommitLogDispatcher</span> dispatcher <span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>dispatcherList<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         dispatcher<span class="token punctuation">.</span><span class="token function">dispatch</span><span class="token punctuation">(</span>req<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>而<code>CommitLogDispatcher</code>有两个实现类：</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>而<code>CommitLogDispatcher</code>有两个实现类：</p>
 <ul>
 <li><code>CommitLogDispatcherBuildConsumeQueue</code>：写ConsumeQueue；</li>
 <li><code>CommitLogDispatcherBuildIndex</code>：写Index.</li>
 </ul>
-<p>其中，<code>dispatcherList</code>如下构建：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DefaultMessageStore</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageStoreConfig</span> messageStoreConfig<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">BrokerStatsManager</span> brokerStatsManager<span class="token punctuation">,</span>
+<p>其中，<code>dispatcherList</code>如下构建：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DefaultMessageStore</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageStoreConfig</span> messageStoreConfig<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">BrokerStatsManager</span> brokerStatsManager<span class="token punctuation">,</span>
         <span class="token keyword">final</span> <span class="token class-name">MessageArrivingListener</span> messageArrivingListener<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">BrokerConfig</span> brokerConfig<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//ConsumeQueue、Index分发处理器</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>dispatcherList <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LinkedList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>dispatcherList<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">CommitLogDispatcherBuildConsumeQueue</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>dispatcherList<span class="token punctuation">.</span><span class="token function">addLast</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">CommitLogDispatcherBuildIndex</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <blockquote>
 <p>可以看到，即使 Broker 挂了，只要 CommitLog 在，就可以重新构建出 ConsumeQueue 和 Index 文件。</p>
 </blockquote>
-<p>上述调用流程图如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher-Flow.png"><div class="caption"><b class="center-caption">转发CommitLog文件更新事件过程</b></div>
-
+<p>上述调用流程图如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher-Flow.png"><div class="caption"><b class="center-caption">转发CommitLog文件更新事件过程</b></div></p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatch-to-ConsumeQueue-Flow.png"><div class="caption"><b class="center-caption">ConsumeQueue产生过程</b></div>
-
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatch-to-IndexFile-Flow.png"><div class="caption"><b class="center-caption">Index产生过程</b></div>
-
-<h1 id="4-消息队列和索引文件恢复"><a href="#4-消息队列和索引文件恢复" class="headerlink" title="4 消息队列和索引文件恢复"></a>4 消息队列和索引文件恢复</h1><p>由于RocketMQ存储首先将消息全量存储在CommitLog文件中，然后<code>异步</code>生成转发任务更新ConsumerQueue和Index文件。如果消息成功存储到CommitLog文件中，转发任务未成功执行，此时消息服务器Broker由于某个原因宕机，导致<code>CommitLog、ConsumerQueue、IndexFile文件数据不一致</code>。如果不加以人工修复的话，会有一部分消息即便在CommitLog中文件中存在，但由于没有转发到ConsumerQueue，这部分消息将永远无法被消费者消费。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeQueue-Index-Recovery-Flow2.png"><div class="caption"><b class="center-caption">消息队列和索引文件恢复过程</b></div>
-
+<h1 id="4-消息队列和索引文件恢复"><a href="#4-消息队列和索引文件恢复" class="headerlink" title="4 消息队列和索引文件恢复"></a>4 消息队列和索引文件恢复</h1><p>由于RocketMQ存储首先将消息全量存储在CommitLog文件中，然后<code>异步</code>生成转发任务更新ConsumerQueue和Index文件。如果消息成功存储到CommitLog文件中，转发任务未成功执行，此时消息服务器Broker由于某个原因宕机，导致<code>CommitLog、ConsumerQueue、IndexFile文件数据不一致</code>。如果不加以人工修复的话，会有一部分消息即便在CommitLog中文件中存在，但由于没有转发到ConsumerQueue，这部分消息将永远无法被消费者消费。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeQueue-Index-Recovery-Flow2.png"><div class="caption"><b class="center-caption">消息队列和索引文件恢复过程</b></div></p>
 <h2 id="4-1-存储文件加载"><a href="#4-1-存储文件加载" class="headerlink" title="4.1 存储文件加载"></a>4.1 存储文件加载</h2><p><code>DefaultMessageStore#load</code> 判断上一次是否异常退出。实现机制是Broker在<strong>启动时</strong>创建<code>abort文件</code>，在<strong>退出时</strong>通过<code>JVM钩子函数</code>删除abort文件。如果下次启动时<code>存在</code>abort文件。说明Broker时<code>异常退出</code>的，CommitLog与ConsumerQueue数据有可能不一致，需要进行修复。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-File-Loading.png"><div class="caption"><b class="center-caption">存储文件加载</b></div>
-
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMessageStore</span> <span class="token keyword">implements</span> <span class="token class-name">MessageStore</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//DefaultMessageStore#load</span>
     <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1441,7 +1458,6 @@ private final MessageStoreConfig messag">
         <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">recoverTopicQueueTable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-2-正常恢复"><a href="#4-2-正常恢复" class="headerlink" title="4.2 正常恢复"></a>4.2 正常恢复</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">recoverNormally</span><span class="token punctuation">(</span><span class="token keyword">long</span> maxPhyOffsetOfConsumeQueue<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">boolean</span> checkCRCOnRecover <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isCheckCRCOnRecover</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">final</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">MappedFile</span><span class="token punctuation">></span></span> mappedFiles <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>mappedFileQueue<span class="token punctuation">.</span><span class="token function">getMappedFiles</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1511,7 +1527,6 @@ private final MessageStoreConfig messag">
             <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">destroyLogics</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-3-异常恢复"><a href="#4-3-异常恢复" class="headerlink" title="4.3 异常恢复"></a>4.3 异常恢复</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Deprecated</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">recoverAbnormally</span><span class="token punctuation">(</span><span class="token keyword">long</span> maxPhyOffsetOfConsumeQueue<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//....................省略</span>
@@ -1541,10 +1556,8 @@ private final MessageStoreConfig messag">
         <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">destroyLogics</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="5-刷盘机制"><a href="#5-刷盘机制" class="headerlink" title="5 刷盘机制"></a>5 刷盘机制</h1><p>RocketMQ的存储是基于<code>JDK NIO</code>的<code>内存映射机制</code>（MappedByteBuffer）的，消息存储首先将消息追加到内存，再根据配置的刷盘策略在不同时间进行刷写磁盘。</p>
-<h2 id="5-1-同步刷盘"><a href="#5-1-同步刷盘" class="headerlink" title="5.1  同步刷盘"></a>5.1  同步刷盘</h2><p>消息追加到内存后，立即将数据刷写到磁盘文件。调用从<code>CommitLog#asyncPutMessage()</code>开始，调用方法入下，看同步刷盘部分：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> <span class="token function">submitFlushRequest</span><span class="token punctuation">(</span><span class="token class-name">AppendMessageResult</span> result<span class="token punctuation">,</span> <span class="token class-name">MessageExt</span> messageExt<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<h2 id="5-1-同步刷盘"><a href="#5-1-同步刷盘" class="headerlink" title="5.1  同步刷盘"></a>5.1  同步刷盘</h2><p>消息追加到内存后，立即将数据刷写到磁盘文件。调用从<code>CommitLog#asyncPutMessage()</code>开始，调用方法入下，看同步刷盘部分：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> <span class="token function">submitFlushRequest</span><span class="token punctuation">(</span><span class="token class-name">AppendMessageResult</span> result<span class="token punctuation">,</span> <span class="token class-name">MessageExt</span> messageExt<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// Synchronization flush，同步刷盘</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token class-name">FlushDiskType</span><span class="token punctuation">.</span><span class="token constant">SYNC_FLUSH</span> <span class="token operator">==</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFlushDiskType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token comment">//刷盘服务</span>
@@ -1572,10 +1585,8 @@ private final MessageStoreConfig messag">
             <span class="token punctuation">&#125;</span>
             <span class="token keyword">return</span> <span class="token class-name">CompletableFuture</span><span class="token punctuation">.</span><span class="token function">completedFuture</span><span class="token punctuation">(</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">.</span><span class="token constant">PUT_OK</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>提交刷盘请求后，由于<code>GroupCommitService</code>也是继承自<code>ServiceThread</code>，因而执行刷盘请求要看<code>run()</code>方法，这里我们关注<code>doCommit()</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">doCommit</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>提交刷盘请求后，由于<code>GroupCommitService</code>也是继承自<code>ServiceThread</code>，因而执行刷盘请求要看<code>run()</code>方法，这里我们关注<code>doCommit()</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">doCommit</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token keyword">synchronized</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>requestsRead<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
                 <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>requestsRead<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
                     <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">GroupCommitRequest</span> req <span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>requestsRead<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1603,14 +1614,12 @@ private final MessageStoreConfig messag">
                     <span class="token class-name">CommitLog</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>mappedFileQueue<span class="token punctuation">.</span><span class="token function">flush</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
                 <span class="token punctuation">&#125;</span>
             <span class="token punctuation">&#125;</span>
-        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>整个同步刷盘流程如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flush2.png"><div class="caption"><b class="center-caption">同步刷盘</b></div>
-
+        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>整个同步刷盘流程如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flush2.png"><div class="caption"><b class="center-caption">同步刷盘</b></div></p>
 <h2 id="5-2-异步刷盘"><a href="#5-2-异步刷盘" class="headerlink" title="5.2  异步刷盘"></a>5.2  异步刷盘</h2><p>在消息追加到内存后，立即返回给消息发送端。</p>
 <ul>
 <li>如果开启<code>transientStorePoolEnable</code>，RocketMQ会单独申请一个与目标物理文件（commitLog）同样大小的<code>堆外内存</code>，该堆外内存将使用内存<code>锁定</code>，确保不会被置换到虚拟内存中去，消息首先<strong>追加</strong>到<code>堆外内存</code>，然后<strong>提交</strong>到<code>物理文件的内存映射</code>中，然后<strong>刷写到磁盘</strong>。</li>
-<li>如果未开启<code>transientStorePoolEnable</code>，消息<strong>直接追加</strong>到<code>物理文件直接映射文件</code>中，然后刷写到磁盘中。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ASYNC-Flush.jpg"><div class="caption"><b class="center-caption">异步刷盘</b></div></li>
+<li>如果未开启<code>transientStorePoolEnable</code>，消息<strong>直接追加</strong>到<code>物理文件直接映射文件</code>中，然后刷写到磁盘中。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ASYNC-Flush.jpg"><div class="caption"><b class="center-caption">异步刷盘</b></div>
+</li>
 </ul>
 <p>开启transientStorePoolEnable后异步刷盘步骤:</p>
 <ul>
@@ -2321,7 +2330,7 @@ private final MessageStoreConfig messag">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2584,6 +2593,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

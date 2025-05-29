@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -832,10 +889,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-内存消耗"><a href="#1-内存消耗" class="headerlink" title="1 内存消耗"></a>1 内存消耗</h1><p>内存是个精贵且非常重要的计算组成部分，如何利用有限的资源完成高效且快速数据的存取，那首先我们得了解Redis在内存中的布局，看看消耗内存空间的位置，其次才能针对性的进行内存管理，分配，优化。这样，才能使得<code>利用更小内存，获得更大存储</code>发挥功效，从而降低企业成本，获得更多收益。</p>
-<h2 id="1-1-使用统计"><a href="#1-1-使用统计" class="headerlink" title="1.1 使用统计"></a>1.1 使用统计</h2><p>如何查看内存消耗呢？在启动Redis成功后，通过redis-cli连接上服务，运行命令</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">info memory<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>可以查看内存使用情况：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">127.0</span>.0.1:637<span class="token operator"><span class="token file-descriptor important">9</span>></span> info memory
+<h2 id="1-1-使用统计"><a href="#1-1-使用统计" class="headerlink" title="1.1 使用统计"></a>1.1 使用统计</h2><p>如何查看内存消耗呢？在启动Redis成功后，通过redis-cli连接上服务，运行命令<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">info memory<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>可以查看内存使用情况：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">127.0</span>.0.1:637<span class="token operator"><span class="token file-descriptor important">9</span>></span> info memory
 <span class="token comment"># Memory</span>
 used_memory:1042576
 used_memory_human:1018.14K
@@ -858,9 +912,9 @@ maxmemory_policy:noeviction
 mem_fragmentation_ratio:1.23
 mem_allocator:libc
 active_defrag_running:0
-lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>其中，<code>info命令</code>可以显示redis服务器的许多信息，包括服务器基本信息、CPU、内存、持久化、客户端连接信息等等；<code>memory</code>是参数，表示只显示<code>内存相关</code>的信息。</p>
+lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>其中，<code>info命令</code>可以显示redis服务器的许多信息，包括服务器基本信息、CPU、内存、持久化、客户端连接信息等等；<code>memory</code>是参数，表示只显示<code>内存相关</code>的信息。</p>
 <p>执行命令之后有这么几个<code>重要的指标</code>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -868,7 +922,8 @@ lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><sp
 <th>属性说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>used_memory</td>
 <td>Redis分配器分配的内存总量（单位：字节），包括使用的虚拟内存（即swap），指Redis存储的所有数据所占的内存</td>
 </tr>
@@ -894,24 +949,24 @@ lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><sp
 </tr>
 <tr>
 <td>mem_fragmentation_ratio</td>
-<td>used_memory_rss&#x2F;used_memory比值，内存碎片率</td>
+<td>used_memory_rss/used_memory比值，内存碎片率</td>
 </tr>
 <tr>
 <td>mem_allocator</td>
 <td>Redis所使用的内存分配器，在编译时指定；可以是 libc 、jemalloc或者tcmalloc，默认jemalloc</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <ul>
 <li>used_memory_rss：与<code>top</code>及<code>ps</code>命令看到的值是一致的；除了分配器分配的内存之外，<code>used_memory_rss</code>还包括进程运行本身需要的内存、内存碎片等，但是<strong>不包括虚拟内存</strong>。</li>
 <li>mem_fragmentation_ratio：一般来说，mem_fragmentation_ratio在<code>1.03左右</code>是比较健康的状态（对于jemalloc来说）。<ul>
 <li>大于1：一般情况是大于1的，若该值很大，说明<code>used_memory_rss - used_memory</code>多出的部分内存并没有用于数据存储，而是被内存碎片所消耗，如果两者相差很大，说明碎片率严重；</li>
-<li>小于1：一般出现在操作系统把Redis内存交换（Swap）到硬盘导致（虚拟内存媒介也是磁盘，比内存速度要慢很多），出现这种情况时要格外关注，由于硬盘速度远远慢于内存，Redis性能会变得很差，甚至僵死。可增加Redis节点、增加Redis服务器的内存、优化应用等。</li>
+<li>小于1：一般出现在操作系统把Redis内存交换（Swap）到硬盘导致（虚拟内存媒介也是磁盘，比内存速度要慢很多），出现这种情况时要格外关注，由于硬盘速度远远慢于内存，Redis性能会变得很差，甚至僵死。可增加Redis节点、增加Redis服务器的内存、优化应用等。<h2 id="1-2-内存消耗划分"><a href="#1-2-内存消耗划分" class="headerlink" title="1.2 内存消耗划分"></a>1.2 内存消耗划分</h2>上图：<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Memory-Distribution.png"><div class="caption"><b class="center-caption">Redis内存划分示意图</b></div>
+</li>
 </ul>
 </li>
 </ul>
-<h2 id="1-2-内存消耗划分"><a href="#1-2-内存消耗划分" class="headerlink" title="1.2 内存消耗划分"></a>1.2 内存消耗划分</h2><p>上图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Memory-Distribution.png"><div class="caption"><b class="center-caption">Redis内存划分示意图</b></div>
-
 <h3 id="1-2-1-对象内存"><a href="#1-2-1-对象内存" class="headerlink" title="1.2.1 对象内存"></a>1.2.1 对象内存</h3><p><code>对象内存</code>是Redis内存占用<code>最大</code>的一块，存储着用户所有的数据。</p>
 <p>Redis所有的数据都采用<code>key-value</code>数据类型，每次创建<code>键值对</code>时，至少创建两个类型对象：<code>key对象</code>和<code>value对象</code>。</p>
 <p>对象内存消耗可以简单理解为<code>sizeof（keys）+sizeof（values）</code>：</p>
@@ -930,10 +985,10 @@ lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><sp
 <li><code>复制积压缓冲</code>：2.8版本之后提供的可重用的固定大小缓冲区用于实现部分复制功能，<code>默认1MB</code>，主要是在主从同步时用到；</li>
 <li><code>AOF缓冲区</code>：持久化用的，会先写入到缓冲区，然后根据响应的策略向磁盘进行同步，消耗的内存用户无法控制，取决于写入的命令量和重写时间，通常很小。<blockquote>
 <p>这部分内存由<code>jemalloc</code>分配，因此会统计在<code>used_memory</code>中。</p>
+<h3 id="1-2-4-内存碎片"><a href="#1-2-4-内存碎片" class="headerlink" title="1.2.4 内存碎片"></a>1.2.4 内存碎片</h3><p>等于<code>used_memory_rss</code> 减去 <code>used_memory</code>。</p>
 </blockquote>
 </li>
 </ul>
-<h3 id="1-2-4-内存碎片"><a href="#1-2-4-内存碎片" class="headerlink" title="1.2.4 内存碎片"></a>1.2.4 内存碎片</h3><p>等于<code>used_memory_rss</code> 减去 <code>used_memory</code>。</p>
 <p>Redis默认的内存分配器采用<code>jemalloc</code>，可选的分配器还有：<code>glibc</code>、<code>tcmalloc</code>。</p>
 <p><code>jemalloc</code>针对碎片化问题专门做了优化，一般不会存在过度碎片化的问题，正常的<code>碎片率</code>（mem_fragmentation_ratio）在<code>1.03左右</code>。但是当存储的数据长短差异较大时，以下场景容易出现高内存碎片问题：</p>
 <ul>
@@ -956,27 +1011,22 @@ lazyfree_pending_objects:0<span aria-hidden="true" class="line-numbers-rows"><sp
 <p>比如一台<code>24GB</code>内存的服务器，为<code>系统预留4GB内存</code>，<code>预留4GB空闲内存</code>给其他进程或<code>Redis fork</code>进程，留给Redis<code>16GB</code>内存，这样可以部署4个<code>maxmemory=4GB</code>的Redis进程。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Memory-Dispatch.png"><div class="caption"><b class="center-caption">内存分配举例</b></div>
-
-<p>Redis还可以动态的执行内存的调整，例，当发现<code>Redis-2</code>没有做好内存预估，实际只用了<code>不到2GB</code>内存，而<code>Redis-1</code>实例需要扩容到<code>6GB</code>内存才够用，这时可以分别执行如下命令进行调整：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Redis-<span class="token operator"><span class="token file-descriptor important">1</span>></span>config <span class="token builtin class-name">set</span> maxmemory 6GB
-Redis-<span class="token operator"><span class="token file-descriptor important">2</span>></span>config <span class="token builtin class-name">set</span> maxmemory 2GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Memory-Dispatch2.png"><div class="caption"><b class="center-caption">内存分配调整后</b></div>
-
+<p>Redis还可以动态的执行内存的调整，例，当发现<code>Redis-2</code>没有做好内存预估，实际只用了<code>不到2GB</code>内存，而<code>Redis-1</code>实例需要扩容到<code>6GB</code>内存才够用，这时可以分别执行如下命令进行调整：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">Redis-<span class="token operator"><span class="token file-descriptor important">1</span>></span>config <span class="token builtin class-name">set</span> maxmemory 6GB
+Redis-<span class="token operator"><span class="token file-descriptor important">2</span>></span>config <span class="token builtin class-name">set</span> maxmemory 2GB<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Memory-Dispatch2.png"><div class="caption"><b class="center-caption">内存分配调整后</b></div></p>
 <blockquote>
 <p>这个例子过于理想化，如果此时<code>Redis-3</code>和<code>Redis-4</code>实例也需要分别扩容到<code>6GB</code>，这时超出系统物理内存限制就不能简单的通过调整<code>maxmemory</code>来达到扩容的目的，需要采用<code>在线迁移数据</code>或者通过<code>复制</code>切换服务器来达到扩容的目的。具体细节见前几章的<code>“哨兵”</code>和<code>“集群”</code>部分。</p>
-</blockquote>
 <h2 id="2-2-回收策略"><a href="#2-2-回收策略" class="headerlink" title="2.2 回收策略"></a>2.2 回收策略</h2><p>Redis的内存回收机制主要体现在以下两个方面：</p>
 <ul>
 <li><code>删除</code>到达<code>过期时间</code>的键对象。</li>
 <li>内存使用达到<code>maxmemory</code>上限时触发<code>内存溢出控制策略</code>。</li>
 </ul>
+</blockquote>
 <h3 id="2-2-1-删除过期键对象"><a href="#2-2-1-删除过期键对象" class="headerlink" title="2.2.1 删除过期键对象"></a>2.2.1 删除过期键对象</h3><h4 id="2-2-1-1-惰性删除"><a href="#2-2-1-1-惰性删除" class="headerlink" title="2.2.1.1 惰性删除"></a>2.2.1.1 惰性删除</h4><p>当客户端读取<code>带有超时属性</code>的键时，如果已经超过键设置的过期时间，会执行删除操作并返回空。</p>
 <p>缺点显而易见：单独使用存在内存泄漏，即一直没有客户端读取，就没法删除。因而还需要下面的<code>定时任务删除</code>这些一直无用的数据。</p>
 <h4 id="2-2-1-2-定时任务删除"><a href="#2-2-1-2-定时任务删除" class="headerlink" title="2.2.1.2 定时任务删除"></a>2.2.1.2 定时任务删除</h4><p>Redis内部维护一个定时任务，默认<code>每秒运行10次</code>（通过配置hz控制）。</p>
-<p>定时任务中删除过期键逻辑采用了<code>自适应算法</code>，根据键的过期比例、使用<code>快慢</code>两种速率模式回收键，流程如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Expire-Cron.jpg"><div class="caption"><b class="center-caption">Redis定时删除任务</b></div>
-
+<p>定时任务中删除过期键逻辑采用了<code>自适应算法</code>，根据键的过期比例、使用<code>快慢</code>两种速率模式回收键，流程如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Expire-Cron.jpg"><div class="caption"><b class="center-caption">Redis定时删除任务</b></div></p>
 <h3 id="2-2-2-内存溢出控制策略"><a href="#2-2-2-内存溢出控制策略" class="headerlink" title="2.2.2 内存溢出控制策略"></a>2.2.2 内存溢出控制策略</h3><p>当Redis所用内存达到<code>maxmemory</code>上限时会触发相应的溢出控制策略。具体策略受<code>maxmemory-policy</code>参数控制，Redis支持6种策略，如下所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -984,7 +1034,8 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 <th>说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>noeviction</td>
 <td>默认策略，不会删除任何数据，拒绝所有写入操作并返回客户端错误信息（error）<code>OOM command not allowed when used memory</code>，此时Redis只响应读操作。</td>
 </tr>
@@ -1008,7 +1059,9 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 <td>volatile-ttl</td>
 <td>根据键值对象的<code>ttl</code>属性，删除最近将要过期数据。如果没有，回退到<code>noeviction</code>策略。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>内存溢出控制策略可以采用<code>config set maxmemory-policy&#123;policy&#125;</code>动态配置。</p>
 </blockquote>
@@ -1022,9 +1075,7 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 </ul>
 </li>
 </ul>
-<p>2.使用<code>共享对象池</code>优化小整数对象，数据优先使用整数，比字符串类型更节省空间；<br><code>共享对象池</code>是指Redis内部维护<code>[0-9999]</code>的<strong>整数对象池</strong>。创建大量的整数类型<code>redisObject</code>存在内存开销，每个<code>redisObject</code>内部结构<code>至少占16字节</code>，甚至超过了整数自身空间消耗。所以Redis内存维护一个<code>[0-9999]</code>的整数对象池，用于节约内存。除了整数值对象，其他类型如<code>list</code>、<code>hash</code>、<code>set</code>、<code>zset</code>内部元素也可以使用整数对象池。因此开发中在满足需求的前提下，尽量使用整数对象以节省内存。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Optimize-Integer-SharedPool.jpg"><div class="caption"><b class="center-caption">是否使用整数对象池内存对比</b></div>
-
+<p>2.使用<code>共享对象池</code>优化小整数对象，数据优先使用整数，比字符串类型更节省空间；<br><code>共享对象池</code>是指Redis内部维护<code>[0-9999]</code>的<strong>整数对象池</strong>。创建大量的整数类型<code>redisObject</code>存在内存开销，每个<code>redisObject</code>内部结构<code>至少占16字节</code>，甚至超过了整数自身空间消耗。所以Redis内存维护一个<code>[0-9999]</code>的整数对象池，用于节约内存。除了整数值对象，其他类型如<code>list</code>、<code>hash</code>、<code>set</code>、<code>zset</code>内部元素也可以使用整数对象池。因此开发中在满足需求的前提下，尽量使用整数对象以节省内存。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Optimize-Integer-SharedPool.jpg"><div class="caption"><b class="center-caption">是否使用整数对象池内存对比</b></div></p>
 <blockquote>
 <p>为什么开启maxmemory和LRU淘汰策略后对象池无效？</p>
 </blockquote>
@@ -1032,15 +1083,13 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 <p>综上所述，<code>共享对象池</code>与<code>maxmemory+LRU策略</code><strong>冲突</strong>，使用时需要注意。对于<code>ziplist编码</code>的值对象，即使内部数据为整数也<strong>无法使用</strong>共享对象池，因为<code>ziplist</code>使用压缩且内存连续的结构，对象共享判断成本过高。</p>
 <blockquote>
 <p>为什么只有整数对象池？</p>
-</blockquote>
 <ul>
 <li>首先整数对象池<code>复用的几率最大</code>；</li>
 <li>其次对象共享的一个关键操作就是判断相等性，Redis之所以只有整数对象池，是因为整数比较算法时间复杂度为<code>O(1)</code>，只保留一万个整数为了防止对象池浪费；</li>
 <li>再次，如果是字符串判断相等性，时间复杂度变为<code>O(n)</code>，特别是长字符串更消耗性能（浮点数在Redis内部使用字符串存储）。对于更复杂的数据结构如<code>hash</code>、<code>list</code>等，相等性判断需要O($n^2$)。对于单线程的Redis来说，这样的开销显然不合理，因此Redis只保留整数共享对象池。</li>
 </ul>
-<p>3.优化字符串使用，避免<code>预分配</code>造成的内存浪费；<br>在开始学习Redis数据结构时，我们已经了解到Redis对于字符串的存储结构以及编码，对于字符串，其数据结构离不开SDS，如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-SDS-Example3.png"><div class="caption"><b class="center-caption">SDS样例</b></div>
-
+</blockquote>
+<p>3.优化字符串使用，避免<code>预分配</code>造成的内存浪费；<br>在开始学习Redis数据结构时，我们已经了解到Redis对于字符串的存储结构以及编码，对于字符串，其数据结构离不开SDS，如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-SDS-Example3.png"><div class="caption"><b class="center-caption">SDS样例</b></div></p>
 <p>Redis自身实现的字符串结构具有如下<code>特点</code>：</p>
 <ul>
 <li><code>O(1)</code>时间复杂度获取：<code>字符串长度</code>、<code>已用长度</code>、<code>未用长度</code>。</li>
@@ -1053,11 +1102,9 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 <p>之所以采用预分配的方式是<strong>防止修改操作需要不断重分配内存和字节数据拷贝</strong>。但这是一把<code>双刃剑</code>，同样也会造成内存的浪费。字符串预分配每次<code>并不都是翻倍扩容</code>，空间预分配规则如下：</p>
 <ul>
 <li>第一次创建<code>len</code>属性等于<code>数据实际大小</code>，<code>free</code>等于0，不做预分配。</li>
-<li>修改后如果已有free空间不够且数据<code>小于1MB</code>，每次预分配一倍容量。如原有len&#x3D;60byte，free&#x3D;0，再追加60byte，预分配120byte，总占用空间：<code>60byte+60byte+120byte+1byte</code>。</li>
-<li>修改后如果已有free空间不够且数据<code>大于1MB</code>，每次预分配1MB数据。如原有len&#x3D;30MB，free&#x3D;0，当再追加100byte，预分配1MB，总占用空间：<code>1MB+100byte+1MB+1byte</code>。</li>
+<li>修改后如果已有free空间不够且数据<code>小于1MB</code>，每次预分配一倍容量。如原有len=60byte，free=0，再追加60byte，预分配120byte，总占用空间：<code>60byte+60byte+120byte+1byte</code>。</li>
+<li>修改后如果已有free空间不够且数据<code>大于1MB</code>，每次预分配1MB数据。如原有len=30MB，free=0，当再追加100byte，预分配1MB，总占用空间：<code>1MB+100byte+1MB+1byte</code>。</li>
 </ul>
-</blockquote>
-<blockquote>
 <p>开发提示：尽量减少字符串频繁修改操作，如<code>append</code>、<code>setrange</code>，改为直接使用set修改字符串，降低预分配带来的内存浪费和内存碎片化。</p>
 </blockquote>
 <p>4.使用<code>ziplist</code>压缩编码优化<code>hash</code>、<code>list</code>等结构，注重效率和空间的平衡；<br>编码形式多种多样，基本上每种数据结构，Redis作者都给出了至少两种方式，参见<a href="/posts/3971932782.html" title="【Redis学习】1.常用的数据结构">【Redis学习】1.常用的数据结构</a>。</p>
@@ -1082,18 +1129,18 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 </ul>
 <p>关于hash<code>键</code>和<code>field键</code>的设计：</p>
 <ul>
-<li>当<code>键</code>离散度较高时，可以按字符串位截取，把后三位作为哈希的<code>field</code>，之前部分作为哈希的键。如：key&#x3D;1948480哈希key&#x3D;group:hash:1948，哈希field&#x3D;480。</li>
+<li>当<code>键</code>离散度较高时，可以按字符串位截取，把后三位作为哈希的<code>field</code>，之前部分作为哈希的键。如：key=1948480哈希key=group:hash:1948，哈希field=480。</li>
 <li>当<code>键</code>离散度较低时，可以使用哈希算法打散键，如：使用<code>crc32(key)&amp;10000</code>函数把所有的键映射到<code>“0-9999”</code>整数范围内，哈希<code>field</code>存储键的原始值。</li>
 <li>尽量减少hash<code>键</code>和<code>field</code>的长度，如使用部分键内容。</li>
 </ul>
 <blockquote>
 <p>虽然可以大幅降低内存，但同样会带来问题，需要提前做好规避处理。</p>
-</blockquote>
 <ul>
 <li>客户端需要预估键的规模并设计hash分组规则，加重客户端开发成本。</li>
 <li>hash重构后所有的键<code>无法再使用超时</code>（expire）和<code>LRU淘汰机制</code>自动删除，需要手动维护删除。</li>
 <li>对于大对象，如<code>1KB以上</code>的对象，使用<code>hash-ziplist</code>结构控制键数量反而得不偿失。</li>
 </ul>
+</blockquote>
 
                 
             </div>
@@ -1791,7 +1838,7 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1809,7 +1856,7 @@ Redis-<span class="token operator"><span class="token file-descriptor important"
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2072,6 +2119,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

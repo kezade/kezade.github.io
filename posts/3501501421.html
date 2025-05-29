@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -825,9 +882,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-单表访问之索引合并"><a href="#1-单表访问之索引合并" class="headerlink" title="1 单表访问之索引合并"></a>1 单表访问之索引合并</h1><p>MySQL在一般情况下执行一个查询时<code>最多</code>只会用到单个<code>二级索引</code>，但存在有特殊情况，也可能在一个查询中使用到多个二级索引，MySQL中这种使用到多个索引来完成一次查询的执行方法称之为：<code>索引合并/index merg</code>。e</p>
-<h2 id="1-1-Intersection-合并"><a href="#1-1-Intersection-合并" class="headerlink" title="1.1 Intersection 合并"></a>1.1 Intersection 合并</h2><p>这里是说某个查询可以使用<code>多个二级索引</code>，将从多个二级索引中查询到的结果取<code>交集</code>，比方说下边这个查询:</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no <span class="token operator">=</span> <span class="token string">'a'</span> <span class="token operator">AND</span> expire_time <span class="token operator">=</span> <span class="token string">'b'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>假设这个查询使用 Intersection 合并的方式执行的话，那这个过程就是这样的:</p>
+<h2 id="1-1-Intersection-合并"><a href="#1-1-Intersection-合并" class="headerlink" title="1.1 Intersection 合并"></a>1.1 Intersection 合并</h2><p>这里是说某个查询可以使用<code>多个二级索引</code>，将从多个二级索引中查询到的结果取<code>交集</code>，比方说下边这个查询:<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no <span class="token operator">=</span> <span class="token string">'a'</span> <span class="token operator">AND</span> expire_time <span class="token operator">=</span> <span class="token string">'b'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>假设这个查询使用 Intersection 合并的方式执行的话，那这个过程就是这样的:</p>
 <ul>
 <li>从 <code>idx_order_no</code> 二级索引对应的 <code>B+树</code>中取出 <code>order_no= &#39;a&#39;</code>的相关记录。</li>
 <li>从 <code>idx_expire_time</code> 二级索引对应的 <code>B+树</code>中取出 <code>expire_time= &#39;b&#39;</code>的相关记录。</li>
@@ -845,18 +900,14 @@
 <p>虽然读取多个二级索引比读取一个二级索引消耗性能，但是大部分情况下读取二级索引的操作是<code>顺序 I/O</code>，而<code>回表</code>操作是<code>随机 I/O</code>，所以如果只读取一个二级索引时需要回表的记录数特别多，而读取多个二级索引之后取交集的记录数非常少，当节省的因为回表而造成的性能损耗比访问多个二级索引带来的性能损耗更高时，读取多个二级索引后取交集比只读取一个二级索引的<code>成本更低</code>。</p>
 <blockquote>
 <p>MySQL 在某些特定的情况下才可能会使用到 <code>Intersection 索引合并</code>，哪些情况呢?</p>
-</blockquote>
 <ul>
 <li>情况一：<code>等值匹配</code>：二级索引列是等值匹配的情况，对于<code>联合索引</code>来说，在联合索引中的每个列都必须<code>等值匹配</code>，不能出现只匹配部分列的情况。</li>
 <li>情况二：主键列可以是范围匹配。</li>
 </ul>
-<blockquote>
 <p>之所以在二级索引列都是<code>等值匹配</code>的情况下才可能使用 <code>Intersection 索引合并</code>，是因为只有在这种情况下根据二级索引查询出的结果集是<code>按照主键值排序的</code>。Intersection 索引合并会把从多个二级索引中查询出的主键值求交集，如果从各个二级索引中查询的到的结果集本身就是已经按照主键排好序的，那么求交集的过程就很容易。</p>
 </blockquote>
 <h2 id="1-2-Union-合并"><a href="#1-2-Union-合并" class="headerlink" title="1.2 Union 合并"></a>1.2 Union 合并</h2><p>Union 是<code>并集</code>的意思，适用于使用不同索引的搜索条件之间使用 <code>OR</code> 连接起来的情况。</p>
-<p>比如：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no <span class="token operator">=</span> <span class="token string">'a'</span> <span class="token operator">OR</span> expire_time <span class="token operator">=</span> <span class="token string">'b'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>比如：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no <span class="token operator">=</span> <span class="token string">'a'</span> <span class="token operator">OR</span> expire_time <span class="token operator">=</span> <span class="token string">'b'</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>与 <code>Intersection 索引合并</code>类似，MySQL 在某些特定的情况下才可能会使用到 <code>Union 索引合并</code>:</p>
 <ul>
 <li>情况一：等值匹配分析同 Intersection 合并</li>
@@ -872,11 +923,8 @@
 <p>当然，查询条件符合了这些情况也<code>不一定</code>就会采用 Union 索引合并，也得<strong>看优化器的心情</strong>。优化器只有在单独根据搜索条件从某个二级索引中获取的记录数比较少，通过 Union 索引合并后进行访问的<code>代价</code>比全表扫描<code>更小</code>时才会使用 Union 索引合并。</p>
 <h2 id="1-3-Sort-Union-合并"><a href="#1-3-Sort-Union-合并" class="headerlink" title="1.3 Sort_Union 合并"></a>1.3 Sort_Union 合并</h2><p>先按照二级索引记录的主键值进行<code>排序</code>，之后按照 <code>Union 索引合并</code>方式执行的方式称之为 <code>Sort-Union 索引合并</code>.</p>
 <h2 id="1-4-联合索引替代Intersection-索引合并"><a href="#1-4-联合索引替代Intersection-索引合并" class="headerlink" title="1.4 联合索引替代Intersection 索引合并"></a>1.4 联合索引替代Intersection 索引合并</h2><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no<span class="token operator">=</span> <span class="token string">'a'</span> <span class="token operator">And</span> expire_time<span class="token operator">=</span> <span class="token string">'z'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>这个查询之所以可能使用 Intersection 索引合并的方式执行，还不是因为 <code>idx_order_no</code> 和 <code>idx_expire_time</code> 是两个单独的 B+树索引，要是把这两个列搞一个<code>联合索引</code>，那直接使用这个联合索引就把事情搞定了，何必用啥索引合并呢，就像这样:</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">ALTER</span> <span class="token keyword">TABLE</span> order_exp <span class="token keyword">drop</span> <span class="token keyword">index</span> idx_order_no<span class="token punctuation">,</span> idx_expire_time<span class="token punctuation">,</span>
-<span class="token keyword">add</span> <span class="token keyword">index</span> idx_order_no_expire_time<span class="token punctuation">(</span>order_no<span class="token punctuation">,</span> expire_time<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<p>这个查询之所以可能使用 Intersection 索引合并的方式执行，还不是因为 <code>idx_order_no</code> 和 <code>idx_expire_time</code> 是两个单独的 B+树索引，要是把这两个列搞一个<code>联合索引</code>，那直接使用这个联合索引就把事情搞定了，何必用啥索引合并呢，就像这样:<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">ALTER</span> <span class="token keyword">TABLE</span> order_exp <span class="token keyword">drop</span> <span class="token keyword">index</span> idx_order_no<span class="token punctuation">,</span> idx_expire_time<span class="token punctuation">,</span>
+<span class="token keyword">add</span> <span class="token keyword">index</span> idx_order_no_expire_time<span class="token punctuation">(</span>order_no<span class="token punctuation">,</span> expire_time<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
 <p>这样我们把 idx_order_no, idx_expire_time 都干掉，再添加一个<code>联合索引 idx_order_no_expire_time</code>，使用这个联合索引进行查询简直是又快又好，既不用多读一棵 B+树，也不用合并结果。</p>
 <h1 id="2-连接查询"><a href="#2-连接查询" class="headerlink" title="2 连接查询"></a>2 连接查询</h1><blockquote>
 <p>连接的<code>本质</code>就是把各个连接表中的记录都取出来依次匹配的<code>组合</code>加入结果集并返回给用户。</p>
@@ -884,7 +932,7 @@
 <h1 id="3-MySQL-的查询成本"><a href="#3-MySQL-的查询成本" class="headerlink" title="3 MySQL 的查询成本"></a>3 MySQL 的查询成本</h1><h2 id="3-1-成本组成"><a href="#3-1-成本组成" class="headerlink" title="3.1 成本组成"></a>3.1 成本组成</h2><p>MySQL 执行一个查询可以有不同的执行方案，它会选择其中<code>成本最低</code>，或者说<code>代价最低</code>的那种方案去真正地执行查询。</p>
 <p>在 MySQL 中一条<code>查询语句</code>的<code>执行成本</code>是由下边这<code>两个方面</code>组成的:</p>
 <ul>
-<li>I&#x2F;O成本：表、索引等数据是存储在磁盘上的，当用户查询表数据时，MySQL需要先把数据或者索引加载到<code>内存</code>中然后再操作。这个从<code>磁盘到内存</code>这个加载的过程<code>损耗的时间</code>称之为 <code>I/O 成本</code>。</li>
+<li>I/O成本：表、索引等数据是存储在磁盘上的，当用户查询表数据时，MySQL需要先把数据或者索引加载到<code>内存</code>中然后再操作。这个从<code>磁盘到内存</code>这个加载的过程<code>损耗的时间</code>称之为 <code>I/O 成本</code>。</li>
 <li>CPU成本：<code>读取以及检测记录是否满足对应的搜索条件</code>、<code>对结果集进行排序</code>等这些操作<code>损耗的时间</code>称之为 <code>CPU 成本</code>。</li>
 <li>成本常数：对于 <code>InnoDB</code> 存储引擎来说，<code>页</code>是<code>磁盘</code>和<code>内存</code>之间交互的<code>基本单位</code>。常用的成本常数有（当然还有其他的成本常数）：<ul>
 <li>读取一个页面花费的成本默认是 <code>1.0</code></li>
@@ -902,8 +950,7 @@
 <li>计算使用不同索引执行查询的代价</li>
 <li>对比各种执行方案的代价，找出成本最低的那一个</li>
 </ul>
-<h3 id="3-2-2-举例"><a href="#3-2-2-举例" class="headerlink" title="3.2.2 举例"></a>3.2.2 举例</h3><p>现有以下表结构</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> order_exp
+<h3 id="3-2-2-举例"><a href="#3-2-2-举例" class="headerlink" title="3.2.2 举例"></a>3.2.2 举例</h3><p>现有以下表结构<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> order_exp
 <span class="token punctuation">(</span>
     <span class="token identifier"><span class="token punctuation">`</span>id<span class="token punctuation">`</span></span>              <span class="token keyword">bigint</span><span class="token punctuation">(</span><span class="token number">22</span><span class="token punctuation">)</span>   <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">AUTO_INCREMENT</span> <span class="token keyword">COMMENT</span> <span class="token string">'订单的主键'</span><span class="token punctuation">,</span>
     <span class="token identifier"><span class="token punctuation">`</span>order_no<span class="token punctuation">`</span></span>        <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">50</span><span class="token punctuation">)</span>  <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">COMMENT</span> <span class="token string">'订单的编号'</span><span class="token punctuation">,</span>
@@ -917,18 +964,15 @@
 <span class="token punctuation">)</span> <span class="token keyword">ENGINE</span> <span class="token operator">=</span> <span class="token keyword">InnoDB</span>
   <span class="token keyword">AUTO_INCREMENT</span> <span class="token operator">=</span> <span class="token number">16</span>
   <span class="token keyword">CHARACTER</span> <span class="token keyword">SET</span> utf8mb4
-  <span class="token keyword">COLLATE</span> utf8_general_ci <span class="token keyword">COMMENT</span> <span class="token operator">=</span><span class="token string">'订单表'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>查询语句如下:</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span>
+  <span class="token keyword">COLLATE</span> utf8_general_ci <span class="token keyword">COMMENT</span> <span class="token operator">=</span><span class="token string">'订单表'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>查询语句如下:<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span>
 <span class="token keyword">FROM</span> order_exp
 <span class="token keyword">WHERE</span> order_no <span class="token operator">IN</span> <span class="token punctuation">(</span><span class="token string">'DD00_6S'</span><span class="token punctuation">,</span> <span class="token string">'DD00_9S'</span><span class="token punctuation">,</span> <span class="token string">'DD00_10S'</span><span class="token punctuation">)</span>
   <span class="token operator">AND</span> expire_time <span class="token operator">></span> <span class="token string">'2021-03-22 18:28:28'</span>
   <span class="token operator">AND</span> expire_time <span class="token operator">&lt;=</span> <span class="token string">'2021-03-22 18:35:09'</span>
   <span class="token operator">AND</span> insert_time <span class="token operator">></span> expire_time
   <span class="token operator">AND</span> order_note <span class="token operator">LIKE</span> <span class="token string">'%hello%'</span>
-  <span class="token operator">AND</span> order_status <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+  <span class="token operator">AND</span> order_status <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h4 id="3.2.2.1">3.2.2.1 根据搜索条件，找出所有可能使用的索引</h4>
 
 
@@ -950,11 +994,8 @@
 <li>聚簇索引占用的页面数</li>
 <li>该表中的记录数</li>
 </ul>
-<p>MySQL给我们提供了 <code>SHOW TABLE STATUS</code> 语句来查看表的统计信息，以上表<code>order_exp</code>为例，查询该表的统计信息语句如下：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SHOW</span> <span class="token keyword">TABLE</span> <span class="token keyword">STATUS</span> <span class="token operator">LIKE</span> <span class="token string">'order_exp'</span> \G<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>结果如下：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">mysql<span class="token operator">></span> <span class="token keyword">SHOW</span> <span class="token keyword">TABLE</span> <span class="token keyword">STATUS</span> <span class="token operator">LIKE</span> <span class="token string">'order_exp'</span> \G
+<p>MySQL给我们提供了 <code>SHOW TABLE STATUS</code> 语句来查看表的统计信息，以上表<code>order_exp</code>为例，查询该表的统计信息语句如下：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SHOW</span> <span class="token keyword">TABLE</span> <span class="token keyword">STATUS</span> <span class="token operator">LIKE</span> <span class="token string">'order_exp'</span> \G<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>结果如下：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">mysql<span class="token operator">></span> <span class="token keyword">SHOW</span> <span class="token keyword">TABLE</span> <span class="token keyword">STATUS</span> <span class="token operator">LIKE</span> <span class="token string">'order_exp'</span> \G
 <span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token number">1.</span><span class="token keyword">row</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span>
 Name: order_exp
 <span class="token keyword">Engine</span>: <span class="token keyword">InnoDB</span>
@@ -974,17 +1015,17 @@ Collation: utf8_general_ci
 Checksum: <span class="token boolean">NULL</span>
 Create_options:
 <span class="token keyword">Comment</span>:
-<span class="token number">1</span> <span class="token keyword">row</span> <span class="token operator">in</span> <span class="token keyword">set</span> <span class="token punctuation">(</span><span class="token number">0.00</span> sec<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token number">1</span> <span class="token keyword">row</span> <span class="token operator">in</span> <span class="token keyword">set</span> <span class="token punctuation">(</span><span class="token number">0.00</span> sec<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>我们只需要关心这两个参数：</p>
 <ul>
 <li>Rows：表示表中的记录条数。对于使用 <code>MyISAM</code> 存储引擎的表来说，该值是<code>准确的</code>，对于使用 <code>InnoDB</code> 存储引擎的表来说，该值是一个<code>估计值</code>。</li>
 <li>Data_length：表示表占用的存储空间字节数。使用 <code>MyISAM</code> 存储引擎的表来说，该值就是<code>数据文件的大小</code>，对于使用 <code>InnoDB</code> 存储引擎的表来说，该值就相当于<code>聚簇索引占用的存储空间大小</code>，也就是说可以这样计算该值的大小:  <pre class="line-numbers language-none"><code class="language-none">Data_length &#x3D; 聚簇索引的页面数量 * 每个页面的大小<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-这里 <code>order_exp</code> 使用默认 <code>16KB</code> 的页面大小，而上边查询结果显示<code>Data_length</code>的值是<code>1589248</code>，所以我们可以反向来推导出聚簇索引的页面数量:<pre class="line-numbers language-none"><code class="language-none">聚簇索引的页面数量 &#x3D; 1589248 ÷ 16 ÷ 1024 &#x3D; 97<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+这里 <code>order_exp</code> 使用默认 <code>16KB</code> 的页面大小，而上边查询结果显示<code>Data_length</code>的值是<code>1589248</code>，所以我们可以反向来推导出聚簇索引的页面数量:<pre class="line-numbers language-none"><code class="language-none">聚簇索引的页面数量 &#x3D; 1589248 ÷ 16 ÷ 1024 &#x3D; 97<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
 </ul>
 <p>现在已经得到了<code>聚簇索引占用的页面数量</code>以及该表<code>记录数的估计值</code>，所以就可以计算<code>全表扫描成本</code>了。</p>
 <ul>
-<li>I&#x2F;O 成本：<code>97 * 1.0 + 1.1 = 98.1</code>，<code>97</code>指的是聚簇索引占用的页面数，<code>1.0</code>指的是加载一个页面的成本常数，后边的<code>1.1</code>是一个微调值。<blockquote>
+<li>I/O 成本：<code>97 * 1.0 + 1.1 = 98.1</code>，<code>97</code>指的是聚簇索引占用的页面数，<code>1.0</code>指的是加载一个页面的成本常数，后边的<code>1.1</code>是一个微调值。<blockquote>
 <p>TIPS：MySQL 在真实计算成本时会进行一些微调，这些微调的值是直接硬编码到代码里的，没有注释而且这些微调的值十分的小，并不影响我们分析。</p>
 </blockquote>
 </li>
@@ -1003,8 +1044,7 @@ Create_options:
 <li><p>范围区间数量：不论某个范围区间的二级索引到底占用了多少页面，查询优化器认为读取<code>索引的一个范围区间</code>的 <code>I/O 成本</code>和读取<code>一个页面</code>是<strong>相同的</strong>。</p>
 <p> 本例中使用 <code>idx_expire_time</code> 的范围区间<code>只有一个</code>，所以相当于访问这个范围区间的二级索引付出的 <code>I/O 成本</code>就是：<code>1 * 1.0 = 1.0</code></p>
 </li>
-<li><p>需要回表的记录数：优化器需要计算二级索引的某个范围区间到底包含多少条记录，对于本例来说就是要计算 <code>idx_expire_time</code> 在<code>(&#39;2021-03-22 18:28:28&#39; ，&#39;2021-03-22 18:35:09&#39;)</code>这个范围区间中包含多少二级索引记录，计算过程是这样的:</p>
-<ul>
+<li>需要回表的记录数：优化器需要计算二级索引的某个范围区间到底包含多少条记录，对于本例来说就是要计算 <code>idx_expire_time</code> 在<code>(&#39;2021-03-22 18:28:28&#39; ，&#39;2021-03-22 18:35:09&#39;)</code>这个范围区间中包含多少二级索引记录，计算过程是这样的:<ul>
 <li>先根据 <code>expire_time&gt; &#39;2021-03-22 18:28:28&#39;</code>这个条件访问一下 <code>idx_expire_time</code> 对应的 B+树索引，找到满足 <code>expire_time&gt; &#39;2021-03-22 18:28:28&#39;</code> 这个条件的<code>第一条记录</code>，我们把这条记录称之为<code>区间最左记录</code>。</li>
 <li>再根据 <code>expire_time&lt;= &#39;2021-03-22 18:35:09&#39;</code>这个条件继续从 <code>idx_expire_time</code> 对应的 B+树索引中找出<code>最后一条</code>满足这个条件的记录，我们把这条记录称之为<code>区间最右记录</code>。</li>
 <li>如果<code>区间最左记录</code>和<code>区间最右记录</code>相隔不太远(在 <code>MySQL 5.7</code> 这个版本里，只要相隔<code>不大于 10 个页面</code>即可)，那就可以<code>精确</code>统计出满足 <code>expire_time&gt; &#39;2021-03-22 18:28:28&#39; AND expire_time&lt;= &#39;2021-03-22 18:35:09&#39;</code>条件的二级索引<code>记录条数</code>。否则只沿着区间最左记录<code>向右</code>读<code>10个页面</code>，计算平均每个页面中包含多少记录，然后用这个<code>平均值</code>乘以<code>区间最左记录和区间最右记录之间的页面数量</code>就可以了。</li>
@@ -1018,24 +1058,16 @@ Create_options:
 <p>既然是树，那就继续<code>递归</code>，一个B+树有<code>4层</code>高已经很不得了了，所以这个统计过程也不是很耗费性能。</p>
 </blockquote>
 <p>回到正题，现在计算<code>idx_expire_time</code>所花费的<code>CPU成本</code>。</p>
-<p>MySQL根据上述算法测得 <code>idx_expire_time</code> 在区间<code>(&#39;2021-03-22 18:28:28&#39; ， &#39;2021-03-22 18:35:09&#39;)</code>之间大约有 <code>39</code> 条记录。可执行以下语句得到记录数Row：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> expire_time<span class="token operator">></span> <span class="token string">'2021-03-22 18:28:28'</span> <span class="token operator">AND</span> expire_time<span class="token operator">&lt;=</span> <span class="token string">'2021-03-22 18:35:09'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>读取这 39 条二级索引记录需要付出的 <code>CPU 成本</code>就是:</p>
-<pre class="line-numbers language-none"><code class="language-none">39 x 0.2 + 0.01 &#x3D; 7.81<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>其中 <code>39</code> 是需要读取的二级索引<code>记录条数</code>，<code>0.2</code>是读取一条记录成本常数，<code>0.01</code>是微调。</p>
+<p>MySQL根据上述算法测得 <code>idx_expire_time</code> 在区间<code>(&#39;2021-03-22 18:28:28&#39; ， &#39;2021-03-22 18:35:09&#39;)</code>之间大约有 <code>39</code> 条记录。可执行以下语句得到记录数Row：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> expire_time<span class="token operator">></span> <span class="token string">'2021-03-22 18:28:28'</span> <span class="token operator">AND</span> expire_time<span class="token operator">&lt;=</span> <span class="token string">'2021-03-22 18:35:09'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>读取这 39 条二级索引记录需要付出的 <code>CPU 成本</code>就是:<br><pre class="line-numbers language-none"><code class="language-none">39 x 0.2 + 0.01 &#x3D; 7.81<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>其中 <code>39</code> 是需要读取的二级索引<code>记录条数</code>，<code>0.2</code>是读取一条记录成本常数，<code>0.01</code>是微调。</p>
 <p>再计算<code>I/O成本</code>。</p>
 <p>在通过二级索引获取到记录之后，还需要干<code>两件事儿</code>:<br>1）根据这些记录里的主键值到聚簇索引中做<code>回表</code>操作<br>MySQL评估<code>回表操作</code>的<code>I/O成本</code>依旧很简单粗暴，其认为每次回表操作都相当于<code>访问一个页面</code>，也就是说二级索引范围区间有多少记录，就需要进行多少次回表操作，也就是需要进行多少次页面 <code>I/O</code>。</p>
-<p>上面得到了39条记录，需要进行39次的回表，因而得出<code>I/O成本</code>为：</p>
-<pre class="line-numbers language-none"><code class="language-none">39 * 1.0 &#x3D; 39 .0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>其中 <code>39</code> 是预计的二级索引<code>记录数</code>，<code>1.0</code>是一个页面的 <code>I/O 成本常数</code>。</p>
+<p>上面得到了39条记录，需要进行39次的回表，因而得出<code>I/O成本</code>为：<br><pre class="line-numbers language-none"><code class="language-none">39 * 1.0 &#x3D; 39 .0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>其中 <code>39</code> 是预计的二级索引<code>记录数</code>，<code>1.0</code>是一个页面的 <code>I/O 成本常数</code>。</p>
 <p>2）回表操作后得到的完整用户记录，然后再检测其他搜索条件是否成立<br><code>回表操作</code>的<code>本质</code>就是通过二级索引记录的主键值到聚簇索引中找到完整的用户记录，然后再检测除 <code>expire_time&gt; &#39;2021-03-22 18:28:28&#39; AND expire_time&lt; &#39;2021-03-22 18:35:09&#39;</code>这个搜索条件以外的搜索条件<code>是否成立</code>。</p>
-<p>因为我们通过范围区间获取到二级索引记录共 <code>39 条</code>，也就对应着聚簇索引中 39 条完整的用户记录，读取并检测这些完整的用户记录是否符合其余的搜索条件的 <code>CPU 成本</code>如下:</p>
-<pre class="line-numbers language-none"><code class="language-none">39 * 0.2 &#x3D;7.8<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>其中 <code>39</code> 是待检测记录的条数，<code>0.2</code> 是检测一条记录是否符合给定的搜索条件的成本常数。</p>
+<p>因为我们通过范围区间获取到二级索引记录共 <code>39 条</code>，也就对应着聚簇索引中 39 条完整的用户记录，读取并检测这些完整的用户记录是否符合其余的搜索条件的 <code>CPU 成本</code>如下:<br><pre class="line-numbers language-none"><code class="language-none">39 * 0.2 &#x3D;7.8<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>其中 <code>39</code> 是待检测记录的条数，<code>0.2</code> 是检测一条记录是否符合给定的搜索条件的成本常数。</p>
 <p>所以本例中使用 <code>idx_expire_time</code> 执行查询的成本就如下所示：</p>
 <ul>
-<li>I&#x2F;O 成本：<code>1.0 + 39 * 1.0 = 40 .0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
+<li>I/O 成本：<code>1.0 + 39 * 1.0 = 40 .0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
 <li>CPU 成本：<code>39 * 0.2 + 0.01 + 39 * 0.2 = 15.61</code> (读取二级索引记录的成本 + 读取并检测回表后聚簇索引记录的成本)</li>
 </ul>
 <p>综上所述，使用 <code>idx_expire_time</code> 执行查询的总成本就是: <code>40 .0 + 15.61 = 55.61</code></p>
@@ -1044,18 +1076,15 @@ Create_options:
 <ul>
 <li>范围区间数量<br>使用 <code>idx_order_no</code> 执行查询时很显然有 <code>3 个单点区间</code>，所以访问这 3 个范围区间的二级索引付出的 <code>I/O 成本</code>就是：<pre class="line-numbers language-none"><code class="language-none">3 * 1.0 &#x3D; 3.0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
 <li>需要回表的记录数<br>由于使用 <code>idx_expire_time</code> 时有 3 个单点区间，所以每个单点区间都需要查找一遍对应的二级索引记录数，三个单点区间总共需要回表的记录数是<code>58</code>。语句如下：<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">explain</span> <span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> order_exp <span class="token keyword">WHERE</span> order_no <span class="token operator">IN</span> <span class="token punctuation">(</span><span class="token string">'DD00_6S'</span><span class="token punctuation">,</span> <span class="token string">'DD00_9S'</span><span class="token punctuation">,</span> <span class="token string">'DD00_10S'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-读取这些二级索引记录的 <code>CPU 成本</code>就是：<pre class="line-numbers language-none"><code class="language-none">58 * 0.2 + 0.01 &#x3D; 11.61<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
+读取这些二级索引记录的 <code>CPU 成本</code>就是：<pre class="line-numbers language-none"><code class="language-none">58 * 0.2 + 0.01 &#x3D; 11.61<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+</li>
 </ul>
 <p>再计算<code>I/O成本</code>。</p>
-<p>根据这些记录里的主键值到聚簇索引中做回表操作，所需的 <code>I/O 成本</code>就是: </p>
-<pre class="line-numbers language-none"><code class="language-none">58 * 1.0 &#x3D; 58.0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>回表操作后得到的完整用户记录，然后再比较其他搜索条件是否成立。此步骤对应的 <code>CPU 成本</code>就是:</p>
-<pre class="line-numbers language-none"><code class="language-none">58 * 0.2 &#x3D; 11.6<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>根据这些记录里的主键值到聚簇索引中做回表操作，所需的 <code>I/O 成本</code>就是:<br><pre class="line-numbers language-none"><code class="language-none">58 * 1.0 &#x3D; 58.0<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>回表操作后得到的完整用户记录，然后再比较其他搜索条件是否成立。此步骤对应的 <code>CPU 成本</code>就是:<br><pre class="line-numbers language-none"><code class="language-none">58 * 0.2 &#x3D; 11.6<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>综上，使用 <code>idx_order_no</code> 执行查询的成本就如下所示:</p>
 <ul>
-<li>I&#x2F;O 成本：<code>3.0 + 58 x 1.0 = 61.0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
+<li>I/O 成本：<code>3.0 + 58 x 1.0 = 61.0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
 <li>CPU 成本：<code>58 x 0.2 + 58 x 0.2 + 0.01 = 23.21</code> (读取二级索引记录的成本 + 读取并检测回表后聚簇索引记录的成本)</li>
 </ul>
 <p>综上所述，使用 <code>idx_order_no</code> 执行查询的<code>总成本</code>就是: <code>61.0 + 23.21 = 84.21</code></p>
@@ -1070,18 +1099,17 @@ Create_options:
 <blockquote>
 <p>Warning:</p>
 <ul>
-<li><p>MySQL 的源码中对成本的计算实际要更复杂，但是基本思想和算法是没错的。</p>
-</li>
+<li>MySQL 的源码中对成本的计算实际要更复杂，但是基本思想和算法是没错的。</li>
 <li><p>在 MySQL 的实际计算中，在和全文扫描比较成本时，使用索引的成本会<strong>去除</strong><code>读取并检测回表后聚簇索引记录的成本</code>，也就是说，我们通过 MySQL 看到的成本将会是：</p>
 <ul>
-<li><code>idx_expire_time</code> 为<code> 47.81</code>(55.61-7.8)，</li>
+<li><code>idx_expire_time</code> 为<code>47.81</code>(55.61-7.8)，</li>
 <li><code>idx_order_no</code> 为 <code>72.61</code>(84.21-11.6)。</li>
 </ul>
 <p>但是 MySQL 比较完成本后，会再计算一次使用索引的成本，此时就会<strong>加上</strong><code>读取并检测回表后聚簇索引记录的成本</code>，也就是我们计算出来的值。</p>
-</li>
+<h1 id="4-InnoDB-中的统计数据"><a href="#4-InnoDB-中的统计数据" class="headerlink" title="4 InnoDB 中的统计数据"></a>4 InnoDB 中的统计数据</h1></li>
 </ul>
 </blockquote>
-<h1 id="4-InnoDB-中的统计数据"><a href="#4-InnoDB-中的统计数据" class="headerlink" title="4 InnoDB 中的统计数据"></a>4 InnoDB 中的统计数据</h1><h1 id="5-MySQL-的查询重写规则"><a href="#5-MySQL-的查询重写规则" class="headerlink" title="5 MySQL 的查询重写规则"></a>5 MySQL 的查询重写规则</h1><h1 id="6-再深入查询优化"><a href="#6-再深入查询优化" class="headerlink" title="6 再深入查询优化"></a>6 再深入查询优化</h1>
+<h1 id="5-MySQL-的查询重写规则"><a href="#5-MySQL-的查询重写规则" class="headerlink" title="5 MySQL 的查询重写规则"></a>5 MySQL 的查询重写规则</h1><h1 id="6-再深入查询优化"><a href="#6-再深入查询优化" class="headerlink" title="6 再深入查询优化"></a>6 再深入查询优化</h1>
                 
             </div>
             <hr/>
@@ -1757,7 +1785,7 @@ Create_options:
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1775,7 +1803,7 @@ Create_options:
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2038,6 +2066,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

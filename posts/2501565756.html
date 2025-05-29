@@ -5,9 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【RocketMQ学习】8.源码之Consumer, Back-End Dev Java">
-    <meta name="description" content="1 Consumer样例这里以集群消费、并发消费为例，采用一般的推模式进行消息消费。
-public class BalanceConsumer &amp;#123;
-    public static void main(String[] args">
+    <meta name="description" content="1 Consumer样例这里以集群消费、并发消费为例，采用一般的推模式进行消息消费。public class BalanceConsumer &amp;#123;
+    public static void main(String[] args)">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -63,7 +62,7 @@ public class BalanceConsumer &amp;#123;
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +180,7 @@ public class BalanceConsumer &amp;#123;
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +256,15 @@ public class BalanceConsumer &amp;#123;
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +287,24 @@ public class BalanceConsumer &amp;#123;
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +485,7 @@ public class BalanceConsumer &amp;#123;
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +569,16 @@ public class BalanceConsumer &amp;#123;
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +601,26 @@ public class BalanceConsumer &amp;#123;
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -800,7 +856,7 @@ public class BalanceConsumer &amp;#123;
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    2.2k
+                    2.1k
                 </div>
                 
 
@@ -825,8 +881,7 @@ public class BalanceConsumer &amp;#123;
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="1-Consumer样例"><a href="#1-Consumer样例" class="headerlink" title="1 Consumer样例"></a>1 Consumer样例</h1><p>这里以<code>集群消费</code>、<code>并发消费</code>为例，采用一般的<code>推模式</code>进行消息消费。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BalanceConsumer</span> <span class="token punctuation">&#123;</span>
+                <h1 id="1-Consumer样例"><a href="#1-Consumer样例" class="headerlink" title="1 Consumer样例"></a>1 Consumer样例</h1><p>这里以<code>集群消费</code>、<code>并发消费</code>为例，采用一般的<code>推模式</code>进行消息消费。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BalanceConsumer</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// 实例化消息生产者,指定组名</span>
         <span class="token class-name">DefaultMQPushConsumer</span> consumer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultMQPushConsumer</span><span class="token punctuation">(</span><span class="token string">"mark"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -859,10 +914,8 @@ public class BalanceConsumer &amp;#123;
         consumer<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span><span class="token string">"Consumer Started.%n"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="2-启动流程"><a href="#2-启动流程" class="headerlink" title="2 启动流程"></a>2 启动流程</h1><p>启动消费者从<code>consumer.start();</code>开始。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultMQPushConsumer</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="2-启动流程"><a href="#2-启动流程" class="headerlink" title="2 启动流程"></a>2 启动流程</h1><p>启动消费者从<code>consumer.start();</code>开始。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultMQPushConsumer</span>
 <span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
     <span class="token function">setConsumerGroup</span><span class="token punctuation">(</span><span class="token class-name">NamespaceUtil</span><span class="token punctuation">.</span><span class="token function">wrapNamespace</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getNamespace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>consumerGroup<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -874,24 +927,17 @@ public class BalanceConsumer &amp;#123;
             log<span class="token punctuation">.</span><span class="token function">warn</span><span class="token punctuation">(</span><span class="token string">"trace dispatcher start failed "</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其最终会调用<code>MQClientInstance.start()</code>方法。上一章讲过，<code>MQClientInstance 封装了RocketMQ网络处理的API，是消息生产者与消费者同NameServer、Broker打交道的唯一途径</code>。</p>
-<p>其实，Consumer也是一个<code>NettyRemotingClient</code>，通过netty与NameServer、Broker进行通讯。因而其他流程类似Producer，这里，我们对拉取、负载进行下代码跟踪。如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consumer-Pull-and-Rebalance.png"><div class="caption"><b class="center-caption">Consumer的拉取与负载</b></div>
+<p>其实，Consumer也是一个<code>NettyRemotingClient</code>，通过netty与NameServer、Broker进行通讯。因而其他流程类似Producer，这里，我们对拉取、负载进行下代码跟踪。如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consumer-Pull-and-Rebalance.png"><div class="caption"><b class="center-caption">Consumer的拉取与负载</b></div></p>
 <blockquote>
-<p>这里顺便提一嘴<code>MQClientInstance</code>启动前的定时任务：</p>
+<p>这里顺便提一嘴<code>MQClientInstance</code>启动前的定时任务：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MQClientInstance-Task.png"><div class="caption"><b class="center-caption">MQClientInstance的4个定时任务</b></div></p>
 </blockquote>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MQClientInstance-Task.png"><div class="caption"><b class="center-caption">MQClientInstance的4个定时任务</b></div>
-
 <h2 id="2-1-拉取"><a href="#2-1-拉取" class="headerlink" title="2.1 拉取"></a>2.1 拉取</h2><p>这里简要说说消息的拉取过程。</p>
-<p><code>pullMessageService</code>其实是个线程，和下面的<code>rebalanceService</code>一样，都继承自<code>ServiceThread</code>，</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ServiceThread</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
+<p><code>pullMessageService</code>其实是个线程，和下面的<code>rebalanceService</code>一样，都继承自<code>ServiceThread</code>，<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ServiceThread</span> <span class="token keyword">implements</span> <span class="token class-name">Runnable</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
 
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PullMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>在构造<code>MQClientInstance</code>时，就会创建<code>pullMessageService</code>实例。当执行<code>pullMessageService.start()</code>后，就是线程开始工作，拉取队列中的消息，但真正干活儿的还是<code>Consumer</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PullMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PullMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span><span class="token punctuation">&#125;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
+<p>在构造<code>MQClientInstance</code>时，就会创建<code>pullMessageService</code>实例。当执行<code>pullMessageService.start()</code>后，就是线程开始工作，拉取队列中的消息，但真正干活儿的还是<code>Consumer</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">PullMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service started"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -920,8 +966,7 @@ public class BalanceConsumer &amp;#123;
             log<span class="token punctuation">.</span><span class="token function">warn</span><span class="token punctuation">(</span><span class="token string">"No matched consumer for the PullRequest &#123;&#125;, drop it"</span><span class="token punctuation">,</span> pullRequest<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="2-2-负载"><a href="#2-2-负载" class="headerlink" title="2.2 负载"></a>2.2 负载</h2><p>同<code>pullMessageService</code>，同样继承自<code>ServiceThread</code>，<code>rebalanceService</code>任务就是<strong>消费者的负载均衡</strong>，即给consumer重新调整和分配queue。当发生Broker掉线、消费者实例掉线、Topic扩容等各种突发情况时，消费者组中的消费者实例是怎么重平衡，以支持全部队列的正常消费。</p>
 <p>触发形式：</p>
 <ul>
@@ -962,13 +1007,8 @@ public class BalanceConsumer &amp;#123;
         <span class="token keyword">return</span> <span class="token class-name">RebalanceService</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">.</span><span class="token function">getSimpleName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="2-2-2-实现负载均衡算法"><a href="#2-2-2-实现负载均衡算法" class="headerlink" title="2.2.2 实现负载均衡算法"></a>2.2.2 实现负载均衡算法</h3><p>不管是<code>DefaultMQPushConsumerImpl</code>的<code>rebalancePushImpl</code>，还是<code>DefaultMQPullConsumerImpl</code>的<code>rebalancePullImpl</code>，调用都是父类<code>RebalanceImpl</code>的实现。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-doRebalance-under-PushModel.png"><div class="caption"><b class="center-caption">Push模式下的doRebalance()</b></div>
-
-<p>分配策略：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-allocate-queue-strategy-under-PushModel.png"><div class="caption"><b class="center-caption">Push模式下的分配策略</b></div>
-
+<h3 id="2-2-2-实现负载均衡算法"><a href="#2-2-2-实现负载均衡算法" class="headerlink" title="2.2.2 实现负载均衡算法"></a>2.2.2 实现负载均衡算法</h3><p>不管是<code>DefaultMQPushConsumerImpl</code>的<code>rebalancePushImpl</code>，还是<code>DefaultMQPullConsumerImpl</code>的<code>rebalancePullImpl</code>，调用都是父类<code>RebalanceImpl</code>的实现。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-doRebalance-under-PushModel.png"><div class="caption"><b class="center-caption">Push模式下的doRebalance()</b></div></p>
+<p>分配策略：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-allocate-queue-strategy-under-PushModel.png"><div class="caption"><b class="center-caption">Push模式下的分配策略</b></div></p>
 <p>先排序的目的是：如果同一个分组的多个客户端，分布在不同的机器上（消费者的机器上），每台客户端都单独算，使得算出来的效果是<code>一致的</code>。</p>
 <blockquote>
 <p>总体消费就是让每一个 Consumer有同样的一个<code>MessageQueue</code>的视图，因为每个消费者的视图是一致的，那么在每个客户端算负载，算出来的结果当然就是一致的。</p>
@@ -978,15 +1018,12 @@ public class BalanceConsumer &amp;#123;
 <blockquote>
 <p>对比<code>Kafka</code>，在消费的时候依赖<code>Zookeeper</code>，broker变动还要走<code>选举</code>，如果选不出或者比较卡，这个是否会导致负载不正常，负载不成功就不能正常的工作。而RocketMQ的这种方式简单，并且高可用。</p>
 </blockquote>
-<p>这里提一嘴消息队列的分配策略<code>AllocateMessageQueueStrategy</code>，由于本章开头声明过，消费者模式是push，因而在构造消费者时，默认就已经确定分配策略是<code>AllocateMessageQueueAveragely</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">DefaultMQPushConsumer</span> consumer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultMQPushConsumer</span><span class="token punctuation">(</span><span class="token string">"mark"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<p>这里提一嘴消息队列的分配策略<code>AllocateMessageQueueStrategy</code>，由于本章开头声明过，消费者模式是push，因而在构造消费者时，默认就已经确定分配策略是<code>AllocateMessageQueueAveragely</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">DefaultMQPushConsumer</span> consumer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultMQPushConsumer</span><span class="token punctuation">(</span><span class="token string">"mark"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token keyword">public</span> <span class="token class-name">DefaultMQPushConsumer</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> consumerGroup<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">this</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">,</span> consumerGroup<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">AllocateMessageQueueAveragely</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>举例：</p>
-<pre class="line-numbers language-none"><code class="language-none">AllocateMessageQueueAveragely，平均分配
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>举例：<br><pre class="line-numbers language-none"><code class="language-none">AllocateMessageQueueAveragely，平均分配
 8个队列：q1,q2,q3,q4,q5,q6,q7,q8，消费者3个：c1,c2,c3
 分配如下：
 c1：q1,q2,q3
@@ -998,13 +1035,10 @@ AllocateMessageQueueAveragelyByCircle，平均轮询分配
 分配如下：
 c1：q1,q4,q7
 c2：q2,q5,q8
-c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其他分配策略还有：<code>AllocateMessageQueueAveragelyByCircle</code>、<code>AllocateMessageQueueByConfig</code>等，这里不多列举了，之前在<a href="/posts/408598183.html" title="【RocketMQ学习】4.RocketMQ的高可用">5.2 Consumer负载均衡</a>一节中提到过。</p>
 <h3 id="2-2-3-更新消费者组分布信息"><a href="#2-2-3-更新消费者组分布信息" class="headerlink" title="2.2.3 更新消费者组分布信息"></a>2.2.3 更新消费者组分布信息</h3><p>详见方法：<code>rebalanceByTopic()</code>。</p>
-<h2 id="2-3-初始化offsetStore"><a href="#2-3-初始化offsetStore" class="headerlink" title="2.3 初始化offsetStore"></a>2.3 初始化offsetStore</h2><p>由于本例是<code>集群消费</code>，所以初始化offsetStore走的是<code>RemoteBrokerOffsetStore</code>，对于<code>广播消费</code>，其offset是存储于消费端的。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-offset-under-ClusterModel.png"><div class="caption"><b class="center-caption">集群模式下的offsetStore初始化</b></div>
-
+<h2 id="2-3-初始化offsetStore"><a href="#2-3-初始化offsetStore" class="headerlink" title="2.3 初始化offsetStore"></a>2.3 初始化offsetStore</h2><p>由于本例是<code>集群消费</code>，所以初始化offsetStore走的是<code>RemoteBrokerOffsetStore</code>，对于<code>广播消费</code>，其offset是存储于消费端的。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-offset-under-ClusterModel.png"><div class="caption"><b class="center-caption">集群模式下的offsetStore初始化</b></div></p>
 <p>两种消费模式下的<code>load()</code>实现：</p>
 <ul>
 <li><p>RemoteBrokerOffsetStore</p>
@@ -1031,12 +1065,11 @@ c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <h2 id="2-4-注册消费者，监听，消费者客户端启动"><a href="#2-4-注册消费者，监听，消费者客户端启动" class="headerlink" title="2.4 注册消费者，监听，消费者客户端启动"></a>2.4 注册消费者，监听，消费者客户端启动</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consumer-Registry-and-Start.png"><div class="caption"><b class="center-caption">注册消费者、监听、消费者客户端启动</b></div>
-
-<h2 id="2-5-其他"><a href="#2-5-其他" class="headerlink" title="2.5 其他"></a>2.5 其他</h2><p>在前面一些创建，服务启动，注册等动作完成后，接下来还有：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
+<h2 id="2-5-其他"><a href="#2-5-其他" class="headerlink" title="2.5 其他"></a>2.5 其他</h2><p>在前面一些创建，服务启动，注册等动作完成后，接下来还有：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">switch</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>serviceState<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token keyword">case</span> <span class="token constant">CREATE_JUST</span><span class="token operator">:</span>
                 <span class="token comment">//.................省略</span>
@@ -1051,11 +1084,9 @@ c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>mQClientFactory<span class="token punctuation">.</span><span class="token function">sendHeartbeatToAllBrokerWithLock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token comment">//16、rebalanceService执行一次</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>mQClientFactory<span class="token punctuation">.</span><span class="token function">rebalanceImmediately</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>其中，<code>this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();</code>，用于消费者或生产者向<code>Broker</code>发送心跳，并且若<code>Broker</code>有变化，会更新自己本地的缓存。</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>其中，<code>this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();</code>，用于消费者或生产者向<code>Broker</code>发送心跳，并且若<code>Broker</code>有变化，会更新自己本地的缓存。</p>
 <h2 id="2-6-消息消费流程"><a href="#2-6-消息消费流程" class="headerlink" title="2.6 消息消费流程"></a>2.6 消息消费流程</h2><h3 id="2-6-1-获取Broker的消费位置-offset"><a href="#2-6-1-获取Broker的消费位置-offset" class="headerlink" title="2.6.1 获取Broker的消费位置-offset"></a>2.6.1 获取Broker的消费位置-offset</h3><p>在前面一些列动作，Consumer拿到了group、topic、通过rebalanceService又拿到了queue，准备消费了，还得要确定消费位置，也就是客户端向Broker发起查询offset请求，请求代号为<code>QUERY_CONSUMER_OFFSET</code>。</p>
-<p>调用的地方为：<code>RemoteBrokerOffsetStore类</code>中<code>fetchConsumeOffsetFromBroker()</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">long</span> <span class="token function">fetchConsumeOffsetFromBroker</span><span class="token punctuation">(</span><span class="token class-name">MessageQueue</span> mq<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemotingException</span><span class="token punctuation">,</span> <span class="token class-name">MQBrokerException</span><span class="token punctuation">,</span>
+<p>调用的地方为：<code>RemoteBrokerOffsetStore类</code>中<code>fetchConsumeOffsetFromBroker()</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">long</span> <span class="token function">fetchConsumeOffsetFromBroker</span><span class="token punctuation">(</span><span class="token class-name">MessageQueue</span> mq<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemotingException</span><span class="token punctuation">,</span> <span class="token class-name">MQBrokerException</span><span class="token punctuation">,</span>
         <span class="token class-name">InterruptedException</span><span class="token punctuation">,</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//查找一个broker Address不为空的Broker</span>
         <span class="token class-name">FindBrokerResult</span> findBrokerResult <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>mQClientFactory<span class="token punctuation">.</span><span class="token function">findBrokerAddressInAdmin</span><span class="token punctuation">(</span>mq<span class="token punctuation">.</span><span class="token function">getBrokerName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1077,25 +1108,15 @@ c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
         <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
             <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">MQClientException</span><span class="token punctuation">(</span><span class="token string">"The broker["</span> <span class="token operator">+</span> mq<span class="token punctuation">.</span><span class="token function">getBrokerName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"] not exist"</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="2-6-2-拉取消息"><a href="#2-6-2-拉取消息" class="headerlink" title="2.6.2 拉取消息"></a>2.6.2 拉取消息</h3><p>如2.2节所述，pullMessageService是一个单独的线程去拉取消息的。确定了消费者的<code>group</code>、<code>topic</code>、还有<code>queue</code>和需要获取Queue的<code>Offset</code>，就要正式开始拉取消息了。<br>送入的信息包括：<code>topic</code>、<code>queueid</code>、<code>offset</code>，调用的方法为<code>PullAPIWrapper.pullKernelImpl()</code>，最终交由<code>MQClientAPIImpl.pullMessage()</code>执行，请求代号：<code>PULL_MESSAGE</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-pullMessage.png"><div class="caption"><b class="center-caption">请求拉取消息</b></div>
-
-<h3 id="2-6-3-消费消息"><a href="#2-6-3-消费消息" class="headerlink" title="2.6.3 消费消息"></a>2.6.3 消费消息</h3><p>拉到消息后，消费者就要进行消息的消费了。消费完了之后，要<code>更新offset</code>，这个时候也要发起调用。<br>请求代号：<code>UPDATE_CONSUMER_OFFSET</code><br>这个地方要注意有两种方式：<br>1、	定时，默认5s提交</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-offset-sync-on-persist.png"><div class="caption"><b class="center-caption">定时持久化会同步offset至Broker</b></div>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h3 id="2-6-2-拉取消息"><a href="#2-6-2-拉取消息" class="headerlink" title="2.6.2 拉取消息"></a>2.6.2 拉取消息</h3><p>如2.2节所述，pullMessageService是一个单独的线程去拉取消息的。确定了消费者的<code>group</code>、<code>topic</code>、还有<code>queue</code>和需要获取Queue的<code>Offset</code>，就要正式开始拉取消息了。<br>送入的信息包括：<code>topic</code>、<code>queueid</code>、<code>offset</code>，调用的方法为<code>PullAPIWrapper.pullKernelImpl()</code>，最终交由<code>MQClientAPIImpl.pullMessage()</code>执行，请求代号：<code>PULL_MESSAGE</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-pullMessage.png"><div class="caption"><b class="center-caption">请求拉取消息</b></div></p>
+<h3 id="2-6-3-消费消息"><a href="#2-6-3-消费消息" class="headerlink" title="2.6.3 消费消息"></a>2.6.3 消费消息</h3><p>拉到消息后，消费者就要进行消息的消费了。消费完了之后，要<code>更新offset</code>，这个时候也要发起调用。<br>请求代号：<code>UPDATE_CONSUMER_OFFSET</code><br>这个地方要注意有两种方式：<br>1、    定时，默认5s提交<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-offset-sync-on-persist.png"><div class="caption"><b class="center-caption">定时持久化会同步offset至Broker</b></div></p>
 <blockquote>
 <p>对于集群消费模式，同步offset至Broker；对于广播消费模式，则是同步offset至本地。</p>
 </blockquote>
-<p>2、	前面步骤的拉取消息时会带入参数：<code>commitoffset</code>，这个时候也会更新。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset.png"><div class="caption"><b class="center-caption">PullAPIWrapper.pullKernelImpl()中的commitoffset</b></div>
-
-<p><code>RebalancePushImpl</code>中计算<code>offset</code>的地方：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset2.png"><div class="caption"><b class="center-caption">RebalancePushImpl中的offset</b></div>
-
-<p><code>DefaultMQPushConsumerImpl.pullMessage()中的commitoffset</code>：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset3.png"><div class="caption"><b class="center-caption">DefaultMQPushConsumerImpl中的offset</b></div>
-
+<p>2、    前面步骤的拉取消息时会带入参数：<code>commitoffset</code>，这个时候也会更新。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset.png"><div class="caption"><b class="center-caption">PullAPIWrapper.pullKernelImpl()中的commitoffset</b></div></p>
+<p><code>RebalancePushImpl</code>中计算<code>offset</code>的地方：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset2.png"><div class="caption"><b class="center-caption">RebalancePushImpl中的offset</b></div></p>
+<p><code>DefaultMQPushConsumerImpl.pullMessage()中的commitoffset</code>：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-commitoffset3.png"><div class="caption"><b class="center-caption">DefaultMQPushConsumerImpl中的offset</b></div></p>
 <h1 id="3-整体流程"><a href="#3-整体流程" class="headerlink" title="3 整体流程"></a>3 整体流程</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consumer-Flow.png"><div class="caption"><b class="center-caption">消费者流程图</b></div>
                 
             </div>
@@ -1786,7 +1807,7 @@ c3：q3,q6<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2049,6 +2070,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

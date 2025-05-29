@@ -382,8 +382,15 @@ var leonus = {
         var editMemoDom = document.querySelector('.edit-memos');
         editMemoDom.classList.remove('d-none');
         var getUrl = apiUrl.replace(/api\/v1\/memo(.*)/, memos.path + '/' + memosId + '$1') || '';
+        var memosOpenId = localStorage.getItem("memos-access-token");
         if (getUrl && memosId) {
-            fetch(getUrl).then(res => res.json()).then(resdata => {
+            fetch(getUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${memosOpenId}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => res.json()).then(resdata => {
                 localStorage.setItem("memos-resource-list", resdata.resourceList);
                 localStorage.setItem("memos-edit-url", getUrl);
                 localStorage.setItem("memos-edit-id", memosId);

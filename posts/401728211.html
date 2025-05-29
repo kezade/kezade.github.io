@@ -6,11 +6,10 @@
     <meta charset="utf-8">
     <meta name="keywords" content="【MySQL学习】5.性能优化, Back-End Dev Java">
     <meta name="description" content="1 调优金字塔1.1 架构调优调优金字塔
-
 在进行优化时，首先需要关注和优化的应该是架构，如果架构不合理， 即使是 DBA 能做的事情其实是也是比较有限的。
 对于架构调优，在系统设计时首先需要充分考虑业务的实际情况：
 
-是否可以把不适合数据">
+是否可以把不适合数据库">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -66,7 +65,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +183,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +259,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +290,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +488,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +572,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +604,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -829,7 +885,6 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-调优金字塔"><a href="#1-调优金字塔" class="headerlink" title="1 调优金字塔"></a>1 调优金字塔</h1><h2 id="1-1-架构调优"><a href="#1-1-架构调优" class="headerlink" title="1.1 架构调优"></a>1.1 架构调优</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Optimization-pyramid.png"><div class="caption"><b class="center-caption">调优金字塔</b></div>
-
 <p>在进行优化时，首先需要关注和优化的应该是架构，如果架构不合理， 即使是 DBA 能做的事情其实是也是比较有限的。</p>
 <p>对于架构调优，在系统设计时首先需要充分考虑业务的实际情况：</p>
 <ul>
@@ -848,7 +903,7 @@
 <li>系统瓶颈在哪里？</li>
 <li>哪些系统参数需要调整优化？</li>
 <li>进程资源限制是否提到足够高？</li>
-<li>在硬件方面是否需要更换为具有更高 I&#x2F;O 性能的存储硬件？</li>
+<li>在硬件方面是否需要更换为具有更高 I/O 性能的存储硬件？</li>
 <li>是否需要升级内存、CPU、网络等。</li>
 </ul>
 <h1 id="2-查询性能优化"><a href="#2-查询性能优化" class="headerlink" title="2 查询性能优化"></a>2 查询性能优化</h1><h2 id="2-1-慢查询"><a href="#2-1-慢查询" class="headerlink" title="2.1 慢查询"></a>2.1 慢查询</h2><p>指mysql 记录所有执行<strong>超过</strong> <code>long_query_time</code> 参数设定的时间阈值的SQL语句的<code>日志</code>。</p>
@@ -886,19 +941,11 @@
 </ul>
 </li>
 </ul>
-<h2 id="2-4-慢查询配置"><a href="#2-4-慢查询配置" class="headerlink" title="2.4 慢查询配置"></a>2.4 慢查询配置</h2><h3 id="2-4-1-慢日志开启"><a href="#2-4-1-慢日志开启" class="headerlink" title="2.4.1 慢日志开启"></a>2.4.1 慢日志开启</h3><p>查询：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> VARIABLES <span class="token operator">like</span> <span class="token string">'slow_query_log'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>开启：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">set</span> <span class="token keyword">GLOBAL</span> slow_query_log<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<h2 id="2-4-慢查询配置"><a href="#2-4-慢查询配置" class="headerlink" title="2.4 慢查询配置"></a>2.4 慢查询配置</h2><h3 id="2-4-1-慢日志开启"><a href="#2-4-1-慢日志开启" class="headerlink" title="2.4.1 慢日志开启"></a>2.4.1 慢日志开启</h3><p>查询：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> VARIABLES <span class="token operator">like</span> <span class="token string">'slow_query_log'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>开启：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">set</span> <span class="token keyword">GLOBAL</span> slow_query_log<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <h3 id="2-4-2-多久算慢？"><a href="#2-4-2-多久算慢？" class="headerlink" title="2.4.2 多久算慢？"></a>2.4.2 多久算慢？</h3><p>MySQL中可以设定一个阈值，将运行时间超过该值的所有SQL语句都记录到慢查询日志中。<code>long_query_time</code>参数就是这个阈值。默认值为<code>10</code>，代表10秒。</p>
-<p>查询（默认是10秒）：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> VARIABLES <span class="token operator">like</span> <span class="token string">'%long_query_time%'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>设定自定义值：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">set</span> <span class="token keyword">global</span> long_query_time<span class="token operator">=</span><span class="token number">15</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>查询（默认是10秒）：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> VARIABLES <span class="token operator">like</span> <span class="token string">'%long_query_time%'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>设定自定义值：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">set</span> <span class="token keyword">global</span> long_query_time<span class="token operator">=</span><span class="token number">15</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <h3 id="2-4-3-是否记录未使用索引的SQL"><a href="#2-4-3-是否记录未使用索引的SQL" class="headerlink" title="2.4.3 是否记录未使用索引的SQL?"></a>2.4.3 是否记录未使用索引的SQL?</h3><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> VARIABLES <span class="token operator">like</span> <span class="token string">'%log_queries_not_using_indexes%'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h2 id="2-5-慢查询解读分析"><a href="#2-5-慢查询解读分析" class="headerlink" title="2.5 慢查询解读分析"></a>2.5 慢查询解读分析</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/slow-log.png"><div class="caption"><b class="center-caption">a slow log</b></div>
 <h3 id="2-5-1-格式分析"><a href="#2-5-1-格式分析" class="headerlink" title="2.5.1 格式分析"></a>2.5.1 格式分析</h3><ul>
@@ -921,7 +968,6 @@ at<span class="token punctuation">,</span>al<span class="token punctuation">,</s
 <span class="token operator">-</span>s 对结果进行排序，怎么排，根据后面所带的 <span class="token punctuation">(</span>c<span class="token punctuation">,</span>t<span class="token punctuation">,</span>l<span class="token punctuation">,</span>r<span class="token punctuation">,</span>at<span class="token punctuation">,</span>al<span class="token punctuation">,</span>ar<span class="token punctuation">)</span>，缺省为 at
 <span class="token operator">-</span>t NUM just <span class="token keyword">show</span> the <span class="token keyword">top</span> n queries：仅显示前 n 条查询
 <span class="token operator">-</span>g PATTERN grep: only consider stmts that include this string:通过 grep 来筛选语句。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="2-6-Explain-执行计划"><a href="#2-6-Explain-执行计划" class="headerlink" title="2.6 Explain 执行计划"></a>2.6 Explain 执行计划</h2><p>通过 <code>EXPLAIN</code> 我们可以:</p>
 <ul>
 <li>表的读取顺序</li>
@@ -932,7 +978,6 @@ at<span class="token punctuation">,</span>al<span class="token punctuation">,</s
 <li>每张表有多少行被优化器查询</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/explain.png"><div class="caption"><b class="center-caption">explain sample</b></div>
-
 <h3 id="2-6-1-字段详解"><a href="#2-6-1-字段详解" class="headerlink" title="2.6.1 字段详解"></a>2.6.1 字段详解</h3><ul>
 <li><code>id</code>: 在一个大的查询语句中每个 SELECT 关键字都对应一个<code>唯一的 id</code>；</li>
 <li><code>select_type</code>: SELECT 关键字对应的那个查询的类型；<ul>
@@ -967,7 +1012,7 @@ at<span class="token punctuation">,</span>al<span class="token punctuation">,</s
 <li>范围条件放最后</li>
 <li>覆盖索引尽量用</li>
 <li>不等于要甚用</li>
-<li>Null&#x2F;Not Null有影响</li>
+<li>Null/Not Null有影响</li>
 <li>Like查询要当心</li>
 <li>字符类型加引号</li>
 <li>OR改UNION效率高</li>
@@ -1657,7 +1702,7 @@ at<span class="token punctuation">,</span>al<span class="token punctuation">,</s
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1675,7 +1720,7 @@ at<span class="token punctuation">,</span>al<span class="token punctuation">,</s
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1938,6 +1983,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

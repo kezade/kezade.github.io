@@ -9,7 +9,7 @@ $('#showInput').val(showtag)
 const apiReg = /openId=([^&]*)/;
 const urlReg = /(.+?)(?:\/api)/;
 
-if (apiUrl == '' || memosToken=='') {
+if (apiUrl == '' || memosToken == '') {
     $('#blog_info').show()
 } else {
     $('#blog_info').hide()
@@ -193,15 +193,22 @@ function getOne(memosId) {
 $('#tags1').click(function () {
     if (localStorage.getItem('apiUrl')) {
         apiUrl = localStorage.getItem('apiUrl')
-        var tagUrl = apiUrl.replace(/api\/v1\/memo/, 'api/v1/tag')
-        var tagDom = ""
-        $.get(tagUrl, function (data, status) {
-            var arrData = data
-            $.each(arrData, function (i, obj) {
+        var tagUrl = apiUrl.replace(/api\/v1\/memo/, 'api/v1/tag');
+        var memosOpenId = localStorage.getItem("memos-access-token");
+        var tagDom = "";
+
+        fetch(tagUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${memosOpenId}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(res => res.json()).then(resdata =>{
+            $.each(resdata, function (i, obj) {
                 tagDom += '<span class="item-container">#' + obj + '</span>'
             });
             tagDom += '<svg id="hideTag" class="hidetag" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path d="M78.807 362.435c201.539 314.275 666.962 314.188 868.398-.241 16.056-24.99 13.143-54.241-4.04-62.54-17.244-8.377-40.504 3.854-54.077 24.887-174.484 272.338-577.633 272.41-752.19.195-13.573-21.043-36.874-33.213-54.113-24.837-17.177 8.294-20.06 37.545-3.978 62.536z" fill="#fff"/><path d="M894.72 612.67L787.978 494.386l38.554-34.785 106.742 118.251-38.554 34.816zM635.505 727.51l-49.04-147.123 49.255-16.41 49.054 147.098-49.27 16.435zm-236.18-12.001l-49.568-15.488 43.29-138.48 49.557 15.513-43.28 138.455zM154.49 601.006l-38.743-34.565 95.186-106.732 38.763 34.566-95.206 106.731z" fill="#fff"/></svg>'
-            $("#taglist").html(tagDom).slideToggle(500)
+            $("#taglist").html(tagDom).slideToggle(500);
         });
     } else {
         $.message({

@@ -67,7 +67,7 @@ sql执行
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -185,7 +185,7 @@ sql执行
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -261,6 +261,15 @@ sql执行
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -283,6 +292,24 @@ sql执行
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -463,7 +490,7 @@ sql执行
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -547,6 +574,16 @@ sql执行
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -569,6 +606,26 @@ sql执行
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -839,8 +896,7 @@ sql执行
 <li>sql执行</li>
 <li>结果集处理</li>
 </ul>
-<p>还是通过同样的例子来开始本章的源码sql执行过程跟踪。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<p>还是通过同样的例子来开始本章的源码sql执行过程跟踪。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token comment">// 程序员喜欢的风格</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickStart</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 2.获取sqlSession</span>
@@ -851,18 +907,9 @@ sql执行
     <span class="token class-name">TUser</span> user <span class="token operator">=</span> mapper<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h1 id="一、动态代理生成mapper"><a href="#一、动态代理生成mapper" class="headerlink" title="一、动态代理生成mapper"></a>一、动态代理生成mapper</h1><p>我们直接从这句开始跟下源码：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">TUserMapper</span> mapper <span class="token operator">=</span> sqlSession<span class="token punctuation">.</span><span class="token function">getMapper</span><span class="token punctuation">(</span><span class="token class-name">TUserMapper</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>断点调式开始</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102317495.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>我们看到SqlSession实例是DefaultSqlSession，点进去看看getMapper:</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102447860.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>进入的是“大管家”Configuration的getMapper. </p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102558173.png"><div class="caption"><b class="center-caption">""</b></div>
-
-<p>而真正给出接口代理类的是MapperRegistry.<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102754132.png"><div class="caption"><b class="center-caption">""</b></div><br>点进去看看mapperProxyFactory.newInstance(sqlSession)具体生成实例的代码：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// MapperProxyFactory</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="一、动态代理生成mapper"><a href="#一、动态代理生成mapper" class="headerlink" title="一、动态代理生成mapper"></a>一、动态代理生成mapper</h1><p>我们直接从这句开始跟下源码：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">TUserMapper</span> mapper <span class="token operator">=</span> sqlSession<span class="token punctuation">.</span><span class="token function">getMapper</span><span class="token punctuation">(</span><span class="token class-name">TUserMapper</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>断点调式开始<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102317495.png"><div class="caption"><b class="center-caption">""</b></div><br>我们看到SqlSession实例是DefaultSqlSession，点进去看看getMapper:<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102447860.png"><div class="caption"><b class="center-caption">""</b></div><br>进入的是“大管家”Configuration的getMapper.<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102558173.png"><div class="caption"><b class="center-caption">""</b></div></p>
+<p>而真正给出接口代理类的是MapperRegistry.<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322102754132.png"><div class="caption"><b class="center-caption">""</b></div><br>点进去看看mapperProxyFactory.newInstance(sqlSession)具体生成实例的代码：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// MapperProxyFactory</span>
 <span class="token comment">// 生成一个 MapperProxy对象</span>
   <span class="token annotation punctuation">@SuppressWarnings</span><span class="token punctuation">(</span><span class="token string">"unchecked"</span><span class="token punctuation">)</span>
   <span class="token keyword">protected</span> <span class="token class-name">T</span> <span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token class-name">MapperProxy</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> mapperProxy<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -872,17 +919,8 @@ sql执行
   <span class="token keyword">public</span> <span class="token class-name">T</span> <span class="token function">newInstance</span><span class="token punctuation">(</span><span class="token class-name">SqlSession</span> sqlSession<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">final</span> <span class="token class-name">MapperProxy</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> mapperProxy <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MapperProxy</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span>sqlSession<span class="token punctuation">,</span> mapperInterface<span class="token punctuation">,</span> methodCache<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">return</span> <span class="token function">newInstance</span><span class="token punctuation">(</span>mapperProxy<span class="token punctuation">)</span><span class="token punctuation">;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>发现，运用的正是JDK动态代理。<br>梳理下该过程的时序图，如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110043730.png"><div class="caption"><b class="center-caption">""</b></div>
-
-<h1 id="二、sql执行"><a href="#二、sql执行" class="headerlink" title="二、sql执行"></a>二、sql执行</h1><p>通过一中的过程，我们可以得到一个接口的mapperProxy动态代理对象了。sql的执行过程就是从MapperProxy的invoke方法开始的。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110414703.png"><div class="caption"><b class="center-caption">""</b></div>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110853190.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>先去缓存中看看是否已经有了现成的MapperMethod，没有才回去new一个出来。<br>接下来，调用 MapperMethod 中的execute方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322111101131.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>本例中，执行的是一个查询语句，进入case SELECT分支</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>发现，运用的正是JDK动态代理。<br>梳理下该过程的时序图，如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110043730.png"><div class="caption"><b class="center-caption">""</b></div></p>
+<h1 id="二、sql执行"><a href="#二、sql执行" class="headerlink" title="二、sql执行"></a>二、sql执行</h1><p>通过一中的过程，我们可以得到一个接口的mapperProxy动态代理对象了。sql的执行过程就是从MapperProxy的invoke方法开始的。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110414703.png"><div class="caption"><b class="center-caption">""</b></div><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322110853190.png"><div class="caption"><b class="center-caption">""</b></div><br>先去缓存中看看是否已经有了现成的MapperMethod，没有才回去new一个出来。<br>接下来，调用 MapperMethod 中的execute方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322111101131.png"><div class="caption"><b class="center-caption">""</b></div><br>本例中，执行的是一个查询语句，进入case SELECT分支<br><pre class="line-numbers language-java" data-language="java"><code class="language-java">
 <span class="token keyword">case</span> <span class="token constant">SELECT</span><span class="token operator">:</span> <span class="token comment">// 如果是查询语句</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span>method<span class="token punctuation">.</span><span class="token function">returnsVoid</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> method<span class="token punctuation">.</span><span class="token function">hasResultHandler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span> <span class="token comment">// 返回为void，且有结果处理器</span>
           <span class="token comment">// 使用结果处理器执行查询</span>
@@ -903,16 +941,14 @@ sql执行
             result <span class="token operator">=</span> <span class="token class-name">Optional</span><span class="token punctuation">.</span><span class="token function">ofNullable</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">;</span>
           <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
-        <span class="token keyword">break</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>我们可以看到，根据返回的结果类型，进入不同的处理逻辑，主要有</p>
+        <span class="token keyword">break</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>我们可以看到，根据返回的结果类型，进入不同的处理逻辑，主要有</p>
 <ul>
 <li>返回为void</li>
 <li>返回多条结果</li>
 <li>返回map结果</li>
 <li>返回单条结果</li>
 </ul>
-<p>返回值为空的情况下，直接返回 result &#x3D; null。其余几种情况内部都调用了sqlSession 中的selectList 方法。这里我们以selectOne为例。<br>convertArgsToSqlCommandParam()前面我们在<a target="_blank" rel="noopener" href="https://blog.csdn.net/kezade/article/details/114801993">【Mybatis源码学习】参数解析</a>做过说明，主要进行参数的顺序映射解析。这里不做赘述。直接看看DefaultSqlSession.selectOne方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+<p>返回值为空的情况下，直接返回 result = null。其余几种情况内部都调用了sqlSession 中的selectList 方法。这里我们以selectOne为例。<br>convertArgsToSqlCommandParam()前面我们在<a target="_blank" rel="noopener" href="https://blog.csdn.net/kezade/article/details/114801993">【Mybatis源码学习】参数解析</a>做过说明，主要进行参数的顺序映射解析。这里不做赘述。直接看看DefaultSqlSession.selectOne方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
   <span class="token keyword">public</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> <span class="token class-name">T</span> <span class="token function">selectOne</span><span class="token punctuation">(</span><span class="token class-name">String</span> statement<span class="token punctuation">,</span> <span class="token class-name">Object</span> parameter<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// Popular vote was to return null on 0 results and throw exception on too many.</span>
     <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> list <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">selectList</span><span class="token punctuation">(</span>statement<span class="token punctuation">,</span> parameter<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -923,9 +959,7 @@ sql执行
     <span class="token punctuation">&#125;</span> <span class="token keyword">else</span> <span class="token punctuation">&#123;</span>
       <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>如果selectList查询返回1条，则直接返回；如果返回多条则抛出异常，否则直接返回null。<br>点进去看看selectList方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>如果selectList查询返回1条，则直接返回；如果返回多条则抛出异常，否则直接返回null。<br>点进去看看selectList方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
    * 查询结果列表
    * @param &lt;E> 返回的列表元素的类型
    * @param statement SQL语句
@@ -945,17 +979,8 @@ sql执行
     <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
       <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这里说明下，mybatis默认是开启了二级缓存的，所以这里executor其实是CachingExecutor.我们可以在创建sqlSession中看看Configuration中创建执行器时的代码：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322135551582.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>要关闭二级缓存，我们可以在mybatis-config.xml中显示配置，如下：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 二级缓存开关，默认为开启--></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>setting</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>cacheEnabled<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>false<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>关闭二级缓存，我们回到selectList方法中，继续跟下这段代码的执行过程：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">executor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>ms<span class="token punctuation">,</span> <span class="token function">wrapCollection</span><span class="token punctuation">(</span>parameter<span class="token punctuation">)</span><span class="token punctuation">,</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">Executor</span><span class="token punctuation">.</span><span class="token constant">NO_RESULT_HANDLER</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>executor这里为SimpleExecutor，其首先调用的是BaseExecutor的query方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021032214023869.png"><div class="caption"><b class="center-caption">""</b></div>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>这里说明下，mybatis默认是开启了二级缓存的，所以这里executor其实是CachingExecutor.我们可以在创建sqlSession中看看Configuration中创建执行器时的代码：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322135551582.png"><div class="caption"><b class="center-caption">""</b></div><br>要关闭二级缓存，我们可以在mybatis-config.xml中显示配置，如下：<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 二级缓存开关，默认为开启--></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>setting</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>cacheEnabled<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>false<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>关闭二级缓存，我们回到selectList方法中，继续跟下这段代码的执行过程：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java">executor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>ms<span class="token punctuation">,</span> <span class="token function">wrapCollection</span><span class="token punctuation">(</span>parameter<span class="token punctuation">)</span><span class="token punctuation">,</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">Executor</span><span class="token punctuation">.</span><span class="token constant">NO_RESULT_HANDLER</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>executor这里为SimpleExecutor，其首先调用的是BaseExecutor的query方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021032214023869.png"><div class="caption"><b class="center-caption">""</b></div><br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
    * 查询数据库中的数据
    * @param ms 映射语句
    * @param parameter 参数对象
@@ -1008,10 +1033,7 @@ sql执行
       <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
     <span class="token keyword">return</span> list<span class="token punctuation">;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>先从一级缓存中查询是否已有结果，没有则才去查询数据库。我们直接看查询数据库的部分，也就是方法queryFromDatabase().</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322141109713.png"><div class="caption"><b class="center-caption">""</b></div>
-<p>进入doQuery()方法，发现这里是个模版方法，由于前面提到我们此处的执行器为SimpleExecutor，所以这个方法来到了SimpleExecutor的doQuery()方法.</p>
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>先从一级缓存中查询是否已有结果，没有则才去查询数据库。我们直接看查询数据库的部分，也就是方法queryFromDatabase().<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322141109713.png"><div class="caption"><b class="center-caption">""</b></div><br>进入doQuery()方法，发现这里是个模版方法，由于前面提到我们此处的执行器为SimpleExecutor，所以这个方法来到了SimpleExecutor的doQuery()方法.</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322141449815.png"><div class="caption"><b class="center-caption">""</b></div>
 <p>如上，该方法主要有三步：</p>
 <ul>
@@ -1019,8 +1041,7 @@ sql执行
 <li>获取Statement</li>
 <li>StatementHandler.query（实际调用的是PreparedStatementHandler）获取查询结果。</li>
 </ul>
-<p>我们看看prepareStatement方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token comment">//SimpleExecutor</span>
+<p>我们看看prepareStatement方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token comment">//SimpleExecutor</span>
  <span class="token keyword">private</span> <span class="token class-name">Statement</span> <span class="token function">prepareStatement</span><span class="token punctuation">(</span><span class="token class-name">StatementHandler</span> handler<span class="token punctuation">,</span> <span class="token class-name">Log</span> statementLog<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
    <span class="token class-name">Statement</span> stmt<span class="token punctuation">;</span>
 <span class="token comment">//获取数据库连接</span>
@@ -1031,9 +1052,7 @@ sql执行
    handler<span class="token punctuation">.</span><span class="token function">parameterize</span><span class="token punctuation">(</span>stmt<span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token keyword">return</span> stmt<span class="token punctuation">;</span>
  <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>经典的流程：获取数据库连接；创建Statement; 为Statement设置IN参数。再看第三步执行语句：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token comment">//PreparedStatementHandler</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>经典的流程：获取数据库连接；创建Statement; 为Statement设置IN参数。再看第三步执行语句：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token comment">//PreparedStatementHandler</span>
  <span class="token keyword">public</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token function">query</span><span class="token punctuation">(</span><span class="token class-name">Statement</span> statement<span class="token punctuation">,</span> <span class="token class-name">ResultHandler</span> resultHandler<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
    <span class="token class-name">PreparedStatement</span> ps <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">PreparedStatement</span><span class="token punctuation">)</span> statement<span class="token punctuation">;</span>
 <span class="token comment">// 执行SQL</span>
@@ -1041,9 +1060,7 @@ sql执行
 <span class="token comment">// 处理执行结果</span>
    <span class="token keyword">return</span> resultSetHandler<span class="token punctuation">.</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token function">handleResultSets</span><span class="token punctuation">(</span>ps<span class="token punctuation">)</span><span class="token punctuation">;</span>
  <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>查询完毕，总结一下这个过程的时序图，一目了然：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322151224922.png"><div class="caption"><b class="center-caption">""</b></div>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>查询完毕，总结一下这个过程的时序图，一目了然：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210322151224922.png"><div class="caption"><b class="center-caption">""</b></div></p>
 <h1 id="三、结果集处理"><a href="#三、结果集处理" class="headerlink" title="三、结果集处理"></a>三、结果集处理</h1><p>结果集的映射，这部分我会在下一篇详细的跟进。Game over.</p>
 
                 
@@ -1751,7 +1768,7 @@ sql执行
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2014,6 +2031,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -7,8 +7,9 @@
     <meta name="keywords" content="【MySQL学习】9.锁, Back-End Dev Java">
     <meta name="description" content="1 InnoDB中的锁在MySQL官方文档中（version 5.7），InnoDB中有以下几种锁：
 
-Shared and Exclusive Locks：共享（乐观）锁、排他&amp;#x2F;互斥&amp;#x2F;独占锁
-Intention Loc">
+Shared and Exclusive Locks：共享（乐观）锁、排他/互斥/独占锁
+Intention Locks：意向锁
+Rec">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -64,7 +65,7 @@ Intention Loc">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +183,7 @@ Intention Loc">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +259,15 @@ Intention Loc">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +290,24 @@ Intention Loc">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +488,7 @@ Intention Loc">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +572,16 @@ Intention Loc">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +604,26 @@ Intention Loc">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -828,7 +886,7 @@ Intention Loc">
             <div id="articleContent">
                 <h1 id="1-InnoDB中的锁"><a href="#1-InnoDB中的锁" class="headerlink" title="1 InnoDB中的锁"></a>1 InnoDB中的锁</h1><p>在MySQL官方文档中（version 5.7），InnoDB中有以下几种锁：</p>
 <ul>
-<li>Shared and Exclusive Locks：共享（乐观）锁、排他&#x2F;互斥&#x2F;独占锁</li>
+<li>Shared and Exclusive Locks：共享（乐观）锁、排他/互斥/独占锁</li>
 <li>Intention Locks：意向锁</li>
 <li>Record Locks：行锁</li>
 <li>Gap Locks：间隙锁</li>
@@ -837,11 +895,10 @@ Intention Loc">
 <li>AUTO-INC Locks：自增锁</li>
 <li>Predicate Locks for Spatial Indexes：空间索引预测锁</li>
 </ul>
-<p>总的来说，可以如下分类：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Lock-category.png"><div class="caption"><b class="center-caption">分类</b></div>
-
+<p>总的来说，可以如下分类：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Lock-category.png"><div class="caption"><b class="center-caption">分类</b></div></p>
 <h1 id="2-解决并发事务问题"><a href="#2-解决并发事务问题" class="headerlink" title="2 解决并发事务问题"></a>2 解决并发事务问题</h1><p>并发情况下，一方面，我们要充分利用数据库的并发访问，实现数据能被用户高效的获取；另一方面，又要保证线程或者说用户得到<code>一致性</code>的数据或者<code>安全的修改数据</code>。</p>
 <p>而上一章讲过，一个事务进行<code>读取</code>操作，另一个进行<code>改动</code>操作，这种情况下<strong>可能</strong>发生<code>脏读</code>、<code>不可重复读</code>、<code>幻读</code>的问题。在<code>SQL标准</code>下，规定不同隔离级别下可能发生的问题不一样：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -851,7 +908,8 @@ Intention Loc">
 <th>不可重复读</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>READ UNCOMMITTED</code></td>
 <td>可能</td>
 <td>可能</td>
@@ -875,8 +933,11 @@ Intention Loc">
 <td>-</td>
 <td>-</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>而各个数据库厂商对<code>SQL标准</code>的支持都<code>可能不一样</code>，与 <code>SQL标准</code>不同的一点就是，MySQL 在 <code>REPEATABLE READ</code> 隔离级别实际上就<strong>基本解决</strong>了<code>幻读问题</code>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -886,7 +947,8 @@ Intention Loc">
 <th>不可重复读</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>READ UNCOMMITTED</code></td>
 <td>可能</td>
 <td>可能</td>
@@ -902,7 +964,7 @@ Intention Loc">
 <td><code>REPEATABLE READ</code></td>
 <td>-</td>
 <td>-</td>
-<td><font color="red"> — </font></td>
+<td><font color="red"> —- </font></td>
 </tr>
 <tr>
 <td><code>SERIALIZABLE</code></td>
@@ -910,7 +972,9 @@ Intention Loc">
 <td>-</td>
 <td>-</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>怎么解决脏读、不可重复读、幻读这些问题呢?其实有两种可选的解决方案：</p>
 <h2 id="2-1-方案一：读操作MVCC，写操作加锁"><a href="#2-1-方案一：读操作MVCC，写操作加锁" class="headerlink" title="2.1 方案一：读操作MVCC，写操作加锁"></a>2.1 方案一：读操作MVCC，写操作加锁</h2><blockquote>
 <p>事务利用 <code>MVCC</code> 进行的读取操作称之为<code>一致性读</code>，或者<code>一致性无锁读</code>，也称之为<code>快照读</code>。</p>
@@ -951,7 +1015,8 @@ Intention Loc">
 </ul>
 <p>比如MySQL中的两类加锁语句：</p>
 <ul>
-<li>锁定读下的<code>Select</code>语句：<ul>
+<li><p>锁定读下的<code>Select</code>语句：</p>
+<ul>
 <li><p><code>SELECT ... LOCK IN SHARE MODE</code>，这是<code>S锁</code>；</p>
 <blockquote>
 <p>如果当前事务执行了该语句，那么它会为读取到的记录加<code>S 锁</code>，这样<code>允许</code>别的事务继续获取这些记录的<code>S 锁</code>（比方说别的事务也使用<code>SELECT ... LOCK IN SHARE MODE</code> 语句来读取这些记录），但是<strong>不能</strong>获取这些记录的<code>X 锁</code>（比方说使用<code>SELECT ... FOR UPDATE</code>语句来读取这些记录，或者直接<code>修改</code>这些记录）。<br>如果别的事务想要获取这些记录的<code>X锁</code>，那么它们会<code>阻塞</code>，直到当前事务提交之后将这些记录上的<code>S锁</code><strong>释放掉</strong>。</p>
@@ -995,8 +1060,6 @@ Intention Loc">
 <li>别的事务<code>不可以</code>继续获得该表的<code>X锁</code>；</li>
 <li>别的事务<code>不可以</code>继续获得该表中的某些记录的<code>X锁</code>。</li>
 </ul>
-</blockquote>
-<blockquote>
 <p>给表加X锁：</p>
 <ul>
 <li>别的事务<code>不可以</code>继续获得该表的<code>S锁</code>；</li>
@@ -1011,6 +1074,7 @@ Intention Loc">
 </ul>
 <p><code>IS锁</code>、<code>IX锁</code>是<code>表级锁</code>，它们的提出仅仅为了在之后加<code>表级别</code>的 <code>S 锁</code> 和 <code>X 锁</code>时可以快速判断表中的记录<code>是否被上锁</code>，以<strong>避免</strong>用<code>遍历的方式</code>来查看表中<strong>有没有上锁的记录</strong>。</p>
 <p>就是说其实 <code>IS 锁</code>和 <code>IX 锁</code>是<code>兼容的</code>，<code>IX 锁</code>和 <code>IX 锁</code>是<code>兼容的</code>。 我们画个表来看一下<code>表级别</code>的各种<code>锁的兼容性</code>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1021,7 +1085,8 @@ Intention Loc">
 <th>IS</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>X</td>
 <td>不兼容</td>
 <td>不兼容</td>
@@ -1047,10 +1112,12 @@ Intention Loc">
 <td>不兼容</td>
 <td></td>
 <td></td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p><code>锁的组合性</code>：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1061,7 +1128,8 @@ Intention Loc">
 <th>IS</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>表锁</td>
 <td>有</td>
 <td>有</td>
@@ -1073,9 +1141,10 @@ Intention Loc">
 <td>有</td>
 <td></td>
 <td>有</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h1 id="5-MySQL-中的行锁和表锁"><a href="#5-MySQL-中的行锁和表锁" class="headerlink" title="5 MySQL 中的行锁和表锁"></a>5 MySQL 中的行锁和表锁</h1><p>对于 <code>MyISAM</code>、<code>MEMORY</code>、<code>MERGE</code> 这些存储引擎来说，它们<code>只支持表级锁</code>， 而且这些引擎并<code>不支持事务</code>，所以使用这些存储引擎的<code>锁</code>一般都是针对<code>当前会话</code>来说的。</p>
 <p>因为使用 <code>MyISAM</code>、<code>MEMORY</code>、<code>MERGE</code> 这些存储引擎的表在同一时刻只允许<code>一个会话</code>对表进行<code>写操作</code>，所以这些存储引擎实际上最好用在<code>只读</code>，或者大部分都是<code>读操作</code>，或者单用户的情景下。 另外，在 <code>MyISAM</code> 存储引擎中有一个称之为 <code>Concurrent Inserts</code> 的特性，支持在对 <code>MyISAM</code> 表读取时同时插入记录，这样可 以提升一些插入速度。关于更多 <code>Concurrent Inserts</code> 的细节，详情可以参考文档。</p>
 <p>接下来，重点讲讲在<code>InnoDB</code>存储引擎下的一些锁。</p>
@@ -1089,10 +1158,7 @@ Intention Loc">
 <li><code>LOCK TABLES t WRITE</code>：InnoDB 存储引擎会对表 t 加<code>表级别的 X 锁</code>。</li>
 </ul>
 <p>不过请<code>尽量避免</code>在使用 <code>InnoDB 存储引擎</code>的表上使用 <code>LOCK TABLES</code> 这样的手动锁表语句，它们并不会提供什么额外的保护，只是会<code>降低并发能力</code>而已。</p>
-</blockquote>
-<h3 id="5-1-2-表级别的-IS-锁、IX-锁"><a href="#5-1-2-表级别的-IS-锁、IX-锁" class="headerlink" title="5.1.2 表级别的 IS 锁、IX 锁"></a>5.1.2 表级别的 IS 锁、IX 锁</h3><p><code>IS 锁</code>和 <code>IX 锁</code>的<strong>使命</strong>：只是为了后续在加<strong>表级别</strong>的 <code>S 锁</code>和 <code>X 锁</code>时判断表中是否有已经<code>被加锁的记录</code>，以<strong>避免</strong>用<code>遍历</code>的方式来查看表中<strong>有没有上锁的记录</strong>。</p>
-<blockquote>
-<p>我们并不能手动添加意向锁，只能由 InnoDB 存储引擎自行添加。</p>
+<h3 id="5-1-2-表级别的-IS-锁、IX-锁"><a href="#5-1-2-表级别的-IS-锁、IX-锁" class="headerlink" title="5.1.2 表级别的 IS 锁、IX 锁"></a>5.1.2 表级别的 IS 锁、IX 锁</h3><p><code>IS 锁</code>和 <code>IX 锁</code>的<strong>使命</strong>：只是为了后续在加<strong>表级别</strong>的 <code>S 锁</code>和 <code>X 锁</code>时判断表中是否有已经<code>被加锁的记录</code>，以<strong>避免</strong>用<code>遍历</code>的方式来查看表中<strong>有没有上锁的记录</strong>。<br>我们并不能手动添加意向锁，只能由 InnoDB 存储引擎自行添加。</p>
 </blockquote>
 <p>当我们在对使用 InnoDB 存储引擎的表的某些记录加 <code>S 锁</code>之前，那就需要先在表级别加一个 <code>IS 锁</code>，当我们在对使用 InnoDB 存储引擎的表的某些记录加 <code>X 锁</code>之前，那就需要先在<strong>表级别</strong>上加一个 <code>IX 锁</code>。</p>
 <h3 id="5-1-3-表级别的-AUTO-INC-锁"><a href="#5-1-3-表级别的-AUTO-INC-锁" class="headerlink" title="5.1.3 表级别的 AUTO-INC 锁"></a>5.1.3 表级别的 AUTO-INC 锁</h3><p>在使用 MySQL 过程中，我们可以为表的<code>某个列</code>添加 <code>AUTO_INCREMENT</code> 属性，之后在插入记录时，可以<code>不指定该列的值</code>，系统会<strong>自动</strong>为它赋上递增的值。</p>
@@ -1115,7 +1181,6 @@ Intention Loc">
 </ul>
 <blockquote>
 <p>MySQL5.7.X 中<code>innodb_autoinc_lock_mode</code>默认值为 1。</p>
-</blockquote>
 <h2 id="5-2-InnoDB-中的行级锁"><a href="#5-2-InnoDB-中的行级锁" class="headerlink" title="5.2 InnoDB 中的行级锁"></a>5.2 InnoDB 中的行级锁</h2><p><code>行锁</code>，顾名思义就是<strong>在记录上加的锁</strong>。但是要注意，这个<code>记录</code>指的是索引上的<code>索引项</code>。</p>
 <ul>
 <li>只有通过<code>索引条件</code>检索数据，InnoDB 才使用<code>行级锁</code>，否则，InnoDB 将使用<code>表锁</code>；</li>
@@ -1123,11 +1188,11 @@ Intention Loc">
 <li><code>只有执行计划真正使用了索引，才能使用行锁</code>；</li>
 <li>当我们用<code>范围条件</code>而不是相等条件检索数据，并请求锁时，InnoDB 会给<code>符合条件的已有数据记录的索引项加锁</code>。</li>
 </ul>
+</blockquote>
 <h3 id="5-2-1-Record-Locks，记录锁"><a href="#5-2-1-Record-Locks，记录锁" class="headerlink" title="5.2.1 Record Locks，记录锁"></a>5.2.1 Record Locks，记录锁</h3><p>对索引记录项进行加锁。官方的类型名称为: <code>LOCK_REC_NOT_GAP</code>。</p>
-<p>以上一章<a href="/posts/3590034994.html" title="【MySQL学习】8.事务原理与MVCC">【MySQL学习】8.事务原理与MVCC</a> 中的表<code>teacher</code>为例，现插入一条对字段<code>name</code>的索引：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">INDEX</span> <span class="token identifier"><span class="token punctuation">`</span>idx_name<span class="token punctuation">`</span></span><span class="token punctuation">(</span><span class="token identifier"><span class="token punctuation">`</span>name<span class="token punctuation">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>以上一章<a href="/posts/3590034994.html" title="【MySQL学习】8.事务原理与MVCC">【MySQL学习】8.事务原理与MVCC</a> 中的表<code>teacher</code>为例，现插入一条对字段<code>name</code>的索引：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">INDEX</span> <span class="token identifier"><span class="token punctuation">`</span>idx_name<span class="token punctuation">`</span></span><span class="token punctuation">(</span><span class="token identifier"><span class="token punctuation">`</span>name<span class="token punctuation">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>目前拥有以下数据：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1136,7 +1201,8 @@ Intention Loc">
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
@@ -1161,35 +1227,25 @@ Intention Loc">
 <td>Dafei</td>
 <td>MySQL</td>
 </tr>
-</tbody></table>
-<p>现对<code>name=9</code>的记录加一个<code>记录锁</code>：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> name <span class="token keyword">FROM</span> teacher t <span class="token keyword">WHERE</span> name <span class="token operator">=</span> <span class="token string">'James'</span> <span class="token keyword">FOR</span> <span class="token keyword">UPDATE</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>示意图如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/record-lock.png"><div class="caption"><b class="center-caption">记录锁情况,</b></div>
-<p>则其他事务对<code>teacher</code>表中的<code>name=&#39;James</code>的项进行<code>select</code>、<code>insert</code>、<code>delete</code>都将会被阻塞。</p>
+</tbody>
+</table>
+</div>
+<p>现对<code>name=9</code>的记录加一个<code>记录锁</code>：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SELECT</span> name <span class="token keyword">FROM</span> teacher t <span class="token keyword">WHERE</span> name <span class="token operator">=</span> <span class="token string">'James'</span> <span class="token keyword">FOR</span> <span class="token keyword">UPDATE</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>示意图如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/record-lock.png"><div class="caption"><b class="center-caption">记录锁情况,</b></div><br>则其他事务对<code>teacher</code>表中的<code>name=&#39;James</code>的项进行<code>select</code>、<code>insert</code>、<code>delete</code>都将会被阻塞。</p>
 <blockquote>
 <p><code>记录锁</code>是有 <code>S 锁</code>和 <code>X 锁</code>之分：<br>当一个事务获取了一条记录的 <code>S 型</code>记录锁后， 其他事务也可以继续获取该记录的 <code>S 型</code>记录锁，但<strong>不可以</strong>继续获取 <code>X 型</code>记录锁；<br>当一个事务获取了一条记录的 <code>X 型</code>记录锁后，其他事务<strong>既不可以</strong>继续获取该记录的 <code>S 型</code>记录锁，<strong>也不可以</strong>继续获取 <code>X 型</code>记录锁。</p>
-</blockquote>
 <h3 id="5-2-2-Gap-Locks，间隙锁"><a href="#5-2-2-Gap-Locks，间隙锁" class="headerlink" title="5.2.2 Gap Locks，间隙锁"></a>5.2.2 Gap Locks，间隙锁</h3><p>我们说 MySQL 在 <code>REPEATABLE READ</code> 隔离级别下是可以解决<code>幻读</code>问题的，解决方案有两种，可以使用 <code>MVCC 方案</code>解决，也可以采用<code>加锁方案</code>解决。但是在使用<code>加锁方案</code>解决时有问题，就是事务在第一次执行读取操作时，那些<code>幻影记录</code>尚<code>不存在</code>，我们<strong>无法</strong>给这些<code>幻影记录</code>加上记录锁。InnoDB 提出了一种称之为 <code>Gap Locks</code> 的锁（LOCK_GAP），我们也可以简称为 <code>gap 锁</code>。</p>
+</blockquote>
 <p>默认开启，可通过以下两种方式关闭：</p>
 <ul>
 <li>将事务隔离级别调整为<code>READ COMMITTED</code>；</li>
-<li>或者将<code>innodb_locks_unsafe_for_binlog</code>置为<code>1</code>。</li>
+<li>或者将<code>innodb_locks_unsafe_for_binlog</code>置为<code>1</code>。<h4 id="5-2-2-1-间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。"><a href="#5-2-2-1-间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。" class="headerlink" title="5.2.2.1 间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。"></a>5.2.2.1 间隙锁实质上是对<code>索引前后的间隙</code>上锁，不对<code>索引本身</code>上锁（开区间）。</h4></li>
 </ul>
-<h4 id="5-2-2-1-间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。"><a href="#5-2-2-1-间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。" class="headerlink" title="5.2.2.1 间隙锁实质上是对索引前后的间隙上锁，不对索引本身上锁（开区间）。"></a>5.2.2.1 间隙锁实质上是对<code>索引前后的间隙</code>上锁，不对<code>索引本身</code>上锁（开区间）。</h4><p>比如：对表<code>teacher</code>插入一条如下的记录(事务id：108210）：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">update</span> teacher <span class="token keyword">set</span> domain <span class="token operator">=</span><span class="token string">'Spring'</span> <span class="token keyword">where</span> name<span class="token operator">=</span><span class="token string">'James'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>其会对([‘Jack’,1], [‘James’,9])之间, ([‘James’,9], [‘King’,15])之间进行上锁。<br>ps: 本机MySQL版本：v5.7.17</p>
+<p>比如：对表<code>teacher</code>插入一条如下的记录(事务id：108210）：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">update</span> teacher <span class="token keyword">set</span> domain <span class="token operator">=</span><span class="token string">'Spring'</span> <span class="token keyword">where</span> name<span class="token operator">=</span><span class="token string">'James'</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>其会对([‘Jack’,1], [‘James’,9])之间, ([‘James’,9], [‘King’,15])之间进行上锁。<br>ps: 本机MySQL版本：v5.7.17</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/gap-lock.png"><div class="caption"><b class="center-caption">间隙锁情况,</b></div>
-
-<p>现另一事务开启以下插入操作(事务id：108212）：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">begin</span><span class="token punctuation">;</span>
-<span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span><span class="token punctuation">(</span><span class="token number">22</span><span class="token punctuation">,</span><span class="token string">'Jahes'</span><span class="token punctuation">,</span><span class="token string">'docker'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>结果爆出以下错误：</p>
-<pre class="line-numbers language-none"><code class="language-none">1205 - Lock wait timeout exceeded; try restarting transaction, Time: 51.093000s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>通过以下命令可以查看两条事务对表加了什么锁：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">mysql<span class="token operator">></span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span>innodb_locks\G<span class="token punctuation">;</span>
+<p>现另一事务开启以下插入操作(事务id：108212）：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">begin</span><span class="token punctuation">;</span>
+<span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span><span class="token punctuation">(</span><span class="token number">22</span><span class="token punctuation">,</span><span class="token string">'Jahes'</span><span class="token punctuation">,</span><span class="token string">'docker'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p>结果爆出以下错误：<br><pre class="line-numbers language-none"><code class="language-none">1205 - Lock wait timeout exceeded; try restarting transaction, Time: 51.093000s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>通过以下命令可以查看两条事务对表加了什么锁：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">mysql<span class="token operator">></span> <span class="token keyword">select</span> <span class="token operator">*</span> <span class="token keyword">from</span> information_schema<span class="token punctuation">.</span>innodb_locks\G<span class="token punctuation">;</span>
 <span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span> <span class="token number">1.</span> <span class="token keyword">row</span> <span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span><span class="token operator">*</span>
 lock_id: <span class="token number">108212</span>:<span class="token number">1309</span>:<span class="token number">4</span>:<span class="token number">4</span>
 lock_trx_id: <span class="token number">108212</span>
@@ -1212,8 +1268,7 @@ lock_space: <span class="token number">1309</span>
 lock_page: <span class="token number">4</span>
 lock_rec: <span class="token number">4</span>
 lock_data: <span class="token string">'James'</span><span class="token punctuation">,</span> <span class="token number">9</span>
-<span class="token number">2</span> <span class="token keyword">rows</span> <span class="token operator">in</span> <span class="token keyword">set</span><span class="token punctuation">,</span> <span class="token number">1</span> warning <span class="token punctuation">(</span><span class="token number">0.00</span> sec<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token number">2</span> <span class="token keyword">rows</span> <span class="token operator">in</span> <span class="token keyword">set</span><span class="token punctuation">,</span> <span class="token number">1</span> warning <span class="token punctuation">(</span><span class="token number">0.00</span> sec<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>可以看出：</p>
 <ul>
 <li>事务<code>id=108210</code>是更新操作，通过字段<code>lock_type: RECORD</code>可以得出其对记录<code>name=James</code>所加的锁类型为<code>行锁</code>(注意，这里不是<code>记录锁</code>的意思)；而通过字段<code>lock_mode: X</code>得出这个<code>行锁</code>还是<code>next-key lock</code>。</li>
@@ -1232,29 +1287,18 @@ lock_data: <span class="token string">'James'</span><span class="token punctuati
 <p>默认情况下，InnoDB 以 <code>REPEATABLE READ</code> 隔离级别运行。在这种情况下， InnoDB 使用 <code>Next-Key Locks</code> 锁进行搜索和索引扫描，这可以<code>防止幻读的发生</code>。</p>
 <h3 id="5-2-4-Insert-Intention-Locks，插入意向锁"><a href="#5-2-4-Insert-Intention-Locks，插入意向锁" class="headerlink" title="5.2.4 Insert Intention Locks，插入意向锁"></a>5.2.4 Insert Intention Locks，插入意向锁</h3><p><code>插入意向锁</code>是一种<code>锁的的等待队列</code>，让等锁的事务在内存中进行排队等待，当持有锁的事务完成后，处于等待状态的事务就可以获得锁继续事务了。</p>
 <p>并不是意向锁，它属于<code>行级锁</code>，是一种特殊的<code>间隙锁</code>。</p>
-<p>举例：<br>事务A执行：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">BEGIN</span><span class="token punctuation">;</span>
-<span class="token keyword">SELECT</span> name <span class="token keyword">from</span> teacher <span class="token keyword">where</span> name <span class="token operator">BETWEEN</span> <span class="token string">'Jack'</span> <span class="token operator">and</span> <span class="token string">'James'</span> <span class="token keyword">for</span> <span class="token keyword">UPDATE</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>事务B执行：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">BEGIN</span><span class="token punctuation">;</span>
-<span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span> <span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">,</span> <span class="token string">'Jae2'</span><span class="token punctuation">,</span> <span class="token string">'Go'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>结果：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1205</span> <span class="token operator">-</span> <span class="token keyword">Lock</span> wait timeout exceeded<span class="token punctuation">;</span> try restarting <span class="token keyword">transaction</span><span class="token punctuation">,</span> <span class="token keyword">Time</span>: <span class="token number">51.134000</span>s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>通过以下命令输出<code>innodb监控</code>可以查看到<code>插入意向锁</code>的信息：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> <span class="token keyword">engine</span> <span class="token keyword">innodb</span> <span class="token keyword">status</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>结果：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span> <span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">,</span> <span class="token string">'Jae2'</span><span class="token punctuation">,</span> <span class="token string">'Go'</span><span class="token punctuation">)</span>
+<p>举例：<br>事务A执行：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">BEGIN</span><span class="token punctuation">;</span>
+<span class="token keyword">SELECT</span> name <span class="token keyword">from</span> teacher <span class="token keyword">where</span> name <span class="token operator">BETWEEN</span> <span class="token string">'Jack'</span> <span class="token operator">and</span> <span class="token string">'James'</span> <span class="token keyword">for</span> <span class="token keyword">UPDATE</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p>事务B执行：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">BEGIN</span><span class="token punctuation">;</span>
+<span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span> <span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">,</span> <span class="token string">'Jae2'</span><span class="token punctuation">,</span> <span class="token string">'Go'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p>结果：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1205</span> <span class="token operator">-</span> <span class="token keyword">Lock</span> wait timeout exceeded<span class="token punctuation">;</span> try restarting <span class="token keyword">transaction</span><span class="token punctuation">,</span> <span class="token keyword">Time</span>: <span class="token number">51.134000</span>s<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>通过以下命令输出<code>innodb监控</code>可以查看到<code>插入意向锁</code>的信息：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> <span class="token keyword">engine</span> <span class="token keyword">innodb</span> <span class="token keyword">status</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>结果：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">insert</span> <span class="token keyword">into</span> teacher <span class="token keyword">value</span> <span class="token punctuation">(</span><span class="token number">24</span><span class="token punctuation">,</span> <span class="token string">'Jae2'</span><span class="token punctuation">,</span> <span class="token string">'Go'</span><span class="token punctuation">)</span>
 <span class="token comment">------- TRX HAS BEEN WAITING 24 SEC FOR THIS LOCK TO BE GRANTED:</span>
 RECORD LOCKS space id <span class="token number">1309</span> page <span class="token keyword">no</span> <span class="token number">4</span> n bits <span class="token number">80</span> <span class="token keyword">index</span> idx_name <span class="token keyword">of</span> <span class="token keyword">table</span> <span class="token identifier"><span class="token punctuation">`</span>student<span class="token punctuation">`</span></span><span class="token punctuation">.</span><span class="token identifier"><span class="token punctuation">`</span>teacher<span class="token punctuation">`</span></span> trx id <span class="token number">108264</span> lock_mode X locks gap（间隙锁） before rec <span class="token keyword">insert</span> intention（插入意向） waiting
 Record <span class="token keyword">lock</span><span class="token punctuation">,</span> heap <span class="token keyword">no</span> <span class="token number">4</span> PHYSICAL RECORD: n_fields <span class="token number">2</span><span class="token punctuation">;</span> compact format<span class="token punctuation">;</span> info bits <span class="token number">0</span>
  <span class="token number">0</span>: len <span class="token number">5</span><span class="token punctuation">;</span> hex <span class="token number">4</span>a616d6573<span class="token punctuation">;</span> <span class="token keyword">asc</span> James<span class="token punctuation">;</span><span class="token punctuation">;</span>
- <span class="token number">1</span>: len <span class="token number">4</span><span class="token punctuation">;</span> hex <span class="token number">80000009</span><span class="token punctuation">;</span> <span class="token keyword">asc</span>     <span class="token punctuation">;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
+ <span class="token number">1</span>: len <span class="token number">4</span><span class="token punctuation">;</span> hex <span class="token number">80000009</span><span class="token punctuation">;</span> <span class="token keyword">asc</span>     <span class="token punctuation">;</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p><strong>与间隙锁的区别</strong>：</p>
 <ul>
 <li>是一种<code>特殊的间隙锁</code>，但不同于间隙锁的是，该锁只用于<code>并发插入操作</code>。</li>
@@ -1263,6 +1307,7 @@ Record <span class="token keyword">lock</span><span class="token punctuation">,<
 <p>生成时机：每插入一条新记录，都需要看一下待插入记录的下一条记录上是否已经被加了<code>间隙锁</code>，如果已加间隙锁，那 <code>Insert</code> 语句会被阻塞，并生成一个<code>插入意向锁</code>。</p>
 <h3 id="5-2-5-隐式锁"><a href="#5-2-5-隐式锁" class="headerlink" title="5.2.5 隐式锁"></a>5.2.5 隐式锁</h3><p>无法干预，是由引擎自动处理的。</p>
 <h3 id="5-2-6-兼容矩阵"><a href="#5-2-6-兼容矩阵" class="headerlink" title="5.2.6 兼容矩阵"></a>5.2.6 兼容矩阵</h3><p>锁模式兼容矩阵（横向是已持有锁，纵向是正在请求的锁）：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1273,7 +1318,8 @@ Record <span class="token keyword">lock</span><span class="token punctuation">,<
 <th>Next-Key</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>Gap</td>
 <td>兼容</td>
 <td>冲突</td>
@@ -1301,7 +1347,9 @@ Record <span class="token keyword">lock</span><span class="token punctuation">,<
 <td>冲突</td>
 <td>冲突</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 
                 
             </div>
@@ -1977,7 +2025,7 @@ Record <span class="token keyword">lock</span><span class="token punctuation">,<
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1995,7 +2043,7 @@ Record <span class="token keyword">lock</span><span class="token punctuation">,<
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2258,6 +2306,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

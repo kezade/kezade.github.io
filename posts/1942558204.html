@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -836,7 +893,7 @@
 <h3 id="1-2-1-指针碰撞"><a href="#1-2-1-指针碰撞" class="headerlink" title="1.2.1 指针碰撞"></a>1.2.1 指针碰撞</h3><p>如果<code>Java堆</code>中内存是<strong>绝对规整的</strong>，所有用过的内存都放在一边，空闲的内存放在另一边，中间放着一个<code>指针</code>作为<code>分界点的指示器</code>，那所分配内存就仅仅是把那个指针向空闲空间那边挪动一段与对象大小相等的距离，这种分配方式称为“指针碰撞”。</p>
 <h3 id="1-2-2-空闲列表"><a href="#1-2-2-空闲列表" class="headerlink" title="1.2.2 空闲列表"></a>1.2.2 空闲列表</h3><p>如果<code>Java堆</code>中的内存并<strong>不是规整的</strong>，已使用的内存和空闲的内存相互交错，那就没有办法简单地进行指针碰撞了，虚拟机就必须维护一个<code>列表</code>，记录上哪些内存块是可用的，在分配的时候从列表中找到一块<strong>足够大</strong>的空间划分给对象实例，并<strong>更新列表上的记录</strong>，这种分配方式称为“空闲列表”。</p>
 <blockquote>
-<p>选择哪种分配方式由<code>Java堆是否规整</code>决定，而Java堆是否规整又由所采用的<code>垃圾收集器</code>是否带有<code>空间压缩整理</code>(Compact)的能力决定。因此，当使用<code>Serial</code>、<code>ParNew</code>等带压缩整理过程的收集器时，系统采用的分配算法是<code>指针碰撞</code>，既简单又高效；<br>而当使用<code>CMS</code>这种基于<code>清除(Sweep)算法</code>的收集器时，理论上[^1]就只能采用较为复杂的<code>空闲列表</code>来分配内存。</p>
+<p>选择哪种分配方式由<code>Java堆是否规整</code>决定，而Java堆是否规整又由所采用的<code>垃圾收集器</code>是否带有<code>空间压缩整理</code>(Compact)的能力决定。因此，当使用<code>Serial</code>、<code>ParNew</code>等带压缩整理过程的收集器时，系统采用的分配算法是<code>指针碰撞</code>，既简单又高效；<br>而当使用<code>CMS</code>这种基于<code>清除(Sweep)算法</code>的收集器时，理论上<sup><a href="#fn_1" id="reffn_1">1</a></sup>就只能采用较为复杂的<code>空闲列表</code>来分配内存。</p>
 </blockquote>
 <h3 id="1-2-3-并发安全问题"><a href="#1-2-3-并发安全问题" class="headerlink" title="1.2.3 并发安全问题"></a>1.2.3 并发安全问题</h3><p>对象创建在虚拟机中是非常频繁的行为，即使仅仅修改一个指针所指向的位置，在并发情况下也并<code>不是线程安全的</code>，可能出现正在给<code>对象 A</code>分配内存，指针还没来得及修改，<code>对象B</code>又同时使用了原来的指针来分配内存的情况。</p>
 <p>可采取以下措施进行处理：</p>
@@ -851,9 +908,7 @@
 <h2 id="1-4-设置"><a href="#1-4-设置" class="headerlink" title="1.4 设置"></a>1.4 设置</h2><p>主要设置<code>对象头</code>。例如这个<code>对象是哪个类的实例</code>、如何才能找到<code>类的元数据信息</code>、<code>对象的哈希码</code>(实际上对象的哈希码会延后到真正调用<code>Object ::hashCode()</code>方法时才计算)、<code>对象的GC分代年龄等信息</code>。这些信息存放在对象的<code>对象头</code>(Object Header)之中。根据虚拟机当前运行状态的不同，如是否启用偏向锁等，对象头会有不同的设置方式。</p>
 <p>详细的对象头信息，会在第2节给出。</p>
 <h2 id="1-5-对象初始化"><a href="#1-5-对象初始化" class="headerlink" title="1.5 对象初始化"></a>1.5 对象初始化</h2><p>在上面工作都完成之后，从虚拟机的视角来看，一个新的对象已经产生了。但是从<code>Java程序的视角</code>看来，对象创建才刚刚开始——<code>构造函数</code>，即<code>Class文件</code>中的<code>&lt;init&gt;()</code>方法还<strong>没有执行</strong>，所有的<code>字段</code>都为<code>默认的零值</code>，对象需要的其他资源和状态信息也还没有按照预定的意图构造好。一般来说(由字节码流中<code>new指令</code>后面是否跟随<code>invoke special指令</code>所决定，Java编译器会在遇到<code>new关键字</code>的地方同时生成这两条字节码指令，但如果直接通过其他方式产生的则不一定如此)，<code>new指令</code>之后会接着执行<code>&lt;init&gt; ()</code>方法，按照程序员的意愿对<code>对象</code>进行<code>初始化</code>，这样一个真正可用的对象才算<code>完全被构造出来</code>。</p>
-<p>下面这张图给出了上述流程全过程。详细的类加载过程会在后续文章中讲述。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-procedure-of-an-object-in-JVM.png"><div class="caption"><b class="center-caption">JVM对象的创建过程</b></div>
-
+<p>下面这张图给出了上述流程全过程。详细的类加载过程会在后续文章中讲述。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-procedure-of-an-object-in-JVM.png"><div class="caption"><b class="center-caption">JVM对象的创建过程</b></div></p>
 <h1 id="2-对象的组成"><a href="#2-对象的组成" class="headerlink" title="2 对象的组成"></a>2 对象的组成</h1><p>在<code>HotSpot虚拟机</code>里，对象在<code>堆内存</code>中的存储布局可以划分为三个部分：</p>
 <ul>
 <li><code>对象头</code>(Header)：分为两类信息。<ul>
@@ -865,9 +920,7 @@
 <li><code>实例数据</code>(Instance Data)：对象真正存储的有效信息。</li>
 <li><code>对齐填充</code>(Padding)：这并不是必然存在的，也没有特别的含义，它仅仅起着<code>占位符</code>的作用。由于<code>HotSpot虚拟机</code>的自动内存管理系统要求对象起始地址必须是<code>8字节的整数倍</code>，换句话说就是<strong>任何对象的大小都必须是8字节的整数倍</strong>。对象头部分已经被精心设计成正好是<code>8字节的倍数</code>(1倍或者2倍)，因此，如果对象实例数据部分没有对齐的话，就需要通过对齐填充来<code>补全</code>。</li>
 </ul>
-<p>这里先给出对象头的组成，后面在讨论锁的流程时会具体涉及里面的字段意义。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-components-of-an-object.png"><div class="caption"><b class="center-caption">对象的组成</b></div>
-
+<p>这里先给出对象头的组成，后面在讨论锁的流程时会具体涉及里面的字段意义。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-components-of-an-object.png"><div class="caption"><b class="center-caption">对象的组成</b></div></p>
 <h1 id="3-对象的访问定位"><a href="#3-对象的访问定位" class="headerlink" title="3 对象的访问定位"></a>3 对象的访问定位</h1><p>创建对象自然是为了后续使用该对象，我们的Java程序会通过<code>栈</code>上的<code>reference数据</code>来操作<code>堆</code>上的具体<code>对象</code>。由于<code>reference类型</code>在《Java虚拟机规范》里面只规定了它是<strong>一个指向对象的引用</strong>，并没有定义这个引用应该通过什么方式去定位、访问到堆中对象的具体位置，所以对象访问方式也是由<code>虚拟机实现</code>而定的，主流的访问方式主要有使用<code>句柄</code>和<code>直接指针</code>两种：</p>
 <ul>
 <li>句柄<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/by-handler.png"><div class="caption"><b class="center-caption">句柄访问</b></div>
@@ -881,7 +934,7 @@
 </blockquote>
 </li>
 </ul>
-<p>[^1] 强调“理论上”是因为在<code>CMS</code>的实现里面，为了能在多数情况下分配得更快，设计了一个叫作<code>Linear Allocation Buffer</code>的分配缓冲区，通过<code>空闲列表</code>拿到一大块分配缓冲区之后，在它<strong>里面</strong>仍然可以使用<code>指针碰撞</code>方式来分配。</p>
+<p><sup><a href="#fn_1" id="reffn_1">1</a></sup> 强调“理论上”是因为在<code>CMS</code>的实现里面，为了能在多数情况下分配得更快，设计了一个叫作<code>Linear Allocation Buffer</code>的分配缓冲区，通过<code>空闲列表</code>拿到一大块分配缓冲区之后，在它<strong>里面</strong>仍然可以使用<code>指针碰撞</code>方式来分配。</p>
 
                 
             </div>
@@ -1577,7 +1630,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1595,7 +1648,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1858,6 +1911,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

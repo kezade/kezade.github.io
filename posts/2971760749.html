@@ -63,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -835,32 +892,19 @@
 <p>换成fastly呢，发现网速相比gcore，那真是差远了。</p>
 <p>最终，我选择速度尚可的gcore，直接在idea里全量替换，感觉成本还能接受。</p>
 <h1 id="3-另一场飙血"><a href="#3-另一场飙血" class="headerlink" title="3 另一场飙血"></a>3 另一场飙血</h1><p>毕竟写了不少文章了，现在的习惯就是，凡是要用图的地方，先本地截图保存或制作后保存在本地。发现如果要用某个变量去替换Markdown中的<code>gcore.jsdelivr.net</code>，那以后要是在变更岂不是更方便了。</p>
-<p>之前搞相册，memos页面，也知道通过hexo注入，可将变量替换成你想要的效果，比如：</p>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">hexo<span class="token punctuation">.</span>extend<span class="token punctuation">.</span>tag<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span>
+<p>之前搞相册，memos页面，也知道通过hexo注入，可将变量替换成你想要的效果，比如：<br><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript">hexo<span class="token punctuation">.</span>extend<span class="token punctuation">.</span>tag<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span>
     <span class="token string">'cdnUrl'</span><span class="token punctuation">,</span>
     <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">args</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//获取主题配置</span>
         <span class="token keyword">const</span> config <span class="token operator">=</span> hexo<span class="token punctuation">.</span>theme<span class="token punctuation">.</span>config<span class="token punctuation">;</span>
     <span class="token keyword">return</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">&lt;img src="</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>config<span class="token punctuation">.</span>jsDelivr<span class="token punctuation">.</span>picgo<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">/markdown/</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>args<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">">&lt;div class="caption">&lt;b class="center-caption"></span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>args<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">&lt;/b>&lt;/div>&lt;/img></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>通过标签注入，在文章中，通过引入：</p>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% cdnUrl 'redo log 格式' redo-log.png %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>结果是这样子：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png"><div class="caption"><b class="center-caption">redo log 格式</b></div>
-
-<p>但是，我想要的是，</p>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">![redo log 格式](&#123;% cdnUrl 'redo log 格式' redo-log.png %&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>通过标签注入，在文章中，通过引入：<br><pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% cdnUrl 'redo log 格式' redo-log.png %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>结果是这样子：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png"><div class="caption"><b class="center-caption">redo log 格式</b></div></p>
+<p>但是，我想要的是，<br><pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">![redo log 格式](&#123;% cdnUrl 'redo log 格式' redo-log.png %&#125;)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>结果死活不成，看<code>hexo.io</code>官网，一桶冷水直接浇灭我的所思所想。</p>
 <pre class="line-numbers language-none"><code class="language-none">标签插件不应该被包裹在 Markdown 语法中，例如：[](&#123;% post_path lorem-ipsum %&#125;) 是&#96;不被支持的&#96;。<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>气煞我也！<br><img src="https://imgsa.baidu.com/forum/pic/item/3bd05c2c11dfa9ec16c5cebc6fd0f703908fc1b2.jpg"></p>
-<p>但还是要解决问题啊，试了试官方的<code>Image</code>插入方案：</p>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% img [class names] /path/to/image <span class="token url">[<span class="token content">width</span>] [<span class="token variable">height</span>]</span> '"title text" "alt text"' %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>eg:</p>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% img [img-shadow img-margin] 'https://gcore.jsdelivr.net/gh/zyxelva/picgo@main/markdown/redo-log.png' '"redo log 格式" "redo log 格式"' %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>感觉好多东西要填，要是采用这种方案，后续替换的话，手岂不是要废了？</p>
+<p>气煞我也！<br><img src="https://imgsa.baidu.com/forum/pic/item/3bd05c2c11dfa9ec16c5cebc6fd0f703908fc1b2.jpg" alt></p>
+<p>但还是要解决问题啊，试了试官方的<code>Image</code>插入方案：<br><pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% img [class names] /path/to/image <span class="token url">[<span class="token content">width</span>] [<span class="token variable">height</span>]</span> '"title text" "alt text"' %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>eg:<br><pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown">&#123;% img [img-shadow img-margin] 'https://gcore.jsdelivr.net/gh/zyxelva/picgo@main/markdown/redo-log.png' '"redo log 格式" "redo log 格式"' %&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>感觉好多东西要填，要是采用这种方案，后续替换的话，手岂不是要废了？</p>
 <h1 id="求救"><a href="#求救" class="headerlink" title="求救"></a>求救</h1><p>有大神能救救我咩？</p>
 
                 
@@ -1541,7 +1585,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1559,7 +1603,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1822,6 +1866,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

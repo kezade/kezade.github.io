@@ -64,7 +64,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -832,8 +889,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 <li>引导：<code>ServerBootstrap</code></li>
 <li>至少一个<code>ChannelHandler</code></li>
 </ul>
-<h3 id="2-1-2-ServerBootstrap"><a href="#2-1-2-ServerBootstrap" class="headerlink" title="2.1.2 ServerBootstrap"></a>2.1.2 ServerBootstrap</h3><p>先上代码。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">ServerBootstrap</span></span><span class="token punctuation">;</span>
+<h3 id="2-1-2-ServerBootstrap"><a href="#2-1-2-ServerBootstrap" class="headerlink" title="2.1.2 ServerBootstrap"></a>2.1.2 ServerBootstrap</h3><p>先上代码。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">ServerBootstrap</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelFuture</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelInitializer</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">EventLoopGroup</span></span><span class="token punctuation">;</span>
@@ -890,7 +946,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <ul>
 <li>新建<code>ServerBootstrap</code>实例</li>
 <li>注册<code>EventLoopGroup</code><br>上一章节中，我们提到Netty Server端一般是有两个<code>EventLoopGroup</code>，一个是<code>Boss</code>，一个是<code>Worker</code>，我们可以查看 <code>ServerBootstrap</code>的<code>group</code>方法：<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ServerBootstrap</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractBootstrap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">ServerBootstrap</span><span class="token punctuation">,</span> <span class="token class-name">ServerChannel</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
@@ -902,7 +958,8 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         <span class="token comment">//此处省略几行代码...</span>
     <span class="token punctuation">&#125;</span>
     <span class="token comment">//此处省略一万个字符</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <p>可以看出，<code>group</code>只有一个参数时，其实<code>Boss</code>和<code>Work</code>共用一个<code>EventLoopGroup</code>。</p>
 <ul>
@@ -916,8 +973,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 </li>
 <li><p>绑定用于客户端连接使用的端口</p>
 </li>
-<li><p>注册<code>ChannelHandler</code>。两种方式：</p>
-<ul>
+<li>注册<code>ChannelHandler</code>。两种方式：<ul>
 <li>直接注册实现了<code>ChannelHandler</code>的实例</li>
 <li>通过实现<code>ChannelInitializer</code>接口的实例注册</li>
 </ul>
@@ -929,8 +985,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 </blockquote>
 <h3 id="2-1-3-ChannelHandler"><a href="#2-1-3-ChannelHandler" class="headerlink" title="2.1.3 ChannelHandler"></a>2.1.3 ChannelHandler</h3><p><code>ChannelHandler</code>是一个<code>接口族的父接口</code>，它的实现负责<code>接收并响应事件通知</code>。 在Netty 应用程序中，所有的数据处理逻辑都包含在这些核心抽象的实现中。</p>
 <p>因为你的<code>Echo 服务器</code>会<code>响应</code>传入的消息，所以它需要实现<code>ChannelInboundHandler</code> 接口，用来定义响应<code>入站事件</code>的方法。这个简单的应用程序只需要用到<code>少量的</code>这些方法，所以继承 <code>ChannelInboundHandlerAdapter</code> 类也就足够了，<code>它提供了ChannelInboundHandler</code> 的默认实现。</p>
-<p>样例代码如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">ByteBuf</span></span><span class="token punctuation">;</span>
+<p>样例代码如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">ByteBuf</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelHandler</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelHandlerContext</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelInboundHandlerAdapter</span></span><span class="token punctuation">;</span>
@@ -962,8 +1017,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         ctx<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>我们感兴趣的方法是：</p>
 <ul>
 <li><code>channelRead()</code>：对于每个传入的消息都要调用；</li>
@@ -973,8 +1027,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 <blockquote>
 <p>如果不捕获异常，会发生什么呢?<br>每个<code>Channel</code> 都拥有一个与之相关联的<code>ChannelPipeline</code>，其持有一个<code>ChannelHandler</code> 的<code>实例链</code>。在默认的情况下，<code>ChannelHandler</code> 会把对它的方法的调用转发给链中的<code>下一个ChannelHandler</code>。因此，如果<code>exceptionCaught()</code>方法没有被该链中的某处实现，那么所接收的异常将会被传递到<code>ChannelPipeline 的尾端</code>并被记录。为此，你的应用程序应该提供<code>至少有一个</code>实现了<code>exceptionCaught()</code>方法的<code>ChannelHandler</code>。</p>
 </blockquote>
-<h2 id="2-2-Client"><a href="#2-2-Client" class="headerlink" title="2.2 Client"></a>2.2 Client</h2><p>老样子，先上代码：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">Bootstrap</span></span><span class="token punctuation">;</span>
+<h2 id="2-2-Client"><a href="#2-2-Client" class="headerlink" title="2.2 Client"></a>2.2 Client</h2><p>老样子，先上代码：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">Bootstrap</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">ServerBootstrap</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelFuture</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelInitializer</span></span><span class="token punctuation">;</span>
@@ -1033,8 +1086,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         <span class="token keyword">new</span> <span class="token class-name">EchoClient</span><span class="token punctuation">(</span><span class="token number">9999</span><span class="token punctuation">,</span> <span class="token string">"127.0.0.1"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>Client端启动与Server端类似，需要以下组件：</p>
 <ul>
 <li>引导：<code>Bootstrap</code></li>
@@ -1053,8 +1105,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
 <li><code>channelRead0()</code>：当从服务器<code>接收</code>到一条消息时被调用；</li>
 <li><code>exceptionCaught()</code>：在处理过程中<code>引发异常</code>时被调用。</li>
 </ul>
-<p>实现代码：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">ByteBuf</span></span><span class="token punctuation">;</span>
+<p>实现代码：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">ByteBuf</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">Unpooled</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelHandlerContext</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">SimpleChannelInboundHandler</span></span><span class="token punctuation">;</span>
@@ -1089,8 +1140,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         ctx<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <blockquote>
 <p><code>SimpleChannelInboundHandler</code> 与<code>ChannelInboundHandler</code><br>为什么我们在<code>客户端</code>使用的是<code>SimpleChannelInboundHandler</code>，而不是在<code>EchoServerHandler</code> 中所使用的<code>ChannelInboundHandlerAdapter</code> 呢？这和两个因素的相互作用有关：<strong>业务逻辑如何处理消息</strong>以及<strong>Netty 如何管理资源</strong>。<br>在<code>客户端</code>，当<code>channelRead0()</code>方法完成时，你已经有了传入消息，并且已经处理完它了。当该方法返回时，<code>SimpleChannelInboundHandler</code> 负责释放指向保存该消息的<code>ByteBuf</code> 的内存引用。<br>在<code>EchoServerHandler</code> 中，你仍然需要将传入消息回送给发送者，而<code>write()</code>操作是<code>异步的</code>，直到<code>channelRead()</code>方法返回后可能仍然没有完成。为此，<code>EchoServerHandler</code>扩展了<code>ChannelInboundHandlerAdapter</code>，其在这个时间点上不会释放消息。<br>消息在<code>EchoServerHandler</code> 的<code>channelReadComplete()</code>方法中，当<code>writeAndFlush()</code>方法被调用时被释放。</p>
 </blockquote>
@@ -1785,7 +1835,7 @@ JDK: 1.8.0_112Maven: 3.5.3IDE: IntelliJ IDEA 2021.3 (Ultim">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2048,6 +2098,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

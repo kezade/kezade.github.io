@@ -5,8 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【MyBatis源码学习】Sql解析, Back-End Dev Java">
-    <meta name="description" content="一、前言之前我在【MyBatis源码学习】初始化阶段 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。
-&#34;三剑">
+    <meta name="description" content="一、前言之前我在【MyBatis源码学习】初始化阶段 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。&#34;三剑客">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -62,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -810,7 +866,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    21 分
+                    20 分
                 </div>
                 
 
@@ -828,13 +884,8 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>之前我在<a href="/posts/24693.html" title="【MyBatis源码学习】初始化阶段">【MyBatis源码学习】初始化阶段</a> 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315205850237.png"><div class="caption"><b class="center-caption">"三剑客"</b></div>
-<p>本章节中，我们重点跟一下XMLMapperBuilder、XMLStatementBuilder解析sql的源码过程。<br>XMLMapperBuilder、XMLStatementBuilder均实现了BaseBuilder。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031521015322.png"><div class="caption"><b class="center-caption">继承关系</b></div>
-<p>XMLMapperBuilder主要功能：<br>    遍历mybatis中mapperLocations属性中的xml文件中每个节点的Builder，比如user.xml，内部会使用XMLStatementBuilder处理xml中的每个节点。<br>XMLStatementBuilder主要功能：<br>    解析xml文件中各个节点，比如select,insert,update,delete节点，内部会使用XMLScriptBuilder处理节点的sql部分，遍历产生的数据会丢到Configuration的mappedStatements中。</p>
-<p>在<a href="/posts/24693.html" title="【MyBatis源码学习】初始化阶段">【MyBatis源码学习】初始化阶段</a>中，我们分析了XMLConfigBuilder的主要工作流程。还是以下面的代码为例，重点分析下XMLMapperBuilder和XMLStatementBuilder解析sql的流程。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Before</span>
+                <h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>之前我在<a href="/posts/24693.html" title="【MyBatis源码学习】初始化阶段">【MyBatis源码学习】初始化阶段</a> 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315205850237.png"><div class="caption"><b class="center-caption">"三剑客"</b></div><br>本章节中，我们重点跟一下XMLMapperBuilder、XMLStatementBuilder解析sql的源码过程。<br>XMLMapperBuilder、XMLStatementBuilder均实现了BaseBuilder。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031521015322.png"><div class="caption"><b class="center-caption">继承关系</b></div><br>XMLMapperBuilder主要功能：<br>    遍历mybatis中mapperLocations属性中的xml文件中每个节点的Builder，比如user.xml，内部会使用XMLStatementBuilder处理xml中的每个节点。<br>XMLStatementBuilder主要功能：<br>    解析xml文件中各个节点，比如select,insert,update,delete节点，内部会使用XMLScriptBuilder处理节点的sql部分，遍历产生的数据会丢到Configuration的mappedStatements中。</p>
+<p>在<a href="/posts/24693.html" title="【MyBatis源码学习】初始化阶段">【MyBatis源码学习】初始化阶段</a>中，我们分析了XMLConfigBuilder的主要工作流程。还是以下面的代码为例，重点分析下XMLMapperBuilder和XMLStatementBuilder解析sql的流程。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Before</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//--------------------第一阶段---------------------------</span>
     <span class="token comment">// 1.读取mybatis配置文件创SqlSessionFactory</span>
@@ -843,12 +894,7 @@
     <span class="token comment">// 1.读取mybatis配置文件创SqlSessionFactory</span>
     sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
     inputStream<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>进入new SqlSessionFactoryBuilder().build(inputStream)方法，我们看看parse的方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135635377.png"><div class="caption"><b class="center-caption">build方法</b></div>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031613571219.png"><div class="caption"><b class="center-caption">parse方法</b></div>
-<p>而我这里的mybatis-config.xml文件如下：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8" ?></span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>进入new SqlSessionFactoryBuilder().build(inputStream)方法，我们看看parse的方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135635377.png"><div class="caption"><b class="center-caption">build方法</b></div><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031613571219.png"><div class="caption"><b class="center-caption">parse方法</b></div><br>而我这里的mybatis-config.xml文件如下：<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token prolog">&lt;?xml version="1.0" encoding="UTF-8" ?></span>
 <span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">configuration</span> <span class="token name">PUBLIC</span> <span class="token string">"-//mybatis.org//DTD Config 3.0//EN"</span> <span class="token string">"http://mybatis.org/dtd/mybatis-3-config.dtd"</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>configuration</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>properties</span> <span class="token attr-name">resource</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>db.properties<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
@@ -900,11 +946,8 @@
         <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">resource</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlmapper/THealthReportFemaleMapper.xml<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
         <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">resource</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlmapper/THealthReportMaleMapper.xml<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mappers</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">></span></span>  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h1 id="二、XMLMapperBuilder"><a href="#二、XMLMapperBuilder" class="headerlink" title="二、XMLMapperBuilder"></a>二、XMLMapperBuilder</h1><p>对于parser.evalNode(“&#x2F;configuration”)，这里我就不赘述了，重点关注parseConfiguration里面的mapperElement()方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135924625.png"><div class="caption"><b class="center-caption">mapperElement()方法</b></div>
-<p>这个mapperElement()主要就是解析&lt;mappers&gt;标签下的内容. 这里贴出这个方法的源码，包含注释。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">></span></span>  <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="二、XMLMapperBuilder"><a href="#二、XMLMapperBuilder" class="headerlink" title="二、XMLMapperBuilder"></a>二、XMLMapperBuilder</h1><p>对于parser.evalNode(“/configuration”)，这里我就不赘述了，重点关注parseConfiguration里面的mapperElement()方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135924625.png"><div class="caption"><b class="center-caption">mapperElement()方法</b></div><br>这个mapperElement()主要就是解析\<mappers>标签下的内容. 这里贴出这个方法的源码，包含注释。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 解析mappers节点，例如：
   * &lt;mappers>
   *    &lt;mapper resource="com/github/yeecode/mybatisDemo/UserDao.xml"/>
@@ -951,10 +994,8 @@
        <span class="token punctuation">&#125;</span>
      <span class="token punctuation">&#125;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>for循环里的if主要是针对&lt;mappers&gt;标签下还有&lt;package&gt;标签的解析。而else则是针对&lt;mappers&gt;标签下还有&lt;mapper&gt;标签的解析。通常，我们的&lt;mapper&gt;会有三种形式，且resource、url、class这三个属性只有一个生效。</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 映射器 1使用类路径--></span>
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></mappers></p>
+<p>for循环里的if主要是针对\<mappers>标签下还有\<package>标签的解析。而else则是针对\<mappers>标签下还有\<mapper>标签的解析。通常，我们的\<mapper>会有三种形式，且resource、url、class这三个属性只有一个生效。<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 映射器 1使用类路径--></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mappers</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">resource</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org/mybatis/builder/AuthorMapper.xml<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">resource</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org/mybatis/builder/BlogMapper.xml<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
@@ -975,14 +1016,12 @@
 <span class="token comment">&lt;!-- 4自动扫描包下所有映射器 --></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mappers</span><span class="token punctuation">></span></span>
   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>package</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org.mybatis.builder<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mappers</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这里关注两个方法：</p>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mappers</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>这里关注两个方法：</mapper></mapper></mappers></package></mappers></p>
 <ul>
 <li>mapperParser.parse();</li>
 <li>configuration.addMapper(mapperInterface);</li>
 </ul>
-<p>它们最终的目的就是将映射器的class对象，以及其代理类设置到集合中，采用的是JDK代理。<br>我们先看addMapper()做了些啥。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//将mapper接口的工厂类添加到mapper注册中心</span>
+<p>它们最终的目的就是将映射器的class对象，以及其代理类设置到集合中，采用的是JDK代理。<br>我们先看addMapper()做了些啥。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//将mapper接口的工厂类添加到mapper注册中心</span>
 <span class="token keyword">public</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> <span class="token keyword">void</span> <span class="token function">addMapper</span><span class="token punctuation">(</span><span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> type<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token keyword">if</span> <span class="token punctuation">(</span>type<span class="token punctuation">.</span><span class="token function">isInterface</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
       <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">hasMapper</span><span class="token punctuation">(</span>type<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1005,10 +1044,8 @@
       <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
   <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>而XMLMapperBuilder的parse()方法：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>而XMLMapperBuilder的parse()方法：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//判断是否已经加载该配置文件</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>configuration<span class="token punctuation">.</span><span class="token function">isResourceLoaded</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token function">configurationElement</span><span class="token punctuation">(</span>parser<span class="token punctuation">.</span><span class="token function">evalNode</span><span class="token punctuation">(</span><span class="token string">"/mapper"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//处理mapper节点</span>
@@ -1021,9 +1058,7 @@
     <span class="token function">parsePendingCacheRefs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token comment">//处理解析失败的Sql语句节点</span>
     <span class="token function">parsePendingStatements</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>我们在看看MapperAnnotationBuilder的parse方法，该类主要是以注解的方式构建mapper，用的比较少。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>我们在看看MapperAnnotationBuilder的parse方法，该类主要是以注解的方式构建mapper，用的比较少。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 解析包含注解的接口文档
   */</span>
  <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1056,9 +1091,7 @@
    <span class="token punctuation">&#125;</span>
    <span class="token comment">// 处理异常的方法</span>
    <span class="token function">parsePendingMethods</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>关键看看parseStatement()方法，主要就是解析注解上的信息。再通过getSqlSourceFromAnnotations方法获取sqlSource.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>关键看看parseStatement()方法，主要就是解析注解上的信息。再通过getSqlSourceFromAnnotations方法获取sqlSource.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 解析该方法，主要是解析方法上的注解信息
   * @param method
   */</span>
@@ -1152,9 +1185,7 @@
          <span class="token comment">// ResultSets</span>
          options <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">?</span> <span class="token function">nullOrEmpty</span><span class="token punctuation">(</span>options<span class="token punctuation">.</span><span class="token function">resultSets</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>getSqlSourceFromAnnotations()方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>getSqlSourceFromAnnotations()方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 通过注解获取SqlSource对象
   * 
   * @param method 含有注解的方法
@@ -1189,15 +1220,13 @@
    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
      <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BuilderException</span><span class="token punctuation">(</span><span class="token string">"Could not find value method on SQL annotation.  Cause: "</span> <span class="token operator">+</span> e<span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>总结下解析mapper的parse()方法有两种方式：</p>
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>总结下解析mapper的parse()方法有两种方式：</p>
 <ul>
 <li>XMLMapperBuilder的parse方法</li>
 <li>MapperAnnotationBuilder的parse方法</li>
 </ul>
 <p>MapperAnnotationBuilder的parse方法与XMLMapperBuilder的parse方法逻辑上略有不同，主要体现在对节点的解析上。</p>
-<p>上面只是大致分析了*mapper.java与*mapper.xml映射注册的过程，由于我们的*mapper.xml还有很多其他的xml标签，这里我们需要具体了解下其中的解析流程。还是回到XMLMapperBuilder的parse()方法。<br>我们看看configurationElement()方法干了些啥。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<p>上面只是大致分析了*mapper.java与*mapper.xml映射注册的过程，由于我们的*mapper.xml还有很多其他的xml标签，这里我们需要具体了解下其中的解析流程。还是回到XMLMapperBuilder的parse()方法。<br>我们看看configurationElement()方法干了些啥。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 解析映射文件的下层节点
   * @param context 映射文件根节点
   */</span>
@@ -1225,17 +1254,14 @@
    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
      <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BuilderException</span><span class="token punctuation">(</span><span class="token string">"Error parsing Mapper XML. The XML location is '"</span> <span class="token operator">+</span> resource <span class="token operator">+</span> <span class="token string">"'. Cause: "</span> <span class="token operator">+</span> e<span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>重点关注这几个方法：</p>
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>重点关注这几个方法：</p>
 <ul>
-<li>cacheElement：解析&lt;cache&gt;，与二级缓存有关.</li>
-<li>resultMapElements：解析&lt;resultMap&gt;，结果集映射.</li>
-<li>sqlElement：解析sql节点&lt;sql&gt;.</li>
-<li>buildStatementFromContext：解析&lt;select&gt;、&lt;insert&gt;、&lt;update&gt;、&lt;delete&gt;节点.</li>
+<li>cacheElement：解析\<cache>，与二级缓存有关.</cache></li>
+<li>resultMapElements：解析\<resultMap>，结果集映射.</resultMap></li>
+<li>sqlElement：解析sql节点\<sql>.</sql></li>
+<li>buildStatementFromContext：解析\<select>、\<insert>、\<update>、\<delete>节点.</delete></update></insert></select></li>
 </ul>
-<p>而当前我们的UserInfoMapper如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316160708894.png"><div class="caption"><b class="center-caption">UserInfoMapper.xml</b></div>
-<p>接下来，我们关注buildStatementFromContext解析&lt;select&gt;、&lt;insert&gt;、&lt;update&gt;、&lt;delete&gt;标签的过程。主要就是看看XMLStatementBuilder是怎么干活儿的。</p>
+<p>而当前我们的UserInfoMapper如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316160708894.png"><div class="caption"><b class="center-caption">UserInfoMapper.xml</b></div><br>接下来，我们关注buildStatementFromContext解析\<select>、\<insert>、\<update>、\<delete>标签的过程。主要就是看看XMLStatementBuilder是怎么干活儿的。</delete></update></insert></select></p>
 <h1 id="三、XMLStatementBuilder"><a href="#三、XMLStatementBuilder" class="headerlink" title="三、XMLStatementBuilder"></a>三、XMLStatementBuilder</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//解析select、insert、update、delete节点</span>
 <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">buildStatementFromContext</span><span class="token punctuation">(</span><span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">XNode</span><span class="token punctuation">></span></span> list<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>configuration<span class="token punctuation">.</span><span class="token function">getDatabaseId</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1257,9 +1283,7 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>点进去看看parseStatementNode()方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parseStatementNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<p>点进去看看parseStatementNode()方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parseStatementNode</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//获取sql节点的id</span>
     <span class="token class-name">String</span> id <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getStringAttribute</span><span class="token punctuation">(</span><span class="token string">"id"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">String</span> databaseId <span class="token operator">=</span> context<span class="token punctuation">.</span><span class="token function">getStringAttribute</span><span class="token punctuation">(</span><span class="token string">"databaseId"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1330,19 +1354,15 @@
             fetchSize<span class="token punctuation">,</span> timeout<span class="token punctuation">,</span> parameterMap<span class="token punctuation">,</span> parameterTypeClass<span class="token punctuation">,</span> resultMap<span class="token punctuation">,</span> resultTypeClass<span class="token punctuation">,</span>
             resultSetTypeEnum<span class="token punctuation">,</span> flushCache<span class="token punctuation">,</span> useCache<span class="token punctuation">,</span> resultOrdered<span class="token punctuation">,</span>
             keyGenerator<span class="token punctuation">,</span> keyProperty<span class="token punctuation">,</span> keyColumn<span class="token punctuation">,</span> databaseId<span class="token punctuation">,</span> langDriver<span class="token punctuation">,</span> resultSets<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>总结下它干了哪些活儿：</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>总结下它干了哪些活儿：</p>
 <ul>
-<li>解析 &lt;include&gt; 节点</li>
-<li>解析 &lt;selectKey&gt; 节点</li>
+<li>解析 \<include> 节点</include></li>
+<li>解析 \<selectKey> 节点</selectKey></li>
 <li>解析 SQL，获取 SqlSource</li>
 <li>构建 MappedStatement 实例</li>
 </ul>
-<p>解析&lt;select&gt;、&lt;insert&gt;、&lt;update&gt;、&lt;delete&gt;这些标签的关键方法在这里</p>
-<pre class="line-numbers language-none"><code class="language-none">SqlSource sqlSource &#x3D; langDriver.createSqlSource(configuration, context, parameterTypeClass);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>看看这个方法的一般实现类XMLScriptBuilder.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+<p>解析\<select>、\<insert>、\<update>、\<delete>这些标签的关键方法在这里<br><pre class="line-numbers language-none"><code class="language-none">SqlSource sqlSource &#x3D; langDriver.createSqlSource(configuration, context, parameterTypeClass);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></delete></update></insert></select></p>
+<p>看看这个方法的一般实现类XMLScriptBuilder.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token comment">//解析xml文件中的sql语句并封装成SqlSource</span>
 <span class="token keyword">public</span> <span class="token class-name">SqlSource</span> <span class="token function">createSqlSource</span><span class="token punctuation">(</span><span class="token class-name">Configuration</span> configuration<span class="token punctuation">,</span> <span class="token class-name">XNode</span> script<span class="token punctuation">,</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> parameterType<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token class-name">XMLScriptBuilder</span> builder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLScriptBuilder</span><span class="token punctuation">(</span>configuration<span class="token punctuation">,</span> script<span class="token punctuation">,</span> parameterType<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1360,23 +1380,9 @@
   <span class="token punctuation">&#125;</span>
   <span class="token comment">//实际返回的都是StaticSqlSource，可以直接让数据库执行的sql语句，包含?占位符</span>
   <span class="token keyword">return</span> sqlSource<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>方法<code>parseDynamicTags()</code>就是真正去解析sql语句的淫儿了。当执行<code>createSqlSource()</code>方法中的<code>new XMLScriptBuilder(configuration, script, parameterType)</code>时，我们看下，它初始化了些什么东东。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316174946741.png"><div class="caption"><b class="center-caption">XMLScriptBuilder构造方法</b></div>
-<p>可以看到关键的部分，对于不同的标签，比如&lt;trim&gt;、&lt;where&gt;等，都有不同的处理策略。在执行parseDynamicTags()时，会判断节点是否包含一些动态标记，比如 ${} 占位符以及动态 SQL 节点等。若包含动态标记，则会将 isDynamic 设为 true。后续可根据 isDynamic 创建不同的 SqlSource。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210703601.png"><div class="caption"><b class="center-caption">SqlSource</b></div>
-
-<p>通常，我们在xml内写sql都是片段的去编写，主要语句写完了，还会有些动态标签包裹的语句，对于mybatis来说，每个片段都会解析成为一个sqlNode存起来，我们先来回忆一下sqlNode有哪些实现类。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210642589.png"><div class="caption"><b class="center-caption">sqlNode实现类</b></div>
-<p>这些 SqlNode 是如何生成的呢？我们看看<code>parseDynamicTags()</code>中的这段代码：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">handler<span class="token punctuation">.</span><span class="token function">handleNode</span><span class="token punctuation">(</span>child<span class="token punctuation">,</span> contents<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>它有很多个实现。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316180045568.png"><div class="caption"><b class="center-caption">handleNode的那些实现</b></div>
-<p>到此 SQL 语句的解析过程搞完了。但我们只是完成了xml解析为sqlSource的流程，而一般sql语句还会有一些附加属性，需要mybatis去解析出来，封装至MappedStatement当中，最终还要把它注册到configuration。回到XMLStatementBuilder的parseStatementNode()方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031618090324.png"><div class="caption"><b class="center-caption">parseStatementNode()</b></div>
-<p>具体方法实现：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//添加MappedStatement对象</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>方法<code>parseDynamicTags()</code>就是真正去解析sql语句的淫儿了。当执行<code>createSqlSource()</code>方法中的<code>new XMLScriptBuilder(configuration, script, parameterType)</code>时，我们看下，它初始化了些什么东东。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316174946741.png"><div class="caption"><b class="center-caption">XMLScriptBuilder构造方法</b></div><br>可以看到关键的部分，对于不同的标签，比如\<trim>、\<where>等，都有不同的处理策略。在执行parseDynamicTags()时，会判断节点是否包含一些动态标记，比如 ${} 占位符以及动态 SQL 节点等。若包含动态标记，则会将 isDynamic 设为 true。后续可根据 isDynamic 创建不同的 SqlSource。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210703601.png"><div class="caption"><b class="center-caption">SqlSource</b></div></where></trim></p>
+<p>通常，我们在xml内写sql都是片段的去编写，主要语句写完了，还会有些动态标签包裹的语句，对于mybatis来说，每个片段都会解析成为一个sqlNode存起来，我们先来回忆一下sqlNode有哪些实现类。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210642589.png"><div class="caption"><b class="center-caption">sqlNode实现类</b></div><br>这些 SqlNode 是如何生成的呢？我们看看<code>parseDynamicTags()</code>中的这段代码：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java">handler<span class="token punctuation">.</span><span class="token function">handleNode</span><span class="token punctuation">(</span>child<span class="token punctuation">,</span> contents<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>它有很多个实现。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316180045568.png"><div class="caption"><b class="center-caption">handleNode的那些实现</b></div><br>到此 SQL 语句的解析过程搞完了。但我们只是完成了xml解析为sqlSource的流程，而一般sql语句还会有一些附加属性，需要mybatis去解析出来，封装至MappedStatement当中，最终还要把它注册到configuration。回到XMLStatementBuilder的parseStatementNode()方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031618090324.png"><div class="caption"><b class="center-caption">parseStatementNode()</b></div><br>具体方法实现：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//添加MappedStatement对象</span>
 <span class="token keyword">public</span> <span class="token class-name">MappedStatement</span> <span class="token function">addMappedStatement</span><span class="token punctuation">(</span>
     <span class="token class-name">String</span> id<span class="token punctuation">,</span>
     <span class="token class-name">SqlSource</span> sqlSource<span class="token punctuation">,</span>
@@ -1434,11 +1440,9 @@
   <span class="token comment">//将mappedStatment注册到configuration</span>
   configuration<span class="token punctuation">.</span><span class="token function">addMappedStatement</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token keyword">return</span> statement<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>以上就是生成MappedStatement的过程。但是还没完，*mapper.java还没有和*mapper.xml对应的sql绑定起来。接下来就是绑定过程了。</p>
-<h1 id="四、Mapper-接口绑定"><a href="#四、Mapper-接口绑定" class="headerlink" title="四、Mapper 接口绑定"></a>四、Mapper 接口绑定</h1><p>返回到XMLMapperBuilder的parse()方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<h1 id="四、Mapper-接口绑定"><a href="#四、Mapper-接口绑定" class="headerlink" title="四、Mapper 接口绑定"></a>四、Mapper 接口绑定</h1><p>返回到XMLMapperBuilder的parse()方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
    <span class="token comment">//判断是否已经加载该配置文件</span>
    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>configuration<span class="token punctuation">.</span><span class="token function">isResourceLoaded</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
        <span class="token function">configurationElement</span><span class="token punctuation">(</span>parser<span class="token punctuation">.</span><span class="token function">evalNode</span><span class="token punctuation">(</span><span class="token string">"/mapper"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">//处理mapper节点</span>
@@ -1451,10 +1455,8 @@
    <span class="token function">parsePendingCacheRefs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token comment">//处理解析失败的Sql语句节点</span>
    <span class="token function">parsePendingStatements</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>主要关注这个方法bindMapperForNamespace().</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//注册mapper接口</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>主要关注这个方法bindMapperForNamespace().<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//注册mapper接口</span>
 <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">bindMapperForNamespace</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//获取命名空间</span>
     <span class="token class-name">String</span> namespace <span class="token operator">=</span> builderAssistant<span class="token punctuation">.</span><span class="token function">getCurrentNamespace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1478,18 +1480,14 @@
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>绑定完正常的节点后，还要处理一些不正常的。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//处理解析失败的ResultMap节点</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>绑定完正常的节点后，还要处理一些不正常的。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//处理解析失败的ResultMap节点</span>
 <span class="token function">parsePendingResultMaps</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">//处理解析失败的CacheRef节点</span>
 <span class="token function">parsePendingCacheRefs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">//处理解析失败的Sql语句节点</span>
-<span class="token function">parsePendingStatements</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>比如这种cacheRef标签</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 映射文件1 --></span>
+<span class="token function">parsePendingStatements</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>比如这种cacheRef标签<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- 映射文件1 --></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.dao.Mapper1<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
     <span class="token comment">&lt;!-- 引用映射文件2中配置的缓存 --></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>cache-ref</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.dao.Mapper2<span class="token punctuation">"</span></span><span class="token punctuation">/></span></span>
@@ -1499,8 +1497,7 @@
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>mapper</span> <span class="token attr-name">namespace</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.dao.Mapper2<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>cache</span><span class="token punctuation">/></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>mapper</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>Game over.</p>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>Game over.</p>
 
                 
             </div>
@@ -2203,7 +2200,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2466,6 +2463,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

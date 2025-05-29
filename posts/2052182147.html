@@ -67,7 +67,7 @@ Protocol Buffer目前有两个版本：proto2和proto3
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -185,7 +185,7 @@ Protocol Buffer目前有两个版本：proto2和proto3
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -261,6 +261,15 @@ Protocol Buffer目前有两个版本：proto2和proto3
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -283,6 +292,24 @@ Protocol Buffer目前有两个版本：proto2和proto3
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -463,7 +490,7 @@ Protocol Buffer目前有两个版本：proto2和proto3
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -547,6 +574,16 @@ Protocol Buffer目前有两个版本：proto2和proto3
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -569,6 +606,26 @@ Protocol Buffer目前有两个版本：proto2和proto3
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -853,7 +910,7 @@ Protocol Buffer目前有两个版本：proto2和proto3
 <p>在 <code>proto2</code> 中，可以使用 <code>default</code> 选项为某一字段指定<code>默认值</code>。在 <code>proto3</code> 中，字段的默认值只能根据字段类型由<code>系统决定</code>。也就是说，默认值全部是约定好的，而不再提供指定默认值的语法。</p>
 <p>在字段被设置为默认值的时候，该字段不会被序列化。这样可以节省空间，提高效率。但这样就无法区分某字段是根本没赋值，还是赋值了默认值。这在 <code>proto3</code> 中问题不大，但在 <code>proto2</code> 中会有问题。</p>
 <p>比如，在更新协议的时候使用 <code>default</code> 选项为某个字段指定了一个与原来不同的默认值，旧代码获取到的该字段的值会与新代码不一样。</p>
-<p>另一个重约定而弱语法的例子是<code>go</code>语言里的公共&#x2F;私有对象。Go 语言约定，首字母大写的为公共对象，否则为私有对象。所以在 Go 语言中是没有 <code>public</code>、<code>private</code> 这样的语法的。</p>
+<p>另一个重约定而弱语法的例子是<code>go</code>语言里的公共/私有对象。Go 语言约定，首字母大写的为公共对象，否则为私有对象。所以在 Go 语言中是没有 <code>public</code>、<code>private</code> 这样的语法的。</p>
 <ul>
 <li>枚举类型的第一个字段必须为 0 ；<br>这也是一个约定。</li>
 <li>移除了对分组的支持；</li>
@@ -873,14 +930,13 @@ Protocol Buffer目前有两个版本：proto2和proto3
 <li>增加了 <code>JSON</code> 映射特性；</li>
 </ul>
 <p>语言的活力来自于与时俱进。当前，<code>JSON</code>的流行有其充分的理由。很多『现代化』的语言都内置了对<code>JSON</code>的支持，比如<code>Go</code>、<code>PHP</code>等。而<code>C++</code>这种看似保罗万象的学院派语言，因循守旧、故步自封，以致于现出了式微的苗头。</p>
-<h1 id="2-作用"><a href="#2-作用" class="headerlink" title="2 作用"></a>2 作用</h1><p>通过将<code>结构化的数据</code>进行<code>串行化</code>（序列化），从而实现<code>数据存储</code>&#x2F;<code>RPC</code>数据交换的功能</p>
+<h1 id="2-作用"><a href="#2-作用" class="headerlink" title="2 作用"></a>2 作用</h1><p>通过将<code>结构化的数据</code>进行<code>串行化</code>（序列化），从而实现<code>数据存储</code>/<code>RPC</code>数据交换的功能</p>
 <ul>
 <li>序列化：将<code>数据结构或对象</code>转换成<code>二进制串</code>的过程；</li>
 <li>反序列化：将在序列化过程中所生成的<code>二进制串</code>转换成<code>数据结构或者对象</code>的过程。</li>
 </ul>
 <h2 id="2-1-优点"><a href="#2-1-优点" class="headerlink" title="2.1 优点"></a>2.1 优点</h2><ul>
-<li><p>性能方面</p>
-<ul>
+<li>性能方面<ul>
 <li>体积小：序列化后，数据大小可縮小约3倍</li>
 <li>序列化遮度快：比<code>XML</code>和<code>JSON</code>快20~100倍</li>
 <li>传输速度快：因为体积小，传输起来带宽和速度会有优化</li>
@@ -914,13 +970,11 @@ Protocol Buffer目前有两个版本：proto2和proto3
 <p><code>protocol Buffer</code>比<code>XML</code>、 <code>Json</code>更小、更快、使用且维护更简单。</p>
 </blockquote>
 <h1 id="3-应用场景"><a href="#3-应用场景" class="headerlink" title="3 应用场景"></a>3 应用场景</h1><p><code>传输数据量大</code>且<code>网络环境不稳定</code>的数据存储、RPC 数据交换的需求场景。如<code>即时IM</code>（QQ、微信）的需求场景。</p>
-<h1 id="4-各个语言标量类型对应关系"><a href="#4-各个语言标量类型对应关系" class="headerlink" title="4 各个语言标量类型对应关系"></a>4 各个语言标量类型对应关系</h1><p><img src="https://img.halfrost.com/Blog/ArticleImage/84_3.png" alt="各语言字段类型与PB对应关系"></p>
-<pre class="line-numbers language-text" data-language="text"><code class="language-text">[1] 在 Java 中，无符号的 32 位和 64 位整数使用对应带符号的表示方法，最高位存储符号位。
+<h1 id="4-各个语言标量类型对应关系"><a href="#4-各个语言标量类型对应关系" class="headerlink" title="4 各个语言标量类型对应关系"></a>4 各个语言标量类型对应关系</h1><p><img src="https://img.halfrost.com/Blog/ArticleImage/84_3.png" alt="各语言字段类型与PB对应关系"><br><pre class="line-numbers language-text" data-language="text"><code class="language-text">[1] 在 Java 中，无符号的 32 位和 64 位整数使用对应带符号的表示方法，最高位存储符号位。
 [2] 在所有情况下，给一个字段设置一个值的时候都会执行类型检查以确保其有效。
 [3] 64 位或无符号 32 位整数在解码时始终表示为 long，但是如果在设置字段的时候设置了 int，则可以为 int。 在所有情况下，该值都必须符合设置时表示的类型。参见[2]。
 [4] Python 字符串在解码时表示为 unicode，但如果给出了 ASCII 字符串，则可以为 str（此字符串可能会发生变化）。
-[5] 在 64 位计算机上使用 Integer，在 32 位计算机上使用 string。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+[5] 在 64 位计算机上使用 Integer，在 32 位计算机上使用 string。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="5-Protocol-Buffer-编码原理"><a href="#5-Protocol-Buffer-编码原理" class="headerlink" title="5 Protocol Buffer 编码原理"></a>5 Protocol Buffer 编码原理</h1><p>先给出以下三个结论：</p>
 <ul>
 <li><code>Protocol Buffer</code>将消息里的每个字段进行编码后，再利用<code>T - L - V</code>存储方式进行数据的存储，最终得到的是一个<code>二进制字节流</code>。其中<code>Length</code>可选存储，如储存<code>Varint编码</code>数据就不需要存储Length；</li>
@@ -975,7 +1029,8 @@ Protocol Buffer目前有两个版本：proto2和proto3
       WIRETYPE_FIXED32 <span class="token operator">=</span> <span class="token number">5</span>
    <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
 
-// 从上面可以看出，【wire_type】最多占用【3位】的内存空间（因为3位足以表示 <span class="token number">0</span>-5 的二进制）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+// 从上面可以看出，【wire_type】最多占用【3位】的内存空间（因为3位足以表示 <span class="token number">0</span>-5 的二进制）<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <h2 id="5-1-无符号数"><a href="#5-1-无符号数" class="headerlink" title="5.1 无符号数"></a>5.1 无符号数</h2><h3 id="5-1-1-Varint编码方式介绍"><a href="#5-1-1-Varint编码方式介绍" class="headerlink" title="5.1.1 Varint编码方式介绍"></a>5.1.1 <code>Varint</code>编码方式介绍</h3><ul>
 <li>定义：一种<code>变长</code>的编码方式</li>
@@ -1001,7 +1056,8 @@ Protocol Buffer目前有两个版本：proto2和proto3
       <span class="token comment">// 步骤3： 将上述形成的每个字节 按序拼接 成一个字节串</span>
       <span class="token comment">// 即该字节串就是经过Varint编码后的字节</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <p><code>Varint</code>中的每个字节（最后一个字节除外）都设置了<code>最高有效位</code>（msb），这一位表示还会有更多字节出现。每个字节的低 7 位用于以 7 位组的形式存储数字的二进制补码表示，最低有效组首位。</p>
 <p>因此：</p>
@@ -1009,16 +1065,14 @@ Protocol Buffer目前有两个版本：proto2和proto3
 <li>小于 128 的数字都可以用 1个字节 表示；</li>
 <li>大于 128 的数字，比如 <code>300</code>，会用两个字节来表示：<code>10101100 00000010</code></li>
 </ul>
-<h3 id="5-1-2-编码"><a href="#5-1-2-编码" class="headerlink" title="5.1.2 编码"></a>5.1.2 编码</h3><p>以 <code>300</code> 举例：</p>
-<pre class="line-numbers language-C" data-language="C"><code class="language-C">if (v &lt; (1&lt;&lt;14)) &#123;
+<h3 id="5-1-2-编码"><a href="#5-1-2-编码" class="headerlink" title="5.1.2 编码"></a>5.1.2 编码</h3><p>以 <code>300</code> 举例：<br><pre class="line-numbers language-C" data-language="C"><code class="language-C">if (v &lt; (1&lt;&lt;14)) &#123;
 *(ptr++) &#x3D; v | B;
 *(ptr++) &#x3D; v&gt;&gt;7;
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
 <ul>
-<li>100101100 | 10000000 &#x3D; 1 1010 1100</li>
-<li>110101100 取出末尾 7 位 &#x3D; 010 1100</li>
-<li>100101100 &gt;&gt; 7 &#x3D; 10 &#x3D; 0000 0010</li>
+<li>100101100 | 10000000 = 1 1010 1100</li>
+<li>110101100 取出末尾 7 位 = 010 1100</li>
+<li>100101100 &gt;&gt; 7 = 10 = 0000 0010</li>
 <li>1010 1100 0000 0010 (最终 Varint 结果)</li>
 </ul>
 <p>两个字节就搞定<code>300</code>的编码。</p>
@@ -1027,11 +1081,10 @@ Protocol Buffer目前有两个版本：proto2和proto3
 <li>逆序整个结果，最多是 5 个字节，排序是 1-2-3-4-5，逆序之后就是 5-4-3-2-1，字节内部的二进制位的顺序不变，变的是字节的相对位置。</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-2c08dd56bfe0cba5.png"><div class="caption"><b class="center-caption">300的解码过程</b></div>
-
 <h3 id="5-1-4-Varint-编码方式的不足"><a href="#5-1-4-Varint-编码方式的不足" class="headerlink" title="5.1.4 Varint 编码方式的不足"></a>5.1.4 Varint 编码方式的不足</h3><p>在计算机内，负数一般会被表示为很大的整数，因为计算机定义<code>负数</code>的符号位为数字的<code>最高位</code>。</p>
 <ul>
 <li>问题：如果采用<code>Varint编码</code>方式表示一个<code>负数</code>，那么一定需要 5 个 byte（因为负数的最高位是1，会被当做很大的整数去处理）</li>
-<li>解决方案： <code>Protocol Buffer</code>定义了 <code>sint32</code> &#x2F; <code>sint64</code> 类型表示<code>负数</code>，通过先采用<code>Zigzag 编码</code>（将<code>有符号数</code>转换成<code>无符号数</code>），再采用<code>Varint编码</code>，从而用于减少编码后的字节数。</li>
+<li>解决方案： <code>Protocol Buffer</code>定义了 <code>sint32</code> / <code>sint64</code> 类型表示<code>负数</code>，通过先采用<code>Zigzag 编码</code>（将<code>有符号数</code>转换成<code>无符号数</code>），再采用<code>Varint编码</code>，从而用于减少编码后的字节数。</li>
 </ul>
 <h3 id="5-1-5-存储方式"><a href="#5-1-5-存储方式" class="headerlink" title="5.1.5 存储方式"></a>5.1.5 存储方式</h3><p>存储方式：<code>T - V</code></p>
 <h2 id="5-2-有符号数"><a href="#5-2-有符号数" class="headerlink" title="5.2 有符号数"></a>5.2 有符号数</h2><h3 id="5-2-1-Zigzag编码方式"><a href="#5-2-1-Zigzag编码方式" class="headerlink" title="5.2.1 Zigzag编码方式"></a>5.2.1 <code>Zigzag</code>编码方式</h3><ul>
@@ -1060,16 +1113,15 @@ public int zigzag_to_int(int n)
 &#123;
 return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 &#x2F;&#x2F; 右移时，需要用不带符号的移动，否则如果第一位数据位是1的话，就会补1
-&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+&#125;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
-<p>以<code>-2</code>进行编码为例：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-0809177f42d0e362.png"><div class="caption"><b class="center-caption">-2的zigzag编码过程</b></div>
-
+<p>以<code>-2</code>进行编码为例：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-0809177f42d0e362.png"><div class="caption"><b class="center-caption">-2的zigzag编码过程</b></div></p>
 <h3 id="5-2-2-存储方式"><a href="#5-2-2-存储方式" class="headerlink" title="5.2.2 存储方式"></a>5.2.2 存储方式</h3><p>存储方式：<code>T - V</code></p>
 <h2 id="5-3-定长数"><a href="#5-3-定长数" class="headerlink" title="5.3 定长数"></a>5.3 定长数</h2><p><code>double</code> 、<code>fixed64</code> 的 wire_type 为 1，在解析时告诉解析器，该类型的数据需要一个 <code>64 位</code>大小的数据块即可。</p>
 <p>同理，<code>float</code> 和 <code>fixed32</code> 的 wire_type 为5，给其 32 位数据块即可。两种情况下，都是高位在后，低位在前。</p>
 <ul>
-<li><code>64(32)-bit</code>编码方式较简单：编码后的数据具备固定大小 &#x3D; 64位（8字节）or 32位（4字节）</li>
+<li><code>64(32)-bit</code>编码方式较简单：编码后的数据具备固定大小 = 64位（8字节）or 32位（4字节）</li>
 <li>采用<code>T - V</code>方式进行数据存储。<blockquote>
 <p>说 <code>Protocol Buffer</code> 压缩数据没有到极限，原因就在这里，因为并没有压缩 <code>float</code>、<code>double</code> 这些浮点类型。</p>
 </blockquote>
@@ -1077,8 +1129,7 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 </ul>
 <h2 id="5-4-String类型"><a href="#5-4-String类型" class="headerlink" title="5.4 String类型"></a>5.4 String类型</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/PB-String3.png"><div class="caption"><b class="center-caption">String类型编码方式</b></div>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/PB-String2.png"><div class="caption"><b class="center-caption">String类型存储方式</b></div>
-<p><code>Value</code>采用<code>UTF-8</code>编码，存储方式则采用<code>T-L-V</code>，比如：</p>
-<pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test2</span>
+<p><code>Value</code>采用<code>UTF-8</code>编码，存储方式则采用<code>T-L-V</code>，比如：<br><pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test2</span>
 <span class="token punctuation">&#123;</span>
     <span class="token keyword">required</span> <span class="token builtin">string</span> str <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
@@ -1089,14 +1140,10 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 <span class="token comment">// 经过protobuf编码序列化后的数据以二进制的方式输出</span>
 <span class="token comment">// 输出为：18, 7, 116, 101, 115, 116, 105, 110, 103</span>
 
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/PB-String.png"><div class="caption"><b class="center-caption">String类型编码举例</b></div>
-
 <h2 id="5-5-嵌套消息类型"><a href="#5-5-嵌套消息类型" class="headerlink" title="5.5 嵌套消息类型"></a>5.5 嵌套消息类型</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-6eafc7964085f380.png"><div class="caption"><b class="center-caption">嵌套类型的编码和存储方式</b></div>
-
-<p>定义如下嵌套消息：</p>
-<pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test2</span>
+<p>定义如下嵌套消息：<br><pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test2</span>
 <span class="token punctuation">&#123;</span>
   <span class="token comment">// wire type = 2，field_number =2 </span>
   <span class="token keyword">required</span> <span class="token builtin">string</span> str <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
@@ -1110,28 +1157,21 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 
 <span class="token comment">// 将Test2中的字段str设置为：testing</span>
 <span class="token comment">// 将Test2中的字段id1设置为：296</span>
-<span class="token comment">// 编码后的字节为：10 ，12 ，18，7，116, 101, 115, 116, 105, 110, 103，16，-88，2</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-8a8bab1a3a427f25.png"><div class="caption"><b class="center-caption">举例</b></div>
-
+<span class="token comment">// 编码后的字节为：10 ，12 ，18，7，116, 101, 115, 116, 105, 110, 103，16，-88，2</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-8a8bab1a3a427f25.png"><div class="caption"><b class="center-caption">举例</b></div></p>
 <h2 id="5-6-通过packed修饰的-repeat-字段"><a href="#5-6-通过packed修饰的-repeat-字段" class="headerlink" title="5.6 通过packed修饰的 repeat 字段"></a>5.6 通过packed修饰的 repeat 字段</h2><blockquote>
-<p>repeated类型可以看成是数组&#x2F;列表</p>
+<p>repeated类型可以看成是数组/列表</p>
 </blockquote>
 <ul>
 <li><p>背景：对于同一个<code>repeated</code>字段、多个字段值来说，他们的<code>Tag</code>都是相同的，即<code>数据类型</code> &amp; <code>标识号</code>都相同;</p>
 </li>
-<li><p>问题：若以传统的多个 <code>T - V</code>对存储（不带packed&#x3D;true），则会导致<code>Tag</code>的冗余，即相同的Tag存储多次；</p>
+<li><p>问题：若以传统的多个 <code>T - V</code>对存储（不带packed=true），则会导致<code>Tag</code>的冗余，即相同的Tag存储多次；</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/PB-without-pack.jpg"><div class="caption"><b class="center-caption">不带pack的存储方式</b></div></li>
-<li><p>解决方案：采用带packed&#x3D;true 的 repeated 字段存储方式，即将相同的 Tag 只存储一次、添加 <code>repeated</code> 字段下所有字段值的长度<code>Length</code>、连续存储 <code>repeated</code> 字段值，组成一个大的<code>Tag - Length - Value -Value -Value</code>对，即<code>T - L - V - V - V</code>对。</p>
-</li>
+<li>解决方案：采用带packed=true 的 repeated 字段存储方式，即将相同的 Tag 只存储一次、添加 <code>repeated</code> 字段下所有字段值的长度<code>Length</code>、连续存储 <code>repeated</code> 字段值，组成一个大的<code>Tag - Length - Value -Value -Value</code>对，即<code>T - L - V - V - V</code>对。</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/944365-3f82002508a4f880.png"><div class="caption"><b class="center-caption">带pack的存储方式</b></div>
-
-<p>例如有如下 message 类型：</p>
-<pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test4</span> <span class="token punctuation">&#123;</span>
+<p>例如有如下 message 类型：<br><pre class="line-numbers language-protobuf" data-language="protobuf"><code class="language-protobuf"><span class="token keyword">message</span> <span class="token class-name">Test4</span> <span class="token punctuation">&#123;</span>
 <span class="token keyword">repeated</span> <span class="token builtin">int32</span> d <span class="token operator">=</span> <span class="token number">4</span> <span class="token punctuation">[</span><span class="token annotation">packed</span><span class="token operator">=</span><span class="token boolean">true</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>构造一个 <code>Test4</code> 字段，并且设置 <code>repeated</code> 字段 <code>d</code> 3个值：3，270和86942，编码后：</p>
-<pre class="line-numbers language-C" data-language="C"><code class="language-C">22 &#x2F;&#x2F; tag 0010 0010(field number 010 0 &#x3D; 4, wire type 010 &#x3D; 2)
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><br>构造一个 <code>Test4</code> 字段，并且设置 <code>repeated</code> 字段 <code>d</code> 3个值：3，270和86942，编码后：<br><pre class="line-numbers language-C" data-language="C"><code class="language-C">22 &#x2F;&#x2F; tag 0010 0010(field number 010 0 &#x3D; 4, wire type 010 &#x3D; 2)
 
 06 &#x2F;&#x2F; payload size (设置的length &#x3D; 6 bytes)
 
@@ -1139,8 +1179,7 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 
 8E 02 &#x2F;&#x2F; second element (varint 270)
 
-9E A7 05 &#x2F;&#x2F; third element (varint 86942)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+9E A7 05 &#x2F;&#x2F; third element (varint 86942)<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <blockquote>
 <p>特别注意</p>
 <ul>
@@ -1826,7 +1865,7 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1844,7 +1883,7 @@ return(n &gt;&gt;&gt; 1) ^ -(n &amp; 1);
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2107,6 +2146,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

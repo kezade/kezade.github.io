@@ -63,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -859,9 +916,7 @@
 <p>引用计数算法的实现简单，判定效率也很高，在大部分情况下它都是一个不错的算法。但是主流的 Java 虚拟机里没有选用<code>引用计数算法</code>来管理内存，主要是因为它<strong>很难解决对象之间循环引用的问题</strong>。</p>
 </blockquote>
 <h2 id="2-3-可达性分析法"><a href="#2-3-可达性分析法" class="headerlink" title="2.3 可达性分析法"></a>2.3 可达性分析法</h2><p>基本思路就是通过一系列称为<code>GC Roots</code>的<code>根对象</code>作为起始节点集，从这些节点开始，根据引用关系<code>向下搜索</code>，搜索过程所走过的路径称为<code>引用链</code>(Reference Chain)，如果某个对象到<code>GC Roots</code>间<strong>没有任何引用链相连</strong>， 或者用图论的话来说就是从<code>GC Roots</code>到这个对象<code>不可达</code>时，则证明此对象是不可能再被使用的。</p>
-<p>如图3-1所示，对象<code>object 5</code>、<code>object 6</code>、<code>object 7</code>虽然互有关联，但是它们到<code>GC Roots</code>是不可达的， 因此它们将会被判定为可回收的对象。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Reachability-Analysis.png"><div class="caption"><b class="center-caption">利用可达性分析算法判定对象是否可回收</b></div>
-
+<p>如图3-1所示，对象<code>object 5</code>、<code>object 6</code>、<code>object 7</code>虽然互有关联，但是它们到<code>GC Roots</code>是不可达的， 因此它们将会被判定为可回收的对象。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Reachability-Analysis.png"><div class="caption"><b class="center-caption">利用可达性分析算法判定对象是否可回收</b></div></p>
 <blockquote>
 <p><code>GC Roots</code> 的<code>对象</code>包括下面几种(<strong>重点是前面 4 种</strong>)：</p>
 <ul>
@@ -874,8 +929,6 @@
 <li>JVM内部的<code>JMXBean</code>、<code>JVMTI</code>中注册的回调、本地代码缓存等。</li>
 <li>JVM实现中的<code>临时性</code>对象，<code>跨代引用的对象</code>。</li>
 </ul>
-</blockquote>
-<blockquote>
 <p>Tips：<br>以上的回收都是<code>对象</code>，对于<code>类的回收条件</code>，请注意 Class 要被回收，条件比较苛刻，必须同时满足以下的条件(仅仅是可以，不代表必然，因为还有一些参数可以进行控制)： </p>
 <ul>
 <li>该类所有的实例都已经被回收，也就是堆中不存在该类的任何实例。</li>
@@ -883,16 +936,13 @@
 <li>该类对应的 <code>java.lang.Class 对象</code>没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。 </li>
 <li>参数控制：<code>-Xnoclassgc</code>，禁用类的垃圾回收。</li>
 </ul>
-</blockquote>
-<blockquote>
 <p><code>废弃的常量和静态变量的回收</code>其实就和 <code>Class 回收</code>的条件差不多。比如常量池中<code>字面量回收</code>的例子，只要常量池中的常量不被任何变量或对象<code>引用</code>，那么这些常量就会被清除掉。如，一个字符串 “bingo” 进入了常量池，但是当前系统没有任何一个 <code>String 对象</code>引用常量池中的 “bingo” 常量，也没有其它地方引用这个字面量，必要的话，”bingo”常量会被清理出常量池。</p>
 </blockquote>
 <h2 id="2-4-回收堆中无效的对象"><a href="#2-4-回收堆中无效的对象" class="headerlink" title="2.4 回收堆中无效的对象"></a>2.4 回收堆中无效的对象</h2><p>可达性分析算法中判定为<code>不可达的对象</code>，也不是<code>非死不可</code>的。</p>
 <p>它还会处于<code>缓刑</code>阶段，真正要宣告一个对象死亡，需要经过<code>两次标记</code>过程，一次是没有找到与 GCRoots 的引用链，它将被第一次标记。随后进行一次筛选(如果对象覆盖了 finalize)，我们可以在 finalize 中去拯救。</p>
 <p>比如：在执行 <code>finalize()</code> 方法时，将 <code>this</code> 赋给了某一个引用，那么该对象就<code>重生</code>了。如果没有，那么就会被垃圾收集器<code>清除</code>。</p>
 <p>如果这个对象被判定为确有必要执行<code>finalize()</code>方法，那么该对象将会被放置在一个名为<code>F-Queue</code>的<code>队列</code>之中，并在稍后由一条由虚拟机自动建立的、低调度优先级的<code>Finalizer线程</code>去执行它们的<code>finalize()</code>方法。这里所说的“执行”是指虚拟机会触发这个方法开始运行，但并不承诺一定会等待它运行结束。</p>
-<p>代码演示<code>拯救对象</code>，“你，只有一次机会”：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FinalizeGC</span> <span class="token punctuation">&#123;</span>
+<p>代码演示<code>拯救对象</code>，“你，只有一次机会”：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FinalizeGC</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">FinalizeGC</span> instance <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
 
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">isAlive</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -927,15 +977,11 @@
             <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"I am dead! "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>运行结果：</p>
-<pre class="line-numbers language-none"><code class="language-none">finalize method executed! 
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>运行结果：<br><pre class="line-numbers language-none"><code class="language-none">finalize method executed! 
 I am still alive!
-I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
+I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
 <p>可以看到，对象可以被拯救一次(<code>finalize</code> 执行第一次，但是<strong>不会</strong>执行第二次)。</p>
-<p>代码改一下，再来一次：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FinalizeGC</span> <span class="token punctuation">&#123;</span>
+<p>代码改一下，再来一次：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">FinalizeGC</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">FinalizeGC</span> instance <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
 
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">isAlive</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -970,18 +1016,13 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
             <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"I am dead! "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>运行结果：</p>
-<pre class="line-numbers language-none"><code class="language-none">I am dead!
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>运行结果：<br><pre class="line-numbers language-none"><code class="language-none">I am dead!
 finalize method executed! 
-I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
+I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
 <p>对象没有被拯救，这个就是 <code>finalize</code> 方法执行缓慢，<strong>还没有完成拯救，垃圾收集器就已经回收掉了</strong>。</p>
 <blockquote>
 <p>所以建议大家尽量不要使用 <code>finalize</code>，因为这个方法<code>太不可靠</code>。在生产中你很难控制方法的执行或者对象的调用顺序，建议大家忘了 <code>finalize 方法</code>！因为在 <code>finalize 方法</code>能做的工作，java 中有更好的，比如 <code>try-finally</code> 或者其他方式可以做得更好。</p>
-</blockquote>
-<blockquote>
 <p><code>System.gc();</code>只做测试，千万不要在实际生产中使用。不然，后果自负！ </p>
 </blockquote>
 <h1 id="3-回收算法"><a href="#3-回收算法" class="headerlink" title="3 回收算法"></a>3 回收算法</h1><p>学会了如何判定无效对象、无用类、废弃常量之后，剩余工作就是回收这些垃圾。常见的垃圾收集算法有以下几个：</p>
@@ -993,9 +1034,7 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <li>空间问题：标记清除之后会产生大量<code>不连续的内存碎片</code>，碎片太多可能导致以后需要分配较大对象时，无法找到足够的连续内存而不得不提前触发另一次垃圾收集动作。</li>
 </ul>
 <h2 id="3-2-标记-复制算法"><a href="#3-2-标记-复制算法" class="headerlink" title="3.2 标记-复制算法"></a>3.2 标记-复制算法</h2><p>常被简称为<code>复制算法</code>。</p>
-<p>为了解决<code>效率问题</code>，“复制”收集算法出现了。它将可用内存按<code>容量</code>划分为<strong>大小相等的两块</strong>，每次只使用其中的一块。当这一块内存用完，需要进行垃圾收集时，就将存活者的对象复制到另一块上面，然后将第一块内存全部清除。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Copy.png"><div class="caption"><b class="center-caption">“标记-复制”算法示意图</b></div>
-
+<p>为了解决<code>效率问题</code>，“复制”收集算法出现了。它将可用内存按<code>容量</code>划分为<strong>大小相等的两块</strong>，每次只使用其中的一块。当这一块内存用完，需要进行垃圾收集时，就将存活者的对象复制到另一块上面，然后将第一块内存全部清除。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Copy.png"><div class="caption"><b class="center-caption">“标记-复制”算法示意图</b></div></p>
 <p>这种算法有优有劣：</p>
 <ul>
 <li>优点：不会有内存碎片的问题。 </li>
@@ -1005,8 +1044,6 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <p>但是我们无法保证每次回收都只有不多于 <code>10%</code> 的对象存活，当 <code>Survivor</code> 空间不够，需要依赖其他内存(指老年代)进行<code>分配担保</code>。</p>
 <blockquote>
 <p>分配担保（Handle Promotion）：为对象分配内存空间时，如果 <code>Eden+Survivor</code> 中空闲区域无法装下该对象，会触发 <code>MinorGC</code> 进行垃圾收集。但如果 <code>Minor GC</code> 过后依然有超过 10% 的对象存活，这样存活的对象直接通过<code>分配担保机制</code>进入老年代，然后再将新对象存入 <code>Eden</code> 区。</p>
-</blockquote>
-<blockquote>
 <p>内存的<code>分配担保</code>好比我们去银行借款，如果我们信誉很好，在98%的情况下都能按时偿还，于是银行可能会默认我们下一次也能按时按量地偿还贷款，只需要有一个担保人能保证如果我不能还款时，可以从他的账户扣钱，那银行就认为没有什么风险了。</p>
 </blockquote>
 <h2 id="3-3-标记-整理算法"><a href="#3-3-标记-整理算法" class="headerlink" title="3.3 标记-整理算法"></a>3.3 标记-整理算法</h2><ul>
@@ -1023,26 +1060,23 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <li>老年代：标记-清除算法、标记-整理算法。</li>
 </ul>
 <h1 id="4-Hotspot垃圾收集器"><a href="#4-Hotspot垃圾收集器" class="headerlink" title="4 Hotspot垃圾收集器"></a>4 Hotspot垃圾收集器</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/GC-in-Hotspot.png"><div class="caption"><b class="center-caption">HotSpot虚拟机的垃圾收集器</b></div>
-
 <h2 id="4-1-新生代"><a href="#4-1-新生代" class="headerlink" title="4.1 新生代"></a>4.1 新生代</h2><h3 id="4-1-1-Serial-垃圾收集器（单线程）"><a href="#4-1-1-Serial-垃圾收集器（单线程）" class="headerlink" title="4.1.1 Serial 垃圾收集器（单线程）"></a>4.1.1 Serial 垃圾收集器（单线程）</h3><p>最古老的，<code>单线程</code>，<code>独占式</code>，成熟，适合单 CPU，一般用在<code>客户端模式</code>下。</p>
 <ul>
 <li>优点：简单而高效；适合<code>几十兆</code>到<code>一两百兆</code>的<code>堆空间</code>进行垃圾回收(可以控制<code>停顿时间</code>在 <code>100ms</code> 左右)。</li>
 <li>缺点：进行垃圾收集时，<strong>必须暂停其他所有工作线程</strong>（<code>Stop the world</code>，STW），直到它收集结束。</li>
-<li>参数设置：<code>-XX:+UseSerialGC</code>， 新生代和老年代都用串行收集器。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Serial:Serial-Old.png"><div class="caption"><b class="center-caption">Serial/Serial Old垃圾收集器运行示意图</b></div></li>
+<li>参数设置：<code>-XX:+UseSerialGC</code>， 新生代和老年代都用串行收集器。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Serial:Serial-Old.png"><div class="caption"><b class="center-caption">Serial/Serial Old垃圾收集器运行示意图</b></div>
+</li>
 </ul>
 <blockquote>
 <p>Tips：Stop The World(STW)(重点)<br><code>单线程</code>进行垃圾回收时，<strong>必须暂停所有的工作线程，直到它回收结束</strong>。这个暂停称之为“Stop The World”，但是这种 <code>STW</code> 带来了恶劣的用户体验，例如，应用每运行一个小时就需要暂停响应 5 分。这个也是早期 <code>JVM</code> 和 <code>java</code> 被 <code>C/C++语言</code>诟病性能差的一个重要原因。所以 JVM 开发团队一直努力消除或降低 STW 的时间。</p>
-</blockquote>
-<h3 id="4-1-2-ParNew-垃圾收集器（多线程）"><a href="#4-1-2-ParNew-垃圾收集器（多线程）" class="headerlink" title="4.1.2 ParNew 垃圾收集器（多线程）"></a>4.1.2 ParNew 垃圾收集器（多线程）</h3><p>实质上是<code>Serial收集器</code>的<code>多线程并行版本</code>，除了同时使用多条线程进行垃圾收集之外，其余的行为包括<code>Serial收集器</code>可用的所有控制参数(例如：<code>-XX:SurvivorRatio</code>、<code>-XX:PretenureSizeThreshold</code>、<code>-XX:HandlePromotionFailure</code>等)、<code>收集算法</code>、<code>StopTheWorld</code>、<code>对象分配规则</code>、<code>回收策略</code>等都与<code>Serial收集器</code><strong>完全一致</strong>，在实现上这两种收集器也共用了相当多的代码。</p>
-<blockquote>
-<p>在 JDK9 以后，把 <code>ParNew</code> 合并到了 <code>CMS</code> 了。</p>
+<h3 id="4-1-2-ParNew-垃圾收集器（多线程）"><a href="#4-1-2-ParNew-垃圾收集器（多线程）" class="headerlink" title="4.1.2 ParNew 垃圾收集器（多线程）"></a>4.1.2 ParNew 垃圾收集器（多线程）</h3><p>实质上是<code>Serial收集器</code>的<code>多线程并行版本</code>，除了同时使用多条线程进行垃圾收集之外，其余的行为包括<code>Serial收集器</code>可用的所有控制参数(例如：<code>-XX:SurvivorRatio</code>、<code>-XX:PretenureSizeThreshold</code>、<code>-XX:HandlePromotionFailure</code>等)、<code>收集算法</code>、<code>StopTheWorld</code>、<code>对象分配规则</code>、<code>回收策略</code>等都与<code>Serial收集器</code><strong>完全一致</strong>，在实现上这两种收集器也共用了相当多的代码。<br>在 JDK9 以后，把 <code>ParNew</code> 合并到了 <code>CMS</code> 了。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ParNew.png"><div class="caption"><b class="center-caption">ParNew垃圾收集器运行示意图</b></div>
-
 <h3 id="4-1-3-Parallel-Scavenge-垃圾收集器（多线程）"><a href="#4-1-3-Parallel-Scavenge-垃圾收集器（多线程）" class="headerlink" title="4.1.3 Parallel Scavenge 垃圾收集器（多线程）"></a>4.1.3 Parallel Scavenge 垃圾收集器（多线程）</h3><p><code>Parallel Scavenge</code> 和 <code>ParNew</code> 一样，都是<code>多线程</code>、<code>新生代</code>垃圾收集器。但是两者有巨大的不同点：</p>
 <ul>
 <li><code>Parallel Scavenge</code>：追求 <code>CPU 吞吐量</code>，能够在较短时间内完成指定任务，因此适合没有交互的后台计算。</li>
-<li><code>ParNew</code>：追求<code>降低用户停顿时间</code>，适合交互式应用。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Parallel-Scavenge:Parallel-Old.png"><div class="caption"><b class="center-caption">Parallel Scavenge/Parallel Old垃圾收集器运行示意图</b></div></li>
+<li><code>ParNew</code>：追求<code>降低用户停顿时间</code>，适合交互式应用。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Parallel-Scavenge:Parallel-Old.png"><div class="caption"><b class="center-caption">Parallel Scavenge/Parallel Old垃圾收集器运行示意图</b></div>
+</li>
 </ul>
 <blockquote>
 <p><code>JDK1.8</code> 默认的新生代垃圾收集器。</p>
@@ -1057,11 +1091,11 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </li>
 </ul>
 <blockquote>
-<p>吞吐量 &#x3D; 运行用户代码时间 &#x2F; (运行用户代码时间 + 垃圾收集时间)</p>
+<p>吞吐量 = 运行用户代码时间 / (运行用户代码时间 + 垃圾收集时间)</p>
 </blockquote>
 <h2 id="4-2-老年代"><a href="#4-2-老年代" class="headerlink" title="4.2 老年代"></a>4.2 老年代</h2><h3 id="4-2-1-Serial-Old-垃圾收集器（单线程）"><a href="#4-2-1-Serial-Old-垃圾收集器（单线程）" class="headerlink" title="4.2.1 Serial Old 垃圾收集器（单线程）"></a>4.2.1 Serial Old 垃圾收集器（单线程）</h3><p><code>Serial Old</code> 收集器是 <code>Serial</code> 的老年代版本，都是<code>单线程收集器</code>，只启用一条 GC 线程，都适合<code>客户端应用</code>。它们<strong>唯一的区别</strong>就是：<code>Serial Old</code> 工作在<strong>老年代</strong>，使用“标记-整理”算法；<code>Serial</code> 工作在<strong>新生代</strong>，使用“复制”算法。</p>
 <h3 id="4-2-2-Parallel-Old-垃圾收集器（多线程）"><a href="#4-2-2-Parallel-Old-垃圾收集器（多线程）" class="headerlink" title="4.2.2 Parallel Old 垃圾收集器（多线程）"></a>4.2.2 Parallel Old 垃圾收集器（多线程）</h3><p><code>Parallel Old</code> 收集器是 <code>Parallel Scavenge</code> 的老年代版本，追求 CPU 吞吐量。</p>
-<h3 id="4-2-3-CMS-垃圾收集器"><a href="#4-2-3-CMS-垃圾收集器" class="headerlink" title="4.2.3 CMS 垃圾收集器"></a>4.2.3 CMS 垃圾收集器</h3><p><code>CMS</code>(Concurrent Mark Sweep)收集器是一种以获取<code>最短回收停顿时间</code>为目标的收集器。目前很大一部分的Java应用集中在互联网网站或者基于浏览器的B&#x2F;S系统的服务端上，这类应用通常都会较为关注<code>服务的响应速度</code>，希望系统停顿时间尽可能短，以给用户带来良好的交互体验。CMS收集器就非常符合这类应用的需求。</p>
+<h3 id="4-2-3-CMS-垃圾收集器"><a href="#4-2-3-CMS-垃圾收集器" class="headerlink" title="4.2.3 CMS 垃圾收集器"></a>4.2.3 CMS 垃圾收集器</h3><p><code>CMS</code>(Concurrent Mark Sweep)收集器是一种以获取<code>最短回收停顿时间</code>为目标的收集器。目前很大一部分的Java应用集中在互联网网站或者基于浏览器的B/S系统的服务端上，这类应用通常都会较为关注<code>服务的响应速度</code>，希望系统停顿时间尽可能短，以给用户带来良好的交互体验。CMS收集器就非常符合这类应用的需求。</p>
 <p><code>CMS</code> 收集器是基于<code>标记-清除</code>算法实现的，它的运作过程相对于前面几种收集器来说更复杂一些，整个过程分为 <code>4</code> 个步骤，包括：</p>
 <ul>
 <li>初始标记：短暂，仅仅只是标记一下 <code>GC Roots</code> 能<strong>直接关联</strong>到的对象，速度很快。</li>
@@ -1071,7 +1105,6 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </ul>
 <p>由于整个过程中耗时最长的<code>并发标记</code>和<code>并发清除</code>过程收集器线程都可以与用户线程一起工作，所以，从总体上来说，CMS 收集器的内存回收过程是与用户线程一起<code>并发执行</code>的。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CMS.png"><div class="caption"><b class="center-caption">CMS垃圾收集器运行示意图</b></div>
-
 <ul>
 <li>缺点：<ul>
 <li>吞吐量低</li>
@@ -1088,7 +1121,6 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </ul>
 <h2 id="4-3-G1-通用垃圾收集器（JDK7出现，JDK9默认）"><a href="#4-3-G1-通用垃圾收集器（JDK7出现，JDK9默认）" class="headerlink" title="4.3 G1 通用垃圾收集器（JDK7出现，JDK9默认）"></a>4.3 G1 通用垃圾收集器（JDK7出现，JDK9默认）</h2><p><code>G1</code> 是一款面向服务端应用的垃圾收集器，它<strong>没有新生代和老年代</strong>的概念，而是将<code>堆</code>划分为一块块独立的 <code>Region</code>。当要进行垃圾收集时，首先估计每个 <code>Region</code> 中垃圾的数量，每次都从垃圾回收价值最大的 <code>Region</code> 开始回收，因此可以获得最大的回收效率。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/G1-Region.png"><div class="caption"><b class="center-caption">G1中的Region</b></div>
-
 <ul>
 <li><code>G1</code> 收集器的工作过程分为以下几个步骤：<ul>
 <li>初始标记：<code>Stop The World</code>，仅使用一条初始标记线程对所有与 <code>GC Roots</code><strong>直接关联的对象</strong>进行标记。</li>
@@ -1099,15 +1131,11 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/G1.png"><div class="caption"><b class="center-caption">G1垃圾收集器运行示意图</b></div>
-
 <p>特点：</p>
 <ul>
-<li><p>并行与并发</p>
-</li>
-<li><p>分代收集</p>
-</li>
-<li><p>空间整合：与 CMS 的“标记-清理”算法不同，G1 从整体来看是基于“标记-整理”算法实现的收集器，从局部(两个 Region 之间)上来看是基于“复制”算法实现的，但无论如何，这两种算法都意味着 G1 运作期间<strong>不会产生内存空间碎片</strong>，收集后能提供规整的可用内存。这种特性有利于程序长时间运行，分配大对象时不会因为无法找到连续内存空间而提前触发下一次 GC。</p>
-</li>
+<li>并行与并发</li>
+<li>分代收集</li>
+<li>空间整合：与 CMS 的“标记-清理”算法不同，G1 从整体来看是基于“标记-整理”算法实现的收集器，从局部(两个 Region 之间)上来看是基于“复制”算法实现的，但无论如何，这两种算法都意味着 G1 运作期间<strong>不会产生内存空间碎片</strong>，收集后能提供规整的可用内存。这种特性有利于程序长时间运行，分配大对象时不会因为无法找到连续内存空间而提前触发下一次 GC。</li>
 <li><p>追求停顿时间：<code>-XX:MaxGCPauseMillis</code> 指定目标的最大停顿时间，G1 尝试调整新生代和老年代的比例，堆大小，晋升年龄来达到这个目标时间。</p>
 </li>
 <li><p>参数设置：</p>
@@ -1120,9 +1148,7 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </ul>
 <h2 id="4-4-Shenandoah收集器"><a href="#4-4-Shenandoah收集器" class="headerlink" title="4.4 Shenandoah收集器"></a>4.4 Shenandoah收集器</h2><p>非Oracle亲生，由<code>RedHat</code>贡献给了<code>OpenJDK</code>，并推动它成为<code>OpenJDK 12</code>的正式特性之一。</p>
 <p>这个项目的目标是实现一种能在<code>任何堆内存大小</code>下都可以把垃圾收集的<code>停顿时间</code>限制在<code>十毫秒以内</code>的垃圾收集器，该目标意味着相比<code>CMS</code>和<code>G1</code>，<code>Shenandoah</code>不仅要进行<code>并发的垃圾标记</code>，还要<code>并发地</code>进行对象清理后的<code>整理</code>动作。</p>
-<p>具体的运行过程，可参考《深入理解Java虚拟机》第三版<code>Page 157</code>。这里只给出示意图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Shenandoah.png"><div class="caption"><b class="center-caption">Shenandoah垃圾收集器运行示意图</b></div>
-
+<p>具体的运行过程，可参考《深入理解Java虚拟机》第三版<code>Page 157</code>。这里只给出示意图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Shenandoah.png"><div class="caption"><b class="center-caption">Shenandoah垃圾收集器运行示意图</b></div></p>
 <ul>
 <li>与<code>G1</code>的区别（管理堆内存方面）：<ul>
 <li>支持并发的整理算法：<code>G1</code>的<strong>回收阶段</strong>是可以多线程并行的，但却<strong>不能</strong>与<code>用户线程</code><strong>并发</strong>，Shenandoah使用<code>转发指针</code>和<code>读屏障</code>来实现并发整理；</li>
@@ -1137,14 +1163,14 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <h2 id="4-5-ZGC-JDK11开始"><a href="#4-5-ZGC-JDK11开始" class="headerlink" title="4.5 ZGC(JDK11开始)"></a>4.5 ZGC(JDK11开始)</h2><p><code>Z Garbage Collector</code>，即<code>ZGC</code>，是一款在<code>JDK 11</code>中新加入的具有实验性质的<code>低延迟垃圾收集器</code>，是由<code>Oracle公司</code>研发的。2018年Oracle创建了 <code>JEP 333</code>将<code>ZGC</code>提交给<code>OpenJDK</code>，推动其进入<code>OpenJDK 11</code>的发布清单之中。</p>
 <p>同样是基于<code>Region内存布局</code>的，(暂时)不设分代的，使用了<code>读屏障</code>、<code>染色指针</code>和<code>内存多重映射</code>等技术来实现可并发的<code>标记-整理</code>算法的，以低延迟为首要目标的一款垃圾收集器。</p>
 <p>和<code>Shenandoah</code>的目标高度相似的，都希望在尽可能对吞吐量影响不太大的前提下，实现在<code>任意堆内存大小</code>下都可以把垃圾收集的停顿时间限制在<code>十毫秒以内</code>的低延迟。但是<code>ZGC</code>和 <code>Shenandoah</code>的实现思路又是差异显著的，如果说<code>RedHat公司</code>开发的<code>Shenandoah</code>像是<code>Oracle</code>的<code>G1收集器</code>的实际继承者的话，那Oracle公司开发的<code>ZGC</code>就更像是<code>Azul System公司</code>独步天下的<code>PGC</code>(Pauseless GC)和<code>C4</code>(Concurrent Continuously Compacting Collector)收集器的同胞兄弟。</p>
-<p>与<code>Shenandoah</code>和<code>G1</code>一样，<code>ZGC</code>也采用基于<code>Region</code>的堆内存布局，但与它们不同的是，<code>ZGC</code>的<code>Region</code>具有<code>动态性</code>—动态创建和销毁，以及<code>动态的区域容量大小</code>。在x64硬件平台下，ZGC的Region可以具有<code>大</code>、<code>中</code>、<code>小</code>三类容量：</p>
+<p>与<code>Shenandoah</code>和<code>G1</code>一样，<code>ZGC</code>也采用基于<code>Region</code>的堆内存布局，但与它们不同的是，<code>ZGC</code>的<code>Region</code>具有<code>动态性</code>—-动态创建和销毁，以及<code>动态的区域容量大小</code>。在x64硬件平台下，ZGC的Region可以具有<code>大</code>、<code>中</code>、<code>小</code>三类容量：</p>
 <ul>
 <li>小型Region(SmallRegion)：容量固定为<code>2MB</code>，用于放置<code>小于256KB</code>的小对象。</li>
 <li>中型Region(Medium Region)：容量固定为<code>32MB</code>，用于放置<code>大于等于256KB但小于4MB</code>的对象。</li>
-<li>大型Region(Large Region)：容量不固定，可以动态变化，但必须为<code>2MB的整数倍</code>，用于放置<code>4MB或以上</code>的大对象。每个大型Region中只会存放一个大对象，这也预示着虽然名字叫作“大型Region”，但它的实际容量完全有可能小于<code>中型Region</code>，最小容量可低至<code>4MB</code>。大型Region在ZGC的实现中是不会被<code>重分配</code>(重分配是ZGC的一种处理动作，用于复制对象的收集器阶段)的，因为复制一个大对象的代价非常高昂。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZGC-Heap.png"><div class="caption"><b class="center-caption">ZGC的堆内存布局</b></div></li>
+<li>大型Region(Large Region)：容量不固定，可以动态变化，但必须为<code>2MB的整数倍</code>，用于放置<code>4MB或以上</code>的大对象。每个大型Region中只会存放一个大对象，这也预示着虽然名字叫作“大型Region”，但它的实际容量完全有可能小于<code>中型Region</code>，最小容量可低至<code>4MB</code>。大型Region在ZGC的实现中是不会被<code>重分配</code>(重分配是ZGC的一种处理动作，用于复制对象的收集器阶段)的，因为复制一个大对象的代价非常高昂。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZGC-Heap.png"><div class="caption"><b class="center-caption">ZGC的堆内存布局</b></div>
+</li>
 </ul>
-<p>ZGC收集器有一个标志性的设计是它采用的<code>染色指针技术</code>(Colored Pointer)，以下为<code>ChatGPT</code>关于<code>染色指针技术</code>的回答，仅供参考。</p>
-<pre class="line-numbers language-none"><code class="language-none">基本原理：
+<p>ZGC收集器有一个标志性的设计是它采用的<code>染色指针技术</code>(Colored Pointer)，以下为<code>ChatGPT</code>关于<code>染色指针技术</code>的回答，仅供参考。<br><pre class="line-numbers language-none"><code class="language-none">基本原理：
 
 染色指针：在64位的JVM中，通常使用最后几位（如1～3位）的指针标记位作为染色指针。这些指针位用于标记对象的颜色信息。
 
@@ -1160,9 +1186,7 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 优点：
   减少停顿时间：通过使用染色指针，ZGC可以实现并发标记，减少了垃圾收集对应用程序的停顿时间。
   高效的对象标记：染色指针使得并发标记过程更加高效，避免了不必要的重复标记操作。
-  空间效率高：由于染色指针仅占用指针的几位，节省了额外的内存空间。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Colored-Pointer.png"><div class="caption"><b class="center-caption">染色指针示意图</b></div>
-
+  空间效率高：由于染色指针仅占用指针的几位，节省了额外的内存空间。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Colored-Pointer.png"><div class="caption"><b class="center-caption">染色指针示意图</b></div></p>
 <ul>
 <li><p>染色指针的三大优势：</p>
 <ul>
@@ -1176,12 +1200,14 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <li>并发标记(Concurrent Mark)：与<code>G1</code>、<code>Shenandoah</code>不同的是，<code>ZGC</code>的标记是<strong>在指针上</strong>而不是在对象上进行的，标记阶段会更新染色指针中的<code>Marked0</code>、<code>Marked1</code>标志位。</li>
 <li>并发预备重分配(Concurrent Prepare for Relocate)：这个阶段需要根据特定的查询条件统计得出本次收集过程要清理哪些Region，将这些Region组成<code>重分配集</code>(Relocation Set)。</li>
 <li>并发重分配(Concurrent Relocate)：重分配是ZGC执行过程中的<code>核心阶段</code>，这个过程要把重分配集中的存活对象复制到新的Region上，并为重分配集中的每个Region维护一个<code>转发表</code>(Forward Table)，记录从旧对象到新对象的转向关系。</li>
-<li>并发重映射(Concurrent Remap)：修正整个堆中指向<code>重分配集</code>中旧对象的<code>所有引用</code>。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZGC.png"><div class="caption"><b class="center-caption">ZGC垃圾收集器运行示意图</b></div></li>
+<li>并发重映射(Concurrent Remap)：修正整个堆中指向<code>重分配集</code>中旧对象的<code>所有引用</code>。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZGC.png"><div class="caption"><b class="center-caption">ZGC垃圾收集器运行示意图</b></div>
+</li>
 </ul>
 </li>
 </ul>
 <h2 id="4-6-Epsilon收集器"><a href="#4-6-Epsilon收集器" class="headerlink" title="4.6 Epsilon收集器"></a>4.6 Epsilon收集器</h2><p>以<strong>不能够</strong>进行垃圾收集为“卖点”的垃圾收集器（改名叫<code>自动内存管理子系统</code>最妥了）。由 <code>RedHat</code> 推出，它还要负责<code>堆的管理与布局</code>、<code>对象的分配</code>、<code>与解释器的协作</code>、<code>与编译器的协作</code>、<code>与监控子系统协作</code>等职责，主要用于需要剥离垃圾收集器影响的性能测试和压力测试。</p>
-<h2 id="4-7-垃圾收集器整理"><a href="#4-7-垃圾收集器整理" class="headerlink" title="4.7 垃圾收集器整理"></a>4.7 垃圾收集器整理</h2><table>
+<h2 id="4-7-垃圾收集器整理"><a href="#4-7-垃圾收集器整理" class="headerlink" title="4.7 垃圾收集器整理"></a>4.7 垃圾收集器整理</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>收集器</th>
@@ -1191,7 +1217,8 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <th>适用场景</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>Serial</td>
 <td>新生代，复制算法</td>
 <td>单线程</td>
@@ -1254,12 +1281,12 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 <td>动态Region、染色指针技术、支持“NUMA-Aware”的内存分配</td>
 <td>以后的主流垃圾收集器，真正的低停顿</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h1 id="5-内存分配与回收策略"><a href="#5-内存分配与回收策略" class="headerlink" title="5 内存分配与回收策略"></a>5 内存分配与回收策略</h1><h2 id="5-1-对象优先在Eden分配"><a href="#5-1-对象优先在Eden分配" class="headerlink" title="5.1 对象优先在Eden分配"></a>5.1 对象优先在Eden分配</h2><p>大多数情况下，对象在新生代 <code>Eden 区</code>中分配。当 <code>Eden 区</code>没有足够空间进行分配时，虚拟机将发起一次 <code>Minor GC</code>。</p>
 <blockquote>
-<p>Tips：<br>新生代收集(Minor GC&#x2F;Young GC)：指目标只是新生代的垃圾收集。<br>老年代收集(Major GC&#x2F;Old GC)：指目标只是老年代的垃圾收集。目前只有CMS收集器会有单独收集老年代的行为。另外请注意“Major GC”这个说法现在有点混淆，在不同资料上常有不同所指， 读者需按上下文区分到底是指老年代的收集还是整堆收集。<br>混合收集(Mixed GC)：指目标是收集整个新生代以及部分老年代的垃圾收集。目前只有G1收集器会有这种行为。<br>整堆收集(Full GC)：收集整个Java堆和方法区的垃圾收集。</p>
-</blockquote>
-<blockquote>
+<p>Tips：<br>新生代收集(Minor GC/Young GC)：指目标只是新生代的垃圾收集。<br>老年代收集(Major GC/Old GC)：指目标只是老年代的垃圾收集。目前只有CMS收集器会有单独收集老年代的行为。另外请注意“Major GC”这个说法现在有点混淆，在不同资料上常有不同所指， 读者需按上下文区分到底是指老年代的收集还是整堆收集。<br>混合收集(Mixed GC)：指目标是收集整个新生代以及部分老年代的垃圾收集。目前只有G1收集器会有这种行为。<br>整堆收集(Full GC)：收集整个Java堆和方法区的垃圾收集。</p>
 <p>总结一下有哪些情况可能会触发JVM进行<code>Full GC</code>。</p>
 <ul>
 <li><code>System.gc()</code>方法的调用：此方法的调用是建议JVM进行<code>Full GC</code>，注意这只是建议而非一定，但在很多情况下它会触发<code>Full GC</code>，从而增加<code>Full GC</code>的频率。通常情况下我们只需要让虚拟机自己去管理内存即可，我们可以通过<code>-XX:+DisableExplicitGC</code>来禁止调用<code>System.gc()</code>。</li>
@@ -1994,7 +2021,7 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -2012,7 +2039,7 @@ I am dead!<span aria-hidden="true" class="line-numbers-rows"><span></span><span>
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2275,6 +2302,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

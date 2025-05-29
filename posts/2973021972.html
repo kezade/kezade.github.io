@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -827,9 +884,7 @@
                 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><p><code>主从复制</code>实现了数据的多机备份，以及对于<code>读操作的负载均衡</code>和<code>简单的故障恢复</code>。但是<code>缺陷</code>也很突出：<strong>故障恢复无法自动化</strong>；<strong>写操作无法负载均衡</strong>；<strong>存储能力受到单机的限制</strong>。</p>
 <p>而<code>哨兵模式</code>，在<code>复制</code>的基础上，实现了<code>自动化的故障恢复</code>。<code>缺陷</code>有：<strong>写操作无法负载均衡</strong>；<strong>存储能力受到单机的限制</strong>。</p>
 <p><code>集群模式</code>，Redis<strong>解决</strong>了<code>写操作无法负载均衡</code>，以及<code>存储能力受到单机限制</code>的问题，实现了较为<code>完善的高可用方案</code>。</p>
-<p>下图为Redis 集群（Cluster）示意图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster.jpg"><div class="caption"><b class="center-caption">Redis 集群模式示意图</b></div>
-
+<p>下图为Redis 集群（Cluster）示意图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster.jpg"><div class="caption"><b class="center-caption">Redis 集群模式示意图</b></div></p>
 <h1 id="2-机制"><a href="#2-机制" class="headerlink" title="2 机制"></a>2 机制</h1><h2 id="2-1-设计目标"><a href="#2-1-设计目标" class="headerlink" title="2.1 设计目标"></a>2.1 设计目标</h2><p>Redis 集群是 Redis 的分布式实现，<code>Redis3.0以后版本</code>正式提供支持。在设计中按重要性顺序具有以下目标：</p>
 <ul>
 <li>高性能和线性可扩展性，多达 <code>1000</code> 个节点。没有代理，使用<code>异步复制</code>，并且不对值执行合并操作。</li>
@@ -874,13 +929,11 @@
 <p><code>节点ID</code>被用来标识整个cluster中每个节点。一个节点可以修改自己的<code>IP地址</code>而不需要修改自己的<code>ID</code>。Cluster可以检测到<code>IP/port</code>的改动并通过运行在cluster bus上的<code>gossip协议</code>重新配置该节点。</p>
 <p><strong>节点ID不是唯一与节点绑定的信息</strong>，但是他是<code>唯一的一个总是保持全局一致的字段</code>。</p>
 <h3 id="3-3-2-其他属性"><a href="#3-3-2-其他属性" class="headerlink" title="3.3.2 其他属性"></a>3.3.2 其他属性</h3><p>除了<code>节点ID</code>，集群节点还包含以下信息：<br><code>节点的IP和port</code>，<code>节点标签</code>，<code>master node id</code>（如果这是一个<code>slave或replica</code>节点），<code>最后被挂起的ping的发送时间</code>(如果没有挂起的ping则为0)，<code>最后一次收到pong的时间</code>，<code>当前的节点configuration epoch</code>，<code>链接状态</code>，以及最后是该节点服务的<code>hash slots</code>。</p>
-<p>下面是一个发送到一个拥有<code>3个节点</code>的小集群的<code>master节点</code>的<code>CLUSTER NODES</code>输出的例子。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ redis-cli cluster nodes
+<p>下面是一个发送到一个拥有<code>3个节点</code>的小集群的<code>master节点</code>的<code>CLUSTER NODES</code>输出的例子。<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ redis-cli cluster nodes
 
 d1861060fe6a534d42d8a19aeb36600e18785e04  <span class="token number">127.0</span>.0.1:6379 myself - <span class="token number">0</span>                   <span class="token number">1318428930</span> <span class="token number">1</span> connected <span class="token number">0</span>-1364
 3886e65cc906bfd9b1f7e7bde468726a052d1dae   <span class="token number">127.0</span>.0.1:6380 master - <span class="token number">1318428930</span> <span class="token number">1318428931</span> <span class="token number">2</span> connected <span class="token number">1365</span>-2729
-d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span>.0.1:6381 master - <span class="token number">1318428931</span> <span class="token number">1318428931</span> <span class="token number">3</span> connected <span class="token number">2730</span>-4095<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>在上面的列表中，不同的字段按顺序排列：<code>节点ID</code>，<code>地址：端口</code>，<code>标志</code>，<code>上次发送ping的时间戳</code>，<code>收到的最后一个pong的时间戳</code>，<code>配置纪元</code>，<code>链路状态</code>，<code>插槽</code>。</p>
+d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span>.0.1:6381 master - <span class="token number">1318428931</span> <span class="token number">1318428931</span> <span class="token number">3</span> connected <span class="token number">2730</span>-4095<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>在上面的列表中，不同的字段按顺序排列：<code>节点ID</code>，<code>地址：端口</code>，<code>标志</code>，<code>上次发送ping的时间戳</code>，<code>收到的最后一个pong的时间戳</code>，<code>配置纪元</code>，<code>链路状态</code>，<code>插槽</code>。</p>
 <h2 id="3-4-集群总线"><a href="#3-4-集群总线" class="headerlink" title="3.4 集群总线"></a>3.4 集群总线</h2><p>每个Redis 集群节点都有一个<code>额外的 TCP 端口</code>，用于接收来自其他 Redis 集群节点的传入连接。</p>
 <p>比如，</p>
 <ul>
@@ -906,7 +959,7 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 <p>这意味着，一旦我们把某个节点加入了<code>连接图</code>(connected graph)，它们最终会自动形成一张<code>全连接图</code>(fully connected graph)。</p>
 <p>这也意味着只要<code>系统管理员</code><strong>强制</strong>加入了一条信任关系（在某个节点上通过meet命令加入了一个新节点），集群可以自动发现其他节点。</p>
 <blockquote>
-<p>Gossip协议[^3]<br>节点间通信，按照通信协议可以分为几种类型：<code>单对单</code>、<code>广播</code>、<code>Gossip协议</code>等。重点是广播和Gossip的对比。</p>
+<p>Gossip协议<sup><a href="#fn_3" id="reffn_3">3</a></sup><br>节点间通信，按照通信协议可以分为几种类型：<code>单对单</code>、<code>广播</code>、<code>Gossip协议</code>等。重点是广播和Gossip的对比。</p>
 <ul>
 <li><code>广播</code>是指向集群内所有节点发送消息；<ul>
 <li><code>优点</code>：集群的收敛速度快(集群收敛是指集群内所有节点获得的集群信息是一致的)；</li>
@@ -930,7 +983,7 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 <li>分片：将slots划分给不同节点的过程；</li>
 <li>再分配：将一些slots从当前节点(source)迁移到其他节点(target)。</li>
 </ul>
-<p>常见的分片算法有：哈希取余分区、一致性哈希分区[^2]、带虚拟节点的一致性哈希分区</p>
+<p>常见的分片算法有：哈希取余分区、一致性哈希分区<sup><a href="#fn_2" id="reffn_2">2</a></sup>、带虚拟节点的一致性哈希分区</p>
 <h3 id="4-1-1-哈希取余分区"><a href="#4-1-1-哈希取余分区" class="headerlink" title="4.1.1 哈希取余分区"></a>4.1.1 哈希取余分区</h3><ul>
 <li>原理：计算key的hash值，然后对节点数量进行取余，从而决定数据映射到哪个节点上。</li>
 <li>优点：简单、快速、高效、适用于大规模快速查询。</li>
@@ -974,28 +1027,24 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 </li>
 </ul>
 <blockquote>
-<p>16384槽位由来<br><code>CRC16算法</code>产生的Hash值有<code>16bit</code>，该算法可以产生<code>65536</code>个值。值是分布在<code>0~65535</code>之间，那么其实在做取模运算时，我们是可以取模<code>65536</code>的，但是Redsi作者采取了<code>16384</code>;<br>作者的回答[^1]是：Redis集群节点数量如果<code>超过1000个</code>那么会造成<code>网络拥堵</code>，所以建议节点数量<code>不超过1000个</code>，那么1000个节点使用<code>16384</code>个槽位完全够用了。如果使用<code>65536</code>个槽位会导致主节点之间交互心跳包时，<code>浪费带宽</code>。槽位数量过少不够用，过多浪费带宽，所以作者通过实测计算得出一个16384的值，不多不少刚刚好。</p>
+<p>16384槽位由来<br><code>CRC16算法</code>产生的Hash值有<code>16bit</code>，该算法可以产生<code>65536</code>个值。值是分布在<code>0~65535</code>之间，那么其实在做取模运算时，我们是可以取模<code>65536</code>的，但是Redsi作者采取了<code>16384</code>;<br>作者的回答<sup><a href="#fn_1" id="reffn_1">1</a></sup>是：Redis集群节点数量如果<code>超过1000个</code>那么会造成<code>网络拥堵</code>，所以建议节点数量<code>不超过1000个</code>，那么1000个节点使用<code>16384</code>个槽位完全够用了。如果使用<code>65536</code>个槽位会导致主节点之间交互心跳包时，<code>浪费带宽</code>。槽位数量过少不够用，过多浪费带宽，所以作者通过实测计算得出一个16384的值，不多不少刚刚好。</p>
 </blockquote>
 <ul>
 <li>读写分离<ul>
 <li>默认情况下RedisCluster<code>读写</code>都是通过<code>主节点</code>进行处理，<code>不支持从节点读写</code>。RedisCluster的核心理念是<strong>从节点是作为热备以及主节点宕机时从节点进行故障转移</strong>，从而实现高可用;</li>
 <li>Redis之所以需要读写分离，是为了<code>横向扩展从节点</code>去达到更高地<code>读并发</code>。而在RedisCluster中，主节点本身就可以任意横向扩展，如果想要更高地读写并发，那么对<strong>主节点进行横向扩展</strong>即可;</li>
-<li>想要在RedisCluster中实现读写分离代价是比较高的，比如可以修改JedisClient源码，或是使用第三方RedisProxy工具.</li>
+<li>想要在RedisCluster中实现读写分离代价是比较高的，比如可以修改JedisClient源码，或是使用第三方RedisProxy工具.<h2 id="4-2-请求重定向"><a href="#4-2-请求重定向" class="headerlink" title="4.2 请求重定向"></a>4.2 请求重定向</h2><h3 id="4-2-1-MOVE"><a href="#4-2-1-MOVE" class="headerlink" title="4.2.1 MOVE"></a>4.2.1 MOVE</h3>步骤：</li>
 </ul>
 </li>
-</ul>
-<h2 id="4-2-请求重定向"><a href="#4-2-请求重定向" class="headerlink" title="4.2 请求重定向"></a>4.2 请求重定向</h2><h3 id="4-2-1-MOVE"><a href="#4-2-1-MOVE" class="headerlink" title="4.2.1 MOVE"></a>4.2.1 MOVE</h3><p>步骤：</p>
-<ul>
 <li>‘我’并不负责‘你’要的key，告诉’你‘正确的吧。</li>
 <li>返回<code>CLUSTER_REDIR_MOVED</code>错误，和<code>正确的节点</code>。</li>
-<li>客户端向该【正确的节点】重新发起请求，注意这次依然有发生<code>重定向</code>的可能。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Move-Redirect.png"><div class="caption"><b class="center-caption">Move重定向</b></div></li>
-</ul>
-<h3 id="4-2-2-ASK"><a href="#4-2-2-ASK" class="headerlink" title="4.2.2 ASK"></a>4.2.2 ASK</h3><p>步骤：</p>
-<ul>
+<li>客户端向该【正确的节点】重新发起请求，注意这次依然有发生<code>重定向</code>的可能。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Move-Redirect.png"><div class="caption"><b class="center-caption">Move重定向</b></div>
+<h3 id="4-2-2-ASK"><a href="#4-2-2-ASK" class="headerlink" title="4.2.2 ASK"></a>4.2.2 ASK</h3>步骤：</li>
 <li>‘我’负责请求的key，但不巧的这个key当前在<code>migraging</code>状态，且‘我’这里已经取不到了。告诉‘你’<code>importing</code>他的‘家伙’吧，去碰碰运气。</li>
 <li>返回<code>CLUSTER_REDIR_ASK</code>，和<code>importing</code>该key的节点。</li>
 <li>客户端向新节点发送<code>ASKING</code>，之后再次发起请求</li>
-<li>新节点对发送过<code>ASKING</code>，且key已经<code>migrate</code>过来的请求进行响应。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Asking-Redirect.png"><div class="caption"><b class="center-caption">Ask重定向</b></div></li>
+<li>新节点对发送过<code>ASKING</code>，且key已经<code>migrate</code>过来的请求进行响应。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Asking-Redirect.png"><div class="caption"><b class="center-caption">Ask重定向</b></div>
+</li>
 </ul>
 <h3 id="4-2-3-区别"><a href="#4-2-3-区别" class="headerlink" title="4.2.3 区别"></a>4.2.3 区别</h3><p>区分这两种重定向的场景是非常有必要的：</p>
 <ul>
@@ -1130,7 +1179,8 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 <li>其他节点收到该信息，<strong>只有master响应</strong>，判断请求者的合法性，并发送<code>FAILOVER_AUTH_ACK</code>，对每一个epoch只发送一次ack；</li>
 <li>尝试failover的slave收集<code>FAILOVER_AUTH_ACK</code>；</li>
 <li><code>超过半数后</code>变成新Master；</li>
-<li>广播<code>Pong</code>通知其他集群节点。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster-Failover.jpg"><div class="caption"><b class="center-caption">Failover</b></div></li>
+<li>广播<code>Pong</code>通知其他集群节点。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster-Failover.jpg"><div class="caption"><b class="center-caption">Failover</b></div>
+</li>
 </ul>
 <h2 id="4-5-扩容-amp-缩容"><a href="#4-5-扩容-amp-缩容" class="headerlink" title="4.5 扩容&amp;缩容"></a>4.5 扩容&amp;缩容</h2><h3 id="4-5-1-扩容"><a href="#4-5-1-扩容" class="headerlink" title="4.5.1 扩容"></a>4.5.1 扩容</h3><ul>
 <li>新节点向集群中的一个已知节点发送 <code>meet 命令</code>请求加入集群；</li>
@@ -1142,7 +1192,8 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 <li>集群会从<code>所有原节点</code>中选取<code>一部分槽位</code>的数据迁移到新节点上，具体的迁移槽位和数量取决于集群中的数据分布情况；</li>
 <li>在数据迁移期间，如果有客户端访问迁移的槽位，集群会返回一个 <code>ASK 错误</code>，告知客户端要访问的槽位已经迁移到了新节点上，同时告知客户端新节点的地址，客户端会根据返回的地址重新发起请求；</li>
 <li>当所有数据迁移完成后，集群会向客户端返回<code>MOVED信息</code>，告知客户端对应的槽位已经迁移到了新节点上；</li>
-<li>客户端收到<code>MOVED信息</code>后，会更新本地的<code>【槽位/节点映射表】</code>，以便后续请求可以直接定位到新节点。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster-Migration.png"><div class="caption"><b class="center-caption">Redis数据迁移</b></div></li>
+<li>客户端收到<code>MOVED信息</code>后，会更新本地的<code>【槽位/节点映射表】</code>，以便后续请求可以直接定位到新节点。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cluster-Migration.png"><div class="caption"><b class="center-caption">Redis数据迁移</b></div>
+</li>
 </ul>
 <h3 id="4-5-2-缩容"><a href="#4-5-2-缩容" class="headerlink" title="4.5.2 缩容"></a>4.5.2 缩容</h3><ul>
 <li>确定下线的节点是否有负责槽（是否是主节点），如果是，需要把槽迁移到其他节点，保证节点下线后整个槽节点映射的完整性。</li>
@@ -1152,7 +1203,7 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 </blockquote>
 </li>
 </ul>
-<h1 id="5-其它常见方案"><a href="#5-其它常见方案" class="headerlink" title="5 其它常见方案"></a>5 其它常见方案</h1><h2 id="5-1-Redis-Sentinel-集群-Keepalived-x2F-Haproxy"><a href="#5-1-Redis-Sentinel-集群-Keepalived-x2F-Haproxy" class="headerlink" title="5.1 Redis Sentinel 集群 + Keepalived&#x2F;Haproxy"></a>5.1 Redis Sentinel 集群 + Keepalived&#x2F;Haproxy</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Keepalived2.png"><div class="caption"><b class="center-caption">Redis Sentinel 集群 + Keepalived</b></div>
+<h1 id="5-其它常见方案"><a href="#5-其它常见方案" class="headerlink" title="5 其它常见方案"></a>5 其它常见方案</h1><h2 id="5-1-Redis-Sentinel-集群-Keepalived-Haproxy"><a href="#5-1-Redis-Sentinel-集群-Keepalived-Haproxy" class="headerlink" title="5.1 Redis Sentinel 集群 + Keepalived/Haproxy"></a>5.1 Redis Sentinel 集群 + Keepalived/Haproxy</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Keepalived2.png"><div class="caption"><b class="center-caption">Redis Sentinel 集群 + Keepalived</b></div>
 <ul>
 <li>优点：<ul>
 <li>秒级切换</li>
@@ -1216,9 +1267,9 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 <li><a target="_blank" rel="noopener" href="https://www.linuxprobe.com/redis-high-availability.html">Redis高可用性实践</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/2b5c9efdfea6">Redis Cluster 实现</a></li>
 <li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7226710109585834040">集群系列：Redis集群方案及新版实战</a></li>
-<li>[^1] <a target="_blank" rel="noopener" href="https://github.com/redis/redis/issues/2576">为什么是16384个哈希槽？</a></li>
-<li>[^2] <a target="_blank" rel="noopener" href="https://www.cnblogs.com/lpfuture/p/5796398.html">一致性哈希算法原理</a></li>
-<li>[^3] <a target="_blank" rel="noopener" href="https://juejin.cn/post/7226710109585834040#heading-22">RedisCluster通信协议</a></li>
+<li><sup><a href="#fn_1" id="reffn_1">1</a></sup> <a target="_blank" rel="noopener" href="https://github.com/redis/redis/issues/2576">为什么是16384个哈希槽？</a></li>
+<li><sup><a href="#fn_2" id="reffn_2">2</a></sup> <a target="_blank" rel="noopener" href="https://www.cnblogs.com/lpfuture/p/5796398.html">一致性哈希算法原理</a></li>
+<li><sup><a href="#fn_3" id="reffn_3">3</a></sup> <a target="_blank" rel="noopener" href="https://juejin.cn/post/7226710109585834040#heading-22">RedisCluster通信协议</a></li>
 </ul>
 
                 
@@ -1909,7 +1960,7 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1927,7 +1978,7 @@ d289c575dcbc4bdd2931585fd4339089e461a27d  <span class="token number">127.0</span
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2190,6 +2241,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

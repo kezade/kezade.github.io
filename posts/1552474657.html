@@ -63,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -832,28 +889,28 @@
                 <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p>给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。</p>
 <p>子序列 是由数组派生而来的序列，删除（或不删除）数组中的元素而不改变其余元素的顺序。例如，<code>[3,6,2,7]</code> 是数组 <code>[0,3,1,6,2,2,7]</code> 的子序列。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
-<p>输入：nums &#x3D; [10,9,2,5,3,7,101,18]<br>输出：4<br>解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。</p>
+<p>输入：nums = [10,9,2,5,3,7,101,18]<br>输出：4<br>解释：最长递增子序列是 [2,3,7,101]，因此长度为 4 。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入：nums &#x3D; [0,1,0,3,2,3]<br>输出：4</p>
+<p>输入：nums = [0,1,0,3,2,3]<br>输出：4</p>
 </blockquote>
 <h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入：nums &#x3D; [7,7,7,7,7,7,7]<br>输出：1</p>
+<p>输入：nums = [7,7,7,7,7,7,7]<br>输出：1</p>
 </blockquote>
 <p><strong>提示</strong>：</p>
 <ul>
-<li>1 &lt;&#x3D; nums.length &lt;&#x3D; 2500</li>
-<li>-104 &lt;&#x3D; nums[i] &lt;&#x3D; 104</li>
+<li>1 &lt;= nums.length &lt;= 2500</li>
+<li>-104 &lt;= nums[i] &lt;= 104</li>
 </ul>
 <p>进阶：</p>
 <p>你能将算法的时间复杂度降低到 <code>O(nlog(n))</code> 吗?</p>
 <h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2. 解题思路"></a>2. 解题思路</h1><h2 id="2-1-动态规划"><a href="#2-1-动态规划" class="headerlink" title="2.1 动态规划"></a>2.1 动态规划</h2><p>类似 <a target="_blank" rel="noopener" href="https://blog.csdn.net/kezade/article/details/130509541">674. 最长连续递增序列</a> ，我们定义：<br><strong>$dp_i$</strong> 为以<code>nums[i]</code>结尾的最长递增子序列长度，则在区间<code>[0,i)</code>范围内，任一<code>j</code>，有以下判断：</p>
 <ul>
-<li>当 <code>nums[i]&gt;nums[j]</code>时，nums[i]接在nums[j]后，都能使得序列长度加1，即 <strong>$dp_i$&#x3D; $dp_j$ + 1</strong>;</li>
+<li>当 <code>nums[i]&gt;nums[j]</code>时，nums[i]接在nums[j]后，都能使得序列长度加1，即 <strong>$dp_i$= $dp_j$ + 1</strong>;</li>
 <li>否则，<code>j++</code>，继续循环<code>j</code>。</li>
 </ul>
 <p>因此得出 状态转移方程为：</p>
-<p><strong>$dp_i$ &#x3D; max($dp_i$ , $dp_j$ + 1)</strong> ，其中 <code>j∈[0, i)</code>.</p>
+<p><strong>$dp_i$ = max($dp_i$ , $dp_j$ + 1)</strong> ，其中 <code>j∈[0, i)</code>.</p>
 <p>由于题目已知，数组至少有一个元素，因而$dp_{ij}$ 至少为1，初始化时全都为1.</p>
 <p><strong>复杂度分析</strong>：</p>
 <ul>
@@ -888,22 +945,17 @@
 </li>
 <li><p>$dp_8$ 的值</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/7a5a173ef8f3450bbdaf016ae1ddfe9e.png"><div class="caption"><b class="center-caption">""</b></div></li>
-<li><p>求max(dp)</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/1554d9cc74214186af2bf48bda4025c5.png"><div class="caption"><b class="center-caption">""</b></div></li>
-</ul>
-<h2 id="2-2-动态规划-二分查找"><a href="#2-2-动态规划-二分查找" class="headerlink" title="2.2 动态规划+二分查找"></a>2.2 动态规划+二分查找</h2><ul>
-<li><p>状态定义：令 <code>tails[k]</code> 的值代表<strong>长度为 k+1 子序列</strong>的尾部元素值。</p>
-</li>
-<li><p>转移方程： 设 res 为 tails 当前长度，代表直到当前的最长上升子序列长度。设<code> j∈[0,res)</code>，考虑每轮遍历 nums[k] 时，通过二分法遍历 <code>[0,res)</code> 列表区间，找出 nums[k] 的大小分界点，会出现两种情况：</p>
+<li>求max(dp)<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/1554d9cc74214186af2bf48bda4025c5.png"><div class="caption"><b class="center-caption">""</b></div>
+<h2 id="2-2-动态规划-二分查找"><a href="#2-2-动态规划-二分查找" class="headerlink" title="2.2 动态规划+二分查找"></a>2.2 动态规划+二分查找</h2></li>
+<li>状态定义：令 <code>tails[k]</code> 的值代表<strong>长度为 k+1 子序列</strong>的尾部元素值。</li>
+<li><p>转移方程： 设 res 为 tails 当前长度，代表直到当前的最长上升子序列长度。设<code>j∈[0,res)</code>，考虑每轮遍历 nums[k] 时，通过二分法遍历 <code>[0,res)</code> 列表区间，找出 nums[k] 的大小分界点，会出现两种情况：</p>
 <ul>
 <li>区间中存在 <code>tails[i]&gt;nums[k]</code> ： 将<strong>第一个</strong>满足 <code>tails[i]&gt;nums[k]</code> 执行 <code>tails[i]=nums[k]</code> ；因为更小的 nums[k] 后更可能接一个比它大的数字（前面分析过）。</li>
 <li>区间中不存在 <code>tails[i]&gt;nums[k]</code> ： 意味着 nums[k] 可以接在前面所有长度的子序列之后，因此肯定是接到最长的后面（长度为 res ），新子序列长度为 res+1。</li>
 </ul>
 </li>
-<li><p>初始状态：令 tails 列表所有值为 0。</p>
-</li>
-<li><p>返回值：返回 res ，即最长上升子子序列长度。</p>
-</li>
+<li>初始状态：令 tails 列表所有值为 0。</li>
+<li>返回值：返回 res ，即最长上升子子序列长度。</li>
 </ul>
 <p><strong>复杂度分析</strong>：</p>
 <ul>
@@ -919,7 +971,6 @@
 </ul>
 <p>借用知乎大神 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/149911042">企鹅</a>的一个例子：</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/5346d1d0ceeb49d9a83fc4dcb8fd7793.png"><div class="caption"><b class="center-caption">""</b></div>
-
 <h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3. 代码"></a>3. 代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">int</span> <span class="token function">lengthOfLIS2</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> nums<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">int</span> len<span class="token operator">=</span>nums<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
@@ -1657,7 +1708,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1675,7 +1726,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1938,6 +1989,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

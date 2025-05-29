@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -842,12 +899,12 @@
 <p>现有两个线程如下操作：</p>
 <ul>
 <li>事务A执行：<ul>
-<li>time1: update students set score&#x3D;100 where id&#x3D;25</li>
+<li>time1: update students set score=100 where id=25</li>
 <li>time3: insert into students(id, no, name, age, score) value (25, ‘s0025’, ‘sony’, 28,90)</li>
 </ul>
 </li>
 <li>事务B执行：<ul>
-<li>time2: update students set score&#x3D;100 where id&#x3D;26</li>
+<li>time2: update students set score=100 where id=26</li>
 <li>time4: insert into students(id, no, name, age, score) value(26, ‘S0026’, ‘ace’, 28,90)</li>
 </ul>
 </li>
@@ -863,6 +920,7 @@
 <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span><span class="token identifier"><span class="token punctuation">`</span>id<span class="token punctuation">`</span></span><span class="token punctuation">)</span>
 <span class="token punctuation">)</span> <span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8mb4<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>然后，插入相关的数据后，t_student 表中的记录如下：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -873,7 +931,8 @@
 <th>score</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>15</td>
 <td>S0001</td>
 <td>Bob</td>
@@ -922,12 +981,15 @@
 <td>23</td>
 <td>89</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="3-2-当前环境"><a href="#3-2-当前环境" class="headerlink" title="3.2 当前环境"></a>3.2 当前环境</h2><ul>
 <li>MySQL：8.0.26</li>
 <li>隔离级别：可重复读</li>
 </ul>
 <h2 id="3-3-开始试验"><a href="#3-3-开始试验" class="headerlink" title="3.3 开始试验"></a>3.3 开始试验</h2><p>启动两个事务A、B，按照题目的 SQL 执行顺序，过程如下表格：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -936,20 +998,21 @@
 <th>事务B</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td></td>
 <td>begin</td>
 <td>begin</td>
 </tr>
 <tr>
 <td>阶段一</td>
-<td>update students set score&#x3D;100 where <code>id=25</code></td>
+<td>update students set score=100 where <code>id=25</code></td>
 <td></td>
 </tr>
 <tr>
 <td>阶段二</td>
 <td></td>
-<td>update students set score&#x3D;100 where <code>id=26</code></td>
+<td>update students set score=100 where <code>id=26</code></td>
 </tr>
 <tr>
 <td>阶段三</td>
@@ -961,7 +1024,9 @@
 <td></td>
 <td>insert into students(id, no, name, age, score) value(<code>26</code>, ‘S0026’, ‘ace’, 28,90) 阻塞等待……</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>可以看到，事务 A 和 事务 B 都在执行 <code>insert</code> 语句后，都陷入了<code>等待状态</code>（前提没有打开死锁检测），也就是发生了死锁，因为都在相互等待对方释放锁。</p>
 <h2 id="3-4-为什么会发生死锁？"><a href="#3-4-为什么会发生死锁？" class="headerlink" title="3.4 为什么会发生死锁？"></a>3.4 为什么会发生死锁？</h2><p>我们可以通过 <code>select * from performance_schema.data_locks\G;</code> 这条语句，查看事务执行 SQL 过程中加了什么锁。</p>
 <p>接下来，针对每一条 SQL 语句分析具体加了什么锁。</p>
@@ -973,9 +1038,7 @@ Query OK, <span class="token number">0</span> rows affected <span class="token p
 mysql<span class="token operator">></span> update t_student <span class="token builtin class-name">set</span> score <span class="token operator">=</span> <span class="token number">100</span> where <span class="token function">id</span> <span class="token operator">=</span> <span class="token number">25</span><span class="token punctuation">;</span>
 Query OK, <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.01</span> sec<span class="token punctuation">)</span>
 Rows matched: <span class="token number">0</span>  Changed: <span class="token number">0</span>  Warnings: <span class="token number">0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 A 此时加了什么锁。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update.jpg"><div class="caption"><b class="center-caption">事务A的update分析</b></div>
-
+<p>然后执行 <code>select * from performance_schema.data_locks\G;</code>这条语句，查看事务 A 此时加了什么锁。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update.jpg"><div class="caption"><b class="center-caption">事务A的update分析</b></div></p>
 <p>从上图可以看到，共加了<code>两个锁</code>，分别是：</p>
 <ul>
 <li>表锁：X 类型的意向锁；</li>
@@ -990,21 +1053,15 @@ Rows matched: <span class="token number">0</span>  Changed: <span class="token n
 <p>因此，此时事务 A 在主键索引<code>（INDEX_NAME : PRIMARY）</code>上加的是<code>间隙锁</code>，锁范围是<code>(20, 30)</code>。</p>
 <p>间隙锁的范围(20, 30) ，是怎么确定的？</p>
 <p>根据我的经验，如果 <code>LOCK_MODE</code> 是 <code>next-key 锁</code>或者<code>间隙锁</code>，那么 <code>LOCK_DATA</code> 就表示锁的范围<strong>最右值</strong>，此次的事务 A 的 LOCK_DATA 是 <code>30</code>。</p>
-<p>然后锁范围的<strong>最左值</strong>是 t_student 表中 id 为 <code>30</code> 的<strong>上一条记录</strong>的 id 值，即 <code>20</code>。如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update2.jpg"><div class="caption"><b class="center-caption">事务A的update语句的锁范围</b></div>
-
+<p>然后锁范围的<strong>最左值</strong>是 t_student 表中 id 为 <code>30</code> 的<strong>上一条记录</strong>的 id 值，即 <code>20</code>。如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update2.jpg"><div class="caption"><b class="center-caption">事务A的update语句的锁范围</b></div></p>
 <p>因此，间隙锁的范围(20, 30)。</p>
-<h3 id="3-4-2-Time-2-阶段加锁分析"><a href="#3-4-2-Time-2-阶段加锁分析" class="headerlink" title="3.4.2 Time 2 阶段加锁分析"></a>3.4.2 Time 2 阶段加锁分析</h3><p>Time 2 阶段，事务 B 执行以下语句：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 事务 B</span>
+<h3 id="3-4-2-Time-2-阶段加锁分析"><a href="#3-4-2-Time-2-阶段加锁分析" class="headerlink" title="3.4.2 Time 2 阶段加锁分析"></a>3.4.2 Time 2 阶段加锁分析</h3><p>Time 2 阶段，事务 B 执行以下语句：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 事务 B</span>
 mysql<span class="token operator">></span> begin<span class="token punctuation">;</span>
 Query OK, <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.00</span> sec<span class="token punctuation">)</span>
 
 mysql<span class="token operator">></span> update t_student <span class="token builtin class-name">set</span> score <span class="token operator">=</span> <span class="token number">100</span> where <span class="token function">id</span> <span class="token operator">=</span> <span class="token number">26</span><span class="token punctuation">;</span>
 Query OK, <span class="token number">0</span> rows affected <span class="token punctuation">(</span><span class="token number">0.01</span> sec<span class="token punctuation">)</span>
-Rows matched: <span class="token number">0</span>  Changed: <span class="token number">0</span>  Warnings: <span class="token number">0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 B 此时加了什么锁。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Update.jpg"><div class="caption"><b class="center-caption">事务B的update分析</b></div>
-
+Rows matched: <span class="token number">0</span>  Changed: <span class="token number">0</span>  Warnings: <span class="token number">0</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>然后执行 <code>select * from performance_schema.data_locks\G;</code>这条语句，查看事务 B 此时加了什么锁。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Update.jpg"><div class="caption"><b class="center-caption">事务B的update分析</b></div></p>
 <p>从上图可以看到，行锁是 X 类型的间隙锁，间隙锁的范围是(20, 30)。</p>
 <blockquote>
 <p>事务 A 和 事务 B 的间隙锁范围都是一样的，为什么不会冲突？<br>先说结论：两个事务的间隙锁之间是相互兼容的，不会产生冲突。<br>在MySQL官网上还有一段非常关键的描述：</p>
@@ -1013,13 +1070,9 @@ Rows matched: <span class="token number">0</span>  Changed: <span class="token n
 </blockquote>
 </blockquote>
 <p><code>间隙锁</code>的意义只在于<strong>阻止区间被插入</strong>，因此是可以共存的。一个事务获取的间隙锁不会阻止另一个事务获取同一个间隙范围的间隙锁，共享（S型）和排他（X型）的间隙锁是没有区别的，他们相互不冲突，且功能相同。</p>
-<h3 id="3-4-3-Time-3-阶段加锁分析"><a href="#3-4-3-Time-3-阶段加锁分析" class="headerlink" title="3.4.3 Time 3 阶段加锁分析"></a>3.4.3 Time 3 阶段加锁分析</h3><p>Time 3，事务 A 插入了一条记录：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mysql<span class="token operator">></span> insert into t_student<span class="token punctuation">(</span>id, no, name, age,score<span class="token punctuation">)</span> value <span class="token punctuation">(</span><span class="token number">25</span>, <span class="token string">'S0025'</span>, <span class="token string">'sony'</span>, <span class="token number">28</span>, <span class="token number">90</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-// 阻塞等待<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>此时，事务 A 就陷入了等待状态。</p>
-<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 A 在获取什么锁而导致被阻塞。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Insert.jpg"><div class="caption"><b class="center-caption">事务A的insert分析</b></div>
-
+<h3 id="3-4-3-Time-3-阶段加锁分析"><a href="#3-4-3-Time-3-阶段加锁分析" class="headerlink" title="3.4.3 Time 3 阶段加锁分析"></a>3.4.3 Time 3 阶段加锁分析</h3><p>Time 3，事务 A 插入了一条记录：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mysql<span class="token operator">></span> insert into t_student<span class="token punctuation">(</span>id, no, name, age,score<span class="token punctuation">)</span> value <span class="token punctuation">(</span><span class="token number">25</span>, <span class="token string">'S0025'</span>, <span class="token string">'sony'</span>, <span class="token number">28</span>, <span class="token number">90</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+// 阻塞等待<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>此时，事务 A 就陷入了等待状态。</p>
+<p>然后执行 <code>select * from performance_schema.data_locks\G;</code>这条语句，查看事务 A 在获取什么锁而导致被阻塞。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Insert.jpg"><div class="caption"><b class="center-caption">事务A的insert分析</b></div></p>
 <p>可以看到，事务 A 的状态为<code>等待状态</code>（LOCK_STATUS: WAITING），因为向事务 B 生成的间隙锁（范围 (20, 30)）中插入了一条记录，所以事务 A 的插入操作生成了一个<code>插入意向锁</code>（LOCK_MODE:INSERT_INTENTION）。</p>
 <blockquote>
 <p>插入意向锁是什么？<br>注意！插入意向锁名字里虽然有意向锁这三个字，但是它并不是意向锁，它属于<code>行级锁</code>，是一种<code>特殊的间隙锁</code>。</p>
@@ -1033,14 +1086,10 @@ Rows matched: <span class="token number">0</span>  Changed: <span class="token n
 <p>另外，我补充一点，插入意向锁的生成时机：</p>
 <blockquote>
 <p>每插入一条新记录，都需要看一下待插入记录的下一条记录上是否已经被加了间隙锁，如果已加间隙锁，此时会生成一个插入意向锁，然后锁的状态设置为<code>等待状态</code>（PS：MySQL 加锁时，是先生成锁结构，然后设置锁的状态，如果锁状态是等待状态，并不是意味着事务成功获取到了锁，只有当锁状态为正常状态时，才代表事务成功获取到了锁），现象就是 Insert 语句会被阻塞。</p>
+<h3 id="3-4-4-Time-4-阶段加锁分析"><a href="#3-4-4-Time-4-阶段加锁分析" class="headerlink" title="3.4.4 Time 4 阶段加锁分析"></a>3.4.4 Time 4 阶段加锁分析</h3><p>Time 4，事务 B 插入了一条记录：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mysql<span class="token operator">></span> insert into t_student<span class="token punctuation">(</span>id, no, name, age,score<span class="token punctuation">)</span> value <span class="token punctuation">(</span><span class="token number">26</span>, <span class="token string">'S0026'</span>, <span class="token string">'ace'</span>, <span class="token number">28</span>, <span class="token number">90</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+// 阻塞等待<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>此时，事务 B 就陷入了<code>等待状态</code>。</p>
 </blockquote>
-<h3 id="3-4-4-Time-4-阶段加锁分析"><a href="#3-4-4-Time-4-阶段加锁分析" class="headerlink" title="3.4.4 Time 4 阶段加锁分析"></a>3.4.4 Time 4 阶段加锁分析</h3><p>Time 4，事务 B 插入了一条记录：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mysql<span class="token operator">></span> insert into t_student<span class="token punctuation">(</span>id, no, name, age,score<span class="token punctuation">)</span> value <span class="token punctuation">(</span><span class="token number">26</span>, <span class="token string">'S0026'</span>, <span class="token string">'ace'</span>, <span class="token number">28</span>, <span class="token number">90</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-// 阻塞等待<span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>此时，事务 B 就陷入了<code>等待状态</code>。</p>
-<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 B 在获取什么锁而导致被阻塞。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Insert.jpg"><div class="caption"><b class="center-caption">事务B的insert分析</b></div>
-
+<p>然后执行 <code>select * from performance_schema.data_locks\G;</code>这条语句，查看事务 B 在获取什么锁而导致被阻塞。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Insert.jpg"><div class="caption"><b class="center-caption">事务B的insert分析</b></div></p>
 <p>可以看到，事务 B 在生成<code>插入意向锁</code>时而导致被阻塞，这是因为事务 B 向事务 A 生成的范围为 <code>(20, 30)</code> 的间隙锁插入了一条记录，而插入意向锁和间隙锁是<code>冲突的</code>，所以事务 B 在获取插入意向锁时就陷入了<code>等待状态</code>。</p>
 <h3 id="3-5-5-案例总结"><a href="#3-5-5-案例总结" class="headerlink" title="3.5.5 案例总结"></a>3.5.5 案例总结</h3><p>最后回答，为什么会发生死锁？</p>
 <p>本次案例中，事务 A 和事务 B 在执行完后 <code>update</code> 语句后都持有范围为<code>(20, 30)</code>的间隙锁，而接下来的插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了<code>循环等待</code>，满足了死锁的四个条件：<code>互斥</code>、<code>占有且等待</code>、<code>不可强占用</code>、<code>循环等待</code>，因此发生了<code>死锁</code>。</p>
@@ -1736,7 +1785,7 @@ Rows matched: <span class="token number">0</span>  Changed: <span class="token n
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1754,7 +1803,7 @@ Rows matched: <span class="token number">0</span>  Changed: <span class="token n
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2017,6 +2066,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

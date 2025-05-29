@@ -64,7 +64,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -858,7 +915,7 @@
 </ul>
 <h3 id="1-1-2-HTTP头信息"><a href="#1-1-2-HTTP头信息" class="headerlink" title="1.1.2 HTTP头信息"></a>1.1.2 HTTP头信息</h3><p>服务器向浏览器发送的 <code>SSE</code> 数据，必须是 <code>UTF-8</code> 编码的文本，具有如下的 <code>HTTP 头信息</code>：</p>
 <ul>
-<li><code>Content-Type</code>: text&#x2F;event-stream</li>
+<li><code>Content-Type</code>: text/event-stream</li>
 <li><code>Cache-Control</code>: no-cache</li>
 <li><code>Connection</code>: keep-alive<blockquote>
 <p>上面三行之中，第一行的 <code>Content-Type</code> 必须指定 <code>MIME</code> 类型为 <code>event-steam</code>。</p>
@@ -875,12 +932,11 @@
 <p>WebSocket 在<code>客户端</code>和<code>服务器</code>之间提供了<strong>真正的</strong><code>双向数据交换</code>。</p>
 <blockquote>
 <p>WebSocket 连接允许客户端和服务器之间进行<code>全双工通信</code>，以便任一方都可以通过建立的连接将数据推送到另一端。WebSocket 只需要建立<code>一次连接</code>，就可以一直保持连接状态。这相比于<code>轮询</code>方式的不停建立连接显然效率要大大提高。</p>
-</blockquote>
-<blockquote>
 <p>Web 浏览器和服务器都必须实现<code>WebSocket协议</code>来建立和维护连接。</p>
 </blockquote>
 <p>下一章节，将举例基于websocket的聊天应用。</p>
-<h1 id="2-技术比较"><a href="#2-技术比较" class="headerlink" title="2 技术比较"></a>2 技术比较</h1><table>
+<h1 id="2-技术比较"><a href="#2-技术比较" class="headerlink" title="2 技术比较"></a>2 技术比较</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>-</th>
@@ -890,11 +946,12 @@
 <th>WebSocket</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>浏览器支持度</td>
 <td>最高</td>
 <td>很高</td>
-<td>中（IE&#x2F;Edge均不支持）</td>
+<td>中（IE/Edge均不支持）</td>
 <td>中（早期浏览器不支持）</td>
 </tr>
 <tr>
@@ -925,7 +982,9 @@
 <td>实时，基本都是文本交互的应用</td>
 <td>实时，需要支持多样化的用户数据类型的应用或原生程序</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 
                 
             </div>
@@ -1617,7 +1676,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1635,7 +1694,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1898,6 +1957,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

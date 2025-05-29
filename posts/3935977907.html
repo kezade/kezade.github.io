@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -806,7 +863,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    5 分
+                    4 分
                 </div>
                 
 
@@ -828,27 +885,24 @@
 <p>一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。</p>
 <p>例如，”ace” 是 “abcde” 的子序列，但 “aec” 不是 “abcde” 的子序列。<br>两个字符串的 公共子序列 是这两个字符串所共同拥有的子序列。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
-<p>输入：text1 &#x3D; “abcde”, text2 &#x3D; “ace”<br>输出：3<br>解释：最长公共子序列是 “ace” ，它的长度为 3 。</p>
+<p>输入：text1 = “abcde”, text2 = “ace”<br>输出：3<br>解释：最长公共子序列是 “ace” ，它的长度为 3 。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入：text1 &#x3D; “abc”, text2 &#x3D; “abc”<br>输出：3<br>解释：最长公共子序列是 “abc” ，它的长度为 3 。</p>
+<p>输入：text1 = “abc”, text2 = “abc”<br>输出：3<br>解释：最长公共子序列是 “abc” ，它的长度为 3 。</p>
 </blockquote>
 <h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入：text1 &#x3D; “abc”, text2 &#x3D; “def”<br>输出：0<br>解释：两个字符串没有公共子序列，返回 0 。</p>
+<p>输入：text1 = “abc”, text2 = “def”<br>输出：0<br>解释：两个字符串没有公共子序列，返回 0 。</p>
 </blockquote>
 <p><strong>提示</strong>：</p>
 <ul>
-<li>1 &lt;&#x3D; text1.length, text2.length &lt;&#x3D; 1000</li>
-<li>text1 和 text2 仅由小写英文字符组成。</li>
-</ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-动态规划"><a href="#2-1-动态规划" class="headerlink" title="2.1 动态规划"></a>2.1 动态规划</h2><p>定义<code>dp~ij~</code>表示<code>text~1~</code>的前<code>i-1</code>个字符和<code>text~2~ </code>的前<code>j-1</code>个字符所能形成的最长公共子序列的长度。<br>令<code>len1</code>为<code>text~1~</code> 的总长，<code>len2</code>为<code>text~2~</code> 的总长，则<code>dp~len1,len2~</code> 即为题目所求。</p>
-<ul>
-<li><p>当 i&#x3D;0 时，<code>text~1~ [0:i]</code> 为空，空字符串和任何字符串的最长公共子序列的长度都是 0，因此对任意 <code>0≤j≤len2</code>，有 <code>dp~0,j~=0</code>；</p>
+<li>1 &lt;= text1.length, text2.length &lt;= 1000</li>
+<li>text1 和 text2 仅由小写英文字符组成。<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-动态规划"><a href="#2-1-动态规划" class="headerlink" title="2.1 动态规划"></a>2.1 动态规划</h2>定义<code>dp~ij~</code>表示<code>text~1~</code>的前<code>i-1</code>个字符和<code>text~2~</code>的前<code>j-1</code>个字符所能形成的最长公共子序列的长度。<br>令<code>len1</code>为<code>text~1~</code> 的总长，<code>len2</code>为<code>text~2~</code> 的总长，则<code>dp~len1,len2~</code> 即为题目所求。</li>
+<li><p>当 i=0 时，<code>text~1~ [0:i]</code> 为空，空字符串和任何字符串的最长公共子序列的长度都是 0，因此对任意 <code>0≤j≤len2</code>，有 <code>dp~0,j~=0</code>；</p>
 </li>
-<li><p>当 j&#x3D;0 时，<code>text~2~[0:j]</code> 为空，同理可得，对任意 <code>0≤i≤len1</code>，有 <code>dp[i][0]=0</code>。</p>
+<li><p>当 j=0 时，<code>text~2~[0:j]</code> 为空，同理可得，对任意 <code>0≤i≤len1</code>，有 <code>dp[i][0]=0</code>。</p>
 </li>
 </ul>
-<p>因此动态规划的边界情况是：当 i&#x3D;0 或 j&#x3D;0 时，<code>dp~i,0~=0</code>。</p>
+<p>因此动态规划的边界情况是：当 i=0 或 j=0 时，<code>dp~i,0~=0</code>。</p>
 <ul>
 <li><p>当 i&gt;0 且 j&gt;0 时，考虑 <code>dp~ij~</code>的计算：</p>
 <ul>
@@ -869,12 +923,11 @@
 <p>由此可以得到如下状态转移方程：</p>
 <ul>
 <li>当<code>text~1~[0:i-1]=text~2~[0:j-1]</code>, <code>dp~i,j~ = dp~i-1,j-1~ +1</code>;</li>
-<li>否则，dp<del>i,j</del> &#x3D;max{dp<del>i,j-1</del> , dp<del>i-1,j</del> }</li>
+<li>否则，dp~i,j~ =max{dp~i,j-1~ , dp~i-1,j~ }</li>
 </ul>
 <p>最终，<code>dp~len1,len2~</code> 即为<code>text~1~</code> 和 <code>text~2~</code> 的最长公共子序列。</p>
 <p>例如，<code>text~1~ =abcddab</code>, <code>text~2~ =bdcaba</code>，则动态规划矩阵如下图：</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/473d6bb69bfe4b2ea395e519fb43f8be.png"><div class="caption"><b class="center-caption">"动态规划矩阵"</b></div>
-
 <h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">/**
 动态规划（利用偏移）
@@ -1607,7 +1660,7 @@ s1[i-1]!=s2[j-1] : f[i][j]=max(f[i−1][j],f[i][j−1])。代表不使用 s1[i�
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1870,6 +1923,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

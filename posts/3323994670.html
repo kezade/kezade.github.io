@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -819,7 +876,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    863
+                    855
                 </div>
                 
 
@@ -849,21 +906,16 @@
 <p>返回合并后的二叉树。</p>
 <p>注意: 合并过程必须从两个树的根节点开始。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/52418450d1a841768df44b5951166bcc.png"><div class="caption"><b class="center-caption">""</b></div>
-
-
 <blockquote>
-<p>输入：root1 &#x3D; [1,3,2,5], root2 &#x3D; [2,1,3,null,4,null,7]<br>输出：[3,4,5,5,4,null,7]</p>
+<p>输入：root1 = [1,3,2,5], root2 = [2,1,3,null,4,null,7]<br>输出：[3,4,5,5,4,null,7]</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入：root1 &#x3D; [1], root2 &#x3D; [1,2]<br>输出：[2,2]</p>
+<p>输入：root1 = [1], root2 = [1,2]<br>输出：[2,2]</p>
 </blockquote>
 <p><strong>提示</strong>：</p>
 <ul>
 <li>两棵树中的节点数目在范围 [0, 2000] 内</li>
-<li>-104 &lt;&#x3D; Node.val &lt;&#x3D; 104</li>
-</ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-递归"><a href="#2-1-递归" class="headerlink" title="2.1 递归"></a>2.1 递归</h2><p>采用前序遍历方式，遍历两颗树，对于单个节点，存在以下三种情况进行合并处理：</p>
-<ul>
+<li>-104 &lt;= Node.val &lt;= 104<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-递归"><a href="#2-1-递归" class="headerlink" title="2.1 递归"></a>2.1 递归</h2>采用前序遍历方式，遍历两颗树，对于单个节点，存在以下三种情况进行合并处理：</li>
 <li>如果两个二叉树的对应节点都为空，则合并后的二叉树的对应节点也为空；</li>
 <li>如果两个二叉树的对应节点只有一个为空，则合并后的二叉树的对应节点为其中的非空节点；</li>
 <li>如果两个二叉树的对应节点都不为空，则合并后的二叉树的对应节点的值为两个二叉树的对应节点的值之和，此时需要显性合并两个节点</li>
@@ -872,15 +924,12 @@
 <p>复杂度：</p>
 <ul>
 <li>时间复杂度：O(N)</li>
-<li>空间复杂度：O(h)，h 是树的高度</li>
+<li>空间复杂度：O(h)，h 是树的高度<h2 id="2-2-迭代"><a href="#2-2-迭代" class="headerlink" title="2.2 迭代"></a>2.2 迭代</h2>还是以root1为主干进行合并，利用层次遍历的方法，对于同时非空的左节点或右节点进行合并，若root1的left为空，则将root2.left赋值给root1.left；同理，若root1.right为空，则将root2.right赋值给它。</li>
 </ul>
-<h2 id="2-2-迭代"><a href="#2-2-迭代" class="headerlink" title="2.2 迭代"></a>2.2 迭代</h2><p>还是以root1为主干进行合并，利用层次遍历的方法，对于同时非空的左节点或右节点进行合并，若root1的left为空，则将root2.left赋值给root1.left；同理，若root1.right为空，则将root2.right赋值给它。</p>
 <p>复杂度：</p>
 <ul>
 <li>时间复杂度：O(N)</li>
-<li>空间复杂度：O(N)，对于满二叉树时，要保存所有的叶子节点，即 N&#x2F;2 个节点。</li>
-</ul>
-<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<li>空间复杂度：O(N)，对于满二叉树时，要保存所有的叶子节点，即 N/2 个节点。<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * Definition for a binary tree node.
  * public class TreeNode &#123;
  *     int val;
@@ -941,7 +990,9 @@
 		<span class="token punctuation">&#125;</span>
 		<span class="token keyword">return</span> t1<span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+
                 
             </div>
             <hr/>
@@ -1687,7 +1738,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1950,6 +2001,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

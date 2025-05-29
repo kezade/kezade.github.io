@@ -5,8 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【Spring源码学习】Spring Bean实例化-循环依赖, Back-End Dev Java">
-    <meta name="description" content="一、什么是循环依赖如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致循环依赖。类似代码如下：
-public class A &amp;#12">
+    <meta name="description" content="一、什么是循环依赖如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致循环依赖。类似代码如下：public class A &amp;#123">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -62,7 +61,7 @@ public class A &amp;#12">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +179,7 @@ public class A &amp;#12">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +255,15 @@ public class A &amp;#12">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +286,24 @@ public class A &amp;#12">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +484,7 @@ public class A &amp;#12">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +568,16 @@ public class A &amp;#12">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +600,26 @@ public class A &amp;#12">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -824,20 +880,19 @@ public class A &amp;#12">
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="一、什么是循环依赖"><a href="#一、什么是循环依赖" class="headerlink" title="一、什么是循环依赖"></a>一、什么是循环依赖</h1><p>如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致<strong>循环依赖</strong>。类似代码如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">A</span> <span class="token punctuation">&#123;</span>
+                <h1 id="一、什么是循环依赖"><a href="#一、什么是循环依赖" class="headerlink" title="一、什么是循环依赖"></a>一、什么是循环依赖</h1><p>如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致<strong>循环依赖</strong>。类似代码如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">A</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token class-name">B</span> b<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
  
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">B</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token class-name">A</span> a<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p><strong>循环依赖只会出现在单例实例无参构造函数实例化情况下</strong>。有参构造函数的加@Autowired 的方式循环依赖是直接报错的，多例的循环依赖也是直接报错的。接下来我会通过源代码一一说明。</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br><strong>循环依赖只会出现在单例实例无参构造函数实例化情况下</strong>。有参构造函数的加@Autowired 的方式循环依赖是直接报错的，多例的循环依赖也是直接报错的。接下来我会通过源代码一一说明。</p>
 <h1 id="二、循环依赖的步骤"><a href="#二、循环依赖的步骤" class="headerlink" title="二、循环依赖的步骤"></a>二、循环依赖的步骤</h1><p>前面几章中，我重点跟了Spring Bean的实例化源码过程，总结一下就是：</p>
 <ul>
 <li><a href="/posts/9980.html" title="【Spring源码学习】Spring Bean实例化过程-创建Bean实例">【Spring源码学习】Spring Bean实例化过程-创建Bean实例</a></li>
 <li><a href="/posts/40022.html" title="【Spring源码学习】Spring Bean实例化过程-依赖属性注入">【Spring源码学习】Spring Bean实例化过程-依赖属性注入</a></li>
-<li><a href="/posts/54230.html" title="【Spring源码学习】Spring Bean实例化过程-初始化">【Spring源码学习】Spring Bean实例化过程-初始化</a></li>
+<li><a href="/posts/54230.html" title="【Spring源码学习】Spring Bean实例化过程-初始化">【Spring源码学习】Spring Bean实例化过程-初始化</a>
+</li>
 </ul>
 <p>循环依赖步骤：</p>
 <ul>
@@ -927,8 +982,7 @@ public class A &amp;#12">
 	<span class="token comment">//这里着重理解，对理解循环依赖帮助非常大，重要程度 5   添加三级缓存</span>
 	<span class="token function">addSingletonFactory</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token function">getEarlyBeanReference</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> mbd<span class="token punctuation">,</span> bean<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>默认情况下，支持循环依赖，默认都是单例，而正在创建的实例条件是在AbstractAutowireCapableBeanFactory.doCreateBean()的调用方，AbstractBeanFactory.deGetBean()发起的</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>mbd<span class="token punctuation">.</span><span class="token function">isSingleton</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<p>默认情况下，支持循环依赖，默认都是单例，而正在创建的实例条件是在AbstractAutowireCapableBeanFactory.doCreateBean()的调用方，AbstractBeanFactory.deGetBean()发起的<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>mbd<span class="token punctuation">.</span><span class="token function">isSingleton</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	sharedInstance <span class="token operator">=</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token punctuation">&#123;</span>
 		<span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
 			<span class="token keyword">return</span> <span class="token function">createBean</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> mbd<span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -943,18 +997,13 @@ public class A &amp;#12">
 	<span class="token punctuation">&#125;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token comment">//该方法是FactoryBean接口的调用入口</span>
 	bean <span class="token operator">=</span> <span class="token function">getObjectForBeanInstance</span><span class="token punctuation">(</span>sharedInstance<span class="token punctuation">,</span> name<span class="token punctuation">,</span> beanName<span class="token punctuation">,</span> mbd<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>点进去看看getSingleton().</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210420120240865.png"><div class="caption"><b class="center-caption">"在这里插入图片描述"</b></div>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">beforeSingletonCreation</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>点进去看看getSingleton().<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210420120240865.png"><div class="caption"><b class="center-caption">"在这里插入图片描述"</b></div><br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">beforeSingletonCreation</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//把beanName添加到singletonsCurrentlyInCreation Set容器中，在这个集合里面的bean都是正在实例化的bean</span>
 	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>inCreationCheckExclusions<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>singletonsCurrentlyInCreation<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanCurrentlyInCreationException</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>创建完毕后，会把提前暴露的实例存放至三级缓存中</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultSingletonBeanRegistry</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>创建完毕后，会把提前暴露的实例存放至三级缓存中<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultSingletonBeanRegistry</span>
 <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">addSingletonFactory</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">ObjectFactory</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> singletonFactory<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token class-name">Assert</span><span class="token punctuation">.</span><span class="token function">notNull</span><span class="token punctuation">(</span>singletonFactory<span class="token punctuation">,</span> <span class="token string">"Singleton factory must not be null"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">synchronized</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>singletonObjects<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -967,10 +1016,8 @@ public class A &amp;#12">
 			<span class="token keyword">this</span><span class="token punctuation">.</span>registeredSingletons<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
 		<span class="token punctuation">&#125;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>如果有参构造函数的有@Autowired ，那么在执行createBeanInstance 方法时，参数为引用类型会再次触发getBean操作。由于之前的bean 的实例化尚未完成，三级缓存中也没法获取到，所以就继续走之前第一次实例化进入的getSingleton 方法，此方法中的beforeSingletonCreation 会校验该bean 是否正在实例化。如果是有参构造函数的有@Autowired的循环依赖的话，则这里的第二个判断为false，因为第一次类A已经在里面了，就会抛异常。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">beforeSingletonCreation</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>如果有参构造函数的有@Autowired ，那么在执行createBeanInstance 方法时，参数为引用类型会再次触发getBean操作。由于之前的bean 的实例化尚未完成，三级缓存中也没法获取到，所以就继续走之前第一次实例化进入的getSingleton 方法，此方法中的beforeSingletonCreation 会校验该bean 是否正在实例化。如果是有参构造函数的有@Autowired的循环依赖的话，则这里的第二个判断为false，因为第一次类A已经在里面了，就会抛异常。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">beforeSingletonCreation</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//把beanName添加到singletonsCurrentlyInCreation Set容器中，在这个集合里面的bean都是正在实例化的bean</span>
 	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>inCreationCheckExclusions<span class="token punctuation">.</span><span class="token function">contains</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token keyword">this</span><span class="token punctuation">.</span>singletonsCurrentlyInCreation<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanCurrentlyInCreationException</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -980,37 +1027,14 @@ public class A &amp;#12">
 <span class="token keyword">public</span> <span class="token class-name">BeanCurrentlyInCreationException</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">super</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span>
 			<span class="token string">"Requested bean is currently in creation: Is there an unresolvable circular reference?"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>而对于多例的循环依赖问题，在这里就会抛异常了</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//AbstractBeanFactory</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>而对于多例的循环依赖问题，在这里就会抛异常了<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//AbstractBeanFactory</span>
 <span class="token comment">//如果是scope 是Prototype的，校验是否有出现循环依赖，如果有则直接报错</span>
 <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isPrototypeCurrentlyInCreation</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanCurrentlyInCreationException</span><span class="token punctuation">(</span>beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>如果是通过属性加@Autowired 方式进行循环依赖，在进行populateBean 属性依赖注入之前就会把bean 放入三级缓存中，从而进行populateBean 操作时触发getBean 时就可以直接从三级缓存中取就可以了。</p>
-<p>总结下三级缓存各自的功能：</p>
-<table>
-<thead>
-<tr>
-<th align="left">缓存</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">singletonObjects</td>
-<td align="left">第一级缓存，存放可用的成品Bean。</td>
-</tr>
-<tr>
-<td align="left">earlySingletonObjects</td>
-<td align="left">第二级缓存，存放半成品的Bean，半成品的Bean是已创建对象，但是未注入属性和初始化。用以解决循环依赖。</td>
-</tr>
-<tr>
-<td align="left">singletonFactories</td>
-<td align="left">第三级缓存，存的是Bean工厂对象，用来生成半成品的Bean并放入到二级缓存中。用以解决循环依赖。</td>
-</tr>
-</tbody></table>
+<p>总结下三级缓存各自的功能：<br>缓存 |    说明<br>|:————|:——————-|<br>singletonObjects | 第一级缓存，存放可用的成品Bean。<br>earlySingletonObjects | 第二级缓存，存放半成品的Bean，半成品的Bean是已创建对象，但是未注入属性和初始化。用以解决循环依赖。<br>singletonFactories | 第三级缓存，存的是Bean工厂对象，用来生成半成品的Bean并放入到二级缓存中。用以解决循环依赖。</p>
 <h1 id="四、二级缓存能否解决循环依赖"><a href="#四、二级缓存能否解决循环依赖" class="headerlink" title="四、二级缓存能否解决循环依赖"></a>四、二级缓存能否解决循环依赖</h1><ol>
 <li>若没有第二级缓存，若有多次依赖某一对象，则每次都需要从三级缓存中创建该对象，失去了单例的意义。（我要的就是单例，你给我来多例，逗我呢？）</li>
 <li>若没有第三级缓存，对于一般的对象循环依赖问题可以得到解决。那么就得去改写 AbstractAutowireCapableBeanFactory 的 doCreateBean 的方法了。</li>
@@ -1025,7 +1049,6 @@ public class A &amp;#12">
    <span class="token comment">//从三级缓存中取出立刻放入二级缓存</span>
    <span class="token function">getSingleton</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>但是，对于AOP代理对象的生成，会违背Spring总体实例化对象的流程，因为代理对象是在初始化bean完全之后，进行该bean的代理。即：<br>Spring结合AOP跟Bean的生命周期，是在Bean创建完全之后通过AnnotationAwareAspectJAutoProxyCreator这个后置处理器来完成的，在这个后置处理的postProcessAfterInitialization方法中对初始化后的Bean完成AOP代理。</p>
 <p>若没有第三级缓存，则创建完bean，就得立马创建代理对象，违背了Spring设计原则。</p>
 
@@ -1718,7 +1741,7 @@ public class A &amp;#12">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1981,6 +2004,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

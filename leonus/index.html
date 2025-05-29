@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -781,7 +838,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    718
+                    730
                 </div>
                 
 
@@ -806,203 +863,50 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <style>
-/* 页面初始化 */
-div#page {
-    background: none;
-    border: 0;
-    padding: 0;
-}
-
-[data-theme=dark] #twikoo .tk-content,
-#twikoo .tk-content {
-    padding: 0;
-    background: transparent;
-}
-
-.talk_item,
-.tk-expand,
-.tk-comments-container>.tk-comment,
-.tk-submit:nth-child(1){
-    background: var(--card-bg);
-    border: 1px solid #e0e3ed;
-    box-shadow: 0 5px 10px rgb(189 189 189 / 10%);
-    transition: all .3s ease-in-out;
-    border-radius: 12px;
-}
-.talk_item:hover,
-.tk-comments-container>.tk-comment:hover,
-.tk-submit:nth-child(1):hover {
-    border-color: #49b1f5;
-}
-
-.tk-submit {
-    padding: 20px 10px 0;
-}
-
-.tk-comments-container>.tk-comment {
-    padding: 15px;
-}
-
-/* 页面初始化结束 */
-
-#talk{
-    margin-top: 1rem;
-}
-
-#talk .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-#talk .loading img {
-    width: 200px;
-}
-
-.talk_item {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-
-.avatar {
-    margin: 0 !important;
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-}
-
-
-.talk_bottom,
-.talk_meta {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    line-height: 1.5;
-}
-.talk_bottom{
-    justify-content: space-between;
-}
-.info {
-    display: flex;
-    flex-direction: column;
-    margin-left: 10px;
-}
-span.talk_nick {
-    color: #6dbdc3;
-    font-size: 1.2rem;
-}
-svg.is-badge.icon {
-    width: 15px;
-    margin-left: 5px;
-    padding-top: 3px;
-}
-span.talk_date {
-    opacity: .6;
-}
-
-.talk_content {
-    line-height: 1.5;
-    margin-top: 10px;
-}
-.zone_imgbox {
-    display: flex;
-    flex-wrap: wrap;
-    --w: calc(25% - 8px);
-    gap: 10px;
-    margin-top: 5px;
-}
-.zone_imgbox a {
-    display: block;
-    border-radius: 12px;
-    width: var(--w);
-    aspect-ratio: 1/1;
-    position: relative;
-}
-
-.zone_imgbox img {
-    width: 100%;
-    height: 100%;
-    margin: 0 !important;
-    object-fit: cover;
-}
-/* 底部 */
-
-.talk_bottom {
-    opacity: .9;
-}
-.talk_bottom .icon {
-    color: var(--font-color);
-    float: right;
-    transition: all .3s;
-}
-
-.talk_bottom .icon:hover {
-    color: #49b1f5;
-}
-
-span.talk_tag{
-    font-size: 14px;
-}
-.talk_content>a {
-    margin: 0 3px;
-    color: #ff7d73 !important;
-}
-.talk_content>a:hover{
-    text-decoration: none !important;
-    color: #ff5143 !important
-}
-
-/* 提醒 */
-
-.limit {
-    transition: all .3s ease-in-out;
-    color: rgba(76, 73, 72, 0.6);
-}
-
-[data-theme=dark] .limit {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.limit {
-    display: none;
-    text-align: center;
-    margin-top: 20px;
-    color: var(--font-color);
-}
-@media screen and (max-width: 900px) {
-    .zone_imgbox {
-        --w: calc(33% - 5px);
-    }
-    #talk{
-        margin: 10px 3px 0
-    }
-    #post-comment{
-        margin: 0 3px
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .zone_imgbox {
-        gap: 6px;
-    }
-    .zone_imgbox {
-        --w: calc(50% - 3px);
-    }
-    span.talk_date {
-        font-size: 14px;
-    }
-}
-</style>
-<meta name="referrer" content="no-referrer">
+                <p><style><br>/<em> 页面初始化 </em>/<br>div#page {<br>    background: none;<br>    border: 0;<br>    padding: 0;<br>}</p>
+<p>[data-theme=dark] #twikoo .tk-content,</p>
+<h1 id="twikoo-tk-content"><a href="#twikoo-tk-content" class="headerlink" title="twikoo .tk-content {"></a>twikoo .tk-content {</h1><pre><code>padding: 0;
+background: transparent;
+</code></pre><p>}</p>
+<p>.talk_item,<br>.tk-expand,<br>.tk-comments-container&gt;.tk-comment,<br>.tk-submit:nth-child(1){<br>    background: var(—card-bg);<br>    border: 1px solid #e0e3ed;<br>    box-shadow: 0 5px 10px rgb(189 189 189 / 10%);<br>    transition: all .3s ease-in-out;<br>    border-radius: 12px;<br>}<br>.talk_item:hover,<br>.tk-comments-container&gt;.tk-comment:hover,<br>.tk-submit:nth-child(1):hover {<br>    border-color: #49b1f5;<br>}</p>
+<p>.tk-submit {<br>    padding: 20px 10px 0;<br>}</p>
+<p>.tk-comments-container&gt;.tk-comment {<br>    padding: 15px;<br>}</p>
+<p>/<em> 页面初始化结束 </em>/</p>
+<h1 id="talk"><a href="#talk" class="headerlink" title="talk{"></a>talk{</h1><pre><code>margin-top: 1rem;
+</code></pre><p>}</p>
+<h1 id="talk-loading"><a href="#talk-loading" class="headerlink" title="talk .loading {"></a>talk .loading {</h1><pre><code>display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+</code></pre><p>}</p>
+<h1 id="talk-loading-img"><a href="#talk-loading-img" class="headerlink" title="talk .loading img {"></a>talk .loading img {</h1><pre><code>width: 200px;
+</code></pre><p>}</p>
+<p>.talk_item {<br>    display: flex;<br>    flex-direction: column;<br>    padding: 20px;<br>    margin-bottom: 15px;<br>}</p>
+<p>.avatar {<br>    margin: 0 !important;<br>    width: 60px;<br>    height: 60px;<br>    border-radius: 10px;<br>}</p>
+<p>.talk_bottom,<br>.talk_meta {<br>    display: flex;<br>    align-items: center;<br>    width: 100%;<br>    line-height: 1.5;<br>}<br>.talk_bottom{<br>    justify-content: space-between;<br>}<br>.info {<br>    display: flex;<br>    flex-direction: column;<br>    margin-left: 10px;<br>}<br>span.talk_nick {<br>    color: #6dbdc3;<br>    font-size: 1.2rem;<br>}<br>svg.is-badge.icon {<br>    width: 15px;<br>    margin-left: 5px;<br>    padding-top: 3px;<br>}<br>span.talk_date {<br>    opacity: .6;<br>}</p>
+<p>.talk_content {<br>    line-height: 1.5;<br>    margin-top: 10px;<br>}<br>.zone_imgbox {<br>    display: flex;<br>    flex-wrap: wrap;<br>    —w: calc(25% - 8px);<br>    gap: 10px;<br>    margin-top: 5px;<br>}<br>.zone_imgbox a {<br>    display: block;<br>    border-radius: 12px;<br>    width: var(—w);<br>    aspect-ratio: 1/1;<br>    position: relative;<br>}</p>
+<p>.zone_imgbox img {<br>    width: 100%;<br>    height: 100%;<br>    margin: 0 !important;<br>    object-fit: cover;<br>}<br>/<em> 底部 </em>/</p>
+<p>.talk_bottom {<br>    opacity: .9;<br>}<br>.talk_bottom .icon {<br>    color: var(—font-color);<br>    float: right;<br>    transition: all .3s;<br>}</p>
+<p>.talk_bottom .icon:hover {<br>    color: #49b1f5;<br>}</p>
+<p>span.talk_tag{<br>    font-size: 14px;<br>}<br>.talk_content&gt;a {<br>    margin: 0 3px;<br>    color: #ff7d73 !important;<br>}<br>.talk_content&gt;a:hover{<br>    text-decoration: none !important;<br>    color: #ff5143 !important<br>}</p>
+<p>/<em> 提醒 </em>/</p>
+<p>.limit {<br>    transition: all .3s ease-in-out;<br>    color: rgba(76, 73, 72, 0.6);<br>}</p>
+<p>[data-theme=dark] .limit {<br>    color: rgba(255, 255, 255, 0.5);<br>}</p>
+<p>.limit {<br>    display: none;<br>    text-align: center;<br>    margin-top: 20px;<br>    color: var(—font-color);<br>}<br>@media screen and (max-width: 900px) {<br>    .zone_imgbox {<br>        —w: calc(33% - 5px);<br>    }</p>
+<pre><code>#talk&#123;
+    margin: 10px 3px 0
+&#125;
+#post-comment&#123;
+    margin: 0 3px
+&#125;
+</code></pre><p>}</p>
+<p>@media screen and (max-width: 768px) {<br>    .zone_imgbox {<br>        gap: 6px;<br>    }<br>    .zone_imgbox {<br>        —w: calc(50% - 3px);<br>    }<br>    span.talk_date {<br>        font-size: 14px;<br>    }<br>}<br>&lt;/style&gt;</p>
+<p><meta name="referrer" content="no-referrer"/></p>
 <div id="talk">
-<div class="loading"><img src="/leonus/index/loading.svg" alt="加载中..."></div>
+<div class='loading'><img src="/medias/loading.svg" alt="加载中..."></div>
 </div>
 
-<div class="limit">- 只展示最近30条说说 -</div>
+<p><div class="limit">- 只展示最近30条说说 -</div></p>
 <script>
 pageTalk();
 // 页面说说
@@ -1069,7 +973,7 @@ function formatTime(value) {
         return ''
     } 
 }
-</script>
+</script></style></p>
                 
             </div>
             <hr/>
@@ -1724,7 +1628,7 @@ function formatTime(value) {
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1987,6 +1891,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

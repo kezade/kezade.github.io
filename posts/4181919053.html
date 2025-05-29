@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -844,13 +901,11 @@
 <li><a href="/posts/173477105.html" title="【RocketMQ学习】10.源码之堆外内存">【RocketMQ学习】10.源码之堆外内存</a></li>
 <li><a href="/posts/1678455808.html" title="【RocketMQ学习】11.源码之事务消息">【RocketMQ学习】11.源码之事务消息</a></li>
 <li><a href="/posts/3651213784.html" title="【RocketMQ学习】12.源码之数据同步及异步机制">【RocketMQ学习】12.源码之数据同步及异步机制</a></li>
-<li><a href="/posts/1780908168.html" title="【RocketMQ学习】13.源码之消息过滤与重试">【RocketMQ学习】13.源码之消息过滤与重试</a></li>
+<li><a href="/posts/1780908168.html" title="【RocketMQ学习】13.源码之消息过滤与重试">【RocketMQ学习】13.源码之消息过滤与重试</a>
+</li>
 </ul>
-<h1 id="3-打包与部署"><a href="#3-打包与部署" class="headerlink" title="3 打包与部署"></a>3 打包与部署</h1><p>使用如下命令对源码进行编译：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mvn -Prelease-all <span class="token parameter variable">-DskipTests</span> clean <span class="token function">install</span> <span class="token parameter variable">-U</span> <span class="token parameter variable">-e</span> <span class="token parameter variable">-Dcheckstyle.skip</span><span class="token operator">=</span>true<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>编译成功最后会输出如下内容，所有模块的编译结果都是SUCCESS状态：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> ------------------------------------------------------------------------
+<h1 id="3-打包与部署"><a href="#3-打包与部署" class="headerlink" title="3 打包与部署"></a>3 打包与部署</h1><p>使用如下命令对源码进行编译：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">mvn -Prelease-all <span class="token parameter variable">-DskipTests</span> clean <span class="token function">install</span> <span class="token parameter variable">-U</span> <span class="token parameter variable">-e</span> <span class="token parameter variable">-Dcheckstyle.skip</span><span class="token operator">=</span>true<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>编译成功最后会输出如下内容，所有模块的编译结果都是SUCCESS状态：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> ------------------------------------------------------------------------
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> Reactor Summary:
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> 
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> Apache RocketMQ <span class="token number">4.8</span>.0 <span class="token number">4.8</span>.0 <span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span><span class="token punctuation">..</span> SUCCESS <span class="token punctuation">[</span>  <span class="token number">3.571</span> s<span class="token punctuation">]</span>
@@ -876,16 +931,12 @@
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> Total time: 01:55 min
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> Finished at: <span class="token number">2023</span>-07-21T11:12:38+08:00
 <span class="token punctuation">[</span>INFO<span class="token punctuation">]</span> ------------------------------------------------------------------------
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>然后在<code>distribution/target/</code>目录下，可以看到编译打包好的可分发包：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>zyxelva@Taeyeons-MacBook-Pro <span class="token number">11</span>:33:56 ~/Downloads/rocketmq-all-4.8.0-source-release<span class="token punctuation">]</span>$ <span class="token function">ls</span> distribution/target/
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>然后在<code>distribution/target/</code>目录下，可以看到编译打包好的可分发包：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>zyxelva@Taeyeons-MacBook-Pro <span class="token number">11</span>:33:56 ~/Downloads/rocketmq-all-4.8.0-source-release<span class="token punctuation">]</span>$ <span class="token function">ls</span> distribution/target/
 archive-tmp                     rocketmq-4.8.0                  rocketmq-4.8.0.zip
 maven-shared-archive-resources  rocketmq-4.8.0.tar.gz
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>而<code>distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/</code>即为可以用以启动RocketMQ的文件目录：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>zyxelva@Taeyeons-MacBook-Pro <span class="token number">12</span>:01:47 ~/Downloads/rocketmq-all-4.8.0-source-release<span class="token punctuation">]</span>$ ll distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
+<p>而<code>distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/</code>即为可以用以启动RocketMQ的文件目录：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>zyxelva@Taeyeons-MacBook-Pro <span class="token number">12</span>:01:47 ~/Downloads/rocketmq-all-4.8.0-source-release<span class="token punctuation">]</span>$ ll distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/
 total <span class="token number">64</span>
 drwxr-xr-x   <span class="token number">9</span> zyxelva  staff   288B Jul <span class="token number">21</span> <span class="token number">11</span>:12 <span class="token builtin class-name">.</span>
 drwxr-xr-x   <span class="token number">3</span> zyxelva  staff    96B Jul <span class="token number">21</span> <span class="token number">11</span>:12 <span class="token punctuation">..</span>
@@ -896,14 +947,12 @@ drwxr-xr-x   <span class="token number">7</span> zyxelva  staff   224B Jul <span
 drwxrwxr-x  <span class="token number">30</span> zyxelva  staff   960B Dec  <span class="token number">8</span>  <span class="token number">2020</span> bin
 drwxrwxr-x  <span class="token number">12</span> zyxelva  staff   384B Dec  <span class="token number">8</span>  <span class="token number">2020</span> conf
 drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="token number">1</span>.1K Jul <span class="token number">21</span> <span class="token number">11</span>:12 lib
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>当然如果要上传到服务器，可以采用已经打包好的文件：<code>rocketmq-4.8.0.zip</code>.</p>
 <blockquote>
 <p>之所以要源码打包部署，是为了后面源码阅读，通过打印些必要的日志，完成源码的追踪学习。具体的部署流程可以参考<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/deploymentOperations/01deploy">官网</a> 。</p>
 </blockquote>
 <h1 id="4-NameServer启动流程"><a href="#4-NameServer启动流程" class="headerlink" title="4 NameServer启动流程"></a>4 NameServer启动流程</h1><h2 id="4-1-概览"><a href="#4-1-概览" class="headerlink" title="4.1 概览"></a>4.1 概览</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/NameServer-Startup-Flow.png"><div class="caption"><b class="center-caption">NameServer启动流程</b></div>
-
 <p>核心方法：NamesrvStartup 类中<code>main()</code>-&gt;<code>main0</code>-&gt; <code>createNamesrvController</code>-&gt;<code>start()</code> -&gt; <code>initialize()</code></p>
 <h2 id="4-2-步骤"><a href="#4-2-步骤" class="headerlink" title="4.2 步骤"></a>4.2 步骤</h2><h3 id="4-2-1-解析配置文件，填充NameServerConfig、NettyServerConfig属性值，并创建NamesrvController"><a href="#4-2-1-解析配置文件，填充NameServerConfig、NettyServerConfig属性值，并创建NamesrvController" class="headerlink" title="4.2.1 解析配置文件，填充NameServerConfig、NettyServerConfig属性值，并创建NamesrvController"></a>4.2.1 解析配置文件，填充<code>NameServerConfig</code>、<code>NettyServerConfig</code>属性值，并创建<code>NamesrvController</code></h3><p><code>NamesrvController</code>类中<code>createNamesrvController</code>方法如下：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NamesrvStartup</span> <span class="token punctuation">&#123;</span>
@@ -995,12 +1044,8 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
     <span class="token punctuation">&#125;</span>
     <span class="token comment">//。。。。。。省略代码</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>如果你要查看<code>NameServer</code>的各种参数，直接在启动个参数中送入<code>-p</code>就可以打印这个<code>NameServer</code>的所有的参数信息。(以IDEA为例)</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/print-namesrv-params.png"><div class="caption"><b class="center-caption">打印NameServer参数配置</b></div>
-
-<p>打印结果：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">13</span>:58:27.674 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">rocketmqHome</span><span class="token operator">=</span>/Users/zyxelva/Documents/rocketmq-all-4.8.0-bin-release
+<p>如果你要查看<code>NameServer</code>的各种参数，直接在启动个参数中送入<code>-p</code>就可以打印这个<code>NameServer</code>的所有的参数信息。(以IDEA为例)<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/print-namesrv-params.png"><div class="caption"><b class="center-caption">打印NameServer参数配置</b></div></p>
+<p>打印结果：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">13</span>:58:27.674 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">rocketmqHome</span><span class="token operator">=</span>/Users/zyxelva/Documents/rocketmq-all-4.8.0-bin-release
 <span class="token number">13</span>:58:27.732 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">kvConfigPath</span><span class="token operator">=</span>/Users/zyxelva/namesrv/kvConfig.json
 <span class="token number">13</span>:58:27.734 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">configStorePath</span><span class="token operator">=</span>/Users/zyxelva/namesrv/namesrv.properties
 <span class="token number">13</span>:58:27.735 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">productEnvName</span><span class="token operator">=</span>center
@@ -1016,8 +1061,7 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
 <span class="token number">13</span>:58:27.740 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">serverSocketSndBufSize</span><span class="token operator">=</span><span class="token number">65535</span>
 <span class="token number">13</span>:58:27.740 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">serverSocketRcvBufSize</span><span class="token operator">=</span><span class="token number">65535</span>
 <span class="token number">13</span>:58:27.740 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">serverPooledByteBufAllocatorEnable</span><span class="token operator">=</span>true
-<span class="token number">13</span>:58:27.740 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">useEpollNativeSelector</span><span class="token operator">=</span>false<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token number">13</span>:58:27.740 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  RocketmqNamesrvConsole - <span class="token assign-left variable">useEpollNativeSelector</span><span class="token operator">=</span>false<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h3 id="4-2-2-初始化"><a href="#4-2-2-初始化" class="headerlink" title="4.2.2 初始化"></a>4.2.2 初始化</h3><p>即在<code>NamesrvController</code>实例创建后，初始化相关信息，包括配置文件保存路径加载、NettyRemotingServer创建、线程池创建，最重要是两个定时任务创建和启动：</p>
 <ul>
 <li>每隔<code>10s</code>扫描一次Broker，移除不活跃的Broker</li>
@@ -1080,7 +1124,6 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="4-2-3-在JVM进程关闭之前，先将线程池关闭，及时释放资源。再启动。"><a href="#4-2-3-在JVM进程关闭之前，先将线程池关闭，及时释放资源。再启动。" class="headerlink" title="4.2.3 在JVM进程关闭之前，先将线程池关闭，及时释放资源。再启动。"></a>4.2.3 在JVM进程关闭之前，先将线程池关闭，及时释放资源。再启动。</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NamesrvStartup</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token class-name">NamesrvController</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">NamesrvController</span> controller<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//此处省略一万字</span>
@@ -1097,17 +1140,13 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token keyword">return</span> controller<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-3-时序图"><a href="#4-3-时序图" class="headerlink" title="4.3 时序图"></a>4.3 时序图</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-NameServer-Startup-Flow.png"><div class="caption"><b class="center-caption">NameServer启动流程时序图</b></div>
-
 <h1 id="5-Broker启动流程"><a href="#5-Broker启动流程" class="headerlink" title="5 Broker启动流程"></a>5 Broker启动流程</h1><h2 id="5-1-概览"><a href="#5-1-概览" class="headerlink" title="5.1 概览"></a>5.1 概览</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Broker-Startup-Flow.png"><div class="caption"><b class="center-caption">Broker启动流程</b></div>
-
 <h2 id="5-2-时序图"><a href="#5-2-时序图" class="headerlink" title="5.2 时序图"></a>5.2 时序图</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Broker-Startup-Flow.png"><div class="caption"><b class="center-caption">Broker启动时序图</b></div>
 <p>大致流程与NameServer相差无几，这里主要讲讲<code>Broker注册</code>、<code>Broker删除</code>、<code>路由发现</code>。</p>
 <h2 id="5-3-Broker注册-路由注册"><a href="#5-3-Broker注册-路由注册" class="headerlink" title="5.3 Broker注册(路由注册)"></a>5.3 Broker注册(路由注册)</h2><p>RocketMQ路由注册是通过<code>Broker与NameServer的心跳功能</code>实现的。</p>
 <p>Broker启动时向集群中<strong>所有的</strong>NameServer发送心跳信息，<code>每隔30s</code>向集群中所有NameServer发送<code>心跳包</code>，NameServer收到心跳包时会更新<code>brokerLiveTable</code>缓存中BrokerLiveInfo的<code>lastUpdateTimeStamp</code>信息，然后NameServer<code>每隔10s</code>扫描<code>brokerLiveTable</code>，如果<code>连续120S</code>没有收到心跳包，NameServer将移除Broker的路由信息同时关闭Socket连接。</p>
-<h3 id="5-3-1-BrokerController-start"><a href="#5-3-1-BrokerController-start" class="headerlink" title="5.3.1 BrokerController#start()"></a>5.3.1 BrokerController#start()</h3><p>定位到<code>BrokerController#start()</code>方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BrokerController</span> <span class="token punctuation">&#123;</span>
+<h3 id="5-3-1-BrokerController-start"><a href="#5-3-1-BrokerController-start" class="headerlink" title="5.3.1 BrokerController#start()"></a>5.3.1 BrokerController#start()</h3><p>定位到<code>BrokerController#start()</code>方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BrokerController</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//......省略各种start()</span>
         
@@ -1135,8 +1174,7 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
 
         <span class="token comment">//.......</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>主要跟踪<code>registerBrokerAll()</code>。依次经历<code>BrokerController#registerBrokerAll</code>-&gt;<code>BrokerController#doRegisterBrokerAll</code>-&gt;<code>BrokerOuterAPI#registerBrokerAll</code></p>
 <h3 id="5-3-2-BrokerOuterAPI-registerBrokerAll"><a href="#5-3-2-BrokerOuterAPI-registerBrokerAll" class="headerlink" title="5.3.2 BrokerOuterAPI#registerBrokerAll()"></a>5.3.2 BrokerOuterAPI#registerBrokerAll()</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BrokerOuterAPI</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">RegisterBrokerResult</span><span class="token punctuation">></span></span> <span class="token function">registerBrokerAll</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> clusterName<span class="token punctuation">,</span>
@@ -1225,10 +1263,8 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token comment">//...............</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>Broker注册至NameServer，是一个客户端请求操作，会走<code>NettyRemotingClient#invokeSync()</code>，实际上的处理类是<code>NettyRemotingAbstract</code>负责公共的发送动作（也包括接收动作）。</p>
-<h3 id="5-3-3-NettyServerHandler-channelRead0"><a href="#5-3-3-NettyServerHandler-channelRead0" class="headerlink" title="5.3.3 NettyServerHandler#channelRead0()"></a>5.3.3 NettyServerHandler#channelRead0()</h3><p>由于是Netty负责网络这块，因而在服务端，通过<code>NettyRemotingServer</code>进行接收，Handler为其内置类<code>NettyServerHandler</code>，如同上述所说，实际为<code>NettyRemotingAbstract</code>去处理。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@ChannelHandler.Sharable</span>
+<h3 id="5-3-3-NettyServerHandler-channelRead0"><a href="#5-3-3-NettyServerHandler-channelRead0" class="headerlink" title="5.3.3 NettyServerHandler#channelRead0()"></a>5.3.3 NettyServerHandler#channelRead0()</h3><p>由于是Netty负责网络这块，因而在服务端，通过<code>NettyRemotingServer</code>进行接收，Handler为其内置类<code>NettyServerHandler</code>，如同上述所说，实际为<code>NettyRemotingAbstract</code>去处理。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@ChannelHandler.Sharable</span>
 <span class="token keyword">class</span> <span class="token class-name">NettyServerHandler</span> <span class="token keyword">extends</span> <span class="token class-name">SimpleChannelInboundHandler</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">RemotingCommand</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
 
     <span class="token annotation punctuation">@Override</span>
@@ -1236,19 +1272,15 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token comment">//NettyRemotingAbstract#processMessageReceived</span>
         <span class="token function">processMessageReceived</span><span class="token punctuation">(</span>ctx<span class="token punctuation">,</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="5-3-4-NettyRemotingAbstract-processRequestCommand"><a href="#5-3-4-NettyRemotingAbstract-processRequestCommand" class="headerlink" title="5.3.4 NettyRemotingAbstract#processRequestCommand()"></a>5.3.4 NettyRemotingAbstract#processRequestCommand()</h3><p>定位到<code>NettyRemotingAbstract</code>的<code>processRequestCommand()</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">NettyRemotingAbstract</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h3 id="5-3-4-NettyRemotingAbstract-processRequestCommand"><a href="#5-3-4-NettyRemotingAbstract-processRequestCommand" class="headerlink" title="5.3.4 NettyRemotingAbstract#processRequestCommand()"></a>5.3.4 NettyRemotingAbstract#processRequestCommand()</h3><p>定位到<code>NettyRemotingAbstract</code>的<code>processRequestCommand()</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">NettyRemotingAbstract</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">processRequestCommand</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">ChannelHandlerContext</span> ctx<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">RemotingCommand</span> cmd<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">final</span> <span class="token class-name">Pair</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">NettyRequestProcessor</span><span class="token punctuation">,</span> <span class="token class-name">ExecutorService</span><span class="token punctuation">></span></span> matched <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>processorTable<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>cmd<span class="token punctuation">.</span><span class="token function">getCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">final</span> <span class="token class-name">Pair</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">NettyRequestProcessor</span><span class="token punctuation">,</span> <span class="token class-name">ExecutorService</span><span class="token punctuation">></span></span> pair <span class="token operator">=</span> <span class="token keyword">null</span> <span class="token operator">==</span> matched <span class="token operator">?</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultRequestProcessor <span class="token operator">:</span> matched<span class="token punctuation">;</span>
         <span class="token comment">//.............</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>还记得NameSrvController注册的处理器吗？</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NamesrvController</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>还记得NameSrvController注册的处理器吗？<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NamesrvController</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">initialize</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//加载KV配置</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>kvConfigManager<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1260,11 +1292,9 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">registerProcessor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token comment">//..............</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其最终注册的就是<code>DefaultRequestProcessor</code>类型。因而<code>NameServer</code>处理<code>Broker注册</code>的任务就归它管了。</p>
-<h3 id="5-3-5-DefaultRequestProcessor-processRequest"><a href="#5-3-5-DefaultRequestProcessor-processRequest" class="headerlink" title="5.3.5 DefaultRequestProcessor#processRequest()"></a>5.3.5 DefaultRequestProcessor#processRequest()</h3><p>然后定位到<code>DefaultRequestProcessor#processRequest()</code>，根据注册代号即可找到<code>NameServer</code>处理<code>Broker</code>注册请求：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultRequestProcessor</span> <span class="token keyword">extends</span> <span class="token class-name">AsyncNettyRequestProcessor</span> <span class="token keyword">implements</span> <span class="token class-name">NettyRequestProcessor</span> <span class="token punctuation">&#123;</span>
+<h3 id="5-3-5-DefaultRequestProcessor-processRequest"><a href="#5-3-5-DefaultRequestProcessor-processRequest" class="headerlink" title="5.3.5 DefaultRequestProcessor#processRequest()"></a>5.3.5 DefaultRequestProcessor#processRequest()</h3><p>然后定位到<code>DefaultRequestProcessor#processRequest()</code>，根据注册代号即可找到<code>NameServer</code>处理<code>Broker</code>注册请求：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultRequestProcessor</span> <span class="token keyword">extends</span> <span class="token class-name">AsyncNettyRequestProcessor</span> <span class="token keyword">implements</span> <span class="token class-name">NettyRequestProcessor</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">RemotingCommand</span> <span class="token function">processRequest</span><span class="token punctuation">(</span><span class="token class-name">ChannelHandlerContext</span> ctx<span class="token punctuation">,</span>
                                           <span class="token class-name">RemotingCommand</span> request<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemotingCommandException</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//............</span>
@@ -1294,8 +1324,7 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h3 id="5-3-6-NameServer-RouteInfoManager-registerBroker"><a href="#5-3-6-NameServer-RouteInfoManager-registerBroker" class="headerlink" title="5.3.6 NameServer.RouteInfoManager#registerBroker()"></a>5.3.6 NameServer.RouteInfoManager#registerBroker()</h3><p>虽然有版本区分，但最终走的都是<code>NameServer.RouteInfoManager#registerBroker()</code>。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RouteInfoManager</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token class-name">InternalLogger</span> log <span class="token operator">=</span> <span class="token class-name">InternalLoggerFactory</span><span class="token punctuation">.</span><span class="token function">getLogger</span><span class="token punctuation">(</span><span class="token class-name">LoggerName</span><span class="token punctuation">.</span><span class="token constant">NAMESRV_LOGGER_NAME</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1406,7 +1435,6 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <span class="token keyword">return</span> result<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="5-4-Broker删除-路由删除"><a href="#5-4-Broker删除-路由删除" class="headerlink" title="5.4 Broker删除(路由删除)"></a>5.4 Broker删除(路由删除)</h2><p>Broker<code>每隔30s</code>向NameServer发送一个心跳包，<code>心跳包</code>包含：</p>
 <ul>
 <li><code>BrokerId</code></li>
@@ -1454,16 +1482,14 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
 <li>Broker在正常关闭的情况下，会执行<code>unregisterBrokerAll</code>指令。请求代号：<code>UNREGISTER_BROKER</code><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//BrokerController#shutdown()</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">shutdown</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">unregisterBrokerAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <p>这两种方式路由删除的方法都是一样的，就是从相关路由表中删除与该broker相关的信息。</p>
 <h2 id="5-5-路由发现"><a href="#5-5-路由发现" class="headerlink" title="5.5 路由发现"></a>5.5 路由发现</h2><p>RocketMQ路由发现是<code>非实时的</code>，当Topic路由出现变化后，NameServer<strong>不会主动</strong>推送给客户端，而是由客户端<code>定时拉取</code>主题最新的路由。</p>
-<p>这里，<code>客户端</code>是指<code>生产者</code>和<code>消费者</code>，他两都持有<code>MQClientInstance</code>实例(单例)，客户端启动时，会开启定时任务，如下图<code>定时任务一</code>：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MQClientInstance-Task.png"><div class="caption"><b class="center-caption">MQClientInstance的4个定时任务</b></div>
-
+<p>这里，<code>客户端</code>是指<code>生产者</code>和<code>消费者</code>，他两都持有<code>MQClientInstance</code>实例(单例)，客户端启动时，会开启定时任务，如下图<code>定时任务一</code>：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MQClientInstance-Task.png"><div class="caption"><b class="center-caption">MQClientInstance的4个定时任务</b></div></p>
 <p>其会向NameServer发起代号为<code>GET_ROUTEINFO_BY_TOPIC</code>的请求，获取最新的路由信息。</p>
-<p>而在NameServer端，通过其启动时注册的处理器<code>DefaultRequestProcessor</code>，处理客户端发来的请求：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultRequestProcessor</span>
+<p>而在NameServer端，通过其启动时注册的处理器<code>DefaultRequestProcessor</code>，处理客户端发来的请求：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultRequestProcessor</span>
 <span class="token keyword">public</span> <span class="token class-name">RemotingCommand</span> <span class="token function">getRouteInfoByTopic</span><span class="token punctuation">(</span><span class="token class-name">ChannelHandlerContext</span> ctx<span class="token punctuation">,</span>
         <span class="token class-name">RemotingCommand</span> request<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">RemotingCommandException</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">final</span> <span class="token class-name">RemotingCommand</span> response <span class="token operator">=</span> <span class="token class-name">RemotingCommand</span><span class="token punctuation">.</span><span class="token function">createResponseCommand</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1490,10 +1516,8 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         response<span class="token punctuation">.</span><span class="token function">setRemark</span><span class="token punctuation">(</span><span class="token string">"No topic route info in name server for the topic: "</span> <span class="token operator">+</span> requestHeader<span class="token punctuation">.</span><span class="token function">getTopic</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
             <span class="token operator">+</span> <span class="token class-name">FAQUrl</span><span class="token punctuation">.</span><span class="token function">suggestTodo</span><span class="token punctuation">(</span><span class="token class-name">FAQUrl</span><span class="token punctuation">.</span><span class="token constant">APPLY_TOPIC_URL</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">return</span> response<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="6-总结"><a href="#6-总结" class="headerlink" title="6 总结"></a>6 总结</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/broker-health-check.png"><div class="caption"><b class="center-caption">broker检测机制流程</b></div>
-
 <p>NameServer存储信息：</p>
 <ul>
 <li><code>topicQueueTable</code>：Topic消息队列路由信息，消息发送时根据路由表进行负载均衡；</li>
@@ -2184,7 +2208,7 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -2202,7 +2226,7 @@ drwxr-xr-x  <span class="token number">36</span> zyxelva  staff   <span class="t
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2465,6 +2489,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

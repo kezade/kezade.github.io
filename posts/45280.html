@@ -63,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -762,12 +819,12 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/Fluid/">
-                                <span class="chip bg-color">Fluid</span>
-                            </a>
-                        
                             <a href="/tags/Hexo%E5%8D%9A%E5%AE%A2/">
                                 <span class="chip bg-color">Hexo博客</span>
+                            </a>
+                        
+                            <a href="/tags/Fluid/">
+                                <span class="chip bg-color">Fluid</span>
                             </a>
                         
                             <a href="/tags/%E7%9B%B8%E5%86%8C/">
@@ -832,7 +889,7 @@
                 <p>本文是基于Hexo 6.3.0, Fluid 1.9.4进行开发，主要借鉴于<a target="_blank" rel="noopener" href="https://gishai.top/blog/posts/798ba833.html">hexo的fluid主题添加瀑布流懒加载相册功能</a>，其中基于<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/346643522">jsDelivr+Github 实现免费CDN加速</a>可以参考这篇文章搭建自己的CDN。</p>
 <h1 id="1-创建相册页面"><a href="#1-创建相册页面" class="headerlink" title="1.创建相册页面"></a>1.创建相册页面</h1><ul>
 <li>在自己的博客项目下，新建相册页<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hexo new page photos<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-<li>编辑 &#x2F;source&#x2F;photos&#x2F;index.md，输入以下内容<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown"><span class="token front-matter-block"><span class="token punctuation">---</span>
+<li>编辑 /source/photos/index.md，输入以下内容<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown"><span class="token front-matter-block"><span class="token punctuation">---</span>
 <span class="token front-matter yaml language-yaml"><span class="token key atrule">title</span><span class="token punctuation">:</span> photos
 <span class="token key atrule">date</span><span class="token punctuation">:</span> <span class="token datetime number">2020-12-30 19:04:03</span>
 <span class="token key atrule">layout</span><span class="token punctuation">:</span> photo</span>
@@ -865,15 +922,16 @@
 
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>imageTab<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>ImageGrid<span class="token punctuation">"</span></span><span class="token punctuation">></span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">></span></span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <h1 id="2-处理图片信息"><a href="#2-处理图片信息" class="headerlink" title="2.处理图片信息"></a>2.处理图片信息</h1><p>这里需要创建自己的github相册，可参考这篇文章<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/346643522">jsDelivr+Github 实现免费CDN加速</a>。</p>
 <p>这里主要是为了加快图片的加载速度, 利用GitHub +jsDelivr的方式，此处不再演示。文件夹结构如图:</p>
-<p><img src="https://gishai.top/blog/posts/798ba833/image-20210110205814315.png"></p>
+<p><img src="https://gishai.top/blog/posts/798ba833/image-20210110205814315.png" alt></p>
 <p>这里没有安装 image-size，需要npm安装下</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">npm</span> i <span class="token parameter variable">-S</span> image-size<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>在github相册目录下，执行createjs，脚本如下：</p>
+<p>在github相册目录下，执行createjs，<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>zyxelva@192 <span class="token number">11</span>:34:28 ~/source/photos<span class="token punctuation">]</span>$ <span class="token function">node</span> createjs.js <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>脚本如下：</p>
 <pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> fs <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'fs-extra'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> path <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'path'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token keyword">const</span> imageSize <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'image-size'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -956,10 +1014,8 @@
 <span class="token punctuation">&#125;</span>
 
 <span class="token function">createPlotIconsData</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>将photos.json拷贝到博客目录下的photos<br><img src="https://gishai.top/blog/posts/798ba833/image-20210110210639345.png"></p>
-<h1 id="3-加载-js和css文件"><a href="#3-加载-js和css文件" class="headerlink" title="3.加载 js和css文件"></a>3.加载 js和css文件</h1><p>在 &#x2F;source&#x2F;js&#x2F; 目录下创建 photoWall.js</p>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> imgDataPath <span class="token operator">=</span> <span class="token string">"/blog/photos/photos.json"</span><span class="token punctuation">;</span> <span class="token comment">//图片名称高宽信息json文件路径</span>
+<p>将photos.json拷贝到博客目录下的photos<br><img src="https://gishai.top/blog/posts/798ba833/image-20210110210639345.png" alt></p>
+<h1 id="3-加载-js和css文件"><a href="#3-加载-js和css文件" class="headerlink" title="3.加载 js和css文件"></a>3.加载 js和css文件</h1><p>在 /source/js/ 目录下创建 photoWall.js<br><pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">var</span> imgDataPath <span class="token operator">=</span> <span class="token string">"/blog/photos/photos.json"</span><span class="token punctuation">;</span> <span class="token comment">//图片名称高宽信息json文件路径</span>
 <span class="token keyword">var</span> imgPath <span class="token operator">=</span> <span class="token string">"https://gcore.jsdelivr.net/gh/Cenergy/images/gallery/"</span><span class="token punctuation">;</span> <span class="token comment">//图片访问路径, 这里参考文章开头提到的CDN加速</span>
 <span class="token keyword">var</span> imgMaxNum <span class="token operator">=</span> <span class="token number">50</span><span class="token punctuation">;</span> <span class="token comment">//图片显示数量</span>
 
@@ -1106,9 +1162,8 @@
   <span class="token punctuation">&#125;</span><span class="token punctuation">,</span>
 <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
 photo<span class="token punctuation">.</span><span class="token function">init</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>然后使用注册器将需要的js,css注入,在scripts&#x2F;injector.js(如没有,则创建)中输入以下内容</p>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>然后使用注册器将需要的js,css注入,在scripts/injector.js(如没有,则创建)中输入以下内容</p>
 <pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token keyword">const</span> <span class="token punctuation">&#123;</span> <span class="token literal-property property">root</span><span class="token operator">:</span> siteRoot <span class="token operator">=</span> <span class="token string">"/"</span> <span class="token punctuation">&#125;</span> <span class="token operator">=</span> hexo<span class="token punctuation">.</span>config<span class="token punctuation">;</span>
 <span class="token comment">// layout为photo的时候导入这些js与css</span>
 hexo<span class="token punctuation">.</span>extend<span class="token punctuation">.</span>injector<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span>
@@ -1121,8 +1176,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
     &lt;script defer src="</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">$&#123;</span>siteRoot<span class="token interpolation-punctuation punctuation">&#125;</span></span><span class="token string">js/photoWall.js">&lt;/script></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span>
   <span class="token string">"photo"</span>
 <span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>最后 hexo clean &amp;&amp; hexo g &amp;&amp; hexo s，本地部署看看效果。</p>
+<p>最后 <code>hexo clean &amp;&amp; hexo g &amp;&amp; hexo s</code>，本地部署看看效果。</p>
 <p><strong>提示</strong>：<br>GitHub +jsDelivr 期初加载有点慢，要等好几分钟，所有图才有加速，不要误以为是其他问题。</p>
 
                 
@@ -1188,12 +1242,12 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/Fluid/">
-                                    <span class="chip bg-color">Fluid</span>
-                                </a>
-                            
                                 <a href="/tags/Hexo%E5%8D%9A%E5%AE%A2/">
                                     <span class="chip bg-color">Hexo博客</span>
+                                </a>
+                            
+                                <a href="/tags/Fluid/">
+                                    <span class="chip bg-color">Fluid</span>
                                 </a>
                             
                                 <a href="/tags/%E7%9B%B8%E5%86%8C/">
@@ -1834,7 +1888,7 @@ hexo<span class="token punctuation">.</span>extend<span class="token punctuation
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2097,6 +2151,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -5,11 +5,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【JVM学习】6.玩转类加载与类加载器, Back-End Dev Java">
-    <meta name="description" content="0 前言在【JVM学习】2.内存区域一文中，我们给出了一个JVM对象的详细创建流程，整个流程图如下：
-JVM对象的创建过程
-
+    <meta name="description" content="0 前言在【JVM学习】3.JVM中的对象一文中，我们给出了一个JVM对象的详细创建流程，整个流程图如下：JVM对象的创建过程
 本章将会对类的加载过程及常见的类加载器做出详细梳理和介绍。
-1 类的生命周期类从被加载到虚拟机内存中开始，到卸载出">
+1 类的生命周期类从被加载到虚拟机内存中开始，到卸载">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -65,7 +63,7 @@ JVM对象的创建过程
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -183,7 +181,7 @@ JVM对象的创建过程
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -259,6 +257,15 @@ JVM对象的创建过程
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -281,6 +288,24 @@ JVM对象的创建过程
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -461,7 +486,7 @@ JVM对象的创建过程
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -545,6 +570,16 @@ JVM对象的创建过程
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -567,6 +602,26 @@ JVM对象的创建过程
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -835,9 +890,7 @@ JVM对象的创建过程
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0 前言"></a>0 前言</h1><p>在<a href="/posts/1293081538.html" title="【JVM学习】2.内存区域">【JVM学习】2.内存区域</a>一文中，我们给出了一个JVM对象的详细创建流程，整个流程图如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-procedure-of-an-object-in-JVM.png"><div class="caption"><b class="center-caption">JVM对象的创建过程</b></div>
-
+                <h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0 前言"></a>0 前言</h1><p>在<a href="/posts/1942558204.html" title="【JVM学习】3.JVM中的对象">【JVM学习】3.JVM中的对象</a>一文中，我们给出了一个JVM对象的详细创建流程，整个流程图如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-procedure-of-an-object-in-JVM.png"><div class="caption"><b class="center-caption">JVM对象的创建过程</b></div></p>
 <p>本章将会对<code>类的加载过程</code>及常见的<code>类加载器</code>做出详细梳理和介绍。</p>
 <h1 id="1-类的生命周期"><a href="#1-类的生命周期" class="headerlink" title="1 类的生命周期"></a>1 类的生命周期</h1><p><code>类</code>从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：</p>
 <ul>
@@ -863,12 +916,11 @@ JVM对象的创建过程
 <h3 id="1-1-2-干什么？"><a href="#1-1-2-干什么？" class="headerlink" title="1.1.2 干什么？"></a>1.1.2 干什么？</h3><ul>
 <li>通过一个<code>类的全限定名</code>来获取定义此类的<code>二进制字节流</code></li>
 <li>将这个字节流所代表的<code>静态存储结构</code>转化为方法区的<code>运行时数据结构</code></li>
-<li>在内存中生成一个代表这个类的<code>java.lang.Class对象</code>，作为方法区这个类的各种数据的访问入口。</li>
-</ul>
-<h2 id="1-2-连接"><a href="#1-2-连接" class="headerlink" title="1.2 连接"></a>1.2 连接</h2><h3 id="1-2-1-验证"><a href="#1-2-1-验证" class="headerlink" title="1.2.1 验证"></a>1.2.1 验证</h3><p><code>验证</code>是连接阶段的第一步，这一阶段的<code>目的</code>是</p>
-<blockquote>
+<li>在内存中生成一个代表这个类的<code>java.lang.Class对象</code>，作为方法区这个类的各种数据的访问入口。<h2 id="1-2-连接"><a href="#1-2-连接" class="headerlink" title="1.2 连接"></a>1.2 连接</h2><h3 id="1-2-1-验证"><a href="#1-2-1-验证" class="headerlink" title="1.2.1 验证"></a>1.2.1 验证</h3><code>验证</code>是连接阶段的第一步，这一阶段的<code>目的</code>是<blockquote>
 <p>确保Class文件的字节流中包含的信息符合《Java虚拟机规范》的全部约束要求，保证这些信息被当作代码运行后<strong>不会</strong>危害虚拟机自身的安全。</p>
 </blockquote>
+</li>
+</ul>
 <p>从整体上看，验证阶段大致上会完成下面四个阶段的检验动作（<code>FMBS</code>）：</p>
 <h4 id="1-2-1-1-文件格式验证-File-Verification，FV"><a href="#1-2-1-1-文件格式验证-File-Verification，FV" class="headerlink" title="1.2.1.1 文件格式验证(File Verification，FV)"></a>1.2.1.1 文件格式验证(File Verification，FV)</h4><ul>
 <li>主要目的：保证输入的<code>字节流</code>能正确地<code>解析</code>并<code>存储</code>于方法区之内，格式上符合描述一个<code>Java类型</code>信息的要求。</li>
@@ -879,33 +931,26 @@ JVM对象的创建过程
 <li>指向常量的各种索引值中是否有指向<code>不存在的常量</code>或<code>不符合类型的常量</code>。</li>
 <li><code>CONSTANT_Utf8_info</code>型的常量中是否有<strong>不符合</strong><code>UTF-8</code>编码的数据。</li>
 <li>Class文件中各个部分及文件本身是否有<code>被删除的</code>或<code>附加的</code>其他信息。</li>
-<li>……</li>
+<li>……<h4 id="1-2-1-2-元数据验证-Metadata-Verification，MV"><a href="#1-2-1-2-元数据验证-Metadata-Verification，MV" class="headerlink" title="1.2.1.2 元数据验证(Metadata Verification，MV)"></a>1.2.1.2 元数据验证(Metadata Verification，MV)</h4></li>
 </ul>
 </li>
-</ul>
-<h4 id="1-2-1-2-元数据验证-Metadata-Verification，MV"><a href="#1-2-1-2-元数据验证-Metadata-Verification，MV" class="headerlink" title="1.2.1.2 元数据验证(Metadata Verification，MV)"></a>1.2.1.2 元数据验证(Metadata Verification，MV)</h4><ul>
 <li>主要目的：对类的<code>元数据信息</code>进行<code>语义校验</code>（<strong>对元数据信息中的数据类型校验</strong>），保证<code>不存在</code>与《Java语言规范》定义相悖的元数据信息。</li>
 <li>验证点：<ul>
 <li>这个类<code>是否有父类</code>(除了<code>java.lang.Object</code>之外，所有的类都应当有父类)。</li>
 <li>这个类的父类<code>是否继承</code>了<strong>不允许</strong>被继承的类(被<code>final</code>修饰的类)。</li>
 <li>如果这个类不是抽象类，<code>是否实现</code>了其父类或接口之中要求实现的<code>所有方法</code>。</li>
 <li>类中的<code>字段</code>、<code>方法</code>是否与父类产生矛盾(例如覆盖了父类的<code>final</code>字段，或者出现不符合规则的方法重载，例如方法参数都一致，但返回值类型却不同等)。</li>
-<li>……</li>
+<li>……<h4 id="1-2-1-3-字节码验证-Bytecode-Verification，BV"><a href="#1-2-1-3-字节码验证-Bytecode-Verification，BV" class="headerlink" title="1.2.1.3 字节码验证(Bytecode Verification，BV)"></a>1.2.1.3 字节码验证(Bytecode Verification，BV)</h4></li>
 </ul>
 </li>
-</ul>
-<h4 id="1-2-1-3-字节码验证-Bytecode-Verification，BV"><a href="#1-2-1-3-字节码验证-Bytecode-Verification，BV" class="headerlink" title="1.2.1.3 字节码验证(Bytecode Verification，BV)"></a>1.2.1.3 字节码验证(Bytecode Verification，BV)</h4><ul>
 <li>主要目的：通过数据流分析和控制流分析，确定程序语义是合法的、符合逻辑的。（<strong>对类的方法体(Class文件中的Code属性)进行校验分析</strong>）</li>
 <li>验证点：<ul>
 <li>保证任意时刻<code>操作数栈的数据类型</code>与<code>指令代码序列</code>都能配合工作</li>
 <li>保证任何<code>跳转指令</code>都不会跳转到方法体以外的字节码指令上</li>
 <li>保证方法体中的类型转换总是有效的</li>
-<li>……</li>
+<li>……<h4 id="1-2-1-4-符号引用验证-Symbol-Verification，SV"><a href="#1-2-1-4-符号引用验证-Symbol-Verification，SV" class="headerlink" title="1.2.1.4 符号引用验证(Symbol Verification，SV)"></a>1.2.1.4 符号引用验证(Symbol Verification，SV)</h4>最后一个阶段的校验行为发生在虚拟机将<code>符号引用</code>转化为<code>直接引用</code>的时候，这个转化动作将在连接的第三阶段——<code>解析阶段</code>中发生。</li>
 </ul>
 </li>
-</ul>
-<h4 id="1-2-1-4-符号引用验证-Symbol-Verification，SV"><a href="#1-2-1-4-符号引用验证-Symbol-Verification，SV" class="headerlink" title="1.2.1.4 符号引用验证(Symbol Verification，SV)"></a>1.2.1.4 符号引用验证(Symbol Verification，SV)</h4><p>最后一个阶段的校验行为发生在虚拟机将<code>符号引用</code>转化为<code>直接引用</code>的时候，这个转化动作将在连接的第三阶段——<code>解析阶段</code>中发生。</p>
-<ul>
 <li>主要目的：确保解析行为能正常执行，如果无法通过符号引用验证，Java虚拟机将会抛出一个<code>java.lang.IncompatibleClassChangeError</code>的子类异常（<strong>对类自身以外(常量池中的各种符号引用)的各类信息进行匹配性校验</strong>）</li>
 <li>验证点：<ul>
 <li>符号引用中通过字符串描述的<code>全限定名</code>是否能找到对应的<code>类</code>。</li>
@@ -932,13 +977,8 @@ JVM对象的创建过程
 <li>……</li>
 </ul>
 <p>等都是<code>符号引用</code>。</p>
-</blockquote>
-<blockquote>
 <p>直接引用(Direct References)：直接引用是可以直接指向目标的<code>指针</code>、<code>相对偏移量</code>或者是一个能<strong>间接定位</strong>到目标的<code>句柄</code>。</p>
-</blockquote>
-<h2 id="1-3-初始化"><a href="#1-3-初始化" class="headerlink" title="1.3 初始化"></a>1.3 初始化</h2><p>类的初始化阶段是类加载过程的最后一个步骤。其主要工作就是：</p>
-<blockquote>
-<p>根据程序猿通过程序制定的<code>主观计划</code>去<code>初始化</code>类变量和其他资源，或者说：初始化阶段是执行类构造器<code>&lt;clinit&gt;()方法</code>的过程.</p>
+<h2 id="1-3-初始化"><a href="#1-3-初始化" class="headerlink" title="1.3 初始化"></a>1.3 初始化</h2><p>类的初始化阶段是类加载过程的最后一个步骤。其主要工作就是：<br>根据程序猿通过程序制定的<code>主观计划</code>去<code>初始化</code>类变量和其他资源，或者说：初始化阶段是执行类构造器<code>&lt;clinit&gt;()方法</code>的过程.</p>
 </blockquote>
 <h2 id="1-4-使用"><a href="#1-4-使用" class="headerlink" title="1.4 使用"></a>1.4 使用</h2><p>略。</p>
 <h2 id="1-5-卸载"><a href="#1-5-卸载" class="headerlink" title="1.5 卸载"></a>1.5 卸载</h2><p>略。</p>
@@ -951,7 +991,7 @@ JVM对象的创建过程
 <p>这个加载器是<code>C++</code>编写的，随着JVM启动。</p>
 <h3 id="2-1-2-Extention-ClassLoader"><a href="#2-1-2-Extention-ClassLoader" class="headerlink" title="2.1.2 Extention ClassLoader"></a>2.1.2 Extention ClassLoader</h3><p>扩展类加载器，主要用于加载<code>lib/ext</code>目录下的<code>jar包</code>和<code>.class</code>文件。同样的，通过系统变量<code>java.ext.dirs</code>可以指定这个目录。</p>
 <p>这个加载器是个<code>Java类</code>，继承自<code>URLClassLoader</code>。</p>
-<h3 id="2-1-3-Application-x2F-System-ClassLoader"><a href="#2-1-3-Application-x2F-System-ClassLoader" class="headerlink" title="2.1.3 Application&#x2F;System ClassLoader"></a>2.1.3 Application&#x2F;System ClassLoader</h3><p>程序员自己写的<code>Java 类</code>的<code>默认加载器</code>。一般用来加载<code>classpath</code>下的其他所有<code>jar包</code>和<code>.class</code>文件，我们写的代码，会首先尝试使用这个类加载器进行加载。</p>
+<h3 id="2-1-3-Application-System-ClassLoader"><a href="#2-1-3-Application-System-ClassLoader" class="headerlink" title="2.1.3 Application/System ClassLoader"></a>2.1.3 Application/System ClassLoader</h3><p>程序员自己写的<code>Java 类</code>的<code>默认加载器</code>。一般用来加载<code>classpath</code>下的其他所有<code>jar包</code>和<code>.class</code>文件，我们写的代码，会首先尝试使用这个类加载器进行加载。</p>
 <h3 id="2-1-4-Custom-ClassLoader"><a href="#2-1-4-Custom-ClassLoader" class="headerlink" title="2.1.4 Custom ClassLoader"></a>2.1.4 Custom ClassLoader</h3><p>自定义加载器，支持一些个性化的扩展功能。</p>
 <h2 id="2-2-类加载器的问题"><a href="#2-2-类加载器的问题" class="headerlink" title="2.2 类加载器的问题"></a>2.2 类加载器的问题</h2><p>如果你在项目代码里，写一个<code>java.lang</code>的包，然后改写<code>String类</code>的一些行为，编译后，发现并不能生效。<strong>JRE的类当然不能轻易被覆盖，否则会被别有用心的人利用，这就太危险了</strong>。</p>
 <p>对于任意一个类，都需要由加载它的<code>类加载器</code>和这个<code>类本身</code>一同确立其在Java虚拟机中的<code>唯一性</code>，每一个类加载器，都拥有一个独立的类名称空间。这句话可以表达得更通俗一些：</p>
@@ -961,17 +1001,15 @@ JVM对象的创建过程
 <h2 id="2-3-双亲委派"><a href="#2-3-双亲委派" class="headerlink" title="2.3 双亲委派"></a>2.3 双亲委派</h2><p><code>双亲委派模型</code>要求除了顶层的启动类加载器外，其余的类加载器都应当有自己的<code>父类加载器</code>。</p>
 <p>这里类加载器之间的父子关系一般<strong>不会</strong>以<code>继承</code>(Inheritance)的关系来实现，而是都使用<code>组合</code>(Composition)关系来复用父加载器的代码。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Parents-Delegation-Model.png"><div class="caption"><b class="center-caption">双亲委派模型</b></div>
-
 <h3 id="2-3-1-工作过程"><a href="#2-3-1-工作过程" class="headerlink" title="2.3.1 工作过程"></a>2.3.1 工作过程</h3><p>如果一个类加载器收到了类加载的请求，它首先不会自己去尝试加载这个类，而是把这个请求<strong>委派</strong>给<code>父类加载器</code>去完成，每一个层次的类加载器都是如此，因此所有的加载请求最终都应该传送到最顶层的启动类加载器中，只有当父加载器反馈自己无法完成这个加载请求(它的搜索范围中没有找到所需的类)时，子加载器才会尝试自己去完成加载。</p>
 <blockquote>
 <p>子类加载器加载之前，有限询问父级类加载器是否加载过，父类未加载过在进行加载.</p>
-</blockquote>
 <h3 id="2-3-2-解决的问题"><a href="#2-3-2-解决的问题" class="headerlink" title="2.3.2 解决的问题"></a>2.3.2 解决的问题</h3><ul>
 <li>类重复加载</li>
 <li>避免java核心API被篡改</li>
 </ul>
+</blockquote>
 <h3 id="2-3-2-破坏双亲委派模型"><a href="#2-3-2-破坏双亲委派模型" class="headerlink" title="2.3.2 破坏双亲委派模型"></a>2.3.2 破坏双亲委派模型</h3><h4 id="2-3-2-1-Tomcat-类加载机制"><a href="#2-3-2-1-Tomcat-类加载机制" class="headerlink" title="2.3.2.1 Tomcat 类加载机制"></a>2.3.2.1 Tomcat 类加载机制</h4><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Tomcat-ClassLoader.png"><div class="caption"><b class="center-caption">Tomcat类加载器的层次结构</b></div>
-
 <p>对于一些需要加载的<code>非基础类</code>，会由一个叫作<code>WebAppClassLoader</code>的类加载器<code>优先加载</code>。等它加载不到的时候，再交给上层的<code>ClassLoader</code>进行加载。这个加载器用来隔绝不同应用的<code>.class 文件</code>，比如你的两个应用，可能会依赖同一个第三方的不同版本，它们是相互没有影响的。</p>
 <p>如何在同一个<code>JVM</code>里，运行着不兼容的两个版本，当然是需要<code>自定义加载器</code>才能完成的事。</p>
 <p>那么<code>tomcat</code>是怎么打破双亲委派机制的呢？可以看图中的<code>WebAppClassLoader</code>，它加载自己目录下的<code>.class文件</code>，<strong>并不会传递给父类的加载器</strong>。</p>
@@ -1674,7 +1712,7 @@ JVM对象的创建过程
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1692,7 +1730,7 @@ JVM对象的创建过程
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1955,6 +1993,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

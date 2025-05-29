@@ -8,8 +8,10 @@
     <meta name="description" content="1 常见引擎
 
 
+
 种类
 特点
+
 
 
 
@@ -18,7 +20,7 @@ InnoDB
 
 
 MyISAM
-Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也不支持行级锁和">
+Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也不支持行级">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -74,7 +76,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -192,7 +194,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -268,6 +270,15 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -290,6 +301,24 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -470,7 +499,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -554,6 +583,16 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -576,6 +615,26 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -836,14 +895,16 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="1-常见引擎"><a href="#1-常见引擎" class="headerlink" title="1 常见引擎"></a>1 常见引擎</h1><table>
+                <h1 id="1-常见引擎"><a href="#1-常见引擎" class="headerlink" title="1 常见引擎"></a>1 常见引擎</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>种类</th>
 <th>特点</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>InnoDB</td>
 <td>现<code>Mysql</code>的<code>默认</code><strong>事务型存储引擎</strong>，并且提供了<code>行级锁</code>和<code>外键</code>的约束。性能不错且支持<code>自动崩溃恢复</code></td>
 </tr>
@@ -871,8 +932,11 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <td>Merge</td>
 <td>一组<code>MyISAM</code>的表，结构相同，操作一个对所有的表都生效。</td>
 </tr>
-</tbody></table>
-<h2 id="1-1-MyISAM和InnoDB对比"><a href="#1-1-MyISAM和InnoDB对比" class="headerlink" title="1.1 MyISAM和InnoDB对比"></a>1.1 MyISAM和InnoDB对比</h2><table>
+</tbody>
+</table>
+</div>
+<h2 id="1-1-MyISAM和InnoDB对比"><a href="#1-1-MyISAM和InnoDB对比" class="headerlink" title="1.1 MyISAM和InnoDB对比"></a>1.1 MyISAM和InnoDB对比</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>对比项</th>
@@ -880,7 +944,8 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <th>InnoDB</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>外键和事务</td>
 <td><code>不支持</code>，适合高速的检索和存储。</td>
 <td><code>支持</code>，适合大量新增和更新，强调安全和数据完整</td>
@@ -910,41 +975,31 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <td><code>高速查询</code>、<code>不需要事务</code>、<code>并发低</code>、<code>数据一致性要求低</code></td>
 <td><code>数据安全</code>、<code>行级锁提高并发能力</code>、<code>事务控制</code>、<code>大量新增</code>、<code>提升服务器内存利用率</code>。<code>普遍场景:推荐使用InnoDB</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="1-2-InnoDB内存结构和磁盘结构总览"><a href="#1-2-InnoDB内存结构和磁盘结构总览" class="headerlink" title="1.2 InnoDB内存结构和磁盘结构总览"></a>1.2 InnoDB内存结构和磁盘结构总览</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb-architecture(v5.7).png"><div class="caption"><b class="center-caption">内存结构和磁盘结构总览</b></div>
-
 <h1 id="2-InnoDB数据存储"><a href="#2-InnoDB数据存储" class="headerlink" title="2 InnoDB数据存储"></a>2 InnoDB数据存储</h1><h2 id="2-1-逻辑结构"><a href="#2-1-逻辑结构" class="headerlink" title="2.1 逻辑结构"></a>2.1 逻辑结构</h2><p>InnoDB存储引擎的<code>逻辑存储结构</code>如下图所示：</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Tablespace-segment-extent-page-row.png"><div class="caption"><b class="center-caption">Tablespace-segment-extent-page-row</b></div>
-
 <h3 id="2-1-1-表空间"><a href="#2-1-1-表空间" class="headerlink" title="2.1.1 表空间"></a>2.1.1 表空间</h3><p>在 InnoDB 存储引擎中，所有的数据都被<code>逻辑地</code>存放在<code>表空间</code>中，<code>表空间</code>（tablespace）是存储引擎中<code>最高</code>的<code>存储逻辑单位</code>，在表空间的下面又包括<code>段</code>（segment）、<code>区</code>（extent）、<code>页</code>（page）。</p>
 <ul>
 <li>同一个数据库实例的所有表空间都有<code>相同的页大小</code>；</li>
 <li>默认情况下，表空间中的<code>页大小</code>都为 <code>16KB</code>，当然也可以通过改变 <code>innodb_page_size</code> 选项对默认大小进行修改，需要注意的是不同的页大小最终也会导致区大小的不同：</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Relation-Between-Page-Size-Extent-Size.png"><div class="caption"><b class="center-caption">Relation-Between-Page-Size-Extent-Size</b></div>
-
 <blockquote>
 <p>从图中可以看出，在 InnoDB 存储引擎中，一个<code>区</code>的大小最小为 <code>1MB</code>，<code>页的数量</code>最少为 <code>64</code> 个。</p>
-</blockquote>
-<blockquote>
 <p>InnoDB中，表空间主要分为<code>独立表空间</code>和<code>系统（默认）表空间</code>（还有<code>共享表空间</code>、<code>回滚表空间</code>、<code>临时表空间</code>）。<br>对于<code>系统表空间</code>来说，对应着文件系统中一个或多个实际文件;<br>对于每个<code>独立表空间</code>来说，对应着文件系统中一个名为<code>表名.ibd</code>的实际文件。<br>InnoDB采用将存储的数据按<code>表空间</code>进行存放的设计。在<code>默认配置</code>下会有一个初始大小为<code>10MB</code>，名为<code>ibdata1</code>的文件。该文件就是<code>默认的表空间文件</code>。</p>
-</blockquote>
-<blockquote>
 <p>设置<code>innodb_data_file_path</code>参数后，所有基于InnoDB存储引擎的表的数据都会记录到该<code>共享表空间</code>中。若设置了参数<code>innodb_file_per_table</code>，则用户可以将每个基于InnoDB存储引擎的表产生一个<code>独立表空间</code>。独立表空间的命名规则为：<code>表名.ibd</code>。通过这样的方式，用户不用将所有数据都存放于默认的表空间中。</p>
-</blockquote>
-<blockquote>
 <p><code>独立表空间文件</code>仅存储该表的<code>数据</code>、<code>索引</code>和<code>插入缓冲BITMAP</code>等信息，<code>其余信息</code>如<code>回滚（undo）信息</code>，<code>插入缓冲索引页</code>、<code>系统事务信息</code>，<code>二次写缓冲</code>（Double write buffer）等还是存放在<code>默认的表空间</code>中。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/InnoDB-Tables-Files.png"><div class="caption"><b class="center-caption">InnoDB存储引擎对于文件的存储方式</b></div>
-
 <blockquote>
 <p>Tips: <code>表的物理存储</code>：MySQL 使用 <code>InnoDB</code> 存储表时，会将<code>表的定义</code>和<code>数据索引等信息</code>分开存储，其中前者存储在 <code>.frm文件</code>中，后者存储在 <code>.ibd 文件</code>中。</p>
 </blockquote>
 <h3 id="2-1-2-段"><a href="#2-1-2-段" class="headerlink" title="2.1.2 段"></a>2.1.2 段</h3><p>2.1节图中显示了<code>表空间</code>是由各个<code>段</code>组成的，常见的段有<code>数据段</code>、<code>索引段</code>、<code>回滚段</code>等。InnoDB存储引擎表是<code>索引组织的</code>（index organized），因此<code>数据即索引，索引即数据</code>。那么<code>数据段</code>即为<code>B+树</code>的<code>叶子节点</code>（图中的<code>Leaf node segment</code>），<code>索引段</code>即为<code>B+树</code>的<code>非索引节点</code>（图中的<code>Non-leaf node segment</code>）。<code>回滚段</code>较为特殊，将会在后面的章节进行单独的介绍。</p>
 <blockquote>
 <p>在InnoDB存储引擎中，对<code>段的管理</code>都是由<code>引擎自身所完成</code>，<code>DBA</code>不能也没有必要对其进行控制。</p>
-</blockquote>
-<blockquote>
 <p><code>段</code>其实<strong>不对应</strong>表空间中某一个连续的物理区域，而是一个<code>逻辑上的概念</code>。</p>
 </blockquote>
 <h3 id="2-1-3-区"><a href="#2-1-3-区" class="headerlink" title="2.1.3 区"></a>2.1.3 区</h3><p><code>区</code>是由<code>连续页</code>组成的空间，在任何情况下每个区的大小都为<code>1MB</code>。为了保证区中页的连续性，InnoDB存储引擎一次从磁盘申请<code>4～5个区</code>。在默认情况下，InnoDB存储引擎<code>页的大小</code>为<code>16KB</code>，即一个区中一共有<code>64</code>个连续的<code>页</code>。</p>
@@ -965,22 +1020,19 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 </blockquote>
 <h3 id="2-1-5-行"><a href="#2-1-5-行" class="headerlink" title="2.1.5 行"></a>2.1.5 行</h3><p>与现有的大多数存储引擎一样，InnoDB 使用<code>页</code>作为磁盘管理的<code>最小单位</code>；<code>数据</code>在 InnoDB 存储引擎中都是<code>按行存储</code>的，每个 <code>16KB</code> 大小的页中可以存放 <code>2-200</code> 行的记录。</p>
 <p>当 InnoDB 存储数据时，它可以使用不同的<code>行格式</code>进行存储；</p>
-<p><code>MySQL 5.7</code> 版本支持以下格式的行存储方式：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Antelope-Barracuda-Row-Format.png"><div class="caption"><b class="center-caption">Antelope-Barracuda-Row-Format</b></div>
-
+<p><code>MySQL 5.7</code> 版本支持以下格式的行存储方式：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Antelope-Barracuda-Row-Format.png"><div class="caption"><b class="center-caption">Antelope-Barracuda-Row-Format</b></div></p>
 <ul>
 <li>当前熟知的类型为：<code>Compact</code>、<code>Redundant</code>、<code>Dynamic</code> 和 <code>Compressed</code> 行格式。</li>
 <li><code>Antelope</code> 是 InnoDB 最开始支持的文件格式；<code>Antelope</code> 的名字是在新的文件格式 <code>Barracuda</code> 出现后才起的。</li>
 <li>InnoDB 对于文件格式都会向前兼容。</li>
-<li>Compact 和 Redundant 在磁盘上按照以下方式存储：  <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/COMPACT-And-REDUNDANT-Row-Format.png"><div class="caption"><b class="center-caption">Compact 和 Redundant存储结构</b></div></li>
+<li>Compact 和 Redundant 在磁盘上按照以下方式存储：  <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/COMPACT-And-REDUNDANT-Row-Format.png"><div class="caption"><b class="center-caption">Compact 和 Redundant存储结构</b></div>
+</li>
 </ul>
 <blockquote>
 <p><code>Compact</code>和 <code>Redundant</code>格式<strong>最大的不同</strong>就是<code>记录格式的第一个部分</code>：在<code>Compact</code>中，行记录的第一部分<code>倒序</code>存放了一行数据中<code>列的长度</code>（Length），而<code>Redundant</code>中存的是<code>每一列的偏移量</code>（Offset），从总体上上看，<code>Compact</code>行记录格式相比<code>Redundant</code>格式能够减少<code>20%</code>的存储空间。</p>
-</blockquote>
-<blockquote>
 <p>在<code>Compact</code>和<code>Redundant</code>行格式中，对于占用存储空间非常大的列(如极长的<code>VARCHAR</code>或者<code>BLOB</code>这类大对象)，在记录的真实数据处只会存储该列的<code>前768个字节</code>的数据，然后把剩余的数据分散存储在几个其他的页中，记录的真实数据处用<code>20个字节</code>存储指向这些页的地址。这个过程也叫做<code>行溢出</code>，存储<code>超出768字节</code>的那些页面也被称为<code>溢出页</code>。<br>在MySQL 5.1版本中，默认设置为<code>Compact</code>行格式。5.7现在默认是<code>Dynamic</code>。<br>通过<code>SHOW TABLE STATUS LIKE &#39;table_name&#39;;</code> 查看当前表锁使用的行格式。</p>
-</blockquote>
 <h1 id="3-InnoDB数据页结构"><a href="#3-InnoDB数据页结构" class="headerlink" title="3 InnoDB数据页结构"></a>3 InnoDB数据页结构</h1><p>一个 InnoDB <code>页</code>有以下七个部分：</p>
+</blockquote>
 <ul>
 <li><code>File Header</code>：文件头部，38 字节，页的一些通用信息</li>
 <li><code>Page Header</code>：页面头部，56 字节，数据页专有的一些信息</li>
@@ -989,7 +1041,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <li><code>Free Space</code>：空闲空间，大小不确定，页中尚未使用的空间</li>
 <li><code>Page Directory</code>：页面目录，大小不确定，页中的某些记录的相对位置</li>
 <li><code>File Trailer</code>：文件尾部，8 字节，校验页是否完整<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/InnoDB-B-Tree-Node.png"><div class="caption"><b class="center-caption">InnoDB-B-Tree-Node</b></div></li>
-<li>每一个页中包含了两对 header&#x2F;trailer：内部的 <code>Page Header/Page Directory</code> 关心的是<code>页的状态信息</code>，而 <code>File Header/File Trailer</code> 关心的是<code>记录页的头信息</code>。</li>
+<li>每一个页中包含了两对 header/trailer：内部的 <code>Page Header/Page Directory</code> 关心的是<code>页的状态信息</code>，而 <code>File Header/File Trailer</code> 关心的是<code>记录页的头信息</code>。</li>
 <li>在页的头部和尾部之间就是<code>用户记录</code>和<code>空闲空间</code>了，每一个数据页中都包含 <code>Infimum</code> 和 <code>Supremum</code> 这两个虚拟的记录（可以理解为<code>占位符</code>），<code>Infimum</code> 记录是比该页中任何主键值都要小的值，<code>Supremum</code> 是该页中的最大值。</li>
 <li><code>User Records</code> 就是整个页面中真正用于存放行记录的部分，而 <code>Free Space</code> 就是空余空间了，它是一个<code>链表</code>的数据结构，为了保证插入和删除的效率，整个页面并<strong>不会</strong>按照<code>主键顺序</code>对所有记录进行排序，它会自动从左侧向右寻找<code>空白节点</code>进行插入，行记录在<code>物理存储</code>上并不是按照顺序的，它们之间的顺序是由 <code>next_record</code> 这一指针控制的。</li>
 </ul>
@@ -999,15 +1051,13 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Read-accelerate.png"><div class="caption"><b class="center-caption">加速读原理</b></div>
 </li>
 <li><p><code>加速写</code>：当需要修改一个<code>page</code>的时候，先将这个<code>page</code>在缓冲池中进行修改，记下相关的<code>redo log</code>，这个页面的修改就算已经完成了。至于这个被修改的<code>dirty page</code>（脏页）什么时候真正刷新到磁盘，后面会详细讲到。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Write-accelerate.png"><div class="caption"><b class="center-caption">加速写原理</b></div></li>
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Write-accelerate.png"><div class="caption"><b class="center-caption">加速写原理</b></div>
+</li>
 </ul>
 <h2 id="4-2-总体架构"><a href="#4-2-总体架构" class="headerlink" title="4.2 总体架构"></a>4.2 总体架构</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Buffer-Pool-Architecture.png"><div class="caption"><b class="center-caption">Buffer Pool整体架构图</b></div>
-
 <h2 id="4-3-Buffer-Pool-内部组成"><a href="#4-3-Buffer-Pool-内部组成" class="headerlink" title="4.3 Buffer Pool 内部组成"></a>4.3 Buffer Pool 内部组成</h2><p>Buffer Pool 中<code>默认的缓存页大小</code>和在<code>磁盘上</code>默认的<code>页大小</code>是一样的，都是 <code>16KB</code>。为了更好的管理这些在 Buffer Pool 中的缓存页，InnoDB 为<strong>每一个缓存页</strong>都创建了一些所谓的<code>控制信息</code>，这些控制信息包括<code>该页所属的表空间编号</code>、<code>页号</code>、 缓存页在 Buffer Pool 中的<code>地址</code>、<code>链表节点信息</code>、一些<code>锁信息</code>以及 <code>LSN 信息</code>，以及一些<code>别的控制信息</code>。</p>
 <p>每个缓存页对应的<code>控制信息</code>占用的内存大小是相同的，我们称为<code>控制块</code>。</p>
-<p><code>控制块</code>和<code>缓存页</code>是<code>一一对应</code>的，它们都被存放到 Buffer Pool 中，其中控制块被存放到 Buffer Pool 的<code>前边</code>，缓存页被存放到 Buffer Pool <code>后边</code>，所以整个 Buffer Pool 对应的内存空间看起来就是这样的：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Buffer-Pool-in-Memory-Structure.png"><div class="caption"><b class="center-caption">Buffer Pool内存结构图</b></div>
-
+<p><code>控制块</code>和<code>缓存页</code>是<code>一一对应</code>的，它们都被存放到 Buffer Pool 中，其中控制块被存放到 Buffer Pool 的<code>前边</code>，缓存页被存放到 Buffer Pool <code>后边</code>，所以整个 Buffer Pool 对应的内存空间看起来就是这样的：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Buffer-Pool-in-Memory-Structure.png"><div class="caption"><b class="center-caption">Buffer Pool内存结构图</b></div></p>
 <h2 id="4-4-管理机制"><a href="#4-4-管理机制" class="headerlink" title="4.4 管理机制"></a>4.4 管理机制</h2><ul>
 <li><code>free page</code>：空闲page，未被使用</li>
 <li><code>clean page</code>：被使用page，但没有被修改</li>
@@ -1021,53 +1071,43 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 </ul>
 <h2 id="4-5-采用改进型LRU算法维护"><a href="#4-5-采用改进型LRU算法维护" class="headerlink" title="4.5 采用改进型LRU算法维护"></a>4.5 采用改进型LRU算法维护</h2><ul>
 <li>普通LRU：末尾淘汰法，新数据进入头，释放空间从末尾释放。</li>
-<li>改进LRU：链表分为<code>new</code>和<code>old</code>，添加不是从头插入，而是从<code>中点</code>插入，数据被访问了，那么就从中点开始左移，如果没怎么被访问，那么就会被挤压到中点右面，等待被释放。<br>  &gt; 每当有新的page数据放入缓存池，InnoDB先判断有没有足够的<code>free page</code>，如果有就删除<code>free list</code>中的数据，然后放到LRU，如果没有了，那么LRU末尾就会开始释放，够了再插进来。</li>
+<li>改进LRU：链表分为<code>new</code>和<code>old</code>，添加不是从头插入，而是从<code>中点</code>插入，数据被访问了，那么就从中点开始左移，如果没怎么被访问，那么就会被挤压到中点右面，等待被释放。<pre><code>  &gt; 每当有新的page数据放入缓存池，InnoDB先判断有没有足够的`free page`，如果有就删除`free list`中的数据，然后放到LRU，如果没有了，那么LRU末尾就会开始释放，够了再插进来。
+</code></pre></li>
 </ul>
 <p>InnoDB采用<code>改进的LRU算法</code>(后面刷<code>LeetCode LRU</code>时可以看看算法流程和代码)，将链表分为两个区域，一部分<code>使用频率高的</code>在链表的<code>头部</code>称为<code>young区</code>，一部分<code>使用频率低的</code>在链表的<code>尾部</code>称为<code>old区</code>。主要示意图如下：</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb-buffer-pool-list.png"><div class="caption"><b class="center-caption">Buffer Pool List</b></div>
-
 <h2 id="4-6-配置参数"><a href="#4-6-配置参数" class="headerlink" title="4.6 配置参数"></a>4.6 配置参数</h2><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%innodb_page_size%'</span><span class="token punctuation">;</span> <span class="token comment">-- page大小</span>
 <span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%innodb_old%'</span><span class="token punctuation">;</span>  <span class="token comment">-- lru old的参数</span>
 <span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%innodb_buffer%'</span><span class="token punctuation">;</span> <span class="token comment">-- 查看所有参数</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
 <blockquote>
 <p>缓存池的存储模块嵌套关系: <code>buffer-&gt;instance-&gt;chunk -&gt;page</code>。<br>buffer推荐占物理内存的<code>60%-80%</code>，instance按需增加数量， page微量调整。</p>
 </blockquote>
 <h2 id="4-7-多个-Buffer-Pool-实例"><a href="#4-7-多个-Buffer-Pool-实例" class="headerlink" title="4.7 多个 Buffer Pool 实例"></a>4.7 多个 Buffer Pool 实例</h2><p><code>Buffer Pool 本质</code>是 InnoDB 向操作系统申请的一块<strong>连续的内存空间</strong>，在多线程环境下，访问 Buffer Pool 中的各种链表都需要<code>加锁</code>处理，在 Buffer Pool 特别大而且多线程并发访问特别高的情况下，单一的 Buffer Pool 可能会影响<code>请求的处理速度</code>。所以在 Buffer Pool 特别大的时候，我们可以把它们<strong>拆分</strong>成若干个小的 Buffer Pool，每个 Buffer Pool 都称为一个<code>实例</code>，它们都是<code>独立的</code>， 独立的去申请内存空间，独立的管理各种链表，所以在多线程并发访问时并不会相互影响，从而提高并发处理能力。</p>
 <p>通过设置 <code>innodb_buffer_pool_instances</code> 的值来修改 Buffer Pool <code>实例</code>的个数，那每个 Buffer Pool 实例实际占多少内存空间呢?</p>
-<p>公式：</p>
-<pre class="line-numbers language-none"><code class="language-none">innodb_buffer_pool_size&#x2F;innodb_buffer_pool_instances<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>也就是<code>总共的大小</code>除以<code>实例个数</code>，结果就是每个 Buffer Pool 实例占用的大小。</p>
+<p>公式：<br><pre class="line-numbers language-none"><code class="language-none">innodb_buffer_pool_size&#x2F;innodb_buffer_pool_instances<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>也就是<code>总共的大小</code>除以<code>实例个数</code>，结果就是每个 Buffer Pool 实例占用的大小。</p>
 <p>不过也不是说 Buffer Pool 实例创建的越多越好，分别管理各个 Buffer Pool 也是需要<code>性能开销</code>的，InnoDB 规定：</p>
 <blockquote>
 <p>当 <code>innodb_buffer_pool_size</code>(默认 128M) 的值<code>小于1G</code> 的时候设置多个实例是<code>无效的</code>，InnoDB 会默认把 <code>innodb_buffer_pool_instances</code>的值修改为 <code>1</code>。所以 Buffer Pool 大于或等于 <code>1G</code> 的时候应该设置多个 Buffer Pool 实例。</p>
 </blockquote>
 <h2 id="4-8-innodb-buffer-pool-chunk-size"><a href="#4-8-innodb-buffer-pool-chunk-size" class="headerlink" title="4.8 innodb_buffer_pool_chunk_size"></a>4.8 innodb_buffer_pool_chunk_size</h2><p>在 <code>MySQL 5.7.5</code> 之前，Buffer Pool的大小只能在服务器<code>启动</code>时通过配置<code>innodb_buffer_pool_size</code>启动参数来调整大小，在服务器<code>运行过程中</code>是<strong>不允许调整</strong>该值的。不过在<code>MySQL  5.7.5以及之后的版本</code>中支持了在服务器运行过程中调整 Buffer Pool 大小的功能。</p>
 <p>但是有一个问题，就是每次当我们要重新调整 Buffer Pool 大小时，都需要重新向操作系统申请一块<code>连续的</code>内存空间，然后将旧的 Buffer Pool 中的内容复制到这一块新空间，这是<code>极其耗时</code>的。所以 MySQL 决定不再一次性为某个 Buffer Pool 实例向操作系统申请一大片连续的内存空间，而是以一个所谓的 <code>chunk</code> 为单位向操作系统申请空间。</p>
-<p>也就是说，一个Buffer Pool实例其实是由若干个<code>chunk</code>组成的， 一个 <code>chunk</code> 就代表一片<code>连续的</code>内存空间，里边包含了若干<code>缓存页</code>及其对应的<code>控制块</code>：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Chunk-in-Pool.png"><div class="caption"><b class="center-caption">Chunk-in-Pool</b></div>
-
+<p>也就是说，一个Buffer Pool实例其实是由若干个<code>chunk</code>组成的， 一个 <code>chunk</code> 就代表一片<code>连续的</code>内存空间，里边包含了若干<code>缓存页</code>及其对应的<code>控制块</code>：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Chunk-in-Pool.png"><div class="caption"><b class="center-caption">Chunk-in-Pool</b></div></p>
 <h2 id="4-9-Change-Bufferi"><a href="#4-9-Change-Bufferi" class="headerlink" title="4.9 Change Bufferi"></a>4.9 Change Bufferi</h2><p>负责存储新增和更新的缓存，避免频繁的磁盘操作，先对比缓存池中已有数据，然后更新的数据放这，闲置时再更新入磁盘。</p>
-<p>占用Buffer Pool空间<code>默认25%</code>，<code>最大</code>允许<code>50%</code>，根据写入量进行调整。</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%innodb_change_buffer_max_size%'</span><span class="token punctuation">;</span> <span class="token comment">-- 查看当前cb占比</span>
-<span class="token keyword">set</span> <span class="token keyword">global</span> innodb_change_buffer_max_size <span class="token operator">=</span> <span class="token identifier"><span class="token punctuation">`</span>占比数<span class="token punctuation">`</span></span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb-change-buffer.png"><div class="caption"><b class="center-caption">Change Buffer</b></div>
-
+<p>占用Buffer Pool空间<code>默认25%</code>，<code>最大</code>允许<code>50%</code>，根据写入量进行调整。<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">show</span> variables <span class="token operator">like</span> <span class="token string">'%innodb_change_buffer_max_size%'</span><span class="token punctuation">;</span> <span class="token comment">-- 查看当前cb占比</span>
+<span class="token keyword">set</span> <span class="token keyword">global</span> innodb_change_buffer_max_size <span class="token operator">=</span> <span class="token identifier"><span class="token punctuation">`</span>占比数<span class="token punctuation">`</span></span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb-change-buffer.png"><div class="caption"><b class="center-caption">Change Buffer</b></div></p>
 <h2 id="4-10-Log-Buffer"><a href="#4-10-Log-Buffer" class="headerlink" title="4.10 Log Buffer"></a>4.10 Log Buffer</h2><ul>
 <li>负责存储操作记录</li>
 <li>存储一定数量更新到磁盘</li>
 <li>也可定期更新到磁盘</li>
 <li>容量大小通过参数<code>innodb_log_buffer_size</code>控制</li>
-<li>刷盘策略：通过参数<code> innodb_flush_log_at_trx_commit</code>控制。其中：<ul>
+<li>刷盘策略：通过参数<code>innodb_flush_log_at_trx_commit</code>控制。其中：<ul>
 <li>0：<code>每隔1秒</code>进行写日志和刷盘操作，流程: <code>log buffer-&gt; OScache -&gt;DISK</code>；该模式下在事务提交时<code>不会主动触发</code>写入磁盘的操作。</li>
 <li>1：事务提交就刷盘；</li>
 <li>2：事物提交，就写日志（意味着写入到了<code>操作系统的文件缓存</code>），每隔一秒刷盘。</li>
 </ul>
 </li>
 </ul>
-<p>借用<a target="_blank" rel="noopener" href="https://www.xiaolincoding.com/mysql/log/how_update.html#redo-log-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%88%B7%E7%9B%98">小林子</a> 的图可以更好地加深理解：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb_flush_log_at_trx_commit.drawio.png"><div class="caption"><b class="center-caption">刷盘机制</b></div>
-
+<p>借用<a target="_blank" rel="noopener" href="https://www.xiaolincoding.com/mysql/log/how_update.html#redo-log-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E5%88%B7%E7%9B%98">小林子</a> 的图可以更好地加深理解：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb_flush_log_at_trx_commit.drawio.png"><div class="caption"><b class="center-caption">刷盘机制</b></div></p>
 <blockquote>
 <p><code>innodb_flush_log_at_trx_commit</code> 为 <code>0</code> 和 <code>2</code> 的时候，什么时候才将 redo log 写入磁盘？</p>
 </blockquote>
@@ -1076,8 +1116,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 <li>针对参数 <code>0</code>：会把缓存在 <code>redo log buffer</code> 中的 <code>redo log</code> ，通过调用 <code>write()</code> 写到<code>操作系统的 Page Cache</code>，然后调用 <code>fsync()</code> <strong>持久化</strong>到<code>磁盘</code>。所以参数为 <code>0</code> 的策略，MySQL 进程的<code>崩溃</code>会导致上一秒钟所有事务数据的<code>丢失</code>;</li>
 <li>针对参数 <code>2</code>：调用 <code>fsync</code>，将缓存在操作系统中 <code>Page Cache</code> 里的 <code>redo log</code> 持久化到<code>磁盘</code>。所以参数为 2 的策略，较取值为 0 情况下<code>更安全</code>，因为 MySQL 进程的崩溃并不会丢失数据，只有在<code>操作系统崩溃</code>或者<code>系统断电</code>的情况下，上一秒钟所有事务数据才可能丢失。</li>
 </ul>
-<p>加入了后台线程后，<code>innodb_flush_log_at_trx_commit</code> 的刷盘时机如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb_flush_log_at_trx_commit2.drawio.png"><div class="caption"><b class="center-caption">加入后台线程后的刷盘机制</b></div>
+<p>加入了后台线程后，<code>innodb_flush_log_at_trx_commit</code> 的刷盘时机如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/innodb_flush_log_at_trx_commit2.drawio.png"><div class="caption"><b class="center-caption">加入后台线程后的刷盘机制</b></div></p>
 <h2 id="4-11-自适应Hash索引"><a href="#4-11-自适应Hash索引" class="headerlink" title="4.11 自适应Hash索引"></a>4.11 自适应Hash索引</h2><p>属于Buffer Pool中的一片内存。</p>
 <p>当InnoDB观察到某个索引的值频繁被使用，那么会创建<code>自适应hash索引</code>，可以提高查询速度，可以通过参数<code>innodb_adaptive_hash_index</code>来<code>禁用</code>或<code>启动</code>此特性，<code>默认为开启</code>。</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ul>
@@ -1772,7 +1811,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1790,7 +1829,7 @@ Mysql 5.1 版本前的默认存储引擎。特性丰富但不支持事务，也�
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2053,6 +2092,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

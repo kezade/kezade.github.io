@@ -64,7 +64,7 @@ prepareRefresh ① 准备此上下文用于刷">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@ prepareRefresh ① 准备此上下文用于刷">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@ prepareRefresh ① 准备此上下文用于刷">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@ prepareRefresh ① 准备此上下文用于刷">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@ prepareRefresh ① 准备此上下文用于刷">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@ prepareRefresh ① 准备此上下文用于刷">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@ prepareRefresh ① 准备此上下文用于刷">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -840,11 +897,10 @@ prepareRefresh ① 准备此上下文用于刷">
 <li>onRefresh ⑨ 给子类扩展初始化其他Bean，springboot 中用来做内嵌 tomcat 启动</li>
 <li>registerListeners ⑩ 在所有bean中查找监听 bean，然后注册到广播器中</li>
 <li>finishBeanFactoryInitialization <strong>⑪ 本节主要跟踪的源码流程</strong></li>
-<li>finishRefresh ⑫ 完成刷新过程，发布相应的事件</li>
+<li>finishRefresh ⑫ 完成刷新过程，发布相应的事件<h1 id="一、Bean实例化流程"><a href="#一、Bean实例化流程" class="headerlink" title="一、Bean实例化流程"></a>一、Bean实例化流程</h1>总体上，Bean实例化流程主要有三个步骤：</li>
 </ul>
 </li>
 </ul>
-<h1 id="一、Bean实例化流程"><a href="#一、Bean实例化流程" class="headerlink" title="一、Bean实例化流程"></a>一、Bean实例化流程</h1><p>总体上，Bean实例化流程主要有三个步骤：</p>
 <ul>
 <li>创建Bean实例</li>
 <li>属性注入</li>
@@ -852,9 +908,7 @@ prepareRefresh ① 准备此上下文用于刷">
 </ul>
 <p>本章主要是讲创建Bean实例的过程，我分为两个部分：一是构造函数的选取，二是依赖注入相关的注解扫描.</p>
 <h1 id="二、时序图"><a href="#二、时序图" class="headerlink" title="二、时序图"></a>二、时序图</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210411112559829.png"><div class="caption"><b class="center-caption">""</b></div>
-
-<h1 id="三、源码跟踪"><a href="#三、源码跟踪" class="headerlink" title="三、源码跟踪"></a>三、源码跟踪</h1><h2 id="1-finishBeanFactoryInitialization"><a href="#1-finishBeanFactoryInitialization" class="headerlink" title="1.finishBeanFactoryInitialization()"></a>1.finishBeanFactoryInitialization()</h2><p>点进去看看finishBeanFactoryInitialization()方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<h1 id="三、源码跟踪"><a href="#三、源码跟踪" class="headerlink" title="三、源码跟踪"></a>三、源码跟踪</h1><h2 id="1-finishBeanFactoryInitialization"><a href="#1-finishBeanFactoryInitialization" class="headerlink" title="1.finishBeanFactoryInitialization()"></a>1.finishBeanFactoryInitialization()</h2><p>点进去看看finishBeanFactoryInitialization()方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * 这个方法是spring中最重要的方法，没有之一
  * 所以这个方法一定要理解要具体看
  * 1、bean实例化过程
@@ -896,8 +950,7 @@ prepareRefresh ① 准备此上下文用于刷">
 	<span class="token comment">//重点看这个方法，重要程度：5</span>
 	<span class="token comment">// Instantiate all remaining (non-lazy-init) singletons.</span>
 	beanFactory<span class="token punctuation">.</span><span class="token function">preInstantiateSingletons</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>重点关注这个方法的处理beanFactory.preInstantiateSingletons()</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>重点关注这个方法的处理beanFactory.preInstantiateSingletons()</p>
 <h2 id="2-preInstantiateSingletons"><a href="#2-preInstantiateSingletons" class="headerlink" title="2.preInstantiateSingletons()"></a>2.preInstantiateSingletons()</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/*
  * 具体实例化过程
  * */</span>
@@ -1157,8 +1210,7 @@ prepareRefresh ① 准备此上下文用于刷">
 	<span class="token punctuation">&#125;</span>
 	<span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token class-name">T</span><span class="token punctuation">)</span> bean<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="4-getSingleton"><a href="#4-getSingleton" class="headerlink" title="4.getSingleton()"></a>4.getSingleton()</h2><p>我们先看看两次调用getSingleton()的两个重载方法<br>第一次调用</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<h2 id="4-getSingleton"><a href="#4-getSingleton" class="headerlink" title="4.getSingleton()"></a>4.getSingleton()</h2><p>我们先看看两次调用getSingleton()的两个重载方法<br>第一次调用<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">return</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 
@@ -1187,9 +1239,7 @@ prepareRefresh ① 准备此上下文用于刷">
 		<span class="token punctuation">&#125;</span>
 	<span class="token punctuation">&#125;</span>
 	<span class="token keyword">return</span> singletonObject<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这次的调用缓存里都是没有的，三级缓存的设计是为了解决循环依赖和AOP代理的问题，这个在后面详说。<br>第二次调用</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">ObjectFactory</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> singletonFactory<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>这次的调用缓存里都是没有的，三级缓存的设计是为了解决循环依赖和AOP代理的问题，这个在后面详说。<br>第二次调用<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">ObjectFactory</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> singletonFactory<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token class-name">Assert</span><span class="token punctuation">.</span><span class="token function">notNull</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> <span class="token string">"Bean name must not be null"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">synchronized</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>singletonObjects<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		<span class="token comment">//如果缓存中有，则直接返回</span>
@@ -1245,8 +1295,7 @@ prepareRefresh ① 准备此上下文用于刷">
 		<span class="token punctuation">&#125;</span>
 		<span class="token keyword">return</span> singletonObject<span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这里总结一下流程</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>这里总结一下流程</p>
 <ul>
 <li>把beanName添加到singletonsCurrentlyInCreation Set容器中（其中这个在循环依赖时三级缓存会用到）</li>
 <li>singletonFactory.getObject()：这个就会调用到外层Lambda表达式中实现getObject()的业务方法，即createBean()方法，就是这个<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-></span> <span class="token punctuation">&#123;</span>
@@ -1257,8 +1306,7 @@ prepareRefresh ① 准备此上下文用于刷">
 <li>bean创建成功（完整的bean），从singletonsCurrentlyInCreation删除</li>
 <li>将bean添加至一级缓存中</li>
 </ul>
-<h2 id="5-createBean"><a href="#5-createBean" class="headerlink" title="5.createBean()"></a>5.createBean()</h2><p>好，进去看看createBean方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token class-name">Object</span> <span class="token function">createBean</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span>
+<h2 id="5-createBean"><a href="#5-createBean" class="headerlink" title="5.createBean()"></a>5.createBean()</h2><p>好，进去看看createBean方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token class-name">Object</span> <span class="token function">createBean</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span>
 		<span class="token keyword">throws</span> <span class="token class-name">BeanCreationException</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">if</span> <span class="token punctuation">(</span>logger<span class="token punctuation">.</span><span class="token function">isTraceEnabled</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		logger<span class="token punctuation">.</span><span class="token function">trace</span><span class="token punctuation">(</span><span class="token string">"Creating instance of bean '"</span> <span class="token operator">+</span> beanName <span class="token operator">+</span> <span class="token string">"'"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1319,8 +1367,7 @@ prepareRefresh ① 准备此上下文用于刷">
 		<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanCreationException</span><span class="token punctuation">(</span>
 				mbdToUse<span class="token punctuation">.</span><span class="token function">getResourceDescription</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> beanName<span class="token punctuation">,</span> <span class="token string">"Unexpected exception during bean creation"</span><span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>关键看doCreateBean()</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>关键看doCreateBean()</p>
 <h2 id="6-doCreateBean"><a href="#6-doCreateBean" class="headerlink" title="6.doCreateBean()"></a>6.doCreateBean()</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * Description: 创建bean实例的核心方法
  */</span>
@@ -1521,16 +1568,15 @@ prepareRefresh ① 准备此上下文用于刷">
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>其中，</p>
 <ul>
-<li>getBeanPostProcessors()方法，获取所有BeanPostProcessor接口，是AbstractBeanFactory类中的一个List&lt;BeanPostProcessor&gt; beanPostProcessors &#x3D; new CopyOnWriteArrayList&lt;&gt;()容器，装载了上下文中所有的BeanPostProcessor类的实例。</li>
+<li>getBeanPostProcessors()方法，获取所有BeanPostProcessor接口，是AbstractBeanFactory类中的一个List\<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList&lt;&gt;()容器，装载了上下文中所有的BeanPostProcessor类的实例。</BeanPostProcessor></li>
 <li>SmartInstantiationAwareBeanPostProcessor类中的determineCandidateConstructors方法，会调用其子类 AutowiredAnnotationBeanPostProcessor 中的determineCandidateConstructors方法，来获取到有@Autowired注解信息的构造函数。AutowiredAnnotationBeanPostProcessor类会完成@Autowired和@value两个注解的扫描。</li>
 <li>AutowiredAnnotationBeanPostProcessor 中的determineCandidateConstructors方法返回构造方法数组，以下两种情况返回值不为null:<ul>
 <li>有且仅有一个带参构造方法，返回那个构造方法</li>
-<li>有多个@Autowired(required &#x3D; false)注解的构造方法，返回这些构造方法</li>
+<li>有多个@Autowired(required = false)注解的构造方法，返回这些构造方法</li>
 </ul>
 </li>
 </ul>
-<p>去看看AutowiredAnnotationBeanPostProcessor 中的determineCandidateConstructors方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">determineCandidateConstructors</span><span class="token punctuation">(</span><span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanClass<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span>
+<p>去看看AutowiredAnnotationBeanPostProcessor 中的determineCandidateConstructors方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token function">determineCandidateConstructors</span><span class="token punctuation">(</span><span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanClass<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span>
 		<span class="token keyword">throws</span> <span class="token class-name">BeanCreationException</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">// 在实例化某个对象的过程中会调用这个方法，得到候选构造方法</span>
 	<span class="token comment">// Let's check for lookup methods here...</span>
@@ -1706,15 +1752,11 @@ prepareRefresh ① 准备此上下文用于刷">
 	<span class="token comment">// 要么返回唯一的一个有参的构造方法</span>
 	<span class="token comment">// 如果只有一个无参的构造方法，这里会返回null，外层逻辑会默认使用无参构造方法进行实例化</span>
 	<span class="token keyword">return</span> <span class="token punctuation">(</span>candidateConstructors<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span> <span class="token operator">?</span> candidateConstructors <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这个方法执行完毕后，我们就可以进行第一次推断构造函数了，回到6.1.createBeanInstance()中的determineConstructorsFromBeanPostProcessors。我们再看看第二次推断构造函数的过程</p>
-<h4 id="6-1-2-构造函数的选取之autowireConstructor"><a href="#6-1-2-构造函数的选取之autowireConstructor" class="headerlink" title="6.1.2.构造函数的选取之autowireConstructor()"></a>6.1.2.构造函数的选取之autowireConstructor()</h4><p>调用的为ConstructorResolver的autowireConstructor()</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token class-name">BeanWrapper</span> <span class="token function">autowireConstructor</span><span class="token punctuation">(</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>这个方法执行完毕后，我们就可以进行第一次推断构造函数了，回到6.1.createBeanInstance()中的determineConstructorsFromBeanPostProcessors。我们再看看第二次推断构造函数的过程</p>
+<h4 id="6-1-2-构造函数的选取之autowireConstructor"><a href="#6-1-2-构造函数的选取之autowireConstructor" class="headerlink" title="6.1.2.构造函数的选取之autowireConstructor()"></a>6.1.2.构造函数的选取之autowireConstructor()</h4><p>调用的为ConstructorResolver的autowireConstructor()<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token class-name">BeanWrapper</span> <span class="token function">autowireConstructor</span><span class="token punctuation">(</span>
 		<span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span><span class="token punctuation">[</span><span class="token punctuation">]</span> ctors<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> explicitArgs<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ConstructorResolver</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">autowireConstructor</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> mbd<span class="token punctuation">,</span> ctors<span class="token punctuation">,</span> explicitArgs<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>点进去autowireConstructor，参考这位大神画的流程<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39404258/article/details/109769278">spring源码解析（四） 推断构造方法</a></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">BeanWrapper</span> <span class="token function">autowireConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><br>点进去autowireConstructor，参考这位大神画的流程<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39404258/article/details/109769278">spring源码解析（四） 推断构造方法</a><br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">BeanWrapper</span> <span class="token function">autowireConstructor</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span>
 		<span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Constructor</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span><span class="token punctuation">[</span><span class="token punctuation">]</span> chosenCtors<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token punctuation">]</span> explicitArgs<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 
 	<span class="token class-name">BeanWrapperImpl</span> bw <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BeanWrapperImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1920,8 +1962,7 @@ prepareRefresh ① 准备此上下文用于刷">
 	<span class="token class-name">Assert</span><span class="token punctuation">.</span><span class="token function">state</span><span class="token punctuation">(</span>argsToUse <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token string">"Unresolved constructor arguments"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	bw<span class="token punctuation">.</span><span class="token function">setBeanInstance</span><span class="token punctuation">(</span><span class="token function">instantiate</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> mbd<span class="token punctuation">,</span> constructorToUse<span class="token punctuation">,</span> argsToUse<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">return</span> bw<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>总结下：</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>总结下：</p>
 <ul>
 <li><p>手动装配</p>
 <ul>
@@ -1929,10 +1970,10 @@ prepareRefresh ① 准备此上下文用于刷">
 <li>提供一个构造方法：使用该构造方法</li>
 <li>提供多个构造方法，包含默认构造方法：使用默认构造方法</li>
 <li>提供多个构造方法，不包含默认构造方法：报错</li>
-<li>提供多个构造方法，有一个@Autowired(required &#x3D; true)的构造方法：使用有@Autowired(required &#x3D; true)的构造方法</li>
-<li>提供多个构造方法，有多个@Autowired(required &#x3D; true)的构造方法：报错</li>
-<li>提供多个构造方法，有一个@Autowired(required &#x3D; true)的构造方法和多个@Autowired(required &#x3D; false)的构造方法：报错</li>
-<li>提供多个构造方法，有多个@Autowired(required &#x3D; false)的构造方法：使用符合条件的&amp;参数最多的构造方法</li>
+<li>提供多个构造方法，有一个@Autowired(required = true)的构造方法：使用有@Autowired(required = true)的构造方法</li>
+<li>提供多个构造方法，有多个@Autowired(required = true)的构造方法：报错</li>
+<li>提供多个构造方法，有一个@Autowired(required = true)的构造方法和多个@Autowired(required = false)的构造方法：报错</li>
+<li>提供多个构造方法，有多个@Autowired(required = false)的构造方法：使用符合条件的&amp;参数最多的构造方法</li>
 </ul>
 </li>
 <li><p>使用构造方法自动装配：使用符合条件的&amp;参数最多的构造方法</p>
@@ -1944,8 +1985,7 @@ prepareRefresh ① 准备此上下文用于刷">
 <li>CommonAnnotationBeanPostProcessor  支持@PostConstruct，@PreDestroy和@Resource注解</li>
 <li>AutowiredAnnotationBeanPostProcessor 支持@Autowired和@Value注解</li>
 </ul>
-<p>这两个类都是MergedBeanDefinitionPostProcessor的实现类。我们先点进去看看applyMergedBeanDefinitionPostProcessors()方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">applyMergedBeanDefinitionPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanType<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<p>这两个类都是MergedBeanDefinitionPostProcessor的实现类。我们先点进去看看applyMergedBeanDefinitionPostProcessors()方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">applyMergedBeanDefinitionPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">,</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanType<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//从所有BeanPostProcessor中过滤出MergedBeanDefinitionPostProcessor的类，循环扫描</span>
 	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">BeanPostProcessor</span> bp <span class="token operator">:</span> <span class="token function">getBeanPostProcessors</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		<span class="token keyword">if</span> <span class="token punctuation">(</span>bp <span class="token keyword">instanceof</span> <span class="token class-name">MergedBeanDefinitionPostProcessor</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1953,17 +1993,14 @@ prepareRefresh ① 准备此上下文用于刷">
 			bdp<span class="token punctuation">.</span><span class="token function">postProcessMergedBeanDefinition</span><span class="token punctuation">(</span>mbd<span class="token punctuation">,</span> beanType<span class="token punctuation">,</span> beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
 		<span class="token punctuation">&#125;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>我们先看看CommonAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()方法</p>
-<h4 id="6-2-1-PostConstruct，-PreDestroy和-Resource注解扫描"><a href="#6-2-1-PostConstruct，-PreDestroy和-Resource注解扫描" class="headerlink" title="6.2.1.@PostConstruct，@PreDestroy和@Resource注解扫描"></a>6.2.1.@PostConstruct，@PreDestroy和@Resource注解扫描</h4><p>CommonAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">postProcessMergedBeanDefinition</span><span class="token punctuation">(</span><span class="token class-name">RootBeanDefinition</span> beanDefinition<span class="token punctuation">,</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanType<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>我们先看看CommonAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()方法</p>
+<h4 id="6-2-1-PostConstruct，-PreDestroy和-Resource注解扫描"><a href="#6-2-1-PostConstruct，-PreDestroy和-Resource注解扫描" class="headerlink" title="6.2.1.@PostConstruct，@PreDestroy和@Resource注解扫描"></a>6.2.1.@PostConstruct，@PreDestroy和@Resource注解扫描</h4><p>CommonAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">postProcessMergedBeanDefinition</span><span class="token punctuation">(</span><span class="token class-name">RootBeanDefinition</span> beanDefinition<span class="token punctuation">,</span> <span class="token class-name">Class</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span><span class="token punctuation">></span></span> beanType<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//1.扫描@PostConstruct，@PreDestroy</span>
 	<span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">postProcessMergedBeanDefinition</span><span class="token punctuation">(</span>beanDefinition<span class="token punctuation">,</span> beanType<span class="token punctuation">,</span> beanName<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token comment">//2.@Resource注解的属性或者方法的收集</span>
 	<span class="token class-name">InjectionMetadata</span> metadata <span class="token operator">=</span> <span class="token function">findResourceMetadata</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> beanType<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	metadata<span class="token punctuation">.</span><span class="token function">checkConfigMembers</span><span class="token punctuation">(</span>beanDefinition<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>分成两步完成相应注解的扫描：</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>分成两步完成相应注解的扫描：</p>
 <ol>
 <li><p>收集被@PostConstruct 和@PreDestroy 注解标注的方法<br> 1）CommonAnnotationBeanPostProcessor的构造函数先设置需要扫描的注解类型，再去父类InitDestroyAnnotationBeanPostProcessor中去扫描</p>
  <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">CommonAnnotationBeanPostProcessor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -2060,16 +2097,12 @@ prepareRefresh ① 准备此上下文用于刷">
 		<span class="token punctuation">&#125;</span>
 		<span class="token keyword">return</span> metadata<span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p> 2）分别获取被@Resource注解的属性和方法(这里我们只关注@Resource注解的属性和方法)</p>
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210413105919770.png"><div class="caption"><b class="center-caption">""</b></div>
+<p> 3）最终把两个field 和Method 封装的对象集合封装到InjectionMetadata 对象中</p>
 </li>
 </ol>
- <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210413105919770.png"><div class="caption"><b class="center-caption">""</b></div>
-
-<pre><code>3）最终把两个field 和Method 封装的对象集合封装到InjectionMetadata 对象中
-</code></pre>
-<h4 id="6-2-2-Autowired和-Value注解扫描"><a href="#6-2-2-Autowired和-Value注解扫描" class="headerlink" title="6.2.2.@Autowired和@Value注解扫描"></a>6.2.2.@Autowired和@Value注解扫描</h4><p>AutowiredAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()<br>AutowiredAnnotationBeanPostProcessor 类是对@Autowired 和@Value 注解的属性和方法的收集，收集<br>支持的注解类型可以在构造函数或者Static 静态块中找。收集过程基本上跟@Resource 注解的收集差不多。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">AutowiredAnnotationBeanPostProcessor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<h4 id="6-2-2-Autowired和-Value注解扫描"><a href="#6-2-2-Autowired和-Value注解扫描" class="headerlink" title="6.2.2.@Autowired和@Value注解扫描"></a>6.2.2.@Autowired和@Value注解扫描</h4><p>AutowiredAnnotationBeanPostProcessor的postProcessMergedBeanDefinition()<br>AutowiredAnnotationBeanPostProcessor 类是对@Autowired 和@Value 注解的属性和方法的收集，收集<br>支持的注解类型可以在构造函数或者Static 静态块中找。收集过程基本上跟@Resource 注解的收集差不多。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">AutowiredAnnotationBeanPostProcessor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">this</span><span class="token punctuation">.</span>autowiredAnnotationTypes<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token class-name">Autowired</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">this</span><span class="token punctuation">.</span>autowiredAnnotationTypes<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token class-name">Value</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
@@ -2080,9 +2113,8 @@ prepareRefresh ① 准备此上下文用于刷">
 	<span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">ClassNotFoundException</span> ex<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		<span class="token comment">// JSR-330 API not available - simply skip.</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>收集过程跟上述@Resource 收集，调用的都是ReflectionUtils工具类中的方法，也是收集Field 和Method 上面的注解，然后放到InjectionMetadata对象中。</p>
-<p>收集@Resource、@PostConstruct、@PreDestory、@Autowired 和@Value注解的方法或属性的过程结束。<br>下一章，我们讲讲依赖注入的过程，敬请期待。^_^</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>收集过程跟上述@Resource 收集，调用的都是ReflectionUtils工具类中的方法，也是收集Field 和Method 上面的注解，然后放到InjectionMetadata对象中。</p>
+<p>收集@Resource、@PostConstruct、@PreDestory、@Autowired 和@Value注解的方法或属性的过程结束。<br>下一章，我们讲讲依赖注入的过程，敬请期待。\^_^</p>
 
                 
             </div>
@@ -2773,7 +2805,7 @@ prepareRefresh ① 准备此上下文用于刷">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -3036,6 +3068,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -825,8 +882,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <p>上一章节中，我们跟完了bean的创建流程，而在创建完成以后，bean还会注册销毁相关的类，以便于像tomcat等容器关闭时相关的调用，本章我就聊这个。</p>
-<h1 id="一、注册bean销毁的类"><a href="#一、注册bean销毁的类" class="headerlink" title="一、注册bean销毁的类"></a>一、注册bean销毁的类</h1><p>先定位到类AbstractAutowireCapableBeanFactory的doCreateBean()方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// Register bean as disposable.</span>
+<h1 id="一、注册bean销毁的类"><a href="#一、注册bean销毁的类" class="headerlink" title="一、注册bean销毁的类"></a>一、注册bean销毁的类</h1><p>先定位到类AbstractAutowireCapableBeanFactory的doCreateBean()方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// Register bean as disposable.</span>
 <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//注册bean销毁时的类DisposableBeanAdapter</span>
 	<span class="token function">registerDisposableBeanIfNecessary</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> bean<span class="token punctuation">,</span> mbd<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -834,8 +890,7 @@
 <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">BeanDefinitionValidationException</span> ex<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BeanCreationException</span><span class="token punctuation">(</span>
 			mbd<span class="token punctuation">.</span><span class="token function">getResourceDescription</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> beanName<span class="token punctuation">,</span> <span class="token string">"Invalid destruction signature"</span><span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="1-registerDisposableBeanIfNecessary"><a href="#1-registerDisposableBeanIfNecessary" class="headerlink" title="1.registerDisposableBeanIfNecessary()"></a>1.registerDisposableBeanIfNecessary()</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">registerDisposableBeanIfNecessary</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">Object</span> bean<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> mbd<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token class-name">AccessControlContext</span> acc <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">System</span><span class="token punctuation">.</span><span class="token function">getSecurityManager</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">?</span> <span class="token function">getAccessControlContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token comment">//非多例作用域并且要么有配置destroy-method或者要么有可用的DestructionAwareBeanPostProcessors后置处理器才会注册</span>
@@ -860,8 +915,7 @@
 		<span class="token punctuation">&#125;</span>
 	<span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="2-DisposableBeanAdapter"><a href="#2-DisposableBeanAdapter" class="headerlink" title="2.DisposableBeanAdapter"></a>2.DisposableBeanAdapter</h2><p>该类就是负责销毁bean的类，看下它的构造方法</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DisposableBeanAdapter</span><span class="token punctuation">(</span><span class="token class-name">Object</span> bean<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> beanDefinition<span class="token punctuation">,</span>
+<h2 id="2-DisposableBeanAdapter"><a href="#2-DisposableBeanAdapter" class="headerlink" title="2.DisposableBeanAdapter"></a>2.DisposableBeanAdapter</h2><p>该类就是负责销毁bean的类，看下它的构造方法<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DisposableBeanAdapter</span><span class="token punctuation">(</span><span class="token class-name">Object</span> bean<span class="token punctuation">,</span> <span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token class-name">RootBeanDefinition</span> beanDefinition<span class="token punctuation">,</span>
 		<span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">BeanPostProcessor</span><span class="token punctuation">></span></span> postProcessors<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">AccessControlContext</span> acc<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token class-name">Assert</span><span class="token punctuation">.</span><span class="token function">notNull</span><span class="token punctuation">(</span>bean<span class="token punctuation">,</span> <span class="token string">"Disposable bean must not be null"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token keyword">this</span><span class="token punctuation">.</span>bean <span class="token operator">=</span> bean<span class="token punctuation">;</span>
@@ -897,9 +951,7 @@
 	<span class="token punctuation">&#125;</span>
 	<span class="token comment">//过滤了DestructionAwareBeanPostProcessor 类型的接口</span>
 	<span class="token keyword">this</span><span class="token punctuation">.</span>beanPostProcessors <span class="token operator">=</span> <span class="token function">filterPostProcessors</span><span class="token punctuation">(</span>postProcessors<span class="token punctuation">,</span> bean<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>最主要干的事儿就是最后一步，收集DestructionAwareBeanPostProcessor 类型，放入列表当中</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">DestructionAwareBeanPostProcessor</span><span class="token punctuation">></span></span> <span class="token function">filterPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">BeanPostProcessor</span><span class="token punctuation">></span></span> processors<span class="token punctuation">,</span> <span class="token class-name">Object</span> bean<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>最主要干的事儿就是最后一步，收集DestructionAwareBeanPostProcessor 类型，放入列表当中<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">DestructionAwareBeanPostProcessor</span><span class="token punctuation">></span></span> <span class="token function">filterPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">BeanPostProcessor</span><span class="token punctuation">></span></span> processors<span class="token punctuation">,</span> <span class="token class-name">Object</span> bean<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">DestructionAwareBeanPostProcessor</span><span class="token punctuation">></span></span> filteredPostProcessors <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
 	<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token class-name">CollectionUtils</span><span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span>processors<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		filteredPostProcessors <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ArrayList</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span>processors<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -914,7 +966,7 @@
 		<span class="token punctuation">&#125;</span>
 	<span class="token punctuation">&#125;</span>
 	<span class="token keyword">return</span> filteredPostProcessors<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="二、调用过程"><a href="#二、调用过程" class="headerlink" title="二、调用过程"></a>二、调用过程</h1><p>目前主流服务端运行的java程序均为Servlet，并且通常都是在tomcat中，那bean的销毁通常与tomcat的关闭有关。我们知道servlet的生命周期有三大步骤：</p>
 <ul>
 <li>init(): 初始化阶段</li>
@@ -927,7 +979,6 @@
 	<span class="token function">closeWebApplicationContext</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token class-name">ContextCleanupListener</span><span class="token punctuation">.</span><span class="token function">cleanupAttributes</span><span class="token punctuation">(</span>event<span class="token punctuation">.</span><span class="token function">getServletContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="2-closeWebApplicationContext"><a href="#2-closeWebApplicationContext" class="headerlink" title="2.closeWebApplicationContext()"></a>2.closeWebApplicationContext()</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//ContextLoader</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">closeWebApplicationContext</span><span class="token punctuation">(</span><span class="token class-name">ServletContext</span> servletContext<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	servletContext<span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">"Closing Spring root WebApplicationContext"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1053,7 +1104,6 @@
 	<span class="token function">destroyBean</span><span class="token punctuation">(</span>beanName<span class="token punctuation">,</span> disposableBean<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="5-destroyBean"><a href="#5-destroyBean" class="headerlink" title="5.destroyBean()"></a>5.destroyBean()</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">destroyBean</span><span class="token punctuation">(</span><span class="token class-name">String</span> beanName<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> <span class="token class-name">DisposableBean</span> bean<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">// Trigger destruction of dependent beans first...</span>
 	<span class="token class-name">Set</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">></span></span> dependencies<span class="token punctuation">;</span>
@@ -1843,7 +1893,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2106,6 +2156,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

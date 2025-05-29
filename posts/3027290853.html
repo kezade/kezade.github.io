@@ -63,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -836,6 +893,7 @@
 <p>每当需要为<code>ChannelPipeline</code> 中的下一个<code>ChannelInboundHandler</code> 转换<code>入站数据</code>时会用到。</p>
 </blockquote>
 <h2 id="2-1-抽象类-ByteToMessageDecoder"><a href="#2-1-抽象类-ByteToMessageDecoder" class="headerlink" title="2.1 抽象类 ByteToMessageDecoder"></a>2.1 抽象类 ByteToMessageDecoder</h2><p><code>ByteToMessageDecoder</code>是Netty将<code>字节</code><strong>解码</strong>为<code>消息</code>的基类。下表给出了它最重要的两个方法。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -843,7 +901,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)</Object></td>
 <td><code>decode()</code>方法被调用时将会传入一个包含了传入数据的 <code>ByteBuf</code>，以及一个用来添加解码消息的 <code>List</code>。</td>
 </tr>
@@ -851,9 +910,10 @@
 <td>decodeLast(ChannelHandlerContext ctx, ByteBuf in, List<Object> out)</Object></td>
 <td>Netty提供的这个默认实现只是简单地调用了<code>decode()</code>方法。 当Channel的状态变为非活动时，这个方法将会被调用一次。 可以重写该方法以提供特殊的处理</td>
 </tr>
-</tbody></table>
-<p>我自己实现聊天应用时，利用<code>Protocol Buffer</code>实现了消息的序列化。对于消息头，我进行了一些加工，比如添加了一个魔数(short)，版本(short)，然后才是消息的长度(int)。因此，对于消息头处理时，需要判断及读取特定长度的数据。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProtocolBufferDecoder</span> <span class="token keyword">extends</span> <span class="token class-name">ByteToMessageDecoder</span> <span class="token punctuation">&#123;</span>
+</tbody>
+</table>
+</div>
+<p>我自己实现聊天应用时，利用<code>Protocol Buffer</code>实现了消息的序列化。对于消息头，我进行了一些加工，比如添加了一个魔数(short)，版本(short)，然后才是消息的长度(int)。因此，对于消息头处理时，需要判断及读取特定长度的数据。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProtocolBufferDecoder</span> <span class="token keyword">extends</span> <span class="token class-name">ByteToMessageDecoder</span> <span class="token punctuation">&#123;</span>
 
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">decode</span><span class="token punctuation">(</span><span class="token class-name">ChannelHandlerContext</span> ctx<span class="token punctuation">,</span> <span class="token class-name">ByteBuf</span> in<span class="token punctuation">,</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Object</span><span class="token punctuation">></span></span> out<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
@@ -877,14 +937,11 @@
 
         <span class="token comment">//此处省略一万字符......</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>虽然 ByteToMessageDecoder 使得可以很简单地实现这种模式，但是你可能会发现，在调用 <code>readInt()</code>方法前不得不验证所输入的 ByteBuf 是否具有<code>足够的</code>数据有点繁琐。因而，Netty也提供了更加简便的解码器。</p>
 <h2 id="2-2-抽象类-ReplayingDecoder"><a href="#2-2-抽象类-ReplayingDecoder" class="headerlink" title="2.2 抽象类 ReplayingDecoder"></a>2.2 抽象类 ReplayingDecoder</h2><p><code>ReplayingDecoder</code>扩展了<code>ByteToMessageDecoder类</code>，使得我们<strong>不必调用</strong><code>readableBytes()方法</code>。它通过使用一个<code>自定义的ByteBuf实现</code>，<code>ReplayingDecoderByteBuf</code>，包装传入的ByteBuf实现了这一点，其将在内部执行调用<code>readableBytes()方法</code>。</p>
-<p>这个类的完整声明是:</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ReplayingDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">S</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">ByteToMessageDecoder</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>类型参数 <code>S</code> 指定了用于<code>状态管理</code>的类型，其中 <code>Void</code> 代表不需要状态管理。</p>
+<p>这个类的完整声明是:<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ReplayingDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">S</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">ByteToMessageDecoder</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>类型参数 <code>S</code> 指定了用于<code>状态管理</code>的类型，其中 <code>Void</code> 代表不需要状态管理。</p>
 <p>请注意 ReplayingDecoderByteBuf 的下面这些方面:</p>
 <ul>
 <li>并不是所有的 ByteBuf 操作都被支持，如果调用了一个不被支持的方法，将会抛出一个 <code>UnsupportedOperationException</code>;</li>
@@ -893,10 +950,9 @@
 <blockquote>
 <p>在真实的、更加复杂的情况下，使用一种或者另一种作为基类所带来的差异可能是很显著的。这里有一个简单的准则：如果使用 <code>ByteToMessageDecoder</code> 不会引入太多的复杂性，那么请使用它；否则，请使用 <code>ReplayingDecoder</code>。</p>
 </blockquote>
-<h2 id="2-3-抽象类-MessageToMessageDecoder"><a href="#2-3-抽象类-MessageToMessageDecoder" class="headerlink" title="2.3 抽象类 MessageToMessageDecoder"></a>2.3 抽象类 MessageToMessageDecoder</h2><p>完整声明如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">MessageToMessageDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">I</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">ChannelInboundHandlerAdapter</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<h2 id="2-3-抽象类-MessageToMessageDecoder"><a href="#2-3-抽象类-MessageToMessageDecoder" class="headerlink" title="2.3 抽象类 MessageToMessageDecoder"></a>2.3 抽象类 MessageToMessageDecoder</h2><p>完整声明如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">MessageToMessageDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">I</span><span class="token punctuation">></span></span> <span class="token keyword">extends</span> <span class="token class-name">ChannelInboundHandlerAdapter</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>类型参数 <code>I</code> 指定了 <code>decode()方法</code>的输入参数 <code>msg</code> 的类型，它是你必须实现的唯一方法。如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -904,19 +960,20 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>decode(ChannelHandlerContext ctx, I msg, List<Object> out)</Object></td>
 <td>对于每个需要被解码为另一种格式的入站消息来说，该方法都将会被调用。解码消息随后会被传递给 ChannelPipeline 中的下一个 ChannelInboundHandler。</td>
 </tr>
-</tbody></table>
-<p>比如<code>IntegerToStringDecoder</code>用于将<code>integer</code>类型转化为<code>String</code>类型。如下所示：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">IntegerToStringDecoder</span> <span class="token keyword">extends</span> <span class="token class-name">MessageToMessageDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
+</tbody>
+</table>
+</div>
+<p>比如<code>IntegerToStringDecoder</code>用于将<code>integer</code>类型转化为<code>String</code>类型。如下所示：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">IntegerToStringDecoder</span> <span class="token keyword">extends</span> <span class="token class-name">MessageToMessageDecoder</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">decode</span><span class="token punctuation">(</span><span class="token class-name">ChannelHandlerContext</span> ctx<span class="token punctuation">,</span> <span class="token class-name">Integer</span> msg<span class="token punctuation">,</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Object</span><span class="token punctuation">></span></span> out<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         out<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="2-4-TooLongFrameException-类"><a href="#2-4-TooLongFrameException-类" class="headerlink" title="2.4 TooLongFrameException 类"></a>2.4 TooLongFrameException 类</h2><p>由于 Netty 是一个<code>异步框架</code>，所以需要在字节可以解码之前在内存中<code>缓冲</code>它们。因此，不能让解码器缓冲大量的数据以至于耗尽可用的内存。为了解除这个常见的顾虑，Netty 提供了 <code>TooLongFrameException</code> 类，其将由解码器在帧超出指定的大小限制时抛出。</p>
 <p>为了避免这种情况，你可以设置一个最大字节数的<code>阈值</code>，如果超出该阈值，则会导致抛出一个 <code>TooLongFrameException</code>(随后会被 <code>ChannelHandler.exceptionCaught()</code>方法捕获)。然后，如何处理该异常则完全取决于该解码器的用户。某些协议(如 HTTP)可能允许你返回一个特殊的响应。而在其他的情况下，唯一的选择可能就是<code>关闭对应的连接</code>。</p>
 <p>下面代码展示了 <code>ByteToMessageDecoder</code> 是如何使用 <code>TooLongFrameException</code> 来通知 <code>ChannelPipeline</code> 中的其他 <code>ChannelHandler</code> 发生了帧大小溢出的。需要注意的是，如果你正在使用一个<code>可变帧大小的协议</code>，那么这种保护措施将是<code>尤为重要</code>的。</p>
@@ -933,13 +990,13 @@
 <span class="token comment">// do something ...</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="3-编码器"><a href="#3-编码器" class="headerlink" title="3 编码器"></a>3 编码器</h1><p>与解码器相反，其实现了 <code>ChannelOutboundHandler</code>，并将出站数据从一种格式转换为另一种格式。Netty 提供了一组类，用于帮助你编写具有以下功能的编码器：</p>
 <ul>
 <li>将消息编码为字节</li>
 <li>将消息编码为消息</li>
 </ul>
 <h2 id="3-1-抽象类-MessageToByteEncoder"><a href="#3-1-抽象类-MessageToByteEncoder" class="headerlink" title="3.1 抽象类 MessageToByteEncoder"></a>3.1 抽象类 MessageToByteEncoder</h2><p>其API如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -947,39 +1004,48 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>encode(ChannelHandlerContext ctx, I msg, ByteBuf out)</td>
 <td><code>encode()</code>方法是你需要实现的唯一抽象方法。它被调用时将会传入要被该类编码为 <code>ByteBuf</code> 的(类型为 I 的)<code>出站消息</code>。该 ByteBuf 随后将会被转发给 <code>ChannelPipeline</code> 中的下一个 <code>ChannelOutboundHandler</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>这个类只有一个方法，而解码器有两个。原因是<code>解码器</code>通常需要在 <code>Channel 关闭之后</code>产生最后一个消息(因此也就有了 <code>decodeLast()</code>方法)。这显然<code>不适用</code>于<code>编码器</code>的场景——在连接被关闭之后仍然产生一个消息是<code>毫无意义的</code>。</p>
-<h2 id="3-2-抽象类-MessageToMessageEncoder"><a href="#3-2-抽象类-MessageToMessageEncoder" class="headerlink" title="3.2 抽象类 MessageToMessageEncoder"></a>3.2 抽象类 MessageToMessageEncoder</h2><table>
+<h2 id="3-2-抽象类-MessageToMessageEncoder"><a href="#3-2-抽象类-MessageToMessageEncoder" class="headerlink" title="3.2 抽象类 MessageToMessageEncoder"></a>3.2 抽象类 MessageToMessageEncoder</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>方法</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>encode(ChannelHandlerContext ctx, I msg, List<Object> out)</Object></td>
 <td>这是你需要实现的唯一方法。每个通过 <code>write()</code>方法写入的消息都将会被传递给 <code>encode()</code>方法，以编码为一个或者多个<code>出站消息</code>。随后，这些出站消息将会被转发给 <code>ChannelPipeline</code> 中的下一个 <code>ChannelOutboundHandler</code></td>
 </tr>
-</tbody></table>
-<h1 id="4-抽象的编解码器类"><a href="#4-抽象的编解码器类" class="headerlink" title="4 抽象的编解码器类"></a>4 抽象的编解码器类</h1><p>我们一直将解码器和编码器作为单独的实体讨论，但是你有时将会发现在同一个类中管理入站和出站数据和消息的转换是很有用的。Netty 的抽象编解码器类正好用于这个目的，因为它们每个都将捆绑一个解码器&#x2F;编码器对。这些类同时实现了 <code>ChannelInboundHandler</code> 和 <code>ChannelOutboundHandler</code> 接口。</p>
+</tbody>
+</table>
+</div>
+<h1 id="4-抽象的编解码器类"><a href="#4-抽象的编解码器类" class="headerlink" title="4 抽象的编解码器类"></a>4 抽象的编解码器类</h1><p>我们一直将解码器和编码器作为单独的实体讨论，但是你有时将会发现在同一个类中管理入站和出站数据和消息的转换是很有用的。Netty 的抽象编解码器类正好用于这个目的，因为它们每个都将捆绑一个解码器/编码器对。这些类同时实现了 <code>ChannelInboundHandler</code> 和 <code>ChannelOutboundHandler</code> 接口。</p>
 <p>为什么我们并没有一直优先于单独的解码器和编码器使用这些复合类呢? 因为通过尽可能地将这两种功能分开，最大化了代码的<code>可重用性</code>和<code>可扩展性</code>，这是 Netty 设计的一个基本原则。</p>
 <p>相关的类:</p>
 <ul>
 <li>抽象类 <code>ByteToMessageCodec</code></li>
 <li>抽象类 <code>MessageToMessageCodec</code></li>
 </ul>
-<h2 id="4-1-ByteToMessageCodec"><a href="#4-1-ByteToMessageCodec" class="headerlink" title="4.1 ByteToMessageCodec"></a>4.1 ByteToMessageCodec</h2><table>
+<h2 id="4-1-ByteToMessageCodec"><a href="#4-1-ByteToMessageCodec" class="headerlink" title="4.1 ByteToMessageCodec"></a>4.1 ByteToMessageCodec</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>方法名称</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>decode(ChannelHandlerContext ctx, ByteBuf in, List<Object>)</Object></td>
 <td>只要有字节可以被消费，这个方法就将会被调用。它将入站 ByteBuf 转换为指定的消息格式，并将其转发给 <code>ChannelPipeline</code> 中的下一个 <code>ChannelInboundHandler</code></td>
 </tr>
@@ -991,10 +1057,11 @@
 <td>encode(ChannelHandlerContext ctx, I msg, ByteBuf out)</td>
 <td>对于每个将被编码并写入出站 <code>ByteBuf</code> 的(类型为 I 的)消息来说，这个方法都将会被调用</td>
 </tr>
-</tbody></table>
-<h2 id="4-2-MessageToMessageCodec"><a href="#4-2-MessageToMessageCodec" class="headerlink" title="4.2 MessageToMessageCodec"></a>4.2 MessageToMessageCodec</h2><p><code>MessageToMessageCodec</code> 是一个参数化的类，定义如下:</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">MessageToMessageCodec</span><span class="token generics"><span class="token punctuation">&lt;</span>INBOUND_IN<span class="token punctuation">,</span>OUTBOUND_IN<span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+</tbody>
+</table>
+</div>
+<h2 id="4-2-MessageToMessageCodec"><a href="#4-2-MessageToMessageCodec" class="headerlink" title="4.2 MessageToMessageCodec"></a>4.2 MessageToMessageCodec</h2><p><code>MessageToMessageCodec</code> 是一个参数化的类，定义如下:<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">MessageToMessageCodec</span><span class="token generics"><span class="token punctuation">&lt;</span>INBOUND_IN<span class="token punctuation">,</span>OUTBOUND_IN<span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1002,7 +1069,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>protected abstract decode( ChannelHandlerContext ctx, INBOUND_IN msg, List<Object> out)</Object></td>
 <td>这个方法被调用时会被传入 <code>INBOUND_IN</code> 类型的消息。 它将把它们解码为 <code>OUTBOUND_IN</code> 类型的消息，这些消息将被转发给 <code>ChannelPipeline</code> 中的下一个 <code>ChannelInboundHandler</code></td>
 </tr>
@@ -1010,16 +1078,17 @@
 <td>protected abstract encode( ChannelHandlerContext ctx, OUTBOUND_IN msg, List<Object> out)</Object></td>
 <td>对于每个 <code>OUTBOUND_IN</code> 类型的消息，这个方法都将会被调用。这些消息将会被编码为 <code>INBOUND_IN</code> 类型的消息，然后被转发给 <code>ChannelPipeline</code> 中的下一个 <code>ChannelOutboundHandler</code></td>
 </tr>
-</tbody></table>
-<h1 id="5-内置的编解码器"><a href="#5-内置的编解码器" class="headerlink" title="5 内置的编解码器"></a>5 内置的编解码器</h1><h2 id="5-1-通过SSL-x2F-TLS-保护Netty-应用程序"><a href="#5-1-通过SSL-x2F-TLS-保护Netty-应用程序" class="headerlink" title="5.1 通过SSL&#x2F;TLS 保护Netty 应用程序"></a>5.1 通过SSL&#x2F;TLS 保护Netty 应用程序</h2><p>为了支持 <code>SSL/TLS</code>，Java 提供了 <code>javax.net.ssl</code> 包，它的 <code>SSLContext</code> 和 <code>SSLEngine</code> 类使得实现解密和加密相当简单直接。Netty 通过一个名为 <code>SslHandler</code> 的 <code>ChannelHandler</code> 实现利用了这个 <code>API</code>，其中 <code>SslHandler</code> 在内部使用 <code>SSLEngine</code> 来完成实际的工作。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/SslHandler-encrypt-decrypt-Dataflow.png"><div class="caption"><b class="center-caption">通过 SslHandler 进行解密和加密的数据流</b></div>
-
+</tbody>
+</table>
+</div>
+<h1 id="5-内置的编解码器"><a href="#5-内置的编解码器" class="headerlink" title="5 内置的编解码器"></a>5 内置的编解码器</h1><h2 id="5-1-通过SSL-TLS-保护Netty-应用程序"><a href="#5-1-通过SSL-TLS-保护Netty-应用程序" class="headerlink" title="5.1 通过SSL/TLS 保护Netty 应用程序"></a>5.1 通过SSL/TLS 保护Netty 应用程序</h2><p>为了支持 <code>SSL/TLS</code>，Java 提供了 <code>javax.net.ssl</code> 包，它的 <code>SSLContext</code> 和 <code>SSLEngine</code> 类使得实现解密和加密相当简单直接。Netty 通过一个名为 <code>SslHandler</code> 的 <code>ChannelHandler</code> 实现利用了这个 <code>API</code>，其中 <code>SslHandler</code> 在内部使用 <code>SSLEngine</code> 来完成实际的工作。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/SslHandler-encrypt-decrypt-Dataflow.png"><div class="caption"><b class="center-caption">通过 SslHandler 进行解密和加密的数据流</b></div></p>
 <p>在大多数情况下，<code>SslHandler</code>将是<code>ChannelPipeline</code>中的<code>第一个ChannelHandler</code>。</p>
 <h2 id="5-2-HTTP-系列"><a href="#5-2-HTTP-系列" class="headerlink" title="5.2 HTTP 系列"></a>5.2 HTTP 系列</h2><p>HTTP 是基于<code>请求/响应</code>模式的：客户端向服务器发送一个 <code>HTTP 请求</code>，然后服务器将会返回一个 <code>HTTP 响应</code>。Netty 提供了多种编码器和解码器以简化对这个协议的使用。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/HttpRequest.png"><div class="caption"><b class="center-caption">HttpRequest组成</b></div>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/HttpResponse.png"><div class="caption"><b class="center-caption">HttpResponse组成</b></div>
 <p>一个<code>HTTP请求/响应</code>可能由多个数据部分组成，<code>FullHttpRequest</code> 和<code>FullHttpResponse</code> 消息是特殊的子类型，分别代表了完整的请求和响应。所有类型的 HTTP 消息(<code>FullHttpRequest</code>、<code>LastHttpContent</code> 等等)都实现了 <code>HttpObject 接口</code>。</p>
 <p>下表概要地介绍了处理和生成这些消息的 HTTP 解码器和编码器。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1027,7 +1096,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>HttpRequestEncoder</td>
 <td>将 <code>HttpRequest</code>、<code>HttpContent</code> 和 <code>LastHttpContent</code> 消息<strong>编码</strong>为<code>字节</code></td>
 </tr>
@@ -1043,9 +1113,12 @@
 <td>HttpResponseDecoder</td>
 <td>将<code>字节</code><strong>解码</strong>为 <code>HttpResponse</code>、<code>HttpContent</code> 和 <code>LastHttpContent</code> 消息</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="5-3-WebSocket"><a href="#5-3-WebSocket" class="headerlink" title="5.3 WebSocket"></a>5.3 WebSocket</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Websocket.png"><div class="caption"><b class="center-caption">WebSocket协议</b></div>
 <h2 id="5-4-空闲的连接和超时"><a href="#5-4-空闲的连接和超时" class="headerlink" title="5.4 空闲的连接和超时"></a>5.4 空闲的连接和超时</h2><p>检测<code>空闲连接</code>以及<code>超时</code>对于及时<code>释放资源</code>来说是至关重要的。由于这是一项常见的任务，Netty 特地为它提供了几个 <code>ChannelHandler</code> 实现。下表给出了它们的概述。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1053,7 +1126,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>IdleStateHandler</td>
 <td>当连接空闲时间太长时，将会触发一个 <code>IdleStateEvent</code> 事件。然后，你可以通过在你的 <code>ChannelInboundHandler</code> 中<code>重写</code> <code>userEventTriggered()</code>方法来处理该 <code>IdleStateEvent</code> 事件。</td>
 </tr>
@@ -1065,9 +1139,12 @@
 <td>WriteTimeoutHandler</td>
 <td>如果在指定的时间间隔内没有任何出站数据写入，则抛出一个 <code>WriteTimeoutException</code> 并关闭对应的 <code>Channel</code>。可以通过<code>重写</code>你的 <code>ChannelHandler</code> 的 <code>exceptionCaught()</code>方法检测该 <code>WriteTimeoutException</code>。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="5-5-序列化"><a href="#5-5-序列化" class="headerlink" title="5.5 序列化"></a>5.5 序列化</h2><h3 id="5-5-1-JDK-序列化"><a href="#5-5-1-JDK-序列化" class="headerlink" title="5.5.1 JDK 序列化"></a>5.5.1 JDK 序列化</h3><p>JDK 提供了 <code>ObjectOutputStream</code> 和 <code>ObjectInputStream</code>，用于通过网络对 <code>POJO</code> 的<code>基本数据类型</code>和<code>图</code>进行<code>序列化</code>和<code>反序列化</code>。</p>
 <p>下表中列出了 Netty提供的用于和JDK进行互操作的序列化类。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1075,7 +1152,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>CompatibleObjectDecoder</td>
 <td>和使用 JDK 序列化的非基于 Netty 的远程节点进行互操作的<code>解码器</code>。</td>
 </tr>
@@ -1091,12 +1169,15 @@
 <td>ObjectEncoder</td>
 <td>构建于 JDK 序列化之上的使用自定义的序列化来<code>编码</code>的编码器;当没有其他的外部依赖时，它提供了速度上的改进。否则其他的序列化实现更加可取。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="5-5-2-JBoss-Marshalling-序列化"><a href="#5-5-2-JBoss-Marshalling-序列化" class="headerlink" title="5.5.2 JBoss Marshalling 序列化"></a>5.5.2 JBoss Marshalling 序列化</h3><p>如果你可以自由地使用外部依赖，那么<code>JBoss Marshalling</code>将是个理想的选择：它比JDK序列化<code>最多快 3 倍</code>，而且也<code>更加紧凑</code>。</p>
 <blockquote>
-<p>JBoss Marshalling 是一种可选的序列化 API，它修复了在 JDK 序列化 API 中所发现的许多问题，同时保留了与 <code>java.io.Serializable</code> 及其相关类的兼容性，并添加 了几个新的可调优参数以及额外的特性，所有的这些都是可以通过工厂配置(如外部序列化器、类&#x2F;实例查找表、类解析以及对象替换等)实现可插拔的。</p>
+<p>JBoss Marshalling 是一种可选的序列化 API，它修复了在 JDK 序列化 API 中所发现的许多问题，同时保留了与 <code>java.io.Serializable</code> 及其相关类的兼容性，并添加 了几个新的可调优参数以及额外的特性，所有的这些都是可以通过工厂配置(如外部序列化器、类/实例查找表、类解析以及对象替换等)实现可插拔的。</p>
 </blockquote>
-<p>Netty 通过下表所示的两组解码器&#x2F;编码器对为 <code>Boss Marshalling</code> 提供了支持。</p>
+<p>Netty 通过下表所示的两组解码器/编码器对为 <code>Boss Marshalling</code> 提供了支持。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1104,17 +1185,21 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>CompatibleMarshallingDecoder&#x2F;CompatibleMarshallingEncoder</td>
+<tbody>
+<tr>
+<td>CompatibleMarshallingDecoder/CompatibleMarshallingEncoder</td>
 <td>与只使用 JDK 序列化的远程节点兼容</td>
 </tr>
 <tr>
-<td>MarshallingDecoder&#x2F;MarshallingEncoder</td>
+<td>MarshallingDecoder/MarshallingEncoder</td>
 <td>适用于使用 <code>JBoss Marshalling</code> 的节点。这些类必须一起使用</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="5-5-3-Protocol-Buffers"><a href="#5-5-3-Protocol-Buffers" class="headerlink" title="5.5.3 Protocol Buffers"></a>5.5.3 Protocol Buffers</h3><p><code>Protocol Buffers</code> 是一种由<code>Google</code>公司开发的、现在已经开源的数据交换格式。它以一种<code>紧凑</code>而<code>高效</code>的方式对结构化的数据进行编码以及解码。它具有许多的编程语言绑定，使得它很适合跨语言的项目。</p>
 <p>下表展示了 Netty 为支持 <code>protobuf</code> 所提供的 <code>ChannelHandler 实现</code>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1122,7 +1207,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>ProtobufDecoder</td>
 <td>使用 protobuf 对消息进行<code>解码</code></td>
 </tr>
@@ -1138,7 +1224,9 @@
 <td>ProtobufVarint32LengthFieldPrepender</td>
 <td>向<code>ByteBuf</code>前追加一个<code>Google Protocol Buffers</code>的<code>Base 128 Varints整型</code>的长度字段值</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 
                 
             </div>
@@ -1818,7 +1906,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1836,7 +1924,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2099,6 +2187,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -64,7 +64,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -831,50 +888,35 @@
 <p>对于阿里云OSS来说，有两种迁移办法</p>
 <p>使用官方的数据导出功能<br>使用api接口遍历oss目录下载所有图片<br>这两种办法都不是那么方便，所以我选择了第三种</p>
 <p>解析本地md文件中的img url，下载图片并保存到本地<br>那要怎么做呢？👇</p>
-<h1 id="2-教程"><a href="#2-教程" class="headerlink" title="2.教程"></a>2.教程</h1><p>我在github找到了这个项目 👉 <a target="_blank" rel="noopener" href="https://github.com/Deali-Axy/Markdown-Image-Parser">Deali-Axy&#x2F;Markdown-Image-Parser</a></p>
-<p>作者的代码写的很棒，但是README里面却少了一个重要的启动教程，那就是你需要在当前目录下创建一个files文件夹（md文件放到这里面），对应启动项里面开启的根目录</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
-files_list <span class="token operator">=</span> get_files_list<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>abspath<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">,</span> <span class="token string">'files'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<h1 id="2-教程"><a href="#2-教程" class="headerlink" title="2.教程"></a>2.教程</h1><p>我在github找到了这个项目 👉 <a target="_blank" rel="noopener" href="https://github.com/Deali-Axy/Markdown-Image-Parser">Deali-Axy/Markdown-Image-Parser</a></p>
+<p>作者的代码写的很棒，但是README里面却少了一个重要的启动教程，那就是你需要在当前目录下创建一个files文件夹（md文件放到这里面），对应启动项里面开启的根目录<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">'__main__'</span><span class="token punctuation">:</span>
+files_list <span class="token operator">=</span> get_files_list<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>abspath<span class="token punctuation">(</span>os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span><span class="token string">'.'</span><span class="token punctuation">,</span> <span class="token string">'files'</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
 <p>随后，执行<code>python spider.py</code>，开始运行，脚本会自动将md转成html并下载图片</p>
 <p>我将作者的代码进一步细化，并修改了一部分bug👇建议使用<a target="_blank" rel="noopener" href="https://github.com/musnows/Markdown-Image-Parser">我fork的版本</a></p>
-<h2 id="2-1-UnicodeDecodeError"><a href="#2-1-UnicodeDecodeError" class="headerlink" title="2.1 UnicodeDecodeError"></a>2.1 UnicodeDecodeError</h2><p>在启动的时候，你可能会遇到这个报错</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python">UnicodeDecodeError<span class="token punctuation">:</span> <span class="token string">'utf-8'</span> codec can't decode byte <span class="token number">0xbc</span> <span class="token keyword">in</span> position <span class="token number">2</span><span class="token punctuation">:</span> invalid start byt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<h2 id="2-1-UnicodeDecodeError"><a href="#2-1-UnicodeDecodeError" class="headerlink" title="2.1 UnicodeDecodeError"></a>2.1 UnicodeDecodeError</h2><p>在启动的时候，你可能会遇到这个报错<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">UnicodeDecodeError<span class="token punctuation">:</span> <span class="token string">'utf-8'</span> codec can't decode byte <span class="token number">0xbc</span> <span class="token keyword">in</span> position <span class="token number">2</span><span class="token punctuation">:</span> invalid start byt<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>解决办法参考 👉 <a target="_blank" rel="noopener" href="https://blog.csdn.net/sunflower_sara/article/details/103957385">点我</a></p>
-<p>解决办法是将打开文件编码的utf-8 修改成ISO-8859-1</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'ISO-8859-1'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
-md_content <span class="token operator">=</span> f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<p>解决办法是将打开文件编码的utf-8 修改成ISO-8859-1<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'ISO-8859-1'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
+md_content <span class="token operator">=</span> f<span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
 <h2 id="2-2-request-failed"><a href="#2-2-request-failed" class="headerlink" title="2.2 request failed"></a>2.2 request failed</h2><p>因为作者并没有写判断，此时就会出现一个严重问题：本地图片也会进行requests请求</p>
 <p>比如我的md里面就有一些图片是本地的<code>img/图片文件名</code>，这个代码依旧对这个路径当做网络路径进行请求，于是就出现了报错</p>
-<p>所以就需要在<code>download_pics</code>函数中对url进行判断，这里可以写成下面的格式（因为我知道我的阿里云OSS链接里面不包含img文件夹，所以<code>img/</code>的图片是本地文件</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">download_pics</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token punctuation">,</span>MDfilename<span class="token punctuation">)</span><span class="token punctuation">:</span>
+<p>所以就需要在<code>download_pics</code>函数中对url进行判断，这里可以写成下面的格式（因为我知道我的阿里云OSS链接里面不包含img文件夹，所以<code>img/</code>的图片是本地文件<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">download_pics</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token punctuation">,</span>MDfilename<span class="token punctuation">)</span><span class="token punctuation">:</span>
 <span class="token keyword">if</span> <span class="token string">'img/'</span> <span class="token keyword">in</span> url<span class="token punctuation">:</span>
 <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'不处理本地图片: '</span><span class="token punctuation">,</span> url<span class="token punctuation">)</span>
-<span class="token keyword">return</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>但是这样其实还是有点呆呆的，我们直接判断http在不在里面不就知道是不是网络图片了😂</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">download_pics</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token punctuation">,</span>MDfilename<span class="token punctuation">)</span><span class="token punctuation">:</span>
+<span class="token keyword">return</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>但是这样其实还是有点呆呆的，我们直接判断http在不在里面不就知道是不是网络图片了😂<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">download_pics</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token builtin">file</span><span class="token punctuation">,</span>MDfilename<span class="token punctuation">)</span><span class="token punctuation">:</span>
 <span class="token keyword">if</span> <span class="token string">'http'</span> <span class="token keyword">not</span> <span class="token keyword">in</span> url<span class="token punctuation">:</span>
 <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">'不处理本地图片: '</span><span class="token punctuation">,</span> url<span class="token punctuation">)</span>
-<span class="token keyword">return</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="2-3-图片保存路径"><a href="#2-3-图片保存路径" class="headerlink" title="2.3 图片保存路径"></a>2.3 图片保存路径</h2><p>默认情况下，图片会保存到子文件夹下的markdown文件名目录</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python">targer_dir <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>dirname<span class="token punctuation">,</span>assert_dir<span class="token punctuation">)</span>
+<span class="token keyword">return</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="2-3-图片保存路径"><a href="#2-3-图片保存路径" class="headerlink" title="2.3 图片保存路径"></a>2.3 图片保存路径</h2><p>默认情况下，图片会保存到子文件夹下的markdown文件名目录<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">targer_dir <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>dirname<span class="token punctuation">,</span>assert_dir<span class="token punctuation">)</span>
 <span class="token keyword">if</span> <span class="token keyword">not</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>exists<span class="token punctuation">(</span>targer_dir<span class="token punctuation">)</span><span class="token punctuation">:</span>
-     os<span class="token punctuation">.</span>mkdir<span class="token punctuation">(</span>targer_dir<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
+     os<span class="token punctuation">.</span>mkdir<span class="token punctuation">(</span>targer_dir<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
 <p>这样其实非常非常不方便管理，有几个md文档就有几个md图片路径，可太难受了</p>
-<p>所以我们需要注释掉这部分代码，直接选择一个根目录进行图片的保存</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python">targer_dir <span class="token operator">=</span><span class="token string">'./files/img/'</span> <span class="token comment"># 所有图片都保存到 ./files/img/ 文件夹里面</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="2-4-try-x2F-except"><a href="#2-4-try-x2F-except" class="headerlink" title="2.4 try&#x2F;except"></a>2.4 try&#x2F;except</h2><p>作者代码里面的最最最大漏洞，那就是没有对for循环里面的请求进行<code>try/except</code></p>
+<p>所以我们需要注释掉这部分代码，直接选择一个根目录进行图片的保存<br><pre class="line-numbers language-python" data-language="python"><code class="language-python">targer_dir <span class="token operator">=</span><span class="token string">'./files/img/'</span> <span class="token comment"># 所有图片都保存到 ./files/img/ 文件夹里面</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<h2 id="2-4-try-except"><a href="#2-4-try-except" class="headerlink" title="2.4 try/except"></a>2.4 try/except</h2><p>作者代码里面的最最最大漏洞，那就是没有对for循环里面的请求进行<code>try/except</code></p>
 <p>这样就会导致，如果有一个图片请求失败，整个进程会直接终止！</p>
 <p>那么问题就来了，即便这个程序会在遍历的时候打印当前处理的文件名字，但这需要用户去翻命令行输出，再找到到底是哪一个图片发生错误，非常非常非常难受！</p>
 <p>如果重新执行，那就相当与把已经下好的图片又重下一遍，浪费OSS的流量。</p>
-<p>所以我们必须要给for循环内部添加上异常捕获，如果遇到错误，就将这个图片的url存下来，继续往后执行！</p>
-<pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">for</span> <span class="token builtin">file</span> <span class="token keyword">in</span> files_list<span class="token punctuation">:</span>
+<p>所以我们必须要给for循环内部添加上异常捕获，如果遇到错误，就将这个图片的url存下来，继续往后执行！<br><pre class="line-numbers language-python" data-language="python"><code class="language-python"><span class="token keyword">for</span> <span class="token builtin">file</span> <span class="token keyword">in</span> files_list<span class="token punctuation">:</span>
     <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f'正在处理：</span><span class="token interpolation"><span class="token punctuation">&#123;</span><span class="token builtin">file</span><span class="token punctuation">&#125;</span></span><span class="token string">'</span></span><span class="token punctuation">)</span>
 
     <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'ISO-8859-1'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> f<span class="token punctuation">:</span>
@@ -903,8 +945,7 @@ md_content <span class="token operator">=</span> f<span class="token punctuation
 
 <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f'处理完成。'</span></span><span class="token punctuation">)</span>
 write_file<span class="token punctuation">(</span><span class="token string">'err.json'</span><span class="token punctuation">,</span>err_img<span class="token punctuation">)</span>
-<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f'写入err完成'</span></span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>完整代码见我的github仓库<br>转自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/muxuen/article/details/128941666">慕雪华年</a></p>
+<span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f'写入err完成'</span></span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>完整代码见我的github仓库<br>转自：<a target="_blank" rel="noopener" href="https://blog.csdn.net/muxuen/article/details/128941666">慕雪华年</a></p>
 
                 
             </div>
@@ -1588,7 +1629,7 @@ write_file<span class="token punctuation">(</span><span class="token string">'er
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1606,7 +1647,7 @@ write_file<span class="token punctuation">(</span><span class="token string">'er
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1869,6 +1910,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

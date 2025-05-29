@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -854,17 +911,10 @@
 <li>赋值器<code>插入</code>了一条或多条从黑色对象到白色对象的<code>新引用</code>；</li>
 <li>赋值器<code>删除</code>了全部从灰色对象到该白色对象的<code>直接或间接引用</code>。</li>
 </ul>
-<p>比如<code>GC 并发情况下</code>，两线程漏标发生的过程如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc1.png"><div class="caption"><b class="center-caption">线程1已完成所有标记，但线程2还未完成</b></div>
-
-<p>当引用发生以下变化时：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">A</span><span class="token punctuation">.</span>c<span class="token operator">=</span><span class="token class-name">C</span><span class="token punctuation">;</span>
-<span class="token class-name">B</span><span class="token punctuation">.</span>c<span class="token operator">=</span><span class="token keyword">null</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc2.png"><div class="caption"><b class="center-caption">线程1: A.c=C，线程2: B.c=null</b></div>
-
-<p>线程1、2完成所有标记，但C对象是白色，被错误的回收。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc3.png"><div class="caption"><b class="center-caption">C对象被错误的回收</b></div>
-
+<p>比如<code>GC 并发情况下</code>，两线程漏标发生的过程如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc1.png"><div class="caption"><b class="center-caption">线程1已完成所有标记，但线程2还未完成</b></div></p>
+<p>当引用发生以下变化时：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">A</span><span class="token punctuation">.</span>c<span class="token operator">=</span><span class="token class-name">C</span><span class="token punctuation">;</span>
+<span class="token class-name">B</span><span class="token punctuation">.</span>c<span class="token operator">=</span><span class="token keyword">null</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc2.png"><div class="caption"><b class="center-caption">线程1: A.c=C，线程2: B.c=null</b></div></p>
+<p>线程1、2完成所有标记，但C对象是白色，被错误的回收。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc3.png"><div class="caption"><b class="center-caption">C对象被错误的回收</b></div></p>
 <p>因此，我们要解决并发扫描时的对象消失问题，只需<code>破坏这两个条件的任意一个</code>即可。由此分别产生了<code>两种解决方案</code>：</p>
 <ul>
 <li><code>增量更新</code>(Incremental Update)</li>
@@ -875,7 +925,7 @@
 <p>当一个白色对象被一个黑色对象引用，将黑色对象重新标记为灰色，让垃圾收集器重新扫描。</p>
 </blockquote>
 <p>该方案破坏的是<code>第一个条件</code>，当黑色对象<code>插入新的</code>指向白色对象的引用关系时，就将这个新插入的引用<code>记录</code>下来，等并发扫描结束之后，再将这些记录过的引用关系中的<code>黑色对象</code>为<code>根</code>（GC Roots），重新扫描一次。</p>
-<h3 id="2-2-2-G1-x2F-Shenandoah-中的解决方案"><a href="#2-2-2-G1-x2F-Shenandoah-中的解决方案" class="headerlink" title="2.2.2 G1&#x2F;Shenandoah 中的解决方案"></a>2.2.2 G1&#x2F;Shenandoah 中的解决方案</h3><p>G1&#x2F;Shenandoah则采用<code>原始快照</code>方案，以上面三个图中的对象为例，即</p>
+<h3 id="2-2-2-G1-Shenandoah-中的解决方案"><a href="#2-2-2-G1-Shenandoah-中的解决方案" class="headerlink" title="2.2.2 G1/Shenandoah 中的解决方案"></a>2.2.2 G1/Shenandoah 中的解决方案</h3><p>G1/Shenandoah则采用<code>原始快照</code>方案，以上面三个图中的对象为例，即</p>
 <blockquote>
 <p>刚开始做一个快照，当 <code>B</code> 和 <code>C</code> 消失的时候要把这个引用推到 GC 的<code>堆栈</code>，保证 <code>C</code> 还能被 GC 扫描到，最重要的是要把这个<code>引用</code>（是灰色对象指向白色对象的引用）推到 GC 的堆栈，如果一旦某一个引用消失掉了，我会把它放到栈(GC 方法运行时数据也是来自栈中)，我其实还是能找到它的，下回直接扫描他就行了，那样白色就不会漏标。</p>
 </blockquote>
@@ -895,11 +945,7 @@
 <h2 id="2-4-记忆集与卡表"><a href="#2-4-记忆集与卡表" class="headerlink" title="2.4 记忆集与卡表"></a>2.4 记忆集与卡表</h2><p><code>记忆集</code>(RSet)是一种用于记录从非收集区域指向收集区域的<code>指针集合</code>的<code>抽象数据结构</code>。用以避免把整个<code>老年代</code>（这里以分代收集为例，事实上所有涉及<code>部分区域收集</code>(Partial GC)行为的垃圾收集器，典型的如G1、ZGC和Shenandoah收集器，都会面临<code>跨代引用</code>的问题）加进<code>GC Roots</code>扫描范围。</p>
 <p>在垃圾收集的场景中，收集器只需要通过<code>记忆集</code>判断出某一块非收集区域是否存在有指向了收集区域的指针就可以了，并不需要了解这些<code>跨代指针</code>的全部细节。</p>
 <p><code>卡表</code>(Card Table)就是<code>记忆集</code>的其中一种实现方式（可以按<code>Java</code>语言中<code>HashMap</code>与<code>Map</code>的关系来类比理解），它将<code>每个记录精确到一块内存区域</code>，该区域内有对象含有跨代指针。</p>
-<p><code>卡表</code>最简单的形式可以只是一个<code>字节数组</code>。</p>
-<pre class="line-numbers language-c" data-language="c"><code class="language-c">CARD_TABLE <span class="token punctuation">[</span>this address <span class="token operator">>></span> <span class="token number">9</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>字节数组<code>CARD_TABLE</code>的每一个元素都对应着其标识的内存区域中一块特定大小的内存块，这个内存块被称作“卡页”(Card Page).</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/card-table.png"><div class="caption"><b class="center-caption">卡表-卡页对应关系示意图</b></div>
-
+<p><code>卡表</code>最简单的形式可以只是一个<code>字节数组</code>。<br><pre class="line-numbers language-c" data-language="c"><code class="language-c">CARD_TABLE <span class="token punctuation">[</span>this address <span class="token operator">>></span> <span class="token number">9</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>字节数组<code>CARD_TABLE</code>的每一个元素都对应着其标识的内存区域中一块特定大小的内存块，这个内存块被称作“卡页”(Card Page).<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/card-table.png"><div class="caption"><b class="center-caption">卡表-卡页对应关系示意图</b></div></p>
 <p>一个<code>卡页</code>的内存中通常包含不止一个对象，只要卡页内有一个(或更多)对象的字段存在着<code>跨代指针</code>，那就将对应卡表的数组元素的值<code>标识为1</code>，称为这个<code>元素变脏</code>(Dirty)，没有则<code>标识为0</code>。在垃圾收集发生时，只要<code>筛选</code>出卡表中变脏的元素，就能轻易得出哪些卡页内存块中包含<code>跨代指针</code>，把它们加入<code>GC Roots</code>中一并扫描。</p>
 <blockquote>
 <p>在<code>G1</code>中是每一个<code>Region</code>都需要一个<code>RSet</code>的内存区域，导致有<code>G1</code>的<code>RSet</code>可能会占据整个堆容量的<code>20%乃至更多</code>。<br>但是<code>CMS</code>只需要<code>一份</code>，所以就内存占用来说，<code>G1</code>占用的内存需求更大，虽然<code>G1</code>的优点很多，但是我们不推荐在<code>堆空间比较小</code>的情况下使用<code>G1</code>，尤其<code>小于6个G</code>。</p>
@@ -916,7 +962,6 @@
 <p>我们也可以把<code>安全区域</code>看作<strong>被扩展拉伸了的</strong><code>安全点</code>。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Safe-Region.png"><div class="caption"><b class="center-caption">安全区域示意图</b></div>
-
 <ul>
 <li>当用户线程执行到<code>安全区域</code>里面的代码时，首先会<code>标识</code>自己已经进入了安全区域，这段时间里JVM要发起GC就不必去管这个线程了。</li>
 <li>当线程要离开安全区域时，它要检查JVM是否已经完成了<code>根节点枚举</code>，或者其他GC中需要暂停用户线程的阶段：<ul>
@@ -1612,7 +1657,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1630,7 +1675,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1893,6 +1938,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

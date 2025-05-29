@@ -9,603 +9,614 @@
     <atom:link href="https://zyxelva.github.io/rss2.xml" rel="self" type="application/rss+xml"/>
     
     <description>7 年 Java 开发经验，其中 3 年以上大型系统架构设计经验，以及 2 年以上的团队管理经验 | 具有分布式、高并发、高可用、大数据量的系统架构设计以及研发经验 | 对 Zookeeper、Netty、Dubbo、Spring Cloud、 Spring 等开源框架源码有过深入研究，并且有一定的框架定制开发经验</description>
-    <pubDate>Sat, 20 Jan 2024 01:36:34 GMT</pubDate>
+    <pubDate>Tue, 27 May 2025 07:55:09 GMT</pubDate>
     <generator>http://hexo.io/</generator>
     
     <item>
-      <title>【Docker学习】3.Dockerfile</title>
-      <link>https://zyxelva.github.io/posts/342586947.html</link>
-      <guid>https://zyxelva.github.io/posts/342586947.html</guid>
-      <pubDate>Tue, 26 Dec 2023 02:34:07 GMT</pubDate>
+      <title>【高考】不等式章节知识点总结与高考真题解析</title>
+      <link>https://zyxelva.github.io/posts/3829977115.html</link>
+      <guid>https://zyxelva.github.io/posts/3829977115.html</guid>
+      <pubDate>Mon, 26 May 2025 04:16:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;一、不等式核心知识点总结&quot;&gt;&lt;a href=&quot;#一、不等式核心知识点总结&quot; class=&quot;headerlink&quot; title=&quot;一、不等式核心知识点总结&quot;&gt;&lt;/a&gt;一、不等式核心知识点总结&lt;/h2&gt;&lt;h3 id=&quot;1-不等式的基本性质&quot;&gt;&lt;a</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      <category domain="https://zyxelva.github.io/categories/%E9%AB%98%E8%80%83/">高考</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%8D%E7%AD%89%E5%BC%8F/">不等式</category>
       
-      <category domain="https://zyxelva.github.io/tags/Dockerfile/">Dockerfile</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98%E8%A7%A3%E6%9E%90/">真题解析</category>
       
       
-      <comments>https://zyxelva.github.io/posts/342586947.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3829977115.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Docker学习】2.命令备忘</title>
-      <link>https://zyxelva.github.io/posts/1372686241.html</link>
-      <guid>https://zyxelva.github.io/posts/1372686241.html</guid>
-      <pubDate>Tue, 19 Dec 2023 07:05:27 GMT</pubDate>
+      <title>【A-Level】Oxford AQA A2 数学 - 向量（Vectors）讲义</title>
+      <link>https://zyxelva.github.io/posts/1908170211.html</link>
+      <guid>https://zyxelva.github.io/posts/1908170211.html</guid>
+      <pubDate>Sun, 25 May 2025 02:16:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-入门&quot;&gt;&lt;a href=&quot;#1-入门&quot; class=&quot;headerlink&quot; title=&quot;1 入门&quot;&gt;&lt;/a&gt;1 入门&lt;/h1&gt;&lt;h2 id=&quot;1-1-在后台创建和运行容器&quot;&gt;&lt;a href=&quot;#1-1-在后台创建和运行容器&quot;</description>
+      <description>&lt;h2 id=&quot;一、课程目标&quot;&gt;&lt;a href=&quot;#一、课程目标&quot; class=&quot;headerlink&quot; title=&quot;一、课程目标&quot;&gt;&lt;/a&gt;&lt;strong&gt;一、课程目标&lt;/strong&gt;&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;理解向量的基本概念及其表示方法 </description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%A7%AF%E5%88%86/">积分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1372686241.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/1908170211.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Docker学习】1.基础入门</title>
-      <link>https://zyxelva.github.io/posts/4128938191.html</link>
-      <guid>https://zyxelva.github.io/posts/4128938191.html</guid>
-      <pubDate>Tue, 19 Dec 2023 07:05:07 GMT</pubDate>
+      <title>【A-Level】Oxford AQA 数学复习与冲刺计划（一周8小时）</title>
+      <link>https://zyxelva.github.io/posts/3499120294.html</link>
+      <guid>https://zyxelva.github.io/posts/3499120294.html</guid>
+      <pubDate>Sat, 24 May 2025 08:16:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-什么是Docker？&quot;&gt;&lt;a href=&quot;#1-什么是Docker？&quot; class=&quot;headerlink&quot; title=&quot;1 什么是Docker？&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;目标&quot;&gt;&lt;a href=&quot;#目标&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Docker%E5%AD%A6%E4%B9%A0/">Docker学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Docker/">Docker</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%A7%AF%E5%88%86/">积分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/4128938191.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3499120294.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【新鲜事】Nacos2.3.0正式发布</title>
-      <link>https://zyxelva.github.io/posts/2185985940.html</link>
-      <guid>https://zyxelva.github.io/posts/2185985940.html</guid>
-      <pubDate>Wed, 13 Dec 2023 07:11:48 GMT</pubDate>
+      <title>【A-Level】Oxford AQA A2 Mathematics 复习计划（总时长：120小时）</title>
+      <link>https://zyxelva.github.io/posts/3901625784.html</link>
+      <guid>https://zyxelva.github.io/posts/3901625784.html</guid>
+      <pubDate>Thu, 22 May 2025 23:48:24 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;p&gt;Nacos，一个用于构建云原生应用的动态服务发现、配置管理和服务管理平台，由阿里巴巴开源，致力于发现、配置和管理微服务。&lt;/p&gt;
-&lt;p&gt;总体上，Nacos主要功能分为两大块：注册中心、配置中心。&lt;/p&gt;
-&lt;p&gt;11月30日，Nacos发布了2.3.0正式版，接下来就介绍下本</description>
+      <description>&lt;h4 id=&quot;1-Pure-Maths-Unit-P1-amp-P2&quot;&gt;&lt;a href=&quot;#1-Pure-Maths-Unit-P1-amp-P2&quot; class=&quot;headerlink&quot; title=&quot;1. Pure Maths (Unit P1 &amp;amp;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/%E6%96%B0%E9%B2%9C%E4%BA%8B/">新鲜事</category>
+      <category domain="https://zyxelva.github.io/categories/Hexo/">Hexo</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Nacos/">Nacos</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83/">注册中心</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/">配置中心</category>
+      <category domain="https://zyxelva.github.io/tags/Hexo/">Hexo</category>
       
       
-      <comments>https://zyxelva.github.io/posts/2185985940.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3901625784.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【每日一面】字节面试：加了什么锁，导致死锁的？</title>
-      <link>https://zyxelva.github.io/posts/1987568237.html</link>
-      <guid>https://zyxelva.github.io/posts/1987568237.html</guid>
-      <pubDate>Tue, 05 Dec 2023 03:34:26 GMT</pubDate>
+      <title>2025年普通话命题说话题目分类与备考指南</title>
+      <link>https://zyxelva.github.io/posts/895935168.html</link>
+      <guid>https://zyxelva.github.io/posts/895935168.html</guid>
+      <pubDate>Sat, 10 May 2025 04:16:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;p&gt;前段时间，一网友进行了字节面试，遇到了一道非常经典的有关MySQL锁相关的问题，咱们来复盘一下，看看这道题怎样才能回答的天衣无缝，能让面试官无地自容。&lt;/p&gt;
-&lt;h1 id=&quot;1-题目描述&quot;&gt;&lt;a href=&quot;#1-题目描述&quot; class=&quot;headerlink&quot;</description>
+      <description>&lt;h1 id=&quot;2025年普通话命题说话题目分类与备考指南&quot;&gt;&lt;a href=&quot;#2025年普通话命题说话题目分类与备考指南&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%9D%A2/">每日一面</category>
+      <category domain="https://zyxelva.github.io/categories/%E6%99%AE%E9%80%9A%E8%AF%9D%E8%80%83%E8%AF%95/">普通话考试</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/%E6%84%8F%E5%90%91%E9%94%81/">意向锁</category>
+      <category domain="https://zyxelva.github.io/tags/%E6%99%AE%E9%80%9A%E8%AF%9D/">普通话</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E9%97%B4%E9%9A%99%E9%94%81/">间隙锁</category>
-      
-      <category domain="https://zyxelva.github.io/tags/MySQL%E9%94%81/">MySQL锁</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%91%BD%E9%A2%98%E8%AF%B4%E8%AF%9D/">命题说话</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1987568237.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/895935168.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【每日一面】post为什么会发送两次请求？</title>
-      <link>https://zyxelva.github.io/posts/3237250370.html</link>
-      <guid>https://zyxelva.github.io/posts/3237250370.html</guid>
-      <pubDate>Tue, 05 Dec 2023 02:43:43 GMT</pubDate>
+      <title>【AP Calculus】BC7天冲刺复习计划</title>
+      <link>https://zyxelva.github.io/posts/661822908.html</link>
+      <guid>https://zyxelva.github.io/posts/661822908.html</guid>
+      <pubDate>Tue, 06 May 2025 02:44:28 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-同源策略&quot;&gt;&lt;a href=&quot;#1-同源策略&quot; class=&quot;headerlink&quot; title=&quot;1 同源策略&quot;&gt;&lt;/a&gt;1 同源策略&lt;/h1&gt;&lt;p&gt;在浏览器中，内容是很开放的，任何资源都可以接入其中，如 JavaScript</description>
+      <description>&lt;h2 id=&quot;📅-Day-1-2：核心概念-极限-导数-积分集中突破&quot;&gt;&lt;a href=&quot;#📅-Day-1-2：核心概念-极限-导数-积分集中突破&quot; class=&quot;headerlink&quot; title=&quot;📅 Day</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/%E6%AF%8F%E6%97%A5%E4%B8%80%E9%9D%A2/">每日一面</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/post%E8%AF%B7%E6%B1%82/">post请求</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%86%B2%E5%88%BA%E5%A4%8D%E4%B9%A0/">冲刺复习</category>
       
-      <category domain="https://zyxelva.github.io/tags/cors/">cors</category>
+      <category domain="https://zyxelva.github.io/tags/%E8%80%83%E8%AF%95%E5%89%8D%E6%B2%BF/">考试前沿</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3237250370.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/661822908.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Zookeeper学习】5.ZAB协议</title>
-      <link>https://zyxelva.github.io/posts/1354517512.html</link>
-      <guid>https://zyxelva.github.io/posts/1354517512.html</guid>
-      <pubDate>Thu, 14 Sep 2023 09:32:04 GMT</pubDate>
+      <title>【AP Calculus】BC15天冲刺复习计划</title>
+      <link>https://zyxelva.github.io/posts/1146012562.html</link>
+      <guid>https://zyxelva.github.io/posts/1146012562.html</guid>
+      <pubDate>Sun, 27 Apr 2025 02:50:58 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1 前言&lt;/h1&gt;&lt;p&gt;&lt;code&gt;ZAB协议&lt;/code&gt;全称：Zookeeper Atomic</description>
+      <description>&lt;p&gt;&lt;strong&gt;📱 📚AP微积分BC级数10天冲刺计划（2025最新考点）&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;🔴 目标：5分保底 | 重点突破级数难点&lt;/strong&gt;&lt;br&gt;&lt;strong&gt;⏰</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Zookeeper%E5%AD%A6%E4%B9%A0/">Zookeeper学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Zookeeper/">Zookeeper</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%86%B2%E5%88%BA%E5%A4%8D%E4%B9%A0/">冲刺复习</category>
       
-      <category domain="https://zyxelva.github.io/tags/ZAB/">ZAB</category>
+      <category domain="https://zyxelva.github.io/tags/%E8%80%83%E8%AF%95%E5%89%8D%E6%B2%BF/">考试前沿</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1354517512.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/1146012562.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】8.缓存一致性</title>
-      <link>https://zyxelva.github.io/posts/1872711126.html</link>
-      <guid>https://zyxelva.github.io/posts/1872711126.html</guid>
-      <pubDate>Tue, 12 Sep 2023 02:57:42 GMT</pubDate>
+      <title>【A-Level】AQA二项式展开专题精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/3190904262.html</link>
+      <guid>https://zyxelva.github.io/posts/3190904262.html</guid>
+      <pubDate>Tue, 01 Apr 2025 08:03:49 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;核心知识点&quot;&gt;&lt;a href=&quot;#核心知识点&quot; class=&quot;headerlink&quot; title=&quot;核心知识点&quot;&gt;&lt;/a&gt;核心知识点&lt;/h2&gt;&lt;h3 id=&quot;1-二项式定理公式&quot;&gt;&lt;a href=&quot;#1-二项式定理公式&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E4%B8%80%E8%87%B4%E6%80%A7/">一致性</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%BA%8C%E9%A1%B9%E5%BC%8F%E5%B1%95%E5%BC%80/">二项式展开</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1872711126.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3190904262.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】7.缓存设计</title>
-      <link>https://zyxelva.github.io/posts/3851986962.html</link>
-      <guid>https://zyxelva.github.io/posts/3851986962.html</guid>
-      <pubDate>Thu, 07 Sep 2023 07:10:18 GMT</pubDate>
+      <title>【A-Level】AQA积分及其应用专题精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/537295562.html</link>
+      <guid>https://zyxelva.github.io/posts/537295562.html</guid>
+      <pubDate>Fri, 28 Mar 2025 08:16:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-收益与成本&quot;&gt;&lt;a href=&quot;#1-收益与成本&quot; class=&quot;headerlink&quot; title=&quot;1 收益与成本&quot;&gt;&lt;/a&gt;1 收益与成本&lt;/h1&gt;&lt;h2 id=&quot;1-1-收益&quot;&gt;&lt;a href=&quot;#1-1-收益&quot; class=&quot;headerlink&quot;</description>
+      <description>&lt;h2 id=&quot;核心知识点&quot;&gt;&lt;a href=&quot;#核心知识点&quot; class=&quot;headerlink&quot; title=&quot;核心知识点&quot;&gt;&lt;/a&gt;核心知识点&lt;/h2&gt;&lt;h3 id=&quot;1-基本积分技巧&quot;&gt;&lt;a href=&quot;#1-基本积分技巧&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/">缓存穿透</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9/">缓存雪崩</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF/">缓存击穿</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%A7%AF%E5%88%86/">积分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3851986962.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/537295562.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】6.理解内存</title>
-      <link>https://zyxelva.github.io/posts/3918025932.html</link>
-      <guid>https://zyxelva.github.io/posts/3918025932.html</guid>
-      <pubDate>Wed, 06 Sep 2023 01:34:43 GMT</pubDate>
+      <title>【A-Level】AQA微分及其应用专题精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/2054144143.html</link>
+      <guid>https://zyxelva.github.io/posts/2054144143.html</guid>
+      <pubDate>Thu, 27 Mar 2025 07:24:09 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-内存消耗&quot;&gt;&lt;a href=&quot;#1-内存消耗&quot; class=&quot;headerlink&quot; title=&quot;1 内存消耗&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;一、核心知识体系&quot;&gt;&lt;a href=&quot;#一、核心知识体系&quot; class=&quot;headerlink&quot; title=&quot;一、核心知识体系&quot;&gt;&lt;/a&gt;一、核心知识体系&lt;/h2&gt;&lt;h3 id=&quot;1-微分基础规则&quot;&gt;&lt;a href=&quot;#1-微分基础规则&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84/">内存结构</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E5%9B%9E%E6%94%B6%E7%AD%96%E7%95%A5/">回收策略</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96/">内存优化</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%BE%AE%E5%88%86/">微分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3918025932.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/2054144143.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】5.高可用之集群</title>
-      <link>https://zyxelva.github.io/posts/2973021972.html</link>
-      <guid>https://zyxelva.github.io/posts/2973021972.html</guid>
-      <pubDate>Wed, 30 Aug 2023 02:42:13 GMT</pubDate>
+      <title>【AP Calculus】参数方程与极坐标专题精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/1801928793.html</link>
+      <guid>https://zyxelva.github.io/posts/1801928793.html</guid>
+      <pubDate>Wed, 26 Mar 2025 09:29:38 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h1 id=&quot;AP-Calculus-参数方程与极坐标专题讲义&quot;&gt;&lt;a href=&quot;#AP-Calculus-参数方程与极坐标专题讲义&quot; class=&quot;headerlink&quot; title=&quot;AP Calculus 参数方程与极坐标专题讲义&quot;&gt;&lt;/a&gt;AP Calculus</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F/">集群模式</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%8F%82%E6%95%B0%E6%96%B9%E7%A8%8B/">参数方程</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%9E%81%E5%9D%90%E6%A0%87/">极坐标</category>
       
       
-      <comments>https://zyxelva.github.io/posts/2973021972.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/1801928793.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】4.高可用之Sentinel</title>
-      <link>https://zyxelva.github.io/posts/1235835282.html</link>
-      <guid>https://zyxelva.github.io/posts/1235835282.html</guid>
-      <pubDate>Wed, 30 Aug 2023 02:42:00 GMT</pubDate>
+      <title>【A-Level】AQA三角函数精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/425659837.html</link>
+      <guid>https://zyxelva.github.io/posts/425659837.html</guid>
+      <pubDate>Tue, 25 Mar 2025 08:00:15 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h1 id=&quot;AQA-A-Level数学三角函数章节讲义&quot;&gt;&lt;a href=&quot;#AQA-A-Level数学三角函数章节讲义&quot; class=&quot;headerlink&quot; title=&quot;AQA A Level数学三角函数章节讲义&quot;&gt;&lt;/a&gt;AQA A</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/A-Level/">A Level</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/AQA/">AQA</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F/">哨兵模式</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%89%E8%A7%92%E5%87%BD%E6%95%B0/">三角函数</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1235835282.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/425659837.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】3.高可用之主从复制</title>
-      <link>https://zyxelva.github.io/posts/2876861881.html</link>
-      <guid>https://zyxelva.github.io/posts/2876861881.html</guid>
-      <pubDate>Wed, 30 Aug 2023 02:41:40 GMT</pubDate>
+      <title>【AP Calculus】反函数专题精讲及真题解析</title>
+      <link>https://zyxelva.github.io/posts/307695041.html</link>
+      <guid>https://zyxelva.github.io/posts/307695041.html</guid>
+      <pubDate>Thu, 20 Mar 2025 05:53:25 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-概述&quot;&gt;&lt;a href=&quot;#1-概述&quot; class=&quot;headerlink&quot; title=&quot;1 概述&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;📚-核心概念与公式&quot;&gt;&lt;a href=&quot;#📚-核心概念与公式&quot; class=&quot;headerlink&quot; title=&quot;📚 核心概念与公式&quot;&gt;&lt;/a&gt;📚 核心概念与公式&lt;/h2&gt;&lt;h3 id=&quot;1-反函数基本性质&quot;&gt;&lt;a href=&quot;#1-反函数基本性质&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F/">主从模式</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%8F%8D%E5%87%BD%E6%95%B0/">反函数</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%AF%BC%E6%95%B0/">导数</category>
       
       
-      <comments>https://zyxelva.github.io/posts/2876861881.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/307695041.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】2.持久化</title>
-      <link>https://zyxelva.github.io/posts/2249264199.html</link>
-      <guid>https://zyxelva.github.io/posts/2249264199.html</guid>
-      <pubDate>Mon, 28 Aug 2023 03:01:15 GMT</pubDate>
+      <title>【AP Calculus】积分之三角函数积分总结及真题解析</title>
+      <link>https://zyxelva.github.io/posts/1378974573.html</link>
+      <guid>https://zyxelva.github.io/posts/1378974573.html</guid>
+      <pubDate>Wed, 19 Mar 2025 02:23:45 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;一、章节概述&quot;&gt;&lt;a href=&quot;#一、章节概述&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/AP/">AP</category>
       
-      <category domain="https://zyxelva.github.io/tags/AOF/">AOF</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%89%E8%A7%92%E5%87%BD%E6%95%B0/">三角函数</category>
       
-      <category domain="https://zyxelva.github.io/tags/RDB/">RDB</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%89%E8%A7%92%E6%8D%A2%E5%85%83/">三角换元</category>
       
       
-      <comments>https://zyxelva.github.io/posts/2249264199.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/1378974573.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【Redis学习】1.常用的数据结构</title>
-      <link>https://zyxelva.github.io/posts/3971932782.html</link>
-      <guid>https://zyxelva.github.io/posts/3971932782.html</guid>
-      <pubDate>Thu, 24 Aug 2023 09:39:19 GMT</pubDate>
+      <title>【AP Calculus】积分之有理函数分式分解总结及真题解析</title>
+      <link>https://zyxelva.github.io/posts/3133079021.html</link>
+      <guid>https://zyxelva.github.io/posts/3133079021.html</guid>
+      <pubDate>Tue, 18 Mar 2025 04:48:04 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;一、分解原则与基本步骤&quot;&gt;&lt;a href=&quot;#一、分解原则与基本步骤&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/Redis%E5%AD%A6%E4%B9%A0/">Redis学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%9C%9F%E9%A2%98/">真题</category>
       
-      <category domain="https://zyxelva.github.io/tags/Redis/">Redis</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%8D%E5%AE%9A%E7%A7%AF%E5%88%86/">不定积分</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%88%86%E5%BC%8F%E5%88%86%E8%A7%A3/">分式分解</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3971932782.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3133079021.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【RocketMQ学习】16.SpringBoot整合RocketMQ实战</title>
-      <link>https://zyxelva.github.io/posts/218005482.html</link>
-      <guid>https://zyxelva.github.io/posts/218005482.html</guid>
-      <pubDate>Tue, 22 Aug 2023 02:51:17 GMT</pubDate>
+      <title>【AP Calculus】积分方法总结及真题解析</title>
+      <link>https://zyxelva.github.io/posts/3005085076.html</link>
+      <guid>https://zyxelva.github.io/posts/3005085076.html</guid>
+      <pubDate>Mon, 17 Mar 2025 08:34:24 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-SpringBoot整合RocketMQ&quot;&gt;&lt;a href=&quot;#1-SpringBoot整合RocketMQ&quot; class=&quot;headerlink&quot; title=&quot;1 SpringBoot整合RocketMQ&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;一、基本积分公式&quot;&gt;&lt;a href=&quot;#一、基本积分公式&quot; class=&quot;headerlink&quot; title=&quot;一、基本积分公式&quot;&gt;&lt;/a&gt;一、基本积分公式&lt;/h2&gt;&lt;h3 id=&quot;核心公式&quot;&gt;&lt;a href=&quot;#核心公式&quot; class=&quot;headerlink&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/RocketMQ%E5%AE%9E%E6%88%98/">RocketMQ实战</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%8D%E5%AE%9A%E7%A7%AF%E5%88%86/">不定积分</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E5%AE%9A%E7%A7%AF%E5%88%86/">定积分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/218005482.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3005085076.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【RocketMQ学习】15.源码之顺序消息</title>
-      <link>https://zyxelva.github.io/posts/3931189064.html</link>
-      <guid>https://zyxelva.github.io/posts/3931189064.html</guid>
-      <pubDate>Fri, 18 Aug 2023 02:33:47 GMT</pubDate>
+      <title>【AP Calculus】Integration Techniques &amp; Applications (Past 10-Year FRQs)</title>
+      <link>https://zyxelva.github.io/posts/3621865300.html</link>
+      <guid>https://zyxelva.github.io/posts/3621865300.html</guid>
+      <pubDate>Mon, 17 Mar 2025 02:26:08 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-demo&quot;&gt;&lt;a href=&quot;#1-demo&quot; class=&quot;headerlink&quot; title=&quot;1 demo&quot;&gt;&lt;/a&gt;1 demo&lt;/h1&gt;&lt;h2 id=&quot;1-1-Producer&quot;&gt;&lt;a href=&quot;#1-1-Producer&quot;</description>
+      <description>&lt;h2 id=&quot;Table-of-Contents&quot;&gt;&lt;a href=&quot;#Table-of-Contents&quot; class=&quot;headerlink&quot; title=&quot;Table of Contents&quot;&gt;&lt;/a&gt;Table of Contents&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      <category domain="https://zyxelva.github.io/tags/Definite-Integral/">Definite Integral</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E9%A1%BA%E5%BA%8F%E6%B6%88%E6%81%AF/">顺序消息</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E4%B8%89%E6%8A%8A%E9%94%81/">三把锁</category>
+      <category domain="https://zyxelva.github.io/tags/Indefinite-Integral/">Indefinite Integral</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3931189064.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3621865300.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【RocketMQ学习】14.源码之延迟消息</title>
-      <link>https://zyxelva.github.io/posts/4231823649.html</link>
-      <guid>https://zyxelva.github.io/posts/4231823649.html</guid>
-      <pubDate>Fri, 18 Aug 2023 02:33:17 GMT</pubDate>
+      <title>【AP Calculus】函数与极限专题精讲</title>
+      <link>https://zyxelva.github.io/posts/3762715136.html</link>
+      <guid>https://zyxelva.github.io/posts/3762715136.html</guid>
+      <pubDate>Sun, 16 Mar 2025 02:40:14 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-demo准备&quot;&gt;&lt;a href=&quot;#1-demo准备&quot; class=&quot;headerlink&quot; title=&quot;1 demo准备&quot;&gt;&lt;/a&gt;1 demo准备&lt;/h1&gt;&lt;h2 id=&quot;1-1-Producer&quot;&gt;&lt;a href=&quot;#1-1-Producer&quot;</description>
+      <description>&lt;hr&gt;
+&lt;h2 id=&quot;一、直接代入法&quot;&gt;&lt;a href=&quot;#一、直接代入法&quot; class=&quot;headerlink&quot; title=&quot;一、直接代入法&quot;&gt;&lt;/a&gt;一、直接代入法&lt;/h2&gt;&lt;h3 id=&quot;真题-1-2018-FRQ-1a&quot;&gt;&lt;a</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%87%BD%E6%95%B0/">函数</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E5%BB%B6%E8%BF%9F%E6%B6%88%E6%81%AF/">延迟消息</category>
+      <category domain="https://zyxelva.github.io/tags/%E6%9E%81%E9%99%90/">极限</category>
       
       
-      <comments>https://zyxelva.github.io/posts/4231823649.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3762715136.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【RocketMQ学习】13.源码之消息过滤与重试</title>
-      <link>https://zyxelva.github.io/posts/1780908168.html</link>
-      <guid>https://zyxelva.github.io/posts/1780908168.html</guid>
-      <pubDate>Fri, 11 Aug 2023 02:19:34 GMT</pubDate>
+      <title>【AP Calculus】积分及其应用总结及真题解析</title>
+      <link>https://zyxelva.github.io/posts/3676599296.html</link>
+      <guid>https://zyxelva.github.io/posts/3676599296.html</guid>
+      <pubDate>Sat, 15 Mar 2025 10:05:08 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;目录&quot;&gt;&lt;a href=&quot;#目录&quot; class=&quot;headerlink&quot; title=&quot;目录&quot;&gt;&lt;/a&gt;目录&lt;/h2&gt;&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;#基本积分方法&quot;&gt;基本积分方法&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      <category domain="https://zyxelva.github.io/tags/%E4%B8%8D%E5%AE%9A%E7%A7%AF%E5%88%86/">不定积分</category>
       
-      <category domain="https://zyxelva.github.io/tags/TAG%E8%BF%87%E6%BB%A4/">TAG过滤</category>
-      
-      <category domain="https://zyxelva.github.io/tags/SQL%E8%BF%87%E6%BB%A4/">SQL过滤</category>
-      
-      <category domain="https://zyxelva.github.io/tags/%E6%B6%88%E6%81%AF%E9%87%8D%E8%AF%95/">消息重试</category>
+      <category domain="https://zyxelva.github.io/tags/%E5%AE%9A%E7%A7%AF%E5%88%86/">定积分</category>
       
       
-      <comments>https://zyxelva.github.io/posts/1780908168.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/3676599296.html#disqus_thread</comments>
       
     </item>
     
     <item>
-      <title>【RocketMQ学习】12.源码之数据同步及异步机制</title>
-      <link>https://zyxelva.github.io/posts/3651213784.html</link>
-      <guid>https://zyxelva.github.io/posts/3651213784.html</guid>
-      <pubDate>Fri, 11 Aug 2023 02:16:20 GMT</pubDate>
+      <title>【AP Calculus】无穷级数审敛法总结及真题解析</title>
+      <link>https://zyxelva.github.io/posts/146840189.html</link>
+      <guid>https://zyxelva.github.io/posts/146840189.html</guid>
+      <pubDate>Thu, 13 Mar 2025 13:03:07 GMT</pubDate>
       
         
         
           
           
-      <description>&lt;h1 id=&quot;1-前言&quot;&gt;&lt;a href=&quot;#1-前言&quot; class=&quot;headerlink&quot; title=&quot;1 前言&quot;&gt;&lt;/a&gt;1</description>
+      <description>&lt;h2 id=&quot;0-级数的基本概念&quot;&gt;&lt;a href=&quot;#0-级数的基本概念&quot; class=&quot;headerlink&quot; title=&quot;0. 级数的基本概念&quot;&gt;&lt;/a&gt;0. 级数的基本概念&lt;/h2&gt;&lt;h3 id=&quot;知识点&quot;&gt;&lt;a href=&quot;#知识点&quot;</description>
           
         
       
       
       
       
-      <category domain="https://zyxelva.github.io/categories/RocketMQ%E5%AD%A6%E4%B9%A0/">RocketMQ学习</category>
+      <category domain="https://zyxelva.github.io/categories/AP-Calculus/">AP Calculus</category>
       
       
-      <category domain="https://zyxelva.github.io/tags/RocketMQ%E6%BA%90%E7%A0%81/">RocketMQ源码</category>
+      <category domain="https://zyxelva.github.io/tags/%E7%BA%A7%E6%95%B0%E5%AE%A1%E6%95%9B%E6%B3%95%E5%88%99/">级数审敛法则</category>
       
-      <category domain="https://zyxelva.github.io/tags/%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5/">主从同步</category>
+      <category domain="https://zyxelva.github.io/tags/p-%E7%BA%A7%E6%95%B0/">p-级数</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E6%AD%A3%E9%A1%B9%E7%BA%A7%E6%95%B0/">正项级数</category>
+      
+      <category domain="https://zyxelva.github.io/tags/%E4%BA%A4%E9%94%99%E7%BA%A7%E6%95%B0/">交错级数</category>
       
       
-      <comments>https://zyxelva.github.io/posts/3651213784.html#disqus_thread</comments>
+      <comments>https://zyxelva.github.io/posts/146840189.html#disqus_thread</comments>
       
     </item>
     

@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -815,7 +872,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    757
+                    744
                 </div>
                 
 
@@ -843,30 +900,24 @@
                 <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p>给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。</p>
 <p>百度百科中最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2> <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/868208add5b347d0837c787d0f7e82be.png"><div class="caption"><b class="center-caption">""</b></div>
-
-
-
 <blockquote>
-<p>输入：root &#x3D; [3,5,1,6,2,0,8,null,null,7,4], p &#x3D; 5, q &#x3D; 1<br>输出：3<br>解释：节点 5 和节点 1 的最近公共祖先是节点 3 。</p>
+<p>输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1<br>输出：3<br>解释：节点 5 和节点 1 的最近公共祖先是节点 3 。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/5b57549b34a04b51963ea207b0323194.png"><div class="caption"><b class="center-caption">""</b></div>
-
-
 <blockquote>
-<p>输入：root &#x3D; [3,5,1,6,2,0,8,null,null,7,4], p &#x3D; 5, q &#x3D; 4<br>输出：5<br>解释：节点 5 和节点 4 的最近公共祖先是节点 5 。因为根据定义最近公共祖先节点可以为节点本身。</p>
+<p>输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4<br>输出：5<br>解释：节点 5 和节点 4 的最近公共祖先是节点 5 。因为根据定义最近公共祖先节点可以为节点本身。</p>
 </blockquote>
 <h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入：root &#x3D; [1,2], p &#x3D; 1, q &#x3D; 2<br>输出：1</p>
+<p>输入：root = [1,2], p = 1, q = 2<br>输出：1</p>
 </blockquote>
 <p><strong>提示</strong>：</p>
 <ul>
 <li>树中节点数目在范围 [2, 105] 内。</li>
-<li>-109 &lt;&#x3D; Node.val &lt;&#x3D; 109</li>
+<li>-109 &lt;= Node.val &lt;= 109</li>
 <li>所有 Node.val 互不相同 。</li>
-<li>p !&#x3D; q</li>
-<li>p 和 q 均存在于给定的二叉树中。</li>
+<li>p != q</li>
+<li>p 和 q 均存在于给定的二叉树中。<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-祖先的定义"><a href="#2-1-祖先的定义" class="headerlink" title="2.1 祖先的定义"></a>2.1 祖先的定义</h2>若节点p位于root根节点的左或右子树，或者p就是root，则root为p的祖先。</li>
 </ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-祖先的定义"><a href="#2-1-祖先的定义" class="headerlink" title="2.1 祖先的定义"></a>2.1 祖先的定义</h2><p>若节点p位于root根节点的左或右子树，或者p就是root，则root为p的祖先。</p>
 <h2 id="2-2-最近公共祖先"><a href="#2-2-最近公共祖先" class="headerlink" title="2.2 最近公共祖先"></a>2.2 最近公共祖先</h2><p>设节点 root 为节点 p,q 的某公共祖先，若其左子节点 root.left 和右子节点 root.right 都不是 p,q 的公共祖先，则称 root 是 “最近的公共祖先” 。</p>
 <p>对于二叉树中的节点p,q，只可能存在两种关系：</p>
 <ul>
@@ -876,10 +927,7 @@
 <h2 id="2-3-父子关系"><a href="#2-3-父子关系" class="headerlink" title="2.3 父子关系"></a>2.3 父子关系</h2><p>对于具有父子关系的节点p,q，存在两种情况：</p>
 <ul>
 <li>节点p是节点q的子孙节点，即节点p出现在节点q的左或右子树中，返回q即可</li>
-<li>节点q是节点p的子孙节点，即节点q出现在节点p的左或右子树中，返回p即可</li>
-</ul>
-<h2 id="2-4-兄弟关系"><a href="#2-4-兄弟关系" class="headerlink" title="2.4 兄弟关系"></a>2.4 兄弟关系</h2><p>节点p,q分别出现在某节点的左子树或右子树中，返回该节点即可</p>
-<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<li>节点q是节点p的子孙节点，即节点q出现在节点p的左或右子树中，返回p即可<h2 id="2-4-兄弟关系"><a href="#2-4-兄弟关系" class="headerlink" title="2.4 兄弟关系"></a>2.4 兄弟关系</h2>节点p,q分别出现在某节点的左子树或右子树中，返回该节点即可<h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3.代码"></a>3.代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * Definition for a binary tree node.
  * public class TreeNode &#123;
  *     int val;
@@ -910,7 +958,9 @@
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> leftRes<span class="token operator">==</span><span class="token keyword">null</span><span class="token operator">?</span>rightRes<span class="token operator">:</span>leftRes<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+</ul>
+
                 
             </div>
             <hr/>
@@ -1652,7 +1702,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1915,6 +1965,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

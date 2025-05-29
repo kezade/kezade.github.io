@@ -7,10 +7,8 @@
     <meta name="keywords" content="【Netty学习】3.Netty的组件, Back-End Dev Java">
     <meta name="description" content="1 为什么要用 Netty?
 提供了 JAVA NIO但没有提供针对 Protocol Buffer、JSON 这些信息格式的封装。
-
 NIO类库和 API 复杂，网络编程复杂，难度较大。
-
-提供上层特有服务，如数据格式封装，客户端权限、简">
+提供上层特有服务，如数据格式封装，客户端权限、简单的">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -66,7 +64,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +182,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +258,15 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +289,24 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +487,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +571,16 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +603,26 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -825,12 +880,9 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-为什么要用-Netty"><a href="#1-为什么要用-Netty" class="headerlink" title="1 为什么要用 Netty?"></a>1 为什么要用 Netty?</h1><ul>
-<li><p>提供了 <code>JAVA NIO</code>但<code>没有提供</code>针对 <code>Protocol Buffer</code>、<code>JSON</code> 这些信息格式的<code>封装</code>。</p>
-</li>
-<li><p>NIO类库和 API <code>复杂</code>，<code>网络编程复杂</code>，<code>难度较大</code>。</p>
-</li>
-<li><p>提供上层特有服务，如数据格式封装，客户端权限、简单的数据读取、断连重连、半包读写、心跳等。</p>
-</li>
+<li>提供了 <code>JAVA NIO</code>但<code>没有提供</code>针对 <code>Protocol Buffer</code>、<code>JSON</code> 这些信息格式的<code>封装</code>。</li>
+<li>NIO类库和 API <code>复杂</code>，<code>网络编程复杂</code>，<code>难度较大</code>。</li>
+<li>提供上层特有服务，如数据格式封装，客户端权限、简单的数据读取、断连重连、半包读写、心跳等。</li>
 <li><p><code>JAVA NIO</code> 存在 <code>epoll bug</code>, <code>selector</code> 不能阻塞，CPU 会飚至 100%（只能在 LINUX 内核上重现），Netty 已经解决。</p>
 <ul>
 <li><p>原因：</p>
@@ -843,8 +895,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <p>创建一个新的<code>Selector</code>。处理机制就是如果发生了这种情况，并且发生次数超过了<code>SELECTOR_AUTO_REBUILD_THRESHOLD</code>(默认512)，则调用<code>rebuildSelector()</code>进行<code>Selecttor重建</code>，这样就不用管之前发生了异常情况的那个连接了。因为重建也是根据<code>SelectionKey事件</code>对应的<code>连接</code>来<code>重新注册</code>的。</p>
 </blockquote>
 </li>
-<li><p>NIO <code>epoll bug</code>不是<code>linux epoll</code>的问题，而是<code>JDK</code>自己实现<code>epoll</code>时没有考虑这种情况。</p>
-</li>
+<li>NIO <code>epoll bug</code>不是<code>linux epoll</code>的问题，而是<code>JDK</code>自己实现<code>epoll</code>时没有考虑这种情况。</li>
 </ul>
 </li>
 </ul>
@@ -853,7 +904,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <li>AIO 还有个<code>缺点</code>是接收数据需要<code>预先分配缓存</code>, 而不是NIO 那种<code>需要接收</code>时才需要分配缓存, 所以对连接数量非常大但流量小的情况, 内存浪费很多。</li>
 </ul>
 <h1 id="3-为什么不用Netty5"><a href="#3-为什么不用Netty5" class="headerlink" title="3 为什么不用Netty5?"></a>3 为什么不用Netty5?</h1><p>Netty5 已经停止开发。</p>
-<h1 id="4-Netty-组件"><a href="#4-Netty-组件" class="headerlink" title="4 Netty 组件"></a>4 Netty 组件</h1><h2 id="4-1-Channel"><a href="#4-1-Channel" class="headerlink" title="4.1 Channel"></a>4.1 Channel</h2><p>代表一个到<code>实体</code>（如一个硬件设备、一个文件、一个网络套接字或者一个能够执行一个或者多个不同的I&#x2F;O 操作的程序组件）的<code>开放连接</code>，如<code>读操作</code>和<code>写操作</code>。</p>
+<h1 id="4-Netty-组件"><a href="#4-Netty-组件" class="headerlink" title="4 Netty 组件"></a>4 Netty 组件</h1><h2 id="4-1-Channel"><a href="#4-1-Channel" class="headerlink" title="4.1 Channel"></a>4.1 Channel</h2><p>代表一个到<code>实体</code>（如一个硬件设备、一个文件、一个网络套接字或者一个能够执行一个或者多个不同的I/O 操作的程序组件）的<code>开放连接</code>，如<code>读操作</code>和<code>写操作</code>。</p>
 <p>目前，可以把Channel看作是<code>传入</code>（入站）或者<code>传出</code>（出站）数据的载体。因此，它可以<code>被打开</code>或者<code>被关闭</code>，<code>连接</code>或者<code>断开连接</code>。</p>
 <p><img src="/images/uploads/abstract-channel.png" alt="抽象的Channel"></p>
 <ul>
@@ -893,36 +944,31 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <p>Netty 的 <code>EventLoop</code> 是<code>协同设计</code> 的一部分，它采用了两个基本的 API:<code>并发</code>和<code>网络编程</code>。</p>
 <ul>
 <li><code>io.netty.util.concurrent</code> 包构建在 JDK 的 <code>java.util.concurrent</code> 包上，用来提供<code>线程执行器</code>。</li>
-<li><code>io.netty.channel</code> 包中的类，为了与 <code>Channel</code> 的事件进行交互， 扩展了这些接口&#x2F;类。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/EventLoop.png"><div class="caption"><b class="center-caption">EventLoop类层次结构</b></div></li>
+<li><code>io.netty.channel</code> 包中的类，为了与 <code>Channel</code> 的事件进行交互， 扩展了这些接口/类。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/EventLoop.png"><div class="caption"><b class="center-caption">EventLoop类层次结构</b></div></li>
 <li>一个 <code>EventLoop</code> 将由一个<strong>永远都不会改变</strong>的 <code>Thread</code> 驱动，同时<code>任务</code>(Runnable 或者 Callable)可以<strong>直接</strong>提交给 <code>EventLoop</code> 实现，以立即执行或者调度执行。</li>
 <li>Netty 的 <code>EventLoop</code> 在继承了 <code>ScheduledExecutorService</code> 的同时，只定义了一个方法， <code>parent()</code>。在 <code>Netty 4</code> 中，所有的 <code>I/O 操作和事件</code>都由已经被分配给了 <code>EventLoop</code> 的那个 <code>Thread</code> 来处理。</li>
 </ul>
 <p><code>EventLoopGroup</code> 是一组 <code>EventLoop</code>，Channel 一般会调用 <code>EventLoopGroup</code> 的 <code>register</code> 方法来<code>绑定</code>其中一个 <code>EventLoop</code>，后续这个 Channel 上的 <code>IO 事件</code>都由此 <code>EventLoop</code> 来处理（保证了 IO 事件处理时的线程安全）。</p>
 <h3 id="4-2-1-任务调度"><a href="#4-2-1-任务调度" class="headerlink" title="4.2.1 任务调度"></a>4.2.1 任务调度</h3><p>偶尔，你将需要调度一个任务以便稍后(延迟)执行或者周期性地执行。例如，你可能想要注册一个在客户端已经连接了 5 分钟之后触发的任务。一个常见的用例是，发送<code>心跳消息</code>到远程节点，以检查连接是否仍然还活着。如果没有响应，你便知道可以关闭该 <code>Channel</code> 了。</p>
-<h3 id="4-2-2-线程管理"><a href="#4-2-2-线程管理" class="headerlink" title="4.2.2 线程管理"></a>4.2.2 线程管理</h3><p>在内部，当提交任务到如果(当前)调用线程正是支撑 EventLoop 的线程，那么所提交的代码块将会被(直接)执行。否则，EventLoop 将调度该任务以便稍后执行，并将它放入 到内部队列中。当 EventLoop 下次处理它的事件时，它会执行队列中的那些任务&#x2F;事件。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/EventLoop%20Execution%20Logic.png"><div class="caption"><b class="center-caption">EventLoop的执行逻辑</b></div>
-
+<h3 id="4-2-2-线程管理"><a href="#4-2-2-线程管理" class="headerlink" title="4.2.2 线程管理"></a>4.2.2 线程管理</h3><p>在内部，当提交任务到如果(当前)调用线程正是支撑 EventLoop 的线程，那么所提交的代码块将会被(直接)执行。否则，EventLoop 将调度该任务以便稍后执行，并将它放入 到内部队列中。当 EventLoop 下次处理它的事件时，它会执行队列中的那些任务/事件。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/EventLoop%20Execution%20Logic.png"><div class="caption"><b class="center-caption">EventLoop的执行逻辑</b></div></p>
 <h3 id="4-2-3-线程分配"><a href="#4-2-3-线程分配" class="headerlink" title="4.2.3 线程分配"></a>4.2.3 线程分配</h3><p>服务于 Channel 的 <code>I/O</code> 和事件的 <code>EventLoop</code> 包含在 <code>EventLoopGroup</code> 中。根据不同的传输实现，<code>EventLoop</code> 的创建和分配方式也不同。</p>
 <ul>
 <li>异步传输</li>
 </ul>
 <p>异步传输实现只使用了<code>少量的 EventLoop</code>(以及和它们相关联的 <code>Thread</code>)，而且在当前的线程模型中，它们可能会被多个 <code>Channel</code> 所共享。这使得可以通过尽可能少量的 <code>Thread</code> 来支撑大量的 <code>Channel</code>，而不是每个 <code>Channel</code> 分配一个 <code>Thread</code>。<br>下图中显示了一个 <code>EventLoopGroup</code>，它具有 3 个<code>固定大小</code>的 <code>EventLoop</code>(每个 EventLoop 都由一个 Thread 支撑)。在创建 <code>EventLoopGroup</code> 时就直接分配了 <code>EventLoop</code>(以及支撑它们的 <code>Thread</code>)，以确保在需要时它们是可用的。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/NIO%20Dispatch%20Model.png"><div class="caption"><b class="center-caption">用于非阻塞传输(如 NIO 和 AIO)的 EventLoop 分配方式</b></div>
-
 <ul>
 <li>阻塞传输</li>
 </ul>
-<p>用于像 <code>OIO</code>(旧的阻塞 I&#x2F;O)这样的其他传输的设计略有不同，如下图所示。这里每一个 <code>Channel</code> 都将被分配给<code>一个 EventLoop</code>(以及它的 Thread)。如果你开发的应用程序使用过 <code>java.io</code> 包中的<code>阻塞 I/O</code> 实现，你可能就遇到过这种模型。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/OIO%20Dispatch%20Model.png"><div class="caption"><b class="center-caption">阻塞传输(如 OIO)的 EventLoop 分配方式</b></div>
-
+<p>用于像 <code>OIO</code>(旧的阻塞 I/O)这样的其他传输的设计略有不同，如下图所示。这里每一个 <code>Channel</code> 都将被分配给<code>一个 EventLoop</code>(以及它的 Thread)。如果你开发的应用程序使用过 <code>java.io</code> 包中的<code>阻塞 I/O</code> 实现，你可能就遇到过这种模型。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/OIO%20Dispatch%20Model.png"><div class="caption"><b class="center-caption">阻塞传输(如 OIO)的 EventLoop 分配方式</b></div></p>
 <p>但是，正如同之前一样，得到的保证是每个 <code>Channel</code> 的 <code>I/O 事件</code>都将只会被<code>一个 Thread</code> (用于支撑该 Channel 的 EventLoop 的那个 Thread)处理。这也是另一个 Netty <code>设计一致性</code>的例子，它(这种设计上的一致性)对 Netty 的<code>可靠性</code>和<code>易用性</code>做出了巨大贡献。</p>
 <h2 id="4-3-ChannelFuture"><a href="#4-3-ChannelFuture" class="headerlink" title="4.3 ChannelFuture"></a>4.3 ChannelFuture</h2><blockquote>
-<p>Netty 中所有的 I&#x2F;O 操作都是<code>异步的</code>。</p>
+<p>Netty 中所有的 I/O 操作都是<code>异步的</code>。</p>
 </blockquote>
 <p>JDK 预置了 <code>interface java.util.concurrent.Future</code>，<code>Future</code> 提供了一种在操作完成时<code>通知</code>应用程序的方式。这个对象可以看作是一个<code>异步操作</code>的结果的<code>占位符</code>;</p>
 <ul>
 <li>它将在未来的某个时刻完成，并提供对其结果的访问。但是其所提供的实现，只允许手动检查对应的操作是否已经完成，或者一直阻塞直到它完成。这是非常繁琐的，所以 Netty 提供了它自己的实现—— <code>ChannelFuture</code>，用于在执行<code>异步操作</code>的时候使用。</li>
-<li>每个 Netty 的<code>出站</code> I&#x2F;O 操作都将返回一个 <code>ChannelFuture</code>。也就是说，它们都不会阻塞。 正如我们前面所提到过的一样，Netty 完全是<code>异步</code>和<code>事件驱动</code>的。</li>
+<li>每个 Netty 的<code>出站</code> I/O 操作都将返回一个 <code>ChannelFuture</code>。也就是说，它们都不会阻塞。 正如我们前面所提到过的一样，Netty 完全是<code>异步</code>和<code>事件驱动</code>的。</li>
 </ul>
 <h2 id="4-4-ChannelHandler"><a href="#4-4-ChannelHandler" class="headerlink" title="4.4 ChannelHandler"></a>4.4 ChannelHandler</h2><p>从应用程序开发人员的角度来看，Netty 的主要组件是 <code>ChannelHandler</code>，它充当了所有处理<code>入站</code>和<code>出站</code>数据的应用程序逻辑的<code>容器</code>。</p>
 <p><code>ChannelHandler</code> 的方法是由<code>网络事件</code>触发的。 事实上，<code>ChannelHandler</code> 可专门用于几乎任何类型的动作，例如将数据从一种格式转换为另外一种格式，例如各种编解码，或者处理转换过程中所抛出的异常。</p>
@@ -988,15 +1034,12 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <p>数据的<code>出站运动</code>(即正在被写的数据)在概念上也是一样的。在这种情况下，数据将从 <code>ChannelOutboundHandler</code> 链的<code>尾端</code>开始流动，直到它到达链的<code>头部</code>为止。在这之后，出站数据将会到达<code>网络传输层</code>，这里显示为 Socket。通常情况下，这将触发一个<code>写操作</code>。</p>
 <p>如果将两个类别的<code>ChannelHandler</code>都混合添加到同一个<code>ChannelPipeline</code> 中会发生什么。 虽然 <code>ChannelInboundHandle</code> 和 <code>ChannelOutboundHandle</code> 都扩展自 <code>ChannelHandler</code>，但是 Netty 能区分 <code>ChannelInboundHandler</code> 实现和 <code>ChannelOutboundHandler</code> 实现，并确保数据只会在具有<code>相同定向类型</code>的两个 <code>ChannelHandler</code> 之间传递。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ChannelPipeline.png"><div class="caption"><b class="center-caption">包含入站出站的pipeline</b></div>
-
 <h2 id="4-6-ChannelHandlerContext"><a href="#4-6-ChannelHandlerContext" class="headerlink" title="4.6 ChannelHandlerContext"></a>4.6 ChannelHandlerContext</h2><p>通过使用作为参数传递到每个方法的 <code>ChannelHandlerContext</code>，事件可以被传递给当前 <code>ChannelHandler</code> 链中的<code>下一个 ChannelHandler</code>。虽然这个对象可以被用于获取底层的 Channel，但是它主要还是被用于<code>写出站数据</code>。</p>
 <p><code>ChannelHandlerContext</code> 代表了<code>ChannelHandler</code> 和 <code>ChannelPipeline</code> 之间的关联，每当有 <code>ChannelHandler</code> <code>添加</code>到 <code>ChannelPipeline</code> 中时，都会创建 <code>ChannelHandlerContext</code>。</p>
 <p><code>ChannelHandlerContext</code> 的主要功能是管理它所关联的 <code>ChannelHandler</code> 和在同一个 <code>ChannelPipeline</code> 中的其他 <code>ChannelHandler</code> 之间的交互。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ChannelHandler-in-ChannelHandlerContext.png"><div class="caption"><b class="center-caption">ChannelHandler与ChannelHandlerContext</b></div>
-
 <p><code>ChannelHandlerContext</code> 有很多的方法，其中一些方法也存在于 <code>Channel</code> 和 <code>ChannelPipeline</code> 本身上，但是有一点重要不同。如果调用<code>Channel</code> 或者<code>ChannelPipeline</code> 上的这些方法，它们将沿着<code>整个 ChannelPipeline</code>进行传播。而调用位于 <code>ChannelHandlerContext</code>上的相同方法，则将从<code>当前所关联的 ChannelHandler</code> 开始，并且<code>只会</code>传播给位于该 <code>ChannelPipeline</code> 中的<code>下一个</code>(入站下一个，出站上一个)能够处理该事件的 <code>ChannelHandler</code>。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ChannelPipeline2.png"><div class="caption"><b class="center-caption">ChannelPipeline、ChannelHandler与ChannelHandlerContext</b></div>
-
 <h3 id="4-6-1-ChannelHandlerContext-的-API"><a href="#4-6-1-ChannelHandlerContext-的-API" class="headerlink" title="4.6.1 ChannelHandlerContext 的 API"></a>4.6.1 ChannelHandlerContext 的 API</h3><ul>
 <li><code>alloc</code> 返回和这个实例相关联的 <code>Channel</code> 所配置的 <code>ByteBufAllocator</code></li>
 <li><code>bind</code> 绑定到给定的 <code>SocketAddress</code>，并返回 <code>ChannelFuture</code></li>
@@ -1021,7 +1064,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <li><code>pipeline</code> 返回这个实例所关联的 <code>ChannelPipeline</code></li>
 <li><code>read</code> 将数据从 <code>Channel</code> 读取到第一个入站缓冲区;如果读取成功则触发一个 <code>channelRead</code> 事件，并(在最后一个消息被读取完成后)通知 <code>ChannelInboundHandler</code> 的 <code>channelReadComplete(ctx)</code>方法</li>
 <li><code>write</code> 通过这个实例<code>写入</code>消息并<code>经过</code> <code>ChannelPipeline</code></li>
-<li><code>writeAndFlush</code> 通过这个实例<code>写入并冲刷</code>消息并<code>经过</code> <code>ChannelPipeline</code></li>
+<li><code>writeAndFlush</code> 通过这个实例<code>写入并冲刷</code>消息并<code>经过</code> <code>ChannelPipeline</code> </li>
 </ul>
 <blockquote>
 <p>当使用 <code>ChannelHandlerContext</code> 的 <code>API</code> 的时候，有以下<strong>两点</strong>:</p>
@@ -1044,6 +1087,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 </ul>
 <p>无论你的应用程序使用哪种协议或者处理哪种类型的数据， <code>唯一</code>决定它使用哪种引导类的是：<strong>它是作为一个客户端还是作为一个服务器</strong>。</p>
 <p>比较 <code>Bootstrap</code> 类：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1052,7 +1096,8 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <th>ServerBootstrap</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>网络编程中的作用</td>
 <td>连接到远程主机和端口</td>
 <td>绑定到一个本地端口</td>
@@ -1062,7 +1107,9 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <td>1</td>
 <td>2</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>为啥<code>ServerBootstrap</code>需要两个<code>EventLoopGroup</code>?<br>因为服务器需要<code>两组不同的 Channel</code>：</p>
 <ul>
@@ -1072,16 +1119,13 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <p>实际上，<code>ServerBootstrap类</code>也可以只使用<code>一个EventLoopGroup</code>，此时其将在两个场景下共用<code>同一个EventLoopGroup</code>。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Two-EventLoopGroups-of-a-Server.png"><div class="caption"><b class="center-caption">具有两个 EventLoopGroup 的服务器</b></div>
-
-<h2 id="4-9-ByteBuf"><a href="#4-9-ByteBuf" class="headerlink" title="4.9 ByteBuf"></a>4.9 ByteBuf</h2><p>网络中的数据，其基本单位是字节，在<code>JAVA NIO</code>中，利用<code>ByteBuffer</code>作为字节的数据载体，但是之所以有Netty，不就是因为原生网络编程复杂，且API较晦涩咩？因而Netty提供了另外的载体—<code>ByteBuf</code>，一个强大的实现，既解决了 <code>JDK API</code> 的局限性， 又为网络应用程序的开发者提供了更好的 API。</p>
+<h2 id="4-9-ByteBuf"><a href="#4-9-ByteBuf" class="headerlink" title="4.9 ByteBuf"></a>4.9 ByteBuf</h2><p>网络中的数据，其基本单位是字节，在<code>JAVA NIO</code>中，利用<code>ByteBuffer</code>作为字节的数据载体，但是之所以有Netty，不就是因为原生网络编程复杂，且API较晦涩咩？因而Netty提供了另外的载体—-<code>ByteBuf</code>，一个强大的实现，既解决了 <code>JDK API</code> 的局限性， 又为网络应用程序的开发者提供了更好的 API。</p>
 <h3 id="4-9-1-工作原理"><a href="#4-9-1-工作原理" class="headerlink" title="4.9.1 工作原理"></a>4.9.1 工作原理</h3><p><code>ByteBuf</code> 维护了<strong>两个不同的索引</strong>：</p>
 <ul>
 <li>一个用于<code>读取</code></li>
 <li>一个用于<code>写入</code>。</li>
 </ul>
-<p>当你从 <code>ByteBuf</code> <code>读取</code>时， 它的 <code>readerIndex</code> 将会<code>被递增</code>已经被读取的字节数。同样地，当你<code>写入 ByteBuf</code>时，它的 <code>writerIndex</code> 也会<code>被递增</code>。下图展示了一个<code>空 ByteBuf</code> 的布局结构和状态。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/A-Blank-ByteBuf.png"><div class="caption"><b class="center-caption">一个读索引和写索引都设置为 0 的 16 字节 ByteBuf</b></div>
-
+<p>当你从 <code>ByteBuf</code> <code>读取</code>时， 它的 <code>readerIndex</code> 将会<code>被递增</code>已经被读取的字节数。同样地，当你<code>写入 ByteBuf</code>时，它的 <code>writerIndex</code> 也会<code>被递增</code>。下图展示了一个<code>空 ByteBuf</code> 的布局结构和状态。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/A-Blank-ByteBuf.png"><div class="caption"><b class="center-caption">一个读索引和写索引都设置为 0 的 16 字节 ByteBuf</b></div></p>
 <p>要了解这些索引<code>两两之间</code>的关系，请考虑一下，如果打算<code>读取</code>字节直到 <code>readerIndex</code> 达到和 <code>writerIndex</code> 同样的值时会发生什么。在那时，你将会到达<code>可以读取的</code>数据的末尾。就如同试图读取<code>超出</code>数组末尾的数据一样，试图读取超出该点的数据将会触发一个 <code>IndexOutOfBoundsException</code>。</p>
 <p>名称以 <code>read</code> 或者 <code>write</code> 开头的 <code>ByteBuf</code> 方法，将会推进其对应的索引，而名称以 <code>set</code> 或 者 <code>get</code> 开头的操作则不会。后面的这些方法将在作为一个<code>参数</code>传入的一个<code>相对索引</code>上执行操作。</p>
 <p>可以指定 <code>ByteBuf</code> 的<strong>最大容量</strong>。试图移动<code>写索引</code>(即 <code>writerIndex</code>)超过这个值将会触发一个<code>异常</code>。(默认的限制是 <code>Integer.MAX_VALUE</code>。)</p>
@@ -1129,7 +1173,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
  </tr>
  <tr height="24" style="height:18.0pt">
   <td height="24" class="xl65" style="height:18.0pt">buffer(int initialCapacity,
-  int maxCapacity);<span style="mso-spacerun:yes"> </span>
+  int maxCapacity);<span style="mso-spacerun:yes"> </span>
   </td>
  </tr>
  <tr height="24" style="height:18.0pt">
@@ -1164,7 +1208,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
  <tr height="24" style="height:18.0pt">
   <td height="24" class="xl65" style="height:18.0pt">
   <div title="Page 90">compositeBuffer();</div></td>
-  <td rowspan="6" class="xl67" width="460" style="width:345pt"><font class="font8">返回一个可以通过添加最大到指定数目的基于堆的或者直接内存存储的缓冲区来扩展的</font><font class="font6"> CompositeByteBuf<span style="mso-spacerun:yes"> </span></font></td>
+  <td rowspan="6" class="xl67" width="460" style="width:345pt"><font class="font8">返回一个可以通过添加最大到指定数目的基于堆的或者直接内存存储的缓冲区来扩展的</font><font class="font6"> CompositeByteBuf<span style="mso-spacerun:yes"> </span></font></td>
  </tr>
  <tr height="25" style="height:19.0pt">
   <td height="25" class="xl66" width="429" style="height:19.0pt;width:322pt">compositeBuffer(int
@@ -1183,13 +1227,13 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
  </tr>
  <tr height="24" style="height:18.0pt">
   <td height="24" class="xl65" style="height:18.0pt">compositeHeapBuffer(int
-  maxNumComponents);<span style="mso-spacerun:yes"> </span></td>
+  maxNumComponents);<span style="mso-spacerun:yes"> </span></td>
  </tr>
  <tr height="24" style="height:18.0pt">
   <td height="24" class="xl65" style="height:18.0pt">
-  <div title="Page 90">ioBuffer()<span style="mso-spacerun:yes"> </span></div>
+  <div title="Page 90">ioBuffer()<span style="mso-spacerun:yes"> </span></div>
   </td>
-  <td class="xl65"><font class="font8">返回一个用于套接字的</font><font class="font6"> I/O </font><font class="font8">操作的</font><font class="font6"> ByteBuf<span style="mso-spacerun:yes"> </span></font>
+  <td class="xl65"><font class="font8">返回一个用于套接字的</font><font class="font6"> I/O </font><font class="font8">操作的</font><font class="font6"> ByteBuf<span style="mso-spacerun:yes"> </span></font>
   </td>
  </tr>
  <tr height="0" style="display:none">
@@ -1205,7 +1249,6 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <span class="token class-name">ChannelHandlerContext</span> ctx <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
 <span class="token class-name">ByteBufAllocator</span> allocator2 <span class="token operator">=</span> ctx<span class="token punctuation">.</span><span class="token function">alloc</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 从 ChannelHandlerContext 获取一个到 ByteBufAllocator 的引用</span>
  <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <blockquote>
 <p>两种ByteBufAllocator的实现</p>
 <ul>
@@ -1223,17 +1266,14 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
   <span class="token keyword">byte</span> b <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">getByte</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token keyword">char</span><span class="token punctuation">)</span>b<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <blockquote>
 <p>需要注意的是，使用那些需要<code>一个索引值参数</code>的方法(的其中)之一来访问数据既<code>不会改变 readerIndex</code> 也<code>不会改变 writerIndex</code>。如果有需要，也可以通过调用 <code>readerIndex(index)</code> 或者 <code>writerIndex(index)</code>来手动移动这两者。</p>
 </blockquote>
 <h4 id="4-9-4-2-顺序访问索引"><a href="#4-9-4-2-顺序访问索引" class="headerlink" title="4.9.4.2 顺序访问索引"></a>4.9.4.2 顺序访问索引</h4><p>虽然 ByteBuf 同时具有<code>读索引</code>和<code>写索引</code>，但是 JDK 的 <code>ByteBuffer</code> 却只有<code>一个索引</code>，这 也就是为什么必须调用 <code>flip()</code>方法来在<code>读模式</code>和<code>写模式</code>之间进行切换的原因。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ByteBuf-Inner-Segments.png"><div class="caption"><b class="center-caption">ByteBuf的内部分段</b></div>
-
 <h4 id="4-9-4-3-可丢弃字节"><a href="#4-9-4-3-可丢弃字节" class="headerlink" title="4.9.4.3 可丢弃字节"></a>4.9.4.3 可丢弃字节</h4><p><code>可丢弃字节的分段</code>包含了已经<code>被读过</code>的字节。通过调用 <code>discardReadBytes()</code>方法，可以<code>丢弃</code>它们并<code>回收空间</code>。这个分段的初始大小为 0，存储在 <code>readerIndex</code> 中，会随着 <code>read</code> 操作的执行而增加(get*操作不会移动 readerIndex)。</p>
 <p>缓冲区上调用 <code>discardReadBytes()</code>方法后，<code>可丢弃字节分段</code>中的空间已经变为<code>可写</code>的了。 频繁地调用 <code>discardReadBytes()</code>方法以确保可写分段的最大化，但是<strong>请注意</strong>，这将极有可能会导致<code>内存复制</code>，因为<code>可读字节</code>必须被移动到缓冲区的开始位置。建议只在有真正需要的时候才这样做，例如，当内存非常宝贵的时候。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/discardReadBytes-ByteBuf.png"><div class="caption"><b class="center-caption">丢弃已读字节之后的 ByteBuf</b></div>
-
 <h4 id="4-9-4-4-可读字节"><a href="#4-9-4-4-可读字节" class="headerlink" title="4.9.4.4 可读字节"></a>4.9.4.4 可读字节</h4><p>ByteBuf 的可读字节分段存储了实际数据。新分配的、包装的或者复制的缓冲区的默认的 <code>readerIndex</code> 值为 0。</p>
 <h4 id="4-9-4-5-可写字节"><a href="#4-9-4-5-可写字节" class="headerlink" title="4.9.4.5 可写字节"></a>4.9.4.5 可写字节</h4><p>可写字节分段是指一个拥有<code>未定义内容的</code>、<code>写入就绪的</code>内存区域。新分配的缓冲区的 <code>writerIndex</code> 的默认值为 0。任何名称以 <code>write 开头</code>的操作都将从当前的 <code>writerIndex</code> 处开始 写数据，并将它增加已经写入的字节数。</p>
 <h4 id="4-9-4-6-索引管理"><a href="#4-9-4-6-索引管理" class="headerlink" title="4.9.4.6 索引管理"></a>4.9.4.6 索引管理</h4><p>调用 <code>markReaderIndex()</code>、<code>markWriterIndex()</code>、<code>resetWriterIndex()</code>和 <code>resetReaderIndex()</code>来<code>标记</code>和<code>重置</code> ByteBuf 的 <code>readerIndex</code> 和 <code>writerIndex</code>。</p>
@@ -1242,7 +1282,6 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <h4 id="4-9-4-7-查找操作"><a href="#4-9-4-7-查找操作" class="headerlink" title="4.9.4.7 查找操作"></a>4.9.4.7 查找操作</h4><p>在 <code>ByteBuf</code> 中有多种可以用来确定指定值的索引的方法。最简单的是使用 <code>indexOf()</code>方法。较复杂的查找可以通过调用 <code>forEachByte()</code>。<br>代码展示了一个查找回车符(\r)的例子。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">ByteBuf</span> buffer <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
 <span class="token keyword">int</span> index <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">forEachByte</span><span class="token punctuation">(</span><span class="token class-name">ByteBufProcessor</span><span class="token punctuation">.</span><span class="token constant">FIND_CR</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
 <h4 id="4-9-4-8-派生缓冲区"><a href="#4-9-4-8-派生缓冲区" class="headerlink" title="4.9.4.8 派生缓冲区"></a>4.9.4.8 派生缓冲区</h4><p>派生缓冲区为 ByteBuf 提供了以专门的方式来呈现其内容的视图。这类视图是通过以下方法被创建的:</p>
 <ul>
 <li>duplicate();</li>
@@ -1268,8 +1307,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
 <li>使用 <code>ctx.fireChannelRead</code> 继续向后传递;</li>
 </ul>
 </li>
-<li><p>对于<code>出站请求</code>，不管 ByteBuf 是否由我们的业务创建的，当调用了 <code>write</code> 或者 <code>writeAndFlush</code> 方法后，Netty 会自动替我们释放，不需要我们业务代码自行释放。</p>
-</li>
+<li>对于<code>出站请求</code>，不管 ByteBuf 是否由我们的业务创建的，当调用了 <code>write</code> 或者 <code>writeAndFlush</code> 方法后，Netty 会自动替我们释放，不需要我们业务代码自行释放。</li>
 </ul>
 <p>下一个章节将举个栗子，初识下Netty的应用基础用法。</p>
 <p>参考资料：</p>
@@ -1970,7 +2008,7 @@ NIO类库和 API 复杂，网络编程复杂，难度较大。
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2233,6 +2271,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -5,12 +5,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【MyBatis源码学习】代理阶段, Back-End Dev Java">
-    <meta name="description" content="一、Mybatis 的接口层1.SqlSessionsqlSession总结
-&#34;图1&#34;
-总之一句话：
-&amp;#x2F;**
+    <meta name="description" content="一、Mybatis 的接口层1.SqlSessionsqlSession总结&#34;图1&#34;总之一句话：&amp;#x2F;**
  * The primary Java interface for working with MyBatis.
- * T">
+ * Thro">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -66,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -828,26 +882,15 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="一、Mybatis-的接口层"><a href="#一、Mybatis-的接口层" class="headerlink" title="一、Mybatis 的接口层"></a>一、Mybatis 的接口层</h1><h2 id="1-SqlSession"><a href="#1-SqlSession" class="headerlink" title="1.SqlSession"></a>1.SqlSession</h2><p>sqlSession总结</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312101600300.png"><div class="caption"><b class="center-caption">"图1"</b></div>
-<p>总之一句话：</p>
-<pre class="line-numbers language-none"><code class="language-none">&#x2F;**
+                <h1 id="一、Mybatis-的接口层"><a href="#一、Mybatis-的接口层" class="headerlink" title="一、Mybatis 的接口层"></a>一、Mybatis 的接口层</h1><h2 id="1-SqlSession"><a href="#1-SqlSession" class="headerlink" title="1.SqlSession"></a>1.SqlSession</h2><p>sqlSession总结<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312101600300.png"><div class="caption"><b class="center-caption">"图1"</b></div><br>总之一句话：<br><pre class="line-numbers language-none"><code class="language-none">&#x2F;**
  * The primary Java interface for working with MyBatis.
  * Through this interface you can execute commands, get mappers and manage transactions.
  *
  * @author Clinton Begin
- *&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>翻译过来，就是：对外访问统一的接口，通过这些接口，完成读写命令，获取映射和管理事务。</p>
-<p>UML：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102149880.png"><div class="caption"><b class="center-caption">"图2"</b></div>
-<p>SqlSession查询接口嵌套关系</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102442855.png"><div class="caption"><b class="center-caption">"SqlSession查询接口嵌套关系"</b></div>
-
-<h2 id="2-SqlSessionFactory"><a href="#2-SqlSessionFactory" class="headerlink" title="2.SqlSessionFactory"></a>2.SqlSessionFactory</h2><p>SqlSessionFactory与SqlSession关系UML图</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312103052478.png"><div class="caption"><b class="center-caption">"SqlSessionFactory与SqlSession关系UML图"</b></div>
-<p>SqlSessionFactory 使用工厂模式创建SqlSession，其默认的实现类为DefaultSqlSessionFactory，其中获取SqlSession 的核心方法为openSessionFromDataSource(ExecutorType, TransactionIsolationLevel, boolean)，在这个方法中从configuration 中获取的TransactionFactory 是典型的策略模式的应用。运行期，TransactionFactory 接口的实现，是由配置文件配置决定的，可配置选项包括：JDBC、Managed，可根据需求灵活的替换TransactionFactory 的实现。</p>
-<h1 id="二、binding-模块分析"><a href="#二、binding-模块分析" class="headerlink" title="二、binding 模块分析"></a>二、binding 模块分析</h1><h2 id="0-MyBatis两种编程模型"><a href="#0-MyBatis两种编程模型" class="headerlink" title="0.MyBatis两种编程模型"></a>0.MyBatis两种编程模型</h2><p>(1) 使用mapper接口编程，就可以访问数据库；</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+ *&#x2F;<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>翻译过来，就是：对外访问统一的接口，通过这些接口，完成读写命令，获取映射和管理事务。</p>
+<p>UML：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102149880.png"><div class="caption"><b class="center-caption">"图2"</b></div><br>SqlSession查询接口嵌套关系<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102442855.png"><div class="caption"><b class="center-caption">"SqlSession查询接口嵌套关系"</b></div></p>
+<h2 id="2-SqlSessionFactory"><a href="#2-SqlSessionFactory" class="headerlink" title="2.SqlSessionFactory"></a>2.SqlSessionFactory</h2><p>SqlSessionFactory与SqlSession关系UML图<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312103052478.png"><div class="caption"><b class="center-caption">"SqlSessionFactory与SqlSession关系UML图"</b></div><br>SqlSessionFactory 使用工厂模式创建SqlSession，其默认的实现类为DefaultSqlSessionFactory，其中获取SqlSession 的核心方法为openSessionFromDataSource(ExecutorType, TransactionIsolationLevel, boolean)，在这个方法中从configuration 中获取的TransactionFactory 是典型的策略模式的应用。运行期，TransactionFactory 接口的实现，是由配置文件配置决定的，可配置选项包括：JDBC、Managed，可根据需求灵活的替换TransactionFactory 的实现。</p>
+<h1 id="二、binding-模块分析"><a href="#二、binding-模块分析" class="headerlink" title="二、binding 模块分析"></a>二、binding 模块分析</h1><h2 id="0-MyBatis两种编程模型"><a href="#0-MyBatis两种编程模型" class="headerlink" title="0.MyBatis两种编程模型"></a>0.MyBatis两种编程模型</h2><p>(1) 使用mapper接口编程，就可以访问数据库；<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token comment">// 程序员喜欢的风格</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickStart</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 2.获取sqlSession</span>
@@ -857,9 +900,8 @@
     <span class="token comment">// 4.执行查询语句并返回单条数据</span>
     <span class="token class-name">TUser</span> user <span class="token operator">=</span> mapper<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>(2) 使用sqlsession对外提供数据库的访问；</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>(2) 使用sqlsession对外提供数据库的访问；<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token comment">// 原始风格，ibatis编程模型 本质分析</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">originalOperation</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 2.获取sqlSession</span>
@@ -867,14 +909,10 @@
     <span class="token comment">// 3.执行查询语句并返回结果</span>
     <span class="token class-name">TUser</span> user <span class="token operator">=</span> sqlSession<span class="token punctuation">.</span><span class="token function">selectOne</span><span class="token punctuation">(</span><span class="token string">"com.taeyeon.mybatis.mapper.TUserMapper.selectByPrimaryKey"</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>可以比较以下两种编程风格，发现，直接使用SqlSession 进行数据库开发存在代码可读性差、可维护性差的问题，所以我们很少使用，而是使用Mapper接口的方式进行数据库的开发。实现的基础涉及配置文件的解读以及动态代理的运用。</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>可以比较以下两种编程风格，发现，直接使用SqlSession 进行数据库开发存在代码可读性差、可维护性差的问题，所以我们很少使用，而是使用Mapper接口的方式进行数据库的开发。实现的基础涉及配置文件的解读以及动态代理的运用。</p>
 <h2 id="1-核心类"><a href="#1-核心类" class="headerlink" title="1.核心类"></a>1.核心类</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312105114200.png"><div class="caption"><b class="center-caption">"图3"</b></div>
-
 <h2 id="2-运行流程"><a href="#2-运行流程" class="headerlink" title="2.运行流程"></a>2.运行流程</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312105706612.png"><div class="caption"><b class="center-caption">"图4"</b></div>
-
-<h1 id="三、举个栗子"><a href="#三、举个栗子" class="headerlink" title="三、举个栗子"></a>三、举个栗子</h1><p>demo如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<h1 id="三、举个栗子"><a href="#三、举个栗子" class="headerlink" title="三、举个栗子"></a>三、举个栗子</h1><p>demo如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token comment">// 程序员喜欢的风格</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">quickStart</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 2.获取sqlSession</span>
@@ -884,20 +922,13 @@
     <span class="token comment">// 4.执行查询语句并返回单条数据</span>
     <span class="token class-name">TUser</span> user <span class="token operator">=</span> mapper<span class="token punctuation">.</span><span class="token function">selectByPrimaryKey</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="1-打开一个会话"><a href="#1-打开一个会话" class="headerlink" title="1.打开一个会话"></a>1.打开一个会话</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">SqlSession</span> sqlSession <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="2-DefaultSqlSessionFactory"><a href="#2-DefaultSqlSessionFactory" class="headerlink" title="2.DefaultSqlSessionFactory"></a>2.DefaultSqlSessionFactory</h2><p>有两个实现类，主要看DefaultSqlSessionFactory.</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031211034090.png"><div class="caption"><b class="center-caption">"图5"</b></div>
-
-<p>点进去看看openSession的方法内容</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+<h2 id="2-DefaultSqlSessionFactory"><a href="#2-DefaultSqlSessionFactory" class="headerlink" title="2.DefaultSqlSessionFactory"></a>2.DefaultSqlSessionFactory</h2><p>有两个实现类，主要看DefaultSqlSessionFactory.<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031211034090.png"><div class="caption"><b class="center-caption">"图5"</b></div></p>
+<p>点进去看看openSession的方法内容<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token class-name">SqlSession</span> <span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token keyword">return</span> <span class="token function">openSessionFromDataSource</span><span class="token punctuation">(</span>configuration<span class="token punctuation">.</span><span class="token function">getDefaultExecutorType</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>关键瞧瞧openSessionFromDataSource这个方法干了什么。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><br>关键瞧瞧openSessionFromDataSource这个方法干了什么。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 从数据源获取数据库连接
   *
   * @param execType   执行类型，ExecutorType主要有三种类型：SIMPLE, REUSE, BATCH，默认是SIMPLE，都在枚举类ExecutorType里面
@@ -925,8 +956,7 @@
    <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
      <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>重点看看新创建的执行器和DefaultSqlSession。</p>
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>重点看看新创建的执行器和DefaultSqlSession。</p>
 <h2 id="3-newExecutor"><a href="#3-newExecutor" class="headerlink" title="3.newExecutor"></a>3.newExecutor</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Executor</span> <span class="token function">newExecutor</span><span class="token punctuation">(</span><span class="token class-name">Transaction</span> transaction<span class="token punctuation">,</span> <span class="token class-name">ExecutorType</span> executorType<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     executorType <span class="token operator">=</span> executorType <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">?</span> defaultExecutorType <span class="token operator">:</span> executorType<span class="token punctuation">;</span>
     executorType <span class="token operator">=</span> executorType <span class="token operator">==</span> <span class="token keyword">null</span> <span class="token operator">?</span> <span class="token class-name">ExecutorType</span><span class="token punctuation">.</span><span class="token constant">SIMPLE</span> <span class="token operator">:</span> executorType<span class="token punctuation">;</span>
@@ -947,18 +977,12 @@
     executor <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">Executor</span><span class="token punctuation">)</span> interceptorChain<span class="token punctuation">.</span><span class="token function">pluginAll</span><span class="token punctuation">(</span>executor<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">return</span> executor<span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="4-DefaultSqlSession"><a href="#4-DefaultSqlSession" class="headerlink" title="4.DefaultSqlSession"></a>4.DefaultSqlSession</h2><p>再去瞄下DefaultSqlSession干了啥。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DefaultSqlSession</span><span class="token punctuation">(</span><span class="token class-name">Configuration</span> configuration<span class="token punctuation">,</span> <span class="token class-name">Executor</span> executor<span class="token punctuation">,</span> <span class="token keyword">boolean</span> autoCommit<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<h2 id="4-DefaultSqlSession"><a href="#4-DefaultSqlSession" class="headerlink" title="4.DefaultSqlSession"></a>4.DefaultSqlSession</h2><p>再去瞄下DefaultSqlSession干了啥。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">DefaultSqlSession</span><span class="token punctuation">(</span><span class="token class-name">Configuration</span> configuration<span class="token punctuation">,</span> <span class="token class-name">Executor</span> executor<span class="token punctuation">,</span> <span class="token keyword">boolean</span> autoCommit<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token keyword">this</span><span class="token punctuation">.</span>configuration <span class="token operator">=</span> configuration<span class="token punctuation">;</span>
   <span class="token keyword">this</span><span class="token punctuation">.</span>executor <span class="token operator">=</span> executor<span class="token punctuation">;</span>
   <span class="token keyword">this</span><span class="token punctuation">.</span>dirty <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
   <span class="token keyword">this</span><span class="token punctuation">.</span>autoCommit <span class="token operator">=</span> autoCommit<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>DefaultSqlSession实现了SqlSession的方法。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312111811946.png"><div class="caption"><b class="center-caption">"图6"</b></div>
-<p>当执行以下代码时，调用的其实就是DefaultSqlSession类的selectOne方法（最终调用该类下的selectList方法）：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>DefaultSqlSession实现了SqlSession的方法。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312111811946.png"><div class="caption"><b class="center-caption">"图6"</b></div><br>当执行以下代码时，调用的其实就是DefaultSqlSession类的selectOne方法（最终调用该类下的selectList方法）：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> <span class="token class-name">T</span> <span class="token function">selectOne</span><span class="token punctuation">(</span><span class="token class-name">String</span> statement<span class="token punctuation">,</span> <span class="token class-name">Object</span> parameter<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token comment">// Popular vote was to return null on 0 results and throw exception on too many.</span>
   <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span> list <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">T</span><span class="token punctuation">></span></span><span class="token function">selectList</span><span class="token punctuation">(</span>statement<span class="token punctuation">,</span> parameter<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -983,13 +1007,8 @@
   <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
     <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="5-Executor"><a href="#5-Executor" class="headerlink" title="5.Executor"></a>5.Executor</h2><p>先大致了解下Executor的类继承关系。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312112927579.png"><div class="caption"><b class="center-caption">"图7"</b></div>
-<p>所以，我们重点看看这段代码的奥秘。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">return</span> executor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>ms<span class="token punctuation">,</span> <span class="token function">wrapCollection</span><span class="token punctuation">(</span>parameter<span class="token punctuation">)</span><span class="token punctuation">,</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">Executor</span><span class="token punctuation">.</span><span class="token constant">NO_RESULT_HANDLER</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="5-Executor"><a href="#5-Executor" class="headerlink" title="5.Executor"></a>5.Executor</h2><p>先大致了解下Executor的类继承关系。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312112927579.png"><div class="caption"><b class="center-caption">"图7"</b></div><br>所以，我们重点看看这段代码的奥秘。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">return</span> executor<span class="token punctuation">.</span><span class="token function">query</span><span class="token punctuation">(</span>ms<span class="token punctuation">,</span> <span class="token function">wrapCollection</span><span class="token punctuation">(</span>parameter<span class="token punctuation">)</span><span class="token punctuation">,</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">Executor</span><span class="token punctuation">.</span><span class="token constant">NO_RESULT_HANDLER</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>先看BaseExecutor.</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token function">query</span><span class="token punctuation">(</span><span class="token class-name">MappedStatement</span> ms<span class="token punctuation">,</span> <span class="token class-name">Object</span> parameter<span class="token punctuation">,</span> <span class="token class-name">RowBounds</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">ResultHandler</span> resultHandler<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
@@ -1037,7 +1056,6 @@
   <span class="token punctuation">&#125;</span>
   <span class="token keyword">return</span> list<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>我们先看缓存未命中的部分，即queryFromDatabase方法。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//真正访问数据库获取结果的方法</span>
 <span class="token keyword">private</span> <span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span> <span class="token function">queryFromDatabase</span><span class="token punctuation">(</span><span class="token class-name">MappedStatement</span> ms<span class="token punctuation">,</span> <span class="token class-name">Object</span> parameter<span class="token punctuation">,</span> <span class="token class-name">RowBounds</span> rowBounds<span class="token punctuation">,</span> <span class="token class-name">ResultHandler</span> resultHandler<span class="token punctuation">,</span> <span class="token class-name">CacheKey</span> key<span class="token punctuation">,</span> <span class="token class-name">BoundSql</span> boundSql<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
@@ -1055,7 +1073,6 @@
   <span class="token punctuation">&#125;</span>
   <span class="token keyword">return</span> list<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>其最终调用SimpleExecutor的doQuery方法。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token comment">//查询的实现</span>
@@ -1083,17 +1100,9 @@
   statementHandler <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">StatementHandler</span><span class="token punctuation">)</span> interceptorChain<span class="token punctuation">.</span><span class="token function">pluginAll</span><span class="token punctuation">(</span>statementHandler<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token keyword">return</span> statementHandler<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>瞧瞧StatementHandler的小弟们。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114334576.png"><div class="caption"><b class="center-caption">"图8"</b></div>
-<p>总结下StatementHandler是干啥的，以及它的小弟们分别能干啥。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114441395.png"><div class="caption"><b class="center-caption">"图9"</b></div>
-
-<p>再看看prepare干了啥。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java">stmt <span class="token operator">=</span> handler<span class="token punctuation">.</span><span class="token function">prepare</span><span class="token punctuation">(</span>connection<span class="token punctuation">,</span> transaction<span class="token punctuation">.</span><span class="token function">getTimeout</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>主要是BaseStatementHandler干活儿.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+<p>瞧瞧StatementHandler的小弟们。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114334576.png"><div class="caption"><b class="center-caption">"图8"</b></div><br>总结下StatementHandler是干啥的，以及它的小弟们分别能干啥。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114441395.png"><div class="caption"><b class="center-caption">"图9"</b></div></p>
+<p>再看看prepare干了啥。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java">stmt <span class="token operator">=</span> handler<span class="token punctuation">.</span><span class="token function">prepare</span><span class="token punctuation">(</span>connection<span class="token punctuation">,</span> transaction<span class="token punctuation">.</span><span class="token function">getTimeout</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>主要是BaseStatementHandler干活儿.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token comment">//使用模板模式，定义了获取Statement的步骤，其子类实现实例化Statement的具体的方式；</span>
 <span class="token keyword">public</span> <span class="token class-name">Statement</span> <span class="token function">prepare</span><span class="token punctuation">(</span><span class="token class-name">Connection</span> connection<span class="token punctuation">,</span> <span class="token class-name">Integer</span> transactionTimeout<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">SQLException</span> <span class="token punctuation">&#123;</span>
   <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">sql</span><span class="token punctuation">(</span>boundSql<span class="token punctuation">.</span><span class="token function">getSql</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1113,7 +1122,7 @@
     <span class="token function">closeStatement</span><span class="token punctuation">(</span>statement<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ExecutorException</span><span class="token punctuation">(</span><span class="token string">"Error preparing statement.  Cause: "</span> <span class="token operator">+</span> e<span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>  最后执行query方法<br>  <pre class="line-numbers language-java" data-language="java"><code class="language-java">handler<span class="token punctuation">.</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">E</span><span class="token punctuation">></span></span><span class="token function">query</span><span class="token punctuation">(</span>stmt<span class="token punctuation">,</span> resultHandler<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>获得结果集。（这里面有结果集的处理，后续再讲。）</p>
 
                 
@@ -1809,7 +1818,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2072,6 +2081,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

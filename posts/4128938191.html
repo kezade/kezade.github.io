@@ -62,7 +62,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -822,17 +879,14 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
             <div id="articleContent">
                 <h1 id="1-什么是Docker？"><a href="#1-什么是Docker？" class="headerlink" title="1 什么是Docker？"></a>1 什么是Docker？</h1><p>Docker是一款由Go语言编写，遵从Apache2.0协议开源的应用容器引擎，其容器完全使用沙箱机制，相互之间无任何接口。</p>
 <p>Docker可以让开发者打包他们的应用以及依赖包到一个<code>轻量级</code>、<code>可移植</code>的容器中，然后发布到任何流行的 Linux 机器上，也可以实现<code>虚拟化</code>。</p>
-<h1 id="2-主要组成"><a href="#2-主要组成" class="headerlink" title="2 主要组成"></a>2 主要组成</h1><p>先上图，一览下这个牛掰的开源引擎。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Docker-Architecture.jpg"><div class="caption"><b class="center-caption">Docker架构示意图</b></div>
-
+<h1 id="2-主要组成"><a href="#2-主要组成" class="headerlink" title="2 主要组成"></a>2 主要组成</h1><p>先上图，一览下这个牛掰的开源引擎。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Docker-Architecture.jpg"><div class="caption"><b class="center-caption">Docker架构示意图</b></div></p>
 <ul>
-<li>Docker 使用<code>客户端-服务器</code>体系结构(C&#x2F;S)。</li>
+<li>Docker 使用<code>客户端-服务器</code>体系结构(C/S)。</li>
 <li><code>Docker Client</code>与<code>Docker Daemon</code>通信，后者负责构建、运行和分发 Docker 容器的繁重工作。</li>
 <li>Docker Client和Docker Daemon可以在同一系统上运行，也可以将 Docker Client连接到远程 Docker Daemon。</li>
 <li>Docker Client和Docker Daemon使用 <code>REST API</code>、<code>UNIX 套接字</code>或<code>网络接口</code>进行通信。</li>
-<li>另一个 Docker Client是 <code>Docker Compose</code>，它允许您使用由一组容器组成的应用程序。</li>
+<li>另一个 Docker Client是 <code>Docker Compose</code>，它允许您使用由一组容器组成的应用程序。<h2 id="2-1-Docker-Client"><a href="#2-1-Docker-Client" class="headerlink" title="2.1 Docker Client"></a>2.1 Docker Client</h2>Docker Client，即客户端（ docker ），是许多 Docker 用户与 Docker 交互的主要方式。当您使用诸如 <code>docker run</code> 之类的命令时，客户端会将这些命令发送到 <code>dockerd</code> 即Docker Daemon，后者会执行这些命令。该 docker 命令使用 <code>Docker API</code>。</li>
 </ul>
-<h2 id="2-1-Docker-Client"><a href="#2-1-Docker-Client" class="headerlink" title="2.1 Docker Client"></a>2.1 Docker Client</h2><p>Docker Client，即客户端（ docker ），是许多 Docker 用户与 Docker 交互的主要方式。当您使用诸如 <code>docker run</code> 之类的命令时，客户端会将这些命令发送到 <code>dockerd</code> 即Docker Daemon，后者会执行这些命令。该 docker 命令使用 <code>Docker API</code>。</p>
 <p>Docker 客户端可以与多个守护程序进行通信。</p>
 <h2 id="2-2-Docker-Daemon"><a href="#2-2-Docker-Daemon" class="headerlink" title="2.2 Docker Daemon"></a>2.2 Docker Daemon</h2><p>Docker Daemon，守护程序（ dockerd ）侦听 Docker API 请求并管理 Docker 对象，例如映像、容器、网络和卷。</p>
 <p>守护程序还可以与其他守护程序通信以管理 Docker 服务。</p>
@@ -851,7 +905,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 </ul>
 <h1 id="4-优缺点"><a href="#4-优缺点" class="headerlink" title="4 优缺点"></a>4 优缺点</h1><h2 id="4-1-简化程序"><a href="#4-1-简化程序" class="headerlink" title="4.1 简化程序"></a>4.1 简化程序</h2><p>开发者只需将自己的应用打包至可移植的容器当中，发布出去，其他使用者便可无差别的获取并使用，简化了开发流程。这种虚拟化方式，大大减少了沟通成本，更加方便开发者管理应用。</p>
 <h2 id="4-2-节省开支"><a href="#4-2-节省开支" class="headerlink" title="4.2 节省开支"></a>4.2 节省开支</h2><p>传统通过服务器一步一步按照文档部署的历史已经渐渐退出舞台，运维或开发人员无需太多软件、插件安装来完善某个应用的部署环境，简单通过命令或操作台即可完成与开发者同样的应用部署，加上现有的云计算，既合理又充分利用了有限的资源，无需太多考虑其他硬件管理问题，改变了过去高性能必然高价格的思维定势，同时也改变了虚拟化的方式。</p>
-<h2 id="4-3-一致性"><a href="#4-3-一致性" class="headerlink" title="4.3 一致性"></a>4.3 一致性</h2><p>正如上节所说，使用者可以得到开发者同样的部署过程和应用运行环境，基本不会再出现“我机子上运行没问题，为何你那里就不行？”类似这种灵魂质问的问题。非常契合Docker的理念：一处构建，处处运行，也非常适合CI&#x2F;CD，简化了开发流程。</p>
+<h2 id="4-3-一致性"><a href="#4-3-一致性" class="headerlink" title="4.3 一致性"></a>4.3 一致性</h2><p>正如上节所说，使用者可以得到开发者同样的部署过程和应用运行环境，基本不会再出现“我机子上运行没问题，为何你那里就不行？”类似这种灵魂质问的问题。非常契合Docker的理念：一处构建，处处运行，也非常适合CI/CD，简化了开发流程。</p>
 <h2 id="4-4-隔离性"><a href="#4-4-隔离性" class="headerlink" title="4.4 隔离性"></a>4.4 隔离性</h2><p>正如本文开头介绍docker所说的，docker容器完全使用沙箱机制，相互之间并无任何接口，所以可以起到隔离作用，比如这个项目需要MySQL5.2，那个项目需要用到MySQL5.7，甚至8.0+的版本，如果按照传统的物理机器部署方式，估计运维要疯了，如果服务器虚拟机不够，真的又要浪费一笔不小的运维开支，增加了企业成本。</p>
 <p>另外，版本隔离也是能够通过docker简单实现且更加便利快捷，特别的，不同环境的应用隔离，使得开发、测试、预生产、生产环境互不影响，且可以实现无差别切换</p>
 <h2 id="4-5-更轻松的迁移"><a href="#4-5-更轻松的迁移" class="headerlink" title="4.5 更轻松的迁移"></a>4.5 更轻松的迁移</h2><p>由于Docker确保了执行环境的一致性，使得应用的迁移更加容易.</p>
@@ -860,8 +914,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 <h2 id="4-6-镜像问题"><a href="#4-6-镜像问题" class="headerlink" title="4.6 镜像问题"></a>4.6 镜像问题</h2><p>目前docker镜像并没有统一的标准，造成很多诸如版本混乱，功能阉割，这里不是批评多样性的问题，主要是指OS，很多工具要么被阉割，要么库包不全。</p>
 <p>例如调试的时候需要 curl,wget,telnet,nslookup 等工具在镜像中没有。甚至 ps, top, free, find, netstat, ifconfig 命令都没有。</p>
 <h2 id="4-7-安装位置不统一"><a href="#4-7-安装位置不统一" class="headerlink" title="4.7 安装位置不统一"></a>4.7 安装位置不统一</h2><p>学习过Linux的都知道，文件管理是多么重要，对于docker而言，有的时候如果不看docker file，你很难知道其安装目录究竟在哪里。</p>
-<p>另外引用下之前知乎网友对docker的缺点总结，仅此作为参考，总之，docker还不是完美的，完美的也不会总是存在。看你怎么用？用在什么地方？一句话，合适才是最好的。</p>
-<pre class="line-numbers language-none"><code class="language-none">Docker并不是全能的，设计之初也不是KVM之类虚拟化手段的替代品，简单总结几点：
+<p>另外引用下之前知乎网友对docker的缺点总结，仅此作为参考，总之，docker还不是完美的，完美的也不会总是存在。看你怎么用？用在什么地方？一句话，合适才是最好的。<br><pre class="line-numbers language-none"><code class="language-none">Docker并不是全能的，设计之初也不是KVM之类虚拟化手段的替代品，简单总结几点：
 
 1）Docker是基于Linux 64bit的，无法在32bit的linux&#x2F;Windows&#x2F;unix环境下使用。
 
@@ -873,7 +926,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 
 5）docker对disk的管理比较有限。
 
-6）container随着用户进程的停止而销毁，container中的log等用户数据不便收集。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+6）container随着用户进程的停止而销毁，container中的log等用户数据不便收集。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 
                 
             </div>
@@ -1551,7 +1604,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1569,7 +1622,7 @@ Docker可以让开发者打包他们的应用以及依赖包到一个轻量级�
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1832,6 +1885,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

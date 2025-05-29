@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -839,17 +896,14 @@
 <li>onRefresh ⑨ 给子类扩展初始化其他Bean，springboot 中用来做内嵌 tomcat 启动</li>
 <li>registerListeners ⑩ 在所有bean中查找监听 bean，然后注册到广播器中</li>
 <li>finishBeanFactoryInitialization ⑪ 初始化所有的单例Bean、ioc、BeanPostProcessor的执行、Aop入口</li>
-<li>finishRefresh ⑫ 完成刷新过程，发布相应的事件</li>
+<li>finishRefresh ⑫ 完成刷新过程，发布相应的事件<h1 id="一、invokeBeanFactoryPostProcessors"><a href="#一、invokeBeanFactoryPostProcessors" class="headerlink" title="一、invokeBeanFactoryPostProcessors()"></a>一、invokeBeanFactoryPostProcessors()</h1><h2 id="1-作用"><a href="#1-作用" class="headerlink" title="1.作用"></a>1.作用</h2>invokeBeanFactoryPostProcessors方法，负责激活各种 BeanFactory 处理器，以及两个核心接口的调用：</li>
 </ul>
 </li>
 </ul>
-<h1 id="一、invokeBeanFactoryPostProcessors"><a href="#一、invokeBeanFactoryPostProcessors" class="headerlink" title="一、invokeBeanFactoryPostProcessors()"></a>一、invokeBeanFactoryPostProcessors()</h1><h2 id="1-作用"><a href="#1-作用" class="headerlink" title="1.作用"></a>1.作用</h2><p>invokeBeanFactoryPostProcessors方法，负责激活各种 BeanFactory 处理器，以及两个核心接口的调用：</p>
 <ul>
 <li><p>BeanDefinitionRegistryPostProcessor<br>实际完成了对其实现类中postProcessBeanDefinitionRegistry方法的调用，完成对BeanDefinition的新增、修改</p>
 </li>
 <li><p>BeanFactoryPostProcessor<br>实际完成了对其实现类中postProcessBeanFactory方法的调用；</p>
-</li>
-</ul>
 <h2 id="2-源码跟踪"><a href="#2-源码跟踪" class="headerlink" title="2.源码跟踪"></a>2.源码跟踪</h2><h3 id="2-1-AbstractApplicationContext-invokeBeanFactoryPostProcessors"><a href="#2-1-AbstractApplicationContext-invokeBeanFactoryPostProcessors" class="headerlink" title="2.1.AbstractApplicationContext.invokeBeanFactoryPostProcessors()"></a>2.1.AbstractApplicationContext.invokeBeanFactoryPostProcessors()</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//AbstractApplicationContext</span>
 <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">invokeBeanFactoryPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">ConfigurableListableBeanFactory</span> beanFactory<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//委派给PostProcessorRegistrationDelegate去处理</span>
@@ -862,7 +916,8 @@
 		beanFactory<span class="token punctuation">.</span><span class="token function">setTempClassLoader</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ContextTypeMatchClassLoader</span><span class="token punctuation">(</span>beanFactory<span class="token punctuation">.</span><span class="token function">getBeanClassLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+</li>
+</ul>
 <h3 id="2-2-PostProcessorRegistrationDelegate-invokeBeanFactoryPostProcessors"><a href="#2-2-PostProcessorRegistrationDelegate-invokeBeanFactoryPostProcessors" class="headerlink" title="2.2.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors()"></a>2.2.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors()</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">invokeBeanFactoryPostProcessors</span><span class="token punctuation">(</span><span class="token class-name">ConfigurableListableBeanFactory</span> beanFactory<span class="token punctuation">,</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">BeanFactoryPostProcessor</span><span class="token punctuation">></span></span> beanFactoryPostProcessors<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">// Invoke BeanDefinitionRegistryPostProcessors first, if any.</span>
 	<span class="token class-name">Set</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">></span></span> processedBeans <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HashSet</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1007,26 +1062,21 @@
 	<span class="token comment">// modified the original metadata, e.g. replacing placeholders in values...</span>
 	beanFactory<span class="token punctuation">.</span><span class="token function">clearMetadataCache</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="2-3-invokeBeanDefinitionRegistryPostProcessors"><a href="#2-3-invokeBeanDefinitionRegistryPostProcessors" class="headerlink" title="2.3.invokeBeanDefinitionRegistryPostProcessors()"></a>2.3.invokeBeanDefinitionRegistryPostProcessors()</h3><p>调用BeanDefinitionRegistryPostProcessor的postProcessBeanDefinitionRegistry()方法，完成对BeanDefinition的新增、修改</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">invokeBeanDefinitionRegistryPostProcessors</span><span class="token punctuation">(</span>
+<h3 id="2-3-invokeBeanDefinitionRegistryPostProcessors"><a href="#2-3-invokeBeanDefinitionRegistryPostProcessors" class="headerlink" title="2.3.invokeBeanDefinitionRegistryPostProcessors()"></a>2.3.invokeBeanDefinitionRegistryPostProcessors()</h3><p>调用BeanDefinitionRegistryPostProcessor的postProcessBeanDefinitionRegistry()方法，完成对BeanDefinition的新增、修改<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">invokeBeanDefinitionRegistryPostProcessors</span><span class="token punctuation">(</span>
 		<span class="token class-name">Collection</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">BeanDefinitionRegistryPostProcessor</span><span class="token punctuation">></span></span> postProcessors<span class="token punctuation">,</span> <span class="token class-name">BeanDefinitionRegistry</span> registry<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 
 	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">BeanDefinitionRegistryPostProcessor</span> postProcessor <span class="token operator">:</span> postProcessors<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		postProcessor<span class="token punctuation">.</span><span class="token function">postProcessBeanDefinitionRegistry</span><span class="token punctuation">(</span>registry<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="2-4-invokeBeanFactoryPostProcessors"><a href="#2-4-invokeBeanFactoryPostProcessors" class="headerlink" title="2.4.invokeBeanFactoryPostProcessors()"></a>2.4.invokeBeanFactoryPostProcessors()</h3><p>调用BeanFactoryPostProcessor的postProcessBeanFactory()方法，完成对BeanFactory的修改</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">invokeBeanFactoryPostProcessors</span><span class="token punctuation">(</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h3 id="2-4-invokeBeanFactoryPostProcessors"><a href="#2-4-invokeBeanFactoryPostProcessors" class="headerlink" title="2.4.invokeBeanFactoryPostProcessors()"></a>2.4.invokeBeanFactoryPostProcessors()</h3><p>调用BeanFactoryPostProcessor的postProcessBeanFactory()方法，完成对BeanFactory的修改<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">invokeBeanFactoryPostProcessors</span><span class="token punctuation">(</span>
 		<span class="token class-name">Collection</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token operator">?</span> <span class="token keyword">extends</span> <span class="token class-name">BeanFactoryPostProcessor</span><span class="token punctuation">></span></span> postProcessors<span class="token punctuation">,</span> <span class="token class-name">ConfigurableListableBeanFactory</span> beanFactory<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 
 	<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">BeanFactoryPostProcessor</span> postProcessor <span class="token operator">:</span> postProcessors<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 		postProcessor<span class="token punctuation">.</span><span class="token function">postProcessBeanFactory</span><span class="token punctuation">(</span>beanFactory<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="二、registerBeanPostProcessors"><a href="#二、registerBeanPostProcessors" class="headerlink" title="二、registerBeanPostProcessors()"></a>二、registerBeanPostProcessors()</h1><p>registerBeanPostProcessors方法主要把实现了BeanPostProcessor接口的类实例化，并且加入到BeanFactory中</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">registerBeanPostProcessors</span><span class="token punctuation">(</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="二、registerBeanPostProcessors"><a href="#二、registerBeanPostProcessors" class="headerlink" title="二、registerBeanPostProcessors()"></a>二、registerBeanPostProcessors()</h1><p>registerBeanPostProcessors方法主要把实现了BeanPostProcessor接口的类实例化，并且加入到BeanFactory中<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">registerBeanPostProcessors</span><span class="token punctuation">(</span>
 		<span class="token class-name">ConfigurableListableBeanFactory</span> beanFactory<span class="token punctuation">,</span> <span class="token class-name">AbstractApplicationContext</span> applicationContext<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//拿到工程里面所有实现了BeanPostProcessor接口的类，获取到BeanDefinition的名称</span>
 	<span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> postProcessorNames <span class="token operator">=</span> beanFactory<span class="token punctuation">.</span><span class="token function">getBeanNamesForType</span><span class="token punctuation">(</span><span class="token class-name">BeanPostProcessor</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1102,10 +1152,8 @@
 	<span class="token comment">// Re-register post-processor for detecting inner beans as ApplicationListeners,</span>
 	<span class="token comment">// moving it to the end of the processor chain (for picking up proxies etc).</span>
 	beanFactory<span class="token punctuation">.</span><span class="token function">addBeanPostProcessor</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ApplicationListenerDetector</span><span class="token punctuation">(</span>applicationContext<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>进入registerBeanPostProcessors()方法，注册过程</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>进入registerBeanPostProcessors()方法，注册过程<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * 注册当前的 BeanPostProcessor
 */</span>
 <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">registerBeanPostProcessors</span><span class="token punctuation">(</span>
@@ -1115,16 +1163,12 @@
 		<span class="token comment">// 添加到List&lt;BeanPostProcessor> beanPostProcessors</span>
 		beanFactory<span class="token punctuation">.</span><span class="token function">addBeanPostProcessor</span><span class="token punctuation">(</span>postProcessor<span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>invokeBeanFactoryPostProcessors和registerBeanPostProcessors两个方法的处理流程基本一致，都分别对实现接口的类实例化调用：</p>
 <ul>
 <li>首先对实现 PriorityOrdered 接口的 beanPostProcessors 排序调用</li>
 <li>其次对实现 Ordered 接口的 beanPostProcessors 排序调用</li>
-<li>最后对没有实现排序接口的 beanPostProcessors 调用</li>
-</ul>
-<h2 id="1-BeanPostProcessor"><a href="#1-BeanPostProcessor" class="headerlink" title="1.BeanPostProcessor"></a>1.BeanPostProcessor</h2><p>BeanPostProcessor有两个方法，</p>
-<ul>
+<li>最后对没有实现排序接口的 beanPostProcessors 调用<h2 id="1-BeanPostProcessor"><a href="#1-BeanPostProcessor" class="headerlink" title="1.BeanPostProcessor"></a>1.BeanPostProcessor</h2>BeanPostProcessor有两个方法，</li>
 <li>postProcessBeforeInitialization</li>
 <li>postProcessAfterInitialization。</li>
 </ul>
@@ -1164,14 +1208,11 @@
 	<span class="token punctuation">&#125;</span>
 	<span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>而这个SmartInstantiationAwareBeanPostProcessor智能实例化Bean的后处理器，主要提供了三个方法：</p>
 <ul>
 <li>predictBeanType：预测从此处理器的postProcessBeforeInstantiation回调最终返回的bean的类型。</li>
 <li>determineCandidateConstructors：确定合适的实例化Bean的构造函数。</li>
-<li>getEarlyBeanReference：获取提早暴露的Bean的引用，提早暴露的Bean就是只完成了实例化，还未完成属性赋值和初始化的Bean。</li>
-</ul>
-<h3 id="1-2-收集-Resource-Autowired-Value-PostConstruct，-PreDestroy-注解的方法和属性埋点"><a href="#1-2-收集-Resource-Autowired-Value-PostConstruct，-PreDestroy-注解的方法和属性埋点" class="headerlink" title="1.2.收集@Resource@Autowired@Value@PostConstruct，@PreDestroy 注解的方法和属性埋点"></a>1.2.收集@Resource@Autowired@Value@PostConstruct，@PreDestroy 注解的方法和属性埋点</h3><ul>
+<li>getEarlyBeanReference：获取提早暴露的Bean的引用，提早暴露的Bean就是只完成了实例化，还未完成属性赋值和初始化的Bean。<h3 id="1-2-收集-Resource-Autowired-Value-PostConstruct，-PreDestroy-注解的方法和属性埋点"><a href="#1-2-收集-Resource-Autowired-Value-PostConstruct，-PreDestroy-注解的方法和属性埋点" class="headerlink" title="1.2.收集@Resource@Autowired@Value@PostConstruct，@PreDestroy 注解的方法和属性埋点"></a>1.2.收集@Resource@Autowired@Value@PostConstruct，@PreDestroy 注解的方法和属性埋点</h3></li>
 <li>过滤的接口类型是：MergedBeanDefinitionPostProcessor</li>
 <li>调用的方法是：postProcessMergedBeanDefinition</li>
 </ul>
@@ -1223,7 +1264,6 @@
 	<span class="token punctuation">&#125;</span>
 	<span class="token keyword">return</span> exposedObject<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="1-4-阻止依赖注入埋点"><a href="#1-4-阻止依赖注入埋点" class="headerlink" title="1.4.阻止依赖注入埋点"></a>1.4.阻止依赖注入埋点</h3><ul>
 <li>过滤的接口类型是：InstantiationAwareBeanPostProcessor</li>
 <li>调用的方法是：postProcessAfterInstantiation</li>
@@ -1244,7 +1284,7 @@
 		<span class="token punctuation">&#125;</span>
 <span class="token comment">//......省略部分代码</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="1-5-IOC-x2F-DI-依赖注入埋点"><a href="#1-5-IOC-x2F-DI-依赖注入埋点" class="headerlink" title="1.5.IOC&#x2F;DI 依赖注入埋点"></a>1.5.IOC&#x2F;DI 依赖注入埋点</h3><ul>
+<h3 id="1-5-IOC-DI-依赖注入埋点"><a href="#1-5-IOC-DI-依赖注入埋点" class="headerlink" title="1.5.IOC/DI 依赖注入埋点"></a>1.5.IOC/DI 依赖注入埋点</h3><ul>
 <li>过滤的接口类型是：InstantiationAwareBeanPostProcessor</li>
 <li>调用的方法是：postProcessProperties(新版本)</li>
 </ul>
@@ -1966,7 +2006,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2229,6 +2269,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

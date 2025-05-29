@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -827,7 +884,7 @@
 <blockquote>
 <p>在数据库表设计上有个很重要的设计准则，称为<code>范式设计</code>。</p>
 </blockquote>
-<h3 id="1-1-1-范式设计"><a href="#1-1-1-范式设计" class="headerlink" title="1.1.1 范式设计"></a>1.1.1 范式设计</h3><p>什么是范式?<br>范式来自英文 <code>Normal Form</code>，简称<code> NF</code>。要想设计一个好的关系，必须使关系满足<code>一定的约束条件</code>，此约束已经形成了规范，分成几个等级，一级比一级要求得严格。满足这些规范的数据库是简洁的、结构明晰的，同时，不会发生插入 (insert)、删除(delete)和更新(update)操作异常。反之则是乱七八糟，不仅给数据库的编程人员制造麻烦，而且面目可憎，可能存储了大量不需要的冗余信息。</p>
+<h3 id="1-1-1-范式设计"><a href="#1-1-1-范式设计" class="headerlink" title="1.1.1 范式设计"></a>1.1.1 范式设计</h3><p>什么是范式?<br>范式来自英文 <code>Normal Form</code>，简称<code>NF</code>。要想设计一个好的关系，必须使关系满足<code>一定的约束条件</code>，此约束已经形成了规范，分成几个等级，一级比一级要求得严格。满足这些规范的数据库是简洁的、结构明晰的，同时，不会发生插入 (insert)、删除(delete)和更新(update)操作异常。反之则是乱七八糟，不仅给数据库的编程人员制造麻烦，而且面目可憎，可能存储了大量不需要的冗余信息。</p>
 <p>目前关系数据库有<code>六种范式</code>：</p>
 <ul>
 <li>第一范式(1NF)</li>
@@ -840,6 +897,7 @@
 <p>满足最低要求的范式是第一范式(1NF)。在第一范式的基础上进一步满足更多规范要求的称为第二范式(2NF)，其余范式以次类推。一般来说，数据库只需满足<code>第三范式(3NF)</code>就行了。</p>
 <h4 id="1-1-1-1-1NF"><a href="#1-1-1-1-1NF" class="headerlink" title="1.1.1.1 1NF"></a>1.1.1.1 1NF</h4><p>定义：所有属性都不可再分，即数据项不可分。</p>
 <p>第一范式强调数据表的<code>原子性</code>，是其他范式的基础。例如下表：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -847,12 +905,16 @@
 <th>name-age</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>张三-23</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p><code>name-age</code> 列具有两个属性，一个 <code>name</code>，一个 <code>age</code> ，不符合第一范式，把它拆分成两列：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -861,12 +923,15 @@
 <th>age</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>张三</td>
 <td>23</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>上表就符合第一范式关系。但日常生活中仅用第一范式来规范表格是远远不够的，依然会存在<code>数据冗余过大</code>、<code>删除异常</code>、<code>插入异常</code>、<code>修改异常</code>的问题，此时就需要引入<code>规范化</code>概念，将其转化为<code>更标准化</code>的表格，<code>减少数据依赖</code>。</p>
 <h4 id="1-1-1-2-2NF"><a href="#1-1-1-2-2NF" class="headerlink" title="1.1.1.2 2NF"></a>1.1.1.2 2NF</h4><p>第二范式(2NF)是在第一范式(1NF)的基础上建立起来的，即满足第二范式(2NF)必须先满足第一范式(1NF)。</p>
 <p>总之，2NF必须满足：</p>
@@ -879,6 +944,7 @@
 <p>所谓<code>完全依赖</code>是指不能存在仅依赖主关键字一部分的属性。即不能存在部分依赖于主关键字的属性。</p>
 </blockquote>
 <p>比如有两张表：<code>订单表</code>，<code>产品表</code></p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -887,7 +953,8 @@
 <th>产品ID</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>2019-01-01</td>
 <td>3</td>
@@ -897,7 +964,10 @@
 <td>2019-01-01</td>
 <td>4</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -905,7 +975,8 @@
 <th>产品名称</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2</td>
 <td>娃娃</td>
 </tr>
@@ -917,8 +988,11 @@
 <td>4</td>
 <td>乐高911</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>一个订单有多个产品，所以订单的主键为【订单 ID】和【产品 ID】组成的<code>联合主键</code>，这样 2 个组件不符合第二范式，而且<code>产品 ID</code> 和<code>订单 ID</code> <code>没有强关联</code>， 故，把订单表进行拆分为<code>订单表</code>与<code>订单与商品的中间表</code>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -926,11 +1000,15 @@
 <th>订单时间</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>2019-01-01</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -939,7 +1017,8 @@
 <th>产品ID</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>1</td>
 <td>3</td>
@@ -949,7 +1028,10 @@
 <td>1</td>
 <td>4</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -957,7 +1039,8 @@
 <th>产品名称</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2</td>
 <td>娃娃</td>
 </tr>
@@ -969,8 +1052,11 @@
 <td>4</td>
 <td>乐高911</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h4 id="1-1-1-3-3NF"><a href="#1-1-1-3-3NF" class="headerlink" title="1.1.1.3 3NF"></a>1.1.1.3 3NF</h4><p>3NF是在2NF的基础上<code>消除</code>了非主属性对主属性的<code>传递依赖</code>。即<strong>每一个非主属性既不部分依赖于也不传递依赖于业务主键</strong>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -980,7 +1066,8 @@
 <th>产品名称</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>2019-01-01</td>
 <td>3</td>
@@ -992,7 +1079,10 @@
 <td>4</td>
 <td>乐高911</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1000,7 +1090,8 @@
 <th>产品名称</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>2</td>
 <td>娃娃</td>
 </tr>
@@ -1012,7 +1103,9 @@
 <td>4</td>
 <td>乐高911</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>其中</p>
 <ul>
 <li><code>产品 ID</code> 与<code>订单ID</code>存在关联关系；</li>
@@ -1030,6 +1123,7 @@
 </ul>
 <h3 id="1-1-2-反范式设计"><a href="#1-1-2-反范式设计" class="headerlink" title="1.1.2 反范式设计"></a>1.1.2 反范式设计</h3><p>定义：为了性能和读取效率得考虑而适当得对数据库设计范式得要求进行违反。允许存在<code>少量冗余</code>，换句话来说反范式化就是<strong>使用空间来换取时间</strong>。</p>
 <p>下面是<code>范式设计</code>的商品信息表：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1041,7 +1135,8 @@
 <th>作者</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>星空</td>
 <td>现代出版社</td>
@@ -1049,8 +1144,11 @@
 <td>有阴影的地方，必定有光。</td>
 <td>几米</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>分类信息：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1058,7 +1156,8 @@
 <th>分类描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>漫画</td>
 <td>xxx</td>
 </tr>
@@ -1066,8 +1165,11 @@
 <td>小说</td>
 <td>xxxx</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>商品-分类：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1075,12 +1177,16 @@
 <th>分类名称</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>星空</td>
 <td>漫画</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>而实际中，商品信息和分类信息经常一起查询，所以把分类信息也放到商品表里面，冗余存放。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1093,7 +1199,8 @@
 <th>作者</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>星空</td>
 <td>漫画</td>
@@ -1102,7 +1209,9 @@
 <td>有阴影的地方，必定有光。</td>
 <td>几米</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h4 id="1-1-2-1-实际工作中的反范式实现"><a href="#1-1-2-1-实际工作中的反范式实现" class="headerlink" title="1.1.2.1 实际工作中的反范式实现"></a>1.1.2.1 实际工作中的反范式实现</h4><ul>
 <li>缓存和汇总</li>
 <li>计数器表</li>
@@ -1209,7 +1318,8 @@
 <li>还可以使用合成的(Synthetic)索引来提高大文本字段(BLOB 或TEXT)的查询性能。</li>
 </ul>
 </blockquote>
-<h3 id="2-2-4-日期和时间类型"><a href="#2-2-4-日期和时间类型" class="headerlink" title="2.2.4 日期和时间类型"></a>2.2.4 日期和时间类型</h3><table>
+<h3 id="2-2-4-日期和时间类型"><a href="#2-2-4-日期和时间类型" class="headerlink" title="2.2.4 日期和时间类型"></a>2.2.4 日期和时间类型</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>日期类型</th>
@@ -1217,7 +1327,8 @@
 <th>表示范围</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>DATETIME</td>
 <td>8</td>
 <td>1000-01-01 00:00:00 ~ 9999-12-31 23:59:59</td>
@@ -1242,7 +1353,9 @@
 <td>3</td>
 <td>-838:59:59 ~ 838:59:59</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h1 id="3-工程实践"><a href="#3-工程实践" class="headerlink" title="3 工程实践"></a>3 工程实践</h1><ul>
 <li>数据库、表、字段的命名要遵守可读性原则，尽可能少使用或者不使用缩写</li>
 <li>表名、字段名必须使用小写字母或数字，禁止出现数字开头，禁止两个下划线中间只出现数字</li>
@@ -1935,7 +2048,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1953,7 +2066,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2216,6 +2329,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -825,9 +882,7 @@
             <div id="articleContent">
                 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><p>若Broker按照主从方式部署，则需要对主节点的数据进行备份。在生产上，为了实现消息的高可用，避免Broker发生<code>单点故障</code>引起存储在Broker上的消息无法及时消费， RocketMQ引入Broker<code>主备机制</code>，即：消息消费到达主服务器后需要将消息同步到消息从服务器，如果主服务器Broker宕机后，消息消费者可以从从服务器拉取消息。</p>
 <p>核心类：<br><code>HAService</code>：主从同步核心实现类，包括：高可用主监听从的连接、主从同步通知；<br><code>HAConnection</code>：主服务器高可用连接对象的封装，高可用主节点网络写、高可用主节点网络读；<br><code>HAClient</code>：主要是从节点上起作用，从节点发起连接请求，处理同步内容等。</p>
-<p>整体流程：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flow.jpg"><div class="caption"><b class="center-caption">主从同步整体流程</b></div>
-
+<p>整体流程：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flow.jpg"><div class="caption"><b class="center-caption">主从同步整体流程</b></div></p>
 <h1 id="2-同步方式"><a href="#2-同步方式" class="headerlink" title="2 同步方式"></a>2 同步方式</h1><ul>
 <li>主从同步复制：生产者发送的每一条消息都<code>至少同步复制到一个slave</code> 后才返回告诉生产者成功，即“同步双写”；</li>
 <li>主从异步复制：生产者发送的每一条消息只要写入master 就返回告诉生产者成功，然后再“异步复制”到slave。</li>
@@ -854,7 +909,6 @@
 <span class="token comment">#从节点</span>
 <span class="token assign-left variable">brokerRole</span><span class="token operator">=</span>SLAVE
 <span class="token assign-left variable">flushDiskType</span><span class="token operator">=</span>ASYNC_FLUSH<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-2-HAService初始化与启动"><a href="#4-2-HAService初始化与启动" class="headerlink" title="4.2 HAService初始化与启动"></a>4.2 HAService初始化与启动</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMessageStore</span> <span class="token keyword">implements</span> <span class="token class-name">MessageStore</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">DefaultMessageStore</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageStoreConfig</span> messageStoreConfig<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">BrokerStatsManager</span> brokerStatsManager<span class="token punctuation">,</span>
                                <span class="token keyword">final</span> <span class="token class-name">MessageArrivingListener</span> messageArrivingListener<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">BrokerConfig</span> brokerConfig<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
@@ -878,14 +932,12 @@
         <span class="token comment">// ...省略</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="4-2-1-实例化"><a href="#4-2-1-实例化" class="headerlink" title="4.2.1 实例化"></a>4.2.1 实例化</h3><p>点进去<code>HAService</code>，可以看看实例化了哪些东西：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">HAService</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">DefaultMessageStore</span> defaultMessageStore<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
+<h3 id="4-2-1-实例化"><a href="#4-2-1-实例化" class="headerlink" title="4.2.1 实例化"></a>4.2.1 实例化</h3><p>点进去<code>HAService</code>，可以看看实例化了哪些东西：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">HAService</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">DefaultMessageStore</span> defaultMessageStore<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore <span class="token operator">=</span> defaultMessageStore<span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>acceptSocketService <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">AcceptSocketService</span><span class="token punctuation">(</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getHaListenPort</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>groupTransferService <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">GroupTransferService</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>haClient <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HAClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其中，</p>
 <ul>
 <li><code>AcceptSocketService</code>：主Broker接收从Broker的连接事件；</li>
@@ -904,7 +956,6 @@
         <span class="token comment">// 启动从Broker发送心跳到主Broker</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>haClient<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>在<code>HAService</code>的构造函数中，创建了<code>AcceptSocketService</code>、<code>GroupTransferService</code>和<code>HAClient</code>，在<code>start()</code>方法中主要做了如下几件事：</p>
 <ul>
 <li>调用<code>AcceptSocketService</code>的<code>beginAccept</code>方法，这一步主要是进行端口绑定，在端口上监听从节点的连接请求（可以看做是运行在<code>主节点</code>的）;</li>
@@ -912,8 +963,7 @@
 <li>调用<code>GroupTransferService</code>的<code>start</code>方法，主要用于在主从同步的时候，等待数据传输完毕（可以看做是运行在<code>主节点</code>的）;</li>
 <li>调用<code>HAClient</code>的<code>start</code>方法启动，里面与<code>主节点</code>建立连接，向master汇报<code>主从同步进度</code>并<code>存储</code>master发送过来的同步数据（可以看做是运行在<code>从节点</code>的）;</li>
 </ul>
-<h4 id="4-2-2-1-监听从节点连接请求"><a href="#4-2-2-1-监听从节点连接请求" class="headerlink" title="4.2.2.1 监听从节点连接请求"></a>4.2.2.1 监听从节点连接请求</h4><p><code>AcceptSocketService</code>的<code>beginAccept()</code>方法里面首先获取了<code>ServerSocketChannel</code>，然后进行<code>端口绑定</code>，并在selector上面注册了<code>OP_ACCEPT事件</code>的监听，监听从节点的连接请求：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">beginAccept</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
+<h4 id="4-2-2-1-监听从节点连接请求"><a href="#4-2-2-1-监听从节点连接请求" class="headerlink" title="4.2.2.1 监听从节点连接请求"></a>4.2.2.1 监听从节点连接请求</h4><p><code>AcceptSocketService</code>的<code>beginAccept()</code>方法里面首先获取了<code>ServerSocketChannel</code>，然后进行<code>端口绑定</code>，并在selector上面注册了<code>OP_ACCEPT事件</code>的监听，监听从节点的连接请求：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">beginAccept</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 创建ServerSocketChannel</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>serverSocketChannel <span class="token operator">=</span> <span class="token class-name">ServerSocketChannel</span><span class="token punctuation">.</span><span class="token keyword">open</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token comment">// 获取selector</span>
@@ -926,8 +976,7 @@
     <span class="token keyword">this</span><span class="token punctuation">.</span>serverSocketChannel<span class="token punctuation">.</span><span class="token function">configureBlocking</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token comment">// 注册OP_ACCEPT连接事件的监听</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>serverSocketChannel<span class="token punctuation">.</span><span class="token function">register</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>selector<span class="token punctuation">,</span> <span class="token class-name">SelectionKey</span><span class="token punctuation">.</span><span class="token constant">OP_ACCEPT</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h4 id="4-2-2-2-处理从节点连接请求"><a href="#4-2-2-2-处理从节点连接请求" class="headerlink" title="4.2.2.2 处理从节点连接请求"></a>4.2.2.2 处理从节点连接请求</h4><p><code>AcceptSocketService</code>的<code>run()</code>方法中，对监听到的<code>连接请求</code>进行了处理，处理逻辑大致如下：</p>
 <ul>
 <li>从selector中获取到监听到的事件；</li>
@@ -977,10 +1026,8 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h4 id="4-2-2-3-等待主从复制结束"><a href="#4-2-2-3-等待主从复制结束" class="headerlink" title="4.2.2.3 等待主从复制结束"></a>4.2.2.3 等待主从复制结束</h4><p><code>GroupTransferService</code>的<code>run</code>方法主要是为了<strong>在进行主从数据同步的时候，等待从节点数据同步完毕</strong>。</p>
-<p>在运行时首先会调用<code>waitForRunning</code>进行等待，因为此时可能还<code>没有开始主从同步</code>，所以先进行等待，之后如果有同步请求，会唤醒该线程，然后调用<code>doWaitTransfer</code>方法等待数据同步完成：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
+<p>在运行时首先会调用<code>waitForRunning</code>进行等待，因为此时可能还<code>没有开始主从同步</code>，所以先进行等待，之后如果有同步请求，会唤醒该线程，然后调用<code>doWaitTransfer</code>方法等待数据同步完成：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">class</span> <span class="token class-name">GroupTransferService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service started"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -998,12 +1045,10 @@
             log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>那如何判断有数据需要同步的？</p>
 <p>在前面章节<a href="/posts/3381242121.html" title="【RocketMQ学习】9.源码之Store">【RocketMQ学习】9.源码之Store</a>中，消息落地时，主Broker会调用<code>submitReplicaRequest()</code>方法进行消息的同步。</p>
-<p>调用路径为：<code>DefaultMessageStore#asyncPutMessage()</code>、<code>CommitLog#asyncPutMessage()</code>、<code>CommitLog#submitReplicaRequest()</code>.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//CommitLog</span>
+<p>调用路径为：<code>DefaultMessageStore#asyncPutMessage()</code>、<code>CommitLog#asyncPutMessage()</code>、<code>CommitLog#submitReplicaRequest()</code>.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//CommitLog</span>
 <span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">></span></span> <span class="token function">submitReplicaRequest</span><span class="token punctuation">(</span><span class="token class-name">AppendMessageResult</span> result<span class="token punctuation">,</span> <span class="token class-name">MessageExt</span> messageExt<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//判断当前Broker的角色是否是SYNC_MASTER</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token class-name">BrokerRole</span><span class="token punctuation">.</span><span class="token constant">SYNC_MASTER</span> <span class="token operator">==</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getBrokerRole</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1025,8 +1070,7 @@
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> <span class="token class-name">CompletableFuture</span><span class="token punctuation">.</span><span class="token function">completedFuture</span><span class="token punctuation">(</span><span class="token class-name">PutMessageStatus</span><span class="token punctuation">.</span><span class="token constant">PUT_OK</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>所以，总结起来什么时候才会发起数据同步，有如下几个步骤，当消息被写入到CommitLog以后：</p>
 <ul>
 <li>首先判定是否为主节点；</li>
@@ -1063,7 +1107,6 @@
                 <span class="token punctuation">&#125;</span>
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>在<code>doWaitTransfer</code>方法中，会判断CommitLog提交请求集合requestsRead是否为空，如果不为空，表示有消息写入了CommitLog，主节点需要等待将数据传输给从节点：</p>
 <ul>
 <li><code>push2SlaveMaxOffset</code>记录了<strong>从节点已经同步的消息偏移量</strong>，判断push2SlaveMaxOffset是否大于本次CommitLog提交的偏移量(也就是请求中设置的偏移量)；</li>
@@ -1117,7 +1160,6 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="4-3-1-连接主节点"><a href="#4-3-1-连接主节点" class="headerlink" title="4.3.1 连接主节点"></a>4.3.1 连接主节点</h3><p><code>connectMaster方法</code>中会获取主节点的地址，并转换为<code>SocketAddress对象</code>，然后向主节点请求建立连接，并在selector注册<code>OP_READ</code>可读事件监听.</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">class</span> <span class="token class-name">HAClient</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
@@ -1149,7 +1191,6 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="4-3-2-发送主从同步消息拉取偏移量"><a href="#4-3-2-发送主从同步消息拉取偏移量" class="headerlink" title="4.3.2 发送主从同步消息拉取偏移量"></a>4.3.2 发送主从同步消息拉取偏移量</h3><p>在<code>isTimeToReportOffset方法</code>中，首先获取<strong>当前时间与上一次进行主从同步的时间间隔interval</strong>，如果<code>时间间隔interval</code><strong>大于</strong>配置的<code>发送心跳时间间隔</code>，表示需要向主节点发送从节点消息同步的偏移量，接下来会调用<code>reportSlaveMaxOffset方法</code>发送同步偏移量，也就是说<code>从节点</code>会<strong>定时</strong>向主节点发送请求，反馈CommitLog中同步消息的偏移量：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">class</span> <span class="token class-name">HAClient</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
@@ -1190,7 +1231,6 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="4-3-3-处理网络可读事件"><a href="#4-3-3-处理网络可读事件" class="headerlink" title="4.3.3 处理网络可读事件"></a>4.3.3 处理网络可读事件</h3><p><code>processReadEvent</code>方法中处理了<code>可读事件</code>，也就是处理主节点发送的同步数据。</p>
 <p>首先从<code>socketChannel</code>中读取数据到<code>byteBufferRead</code>中，<code>byteBufferRead</code>是<code>读缓冲区</code>，读取数据的方法会返回读取到的字节数，对字节数大小进行判断：</p>
 <ul>
@@ -1234,10 +1274,8 @@
         <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-4-HAConnection"><a href="#4-4-HAConnection" class="headerlink" title="4.4 HAConnection"></a>4.4 HAConnection</h2><p><code>HAConnection</code>中封装了主节点与从节点的网络通信处理，分别在<code>ReadSocketService</code>和<code>WriteSocketService</code>中。</p>
-<h3 id="4-4-1-ReadSocketService"><a href="#4-4-1-ReadSocketService" class="headerlink" title="4.4.1 ReadSocketService"></a>4.4.1 ReadSocketService</h3><p><code>ReadSocketService</code>启动后处理监听到的<code>可读事件</code>，前面知道<code>HAClient</code>中<code>从节点</code>会<strong>定时</strong>向<code>主节点</code>汇报从节点的消息同步偏移量，主节点对汇报请求的处理就在这里，如果从网络中监听到了<code>可读事件</code>，会调用<code>processReadEvent</code>处理读事件：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAConnection</span> <span class="token punctuation">&#123;</span>
+<h3 id="4-4-1-ReadSocketService"><a href="#4-4-1-ReadSocketService" class="headerlink" title="4.4.1 ReadSocketService"></a>4.4.1 ReadSocketService</h3><p><code>ReadSocketService</code>启动后处理监听到的<code>可读事件</code>，前面知道<code>HAClient</code>中<code>从节点</code>会<strong>定时</strong>向<code>主节点</code>汇报从节点的消息同步偏移量，主节点对汇报请求的处理就在这里，如果从网络中监听到了<code>可读事件</code>，会调用<code>processReadEvent</code>处理读事件：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAConnection</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">class</span> <span class="token class-name">ReadSocketService</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceThread</span> <span class="token punctuation">&#123;</span>
         <span class="token annotation punctuation">@Override</span>
         <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1261,8 +1299,7 @@
             <span class="token class-name">HAConnection</span><span class="token punctuation">.</span>log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getServiceName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" service end"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>处理可读事件：<br><code>processReadEvent</code>中从网络中处理读事件的方式与上面HAClient的<code>dispatchReadRequest</code>类似，都是将网络中的数据读取到读缓冲区中，并用一个变量记录已读取数据的位置，<code>processReadEvent</code>方法的处理逻辑如下：</p>
 <ul>
 <li>从<code>socketChannel</code>读取数据到读缓冲区<code>byteBufferRead</code>中，返回读取到的字节数；</li>
@@ -1331,12 +1368,8 @@
 
             <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>对于</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">HAConnection</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>haService<span class="token punctuation">.</span><span class="token function">notifyTransferSome</span><span class="token punctuation">(</span><span class="token class-name">HAConnection</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>slaveAckOffset<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>前面在<code>GroupTransferService</code>中可以看到是通过<code>push2SlaveMaxOffset</code>的值判断<strong>本次同步是否完成的</strong>，在<code>notifyTransferSome</code>方法中可以看到当主节点收到从节点反馈的消息拉取偏移量时，对<code>push2SlaveMaxOffset</code>的值进行了更新：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
+<p>对于<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">HAConnection</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>haService<span class="token punctuation">.</span><span class="token function">notifyTransferSome</span><span class="token punctuation">(</span><span class="token class-name">HAConnection</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>slaveAckOffset<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>前面在<code>GroupTransferService</code>中可以看到是通过<code>push2SlaveMaxOffset</code>的值判断<strong>本次同步是否完成的</strong>，在<code>notifyTransferSome</code>方法中可以看到当主节点收到从节点反馈的消息拉取偏移量时，对<code>push2SlaveMaxOffset</code>的值进行了更新：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HAService</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 向从节点推送的消息最大偏移量</span>
     <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">GroupTransferService</span> groupTransferService<span class="token punctuation">;</span>
 
@@ -1353,8 +1386,7 @@
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h3 id="4-4-2-WriteSocketService"><a href="#4-4-2-WriteSocketService" class="headerlink" title="4.4.2 WriteSocketService"></a>4.4.2 WriteSocketService</h3><p><code>WriteSocketService</code>用于<code>主节点</code>向<code>从节点</code>发送同步消息，代码很长，这里列举处理逻辑，如下：</p>
 <ul>
 <li>根据从节点发送的主从同步消息拉取偏移量<code>slaveRequestOffset</code>进行判断：<ul>
@@ -2081,7 +2113,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2344,6 +2376,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

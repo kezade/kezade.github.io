@@ -7,10 +7,10 @@
     <meta name="keywords" content="【LeetCode】3.无重复字符的最长子串, Back-End Dev Java">
     <meta name="description" content="1 问题给定一个字符串 s ，请你找出其中不含有重复字符的最长子串的长度。
 示例 1
-输入: s &amp;#x3D; “abcabcbb”输出: 3解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。
+输入: s = “abcabcbb”输出: 3解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。
 
 示例 2
-输入: s &amp;#x">
+输入: s = “bbbbb">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -66,7 +66,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +184,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +260,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +291,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +489,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +573,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +605,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -811,7 +868,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    807
+                    801
                 </div>
                 
 
@@ -838,39 +895,38 @@
             <div id="articleContent">
                 <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1 问题"></a>1 问题</h1><p>给定一个字符串 s ，请你找出其中<code>不含有重复字符</code>的<code>最长子串</code>的长度。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
-<p>输入: s &#x3D; “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。</p>
+<p>输入: s = “abcabcbb”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “abc”，所以其长度为 3。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入: s &#x3D; “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。</p>
+<p>输入: s = “bbbbb”<br>输出: 1<br>解释: 因为无重复字符的最长子串是 “b”，所以其长度为 1。</p>
 </blockquote>
 <h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入: s &#x3D; “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。</p>
-</blockquote>
-<blockquote>
+<p>输入: s = “pwwkew”<br>输出: 3<br>解释: 因为无重复字符的最长子串是 “wke”，所以其长度为 3。</p>
 <p>请注意，你的答案必须是<code>子串</code>的长度，”pwke” 是一个子序列，不是子串。</p>
 </blockquote>
 <p><strong>提示</strong></p>
 <ul>
-<li>0 &lt;&#x3D; s.length &lt;&#x3D; 5 * $10^4$</li>
+<li>0 &lt;= s.length &lt;= 5 * $10^4$</li>
 <li>s 由英文字母、数字、符号和空格组成</li>
 </ul>
 <h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2 解题思路"></a>2 解题思路</h1><h2 id="2-1-双指针"><a href="#2-1-双指针" class="headerlink" title="2.1 双指针"></a>2.1 双指针</h2><p>思路：</p>
 <blockquote>
 <p>利用map存储字符及其索引下标，双指针记录子串的头尾，当右指针<code>right</code>移动过程中，</p>
-</blockquote>
 <ul>
 <li>若<code>s[right]</code>不存在于map中，则更新子串长度，记录该字符；</li>
 <li>否则，<code>s[right]</code>为重复字符，若<code>左指针left&gt;map中记录的s[right]下标+1</code>，则更新左指针，同样更新子串长度，更新map中该重复字符下标。</li>
 </ul>
+</blockquote>
 <p>以字符串<code>pwwkew</code>为例：</p>
 <ul>
 <li>1)初始化<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-1.png"><div class="caption"><b class="center-caption">初始化</b></div></li>
 <li>2)map中不包含<code>p</code>，记录该字符至map中，同时，更新子串长度，此时为1<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-2.png"><div class="caption"><b class="center-caption">处理字符p</b></div></li>
 <li>3)同理，记录<code>w</code>，更新子串长度为2<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-3.png"><div class="caption"><b class="center-caption">处理字符w</b></div></li>
-<li>4)map中已包含<code>w</code>了，则更新左指针start&#x3D;max(start, map[‘w’])，并更新<code>w</code>在map中的下标，此时子串最大长度仍为2<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-4.png"><div class="caption"><b class="center-caption">处理重复字符w</b></div></li>
+<li>4)map中已包含<code>w</code>了，则更新左指针start=max(start, map[‘w’])，并更新<code>w</code>在map中的下标，此时子串最大长度仍为2<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-4.png"><div class="caption"><b class="center-caption">处理重复字符w</b></div></li>
 <li>5)map中不包含字符<code>k</code>，同第2)步<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-5.png"><div class="caption"><b class="center-caption">处理字符k</b></div></li>
 <li>6)map中不包含字符<code>e</code>，同第2)步<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-6.png"><div class="caption"><b class="center-caption">处理字符e</b></div></li>
-<li>7)map中包含<code>w</code>，同第4)步<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-7.png"><div class="caption"><b class="center-caption">处理重复字符w</b></div></li>
+<li>7)map中包含<code>w</code>，同第4)步<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC3-7.png"><div class="caption"><b class="center-caption">处理重复字符w</b></div>
+</li>
 </ul>
 <h2 id="2-2-滑动窗口"><a href="#2-2-滑动窗口" class="headerlink" title="2.2 滑动窗口"></a>2.2 滑动窗口</h2><p>公式，参见<a href="/posts/3595218620.html" title="【LeetCode】643.子数组最大平均数I">【LeetCode】643.子数组最大平均数I</a>.</p>
 <p>思路：</p>
@@ -1613,7 +1669,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1631,7 +1687,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1894,6 +1950,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

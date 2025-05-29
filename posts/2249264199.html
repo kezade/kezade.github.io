@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -834,17 +891,11 @@
 <blockquote>
 <p>注意只会记录<code>写操作</code>命令，<code>读操作</code>命令是<strong>不会被记录的</strong>，因为没意义。</p>
 </blockquote>
-<h2 id="2-1-配置"><a href="#2-1-配置" class="headerlink" title="2.1 配置"></a>2.1 配置</h2><p>默认情况，AOF是关闭的，若要开启，需要配置参数，如下所示：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">appendonly <span class="token function">yes</span> //开启AOF持久化，默认为no，不开启AOF
-appendfilename appendonly.aof //配置AOF持久化文件名，默认为appendonly.aof<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>文件保存路径也可以自定义，默认在Redis服务的主目录<code>./</code>。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 文件保存路径</span>
-<span class="token function">dir</span> /home/work/app/redis/data/<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h2 id="2-2-流程"><a href="#2-2-流程" class="headerlink" title="2.2 流程"></a>2.2 流程</h2><p>Redis是<code>“写后”</code>日志，Redis先执行命令，把数据写入内存，然后才记录日志。日志里记录的是Redis收到的每一条命令，这些命令是以<code>文本</code>形式保存。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow.jpg"><div class="caption"><b class="center-caption">先写数据至内存，再写日志至磁盘</b></div>
-
+<h2 id="2-1-配置"><a href="#2-1-配置" class="headerlink" title="2.1 配置"></a>2.1 配置</h2><p>默认情况，AOF是关闭的，若要开启，需要配置参数，如下所示：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">appendonly <span class="token function">yes</span> //开启AOF持久化，默认为no，不开启AOF
+appendfilename appendonly.aof //配置AOF持久化文件名，默认为appendonly.aof<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p>文件保存路径也可以自定义，默认在Redis服务的主目录<code>./</code>。<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 文件保存路径</span>
+<span class="token function">dir</span> /home/work/app/redis/data/<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<h2 id="2-2-流程"><a href="#2-2-流程" class="headerlink" title="2.2 流程"></a>2.2 流程</h2><p>Redis是<code>“写后”</code>日志，Redis先执行命令，把数据写入内存，然后才记录日志。日志里记录的是Redis收到的每一条命令，这些命令是以<code>文本</code>形式保存。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow.jpg"><div class="caption"><b class="center-caption">先写数据至内存，再写日志至磁盘</b></div></p>
 <p>这种<code>先写数据至内存，再写日志至磁盘</code>的<code>写后日志</code>的方式优点有：</p>
 <ul>
 <li>避免额外的检查开销：若先写日志，Redis并不会对这些命令进行语法检查，保存下来的可能是错误的命令，那在恢复过程中就会出问题</li>
@@ -858,33 +909,26 @@ appendfilename appendonly.aof //配置AOF持久化文件名，默认为appendonl
 </blockquote>
 </li>
 </ul>
-<p>AOF方式涉及的流程包括：命令追加、文件写入与同步、文件重写、重启加载、文件校验。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow2.png"><div class="caption"><b class="center-caption">AOF流程</b></div>
-
+<p>AOF方式涉及的流程包括：命令追加、文件写入与同步、文件重写、重启加载、文件校验。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow2.png"><div class="caption"><b class="center-caption">AOF流程</b></div></p>
 <h3 id="2-2-1-命令追加"><a href="#2-2-1-命令追加" class="headerlink" title="2.2.1 命令追加"></a>2.2.1 命令追加</h3><p>当AOF持久化功能打开了，服务器在执行完一个写命令之后，会以<code>文本协议格式</code>将被执行的写命令<code>追加</code>到服务器的<code>server.aof_buf</code>缓冲区。</p>
-<p>文本协议格式源于Redis制定的<code>RESP</code>（REdis Serialization Protocol，Redis序列化协议）[^1]，其实现了客户端与服务端的正常交互，这种协议简单高效，既能够被机器解析，又容易被人类识别。</p>
-<p>例如客户端发送一条<code>set hello world</code>命令给服务端，按照<code>RESP</code>的标准，客户端需要将其封装为如下格式（每行用<code>\r\n</code>分隔）：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*3<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$3</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nSET<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$5</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nhello<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$5</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nworld<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>实际显示效果可以如下：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*3
+<p>文本协议格式源于Redis制定的<code>RESP</code>（REdis Serialization Protocol，Redis序列化协议）<sup><a href="#fn_1" id="reffn_1">1</a></sup>，其实现了客户端与服务端的正常交互，这种协议简单高效，既能够被机器解析，又容易被人类识别。</p>
+<p>例如客户端发送一条<code>set hello world</code>命令给服务端，按照<code>RESP</code>的标准，客户端需要将其封装为如下格式（每行用<code>\r\n</code>分隔）：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*3<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$3</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nSET<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$5</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nhello<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span class="token variable">$5</span><span class="token punctuation">\</span>r<span class="token punctuation">\</span>nworld<span class="token punctuation">\</span>r<span class="token punctuation">\</span>n<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>实际显示效果可以如下：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*3
 <span class="token variable">$3</span>
 SET
 <span class="token variable">$5</span>
 hello
 <span class="token variable">$5</span>
-world<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>各行解释可按系列方式对号入座：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*<span class="token operator">&lt;</span>参数数量<span class="token operator">></span> CRLF
+world<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>各行解释可按系列方式对号入座：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*<span class="token operator">&lt;</span>参数数量<span class="token operator">></span> CRLF
 $<span class="token operator">&lt;</span>参数1的字节数量<span class="token operator">></span> CRLF
 <span class="token operator">&lt;</span>参数<span class="token operator"><span class="token file-descriptor important">1</span>></span> CRLF
 <span class="token punctuation">..</span>.
 $<span class="token operator">&lt;</span>参数N的字节数量<span class="token operator">></span> CRLF
-<span class="token operator">&lt;</span>参数N<span class="token operator">></span> CRLF<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token operator">&lt;</span>参数N<span class="token operator">></span> CRLF<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <ul>
 <li><code>*3</code>表示当前命令有<code>三个部分</code>；</li>
-<li><code>$+数字</code>：<code>$</code>分隔每个部分、<code>数字</code>表示每个部分的字节数；</li>
+<li><script type="math/tex">+数字`：`</script>分隔每个部分、<code>数字</code>表示每个部分的字节数；</li>
 <li>紧跟着的为具体的<code>命令</code>、<code>键</code>或<code>值</code>，比如SET(命令)、hello(键)、world(值)。</li>
 </ul>
 <blockquote>
@@ -916,17 +960,14 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
 <li>如果允许数据丢失一点，但又想性能高，就选择 <code>Everysec</code> 策略。</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Write-Strategy.jpg"><div class="caption"><b class="center-caption">写入策略对比</b></div>
-
 <p>关于AOF的同步策略是涉及到操作系统的 <code>write</code> 函数和 <code>fsync</code> 函数的。</p>
 <blockquote>
 <p>为了提高文件的写入效率， 在现代操作系统中， 当用户调用 <code>write</code> 函数， 将一些数据写入到文件的时候， 操作系统通常会将写入数据暂时保存在一个内存缓冲区里面， 等到缓冲区的空间被填满、或者超过了指定的时限之后， 才真正地将缓冲区中的数据写入到磁盘里面。</p>
 <p>这种做法虽然提高了效率， 但也为写入数据带来了安全问题， 因为如果计算机发生停机， 那么保存在内存缓冲区里面的写入数据将会丢失。</p>
 <p>为此，系统提供了 <code>fsync</code> 和 <code>fdatasync</code> 两个同步函数， 它们可以强制让操作系统立即将缓冲区中的数据写入到硬盘里面， 从而确保写入数据的安全性。</p>
 </blockquote>
-<p>AOF写入的过程可总结为如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Write-Flow.jpg"><div class="caption"><b class="center-caption">AOF写入过程</b></div>
-
-<h3 id="2-2-3-文件重写-2-3"><a href="#2-2-3-文件重写-2-3" class="headerlink" title="2.2.3 文件重写[^2][^3]"></a>2.2.3 文件重写[^2][^3]</h3><p>随着命令不断写入AOF，文件会越来越大，为了解决这个问题，Redis引入<code>AOF重写机制</code>压缩文件体积。</p>
+<p>AOF写入的过程可总结为如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Write-Flow.jpg"><div class="caption"><b class="center-caption">AOF写入过程</b></div></p>
+<h3 id="2-2-3-文件重写23"><a href="#2-2-3-文件重写23" class="headerlink" title="2.2.3 文件重写23"></a>2.2.3 文件重写<sup><a href="#fn_2" id="reffn_2">2</a></sup><sup><a href="#fn_3" id="reffn_3">3</a></sup></h3><p>随着命令不断写入AOF，文件会越来越大，为了解决这个问题，Redis引入<code>AOF重写机制</code>压缩文件体积。</p>
 <blockquote>
 <p>AOF文件重写是把Redis进程内的数据转化为写命令同步到新AOF文件的过程。</p>
 </blockquote>
@@ -941,9 +982,7 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
 <li>旧的AOF文件可能还有无效的命令，如del key1、hdel key2、srem keys、set a111、set a222等。重写使用进程内数据直接生成，这样新的AOF文件只保留最终数据的写入命令。</li>
 <li>多条命令可以合并。如<code>lpush list a</code>、<code>lpush list b</code>、<code>lpush list c</code>可以转化为：<code>lpush list a b c</code>。为了防止单条命令过大造成客户端缓冲区溢出，对于<code>list</code>、<code>set</code>、<code>hash</code>、<code>zset</code>等类型操作，以<code>64个</code>元素为界拆分为多条。</li>
 </ul>
-<p>重写过程的简化流程如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Rewrite2.png"><div class="caption"><b class="center-caption">Redis重写流程</b></div>
-
+<p>重写过程的简化流程如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Rewrite2.png"><div class="caption"><b class="center-caption">Redis重写流程</b></div></p>
 <ul>
 <li>1）执行AOF重写请求，如果当前进程正在执行AOF重写，请求不执行；如果当前进程正在执行<code>bgsave</code>操作，重写命令延迟到<code>bgsave</code>完成之后再执行；</li>
 <li>2）父进程执行<code>fork</code>创建子进程，开销等同于<code>bgsave</code>过程；</li>
@@ -956,34 +995,26 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
 </ul>
 <blockquote>
 <p><code>写时复制</code>(CopyOnWrite)：顾名思义，在发生<code>写操作</code>的时候，操作系统才会去<code>复制</code>物理内存，这样是为了防止 <code>fork</code> 创建子进程时，由于物理内存数据的复制时间过长而导致父进程<code>长时间阻塞</code>的问题。<br><code>信号</code>：是进程间通讯的一种方式，且是<code>异步的</code>。</p>
-</blockquote>
-<blockquote>
 <p>何时触发？</p>
-</blockquote>
 <ul>
 <li>手动触发：直接调用<code>bgrewriteaof</code>命令。</li>
 <li>自动触发：根据<code>auto-aof-rewrite-min-size</code>和<code>auto-aof-rewrite-percentage</code>参数确定自动触发时机。<ul>
 <li><code>auto-aof-rewrite-min-size</code>：表示运行AOF重写时文件最小体积，默认为<code>64MB</code>。</li>
-<li><code>auto-aof-rewrite-percentage</code>：代表当前AOF文件空间（<code>aof_current_size</code>）和上一次重写后AOF文件空间（<code>aof_base_size</code>）的比值。<br>即，自动触发时机 &#x3D;<code>aof_current_size</code> &gt; <code>auto-aof-rewrite-min-size</code> &amp;&amp;（<code>aof_current_size - aof_base_size</code>）&#x2F;<code>aof_base_size</code> &gt;&#x3D; <code>auto-aof-rewrite-percentage</code>。</li>
+<li><code>auto-aof-rewrite-percentage</code>：代表当前AOF文件空间（<code>aof_current_size</code>）和上一次重写后AOF文件空间（<code>aof_base_size</code>）的比值。<br>即，自动触发时机 =<code>aof_current_size</code> &gt; <code>auto-aof-rewrite-min-size</code> &amp;&amp;（<code>aof_current_size - aof_base_size</code>）/<code>aof_base_size</code> &gt;= <code>auto-aof-rewrite-percentage</code>。</li>
 </ul>
 </li>
 </ul>
-<blockquote>
 <p>哪些地方会导致阻塞父进程?</p>
-</blockquote>
 <ul>
 <li>创建子进程的途中，由于要复制父进程的页表等数据结构，阻塞的时间跟页表的大小有关，页表越大，阻塞的时间也越长；</li>
 <li>创建完子进程后，如果子进程或者父进程<code>修改了共享数据</code>，就会发生<code>写时复制</code>，这期间会拷贝物理内存，如果内存越大，自然阻塞的时间也越长，特别是<code>bigkey</code>；</li>
 <li>信号处理函数执行时。</li>
 </ul>
-<blockquote>
 <p>为什么AOF重写不复用原AOF日志？</p>
-</blockquote>
 <ul>
 <li>父子进程写同一个文件会产生竞争问题，影响父进程的性能。</li>
 <li>如果AOF重写过程中失败了，相当于污染了原本的AOF文件，无法做恢复数据使用。</li>
 </ul>
-<blockquote>
 <p>总结下父进程的工作内容：</p>
 <ul>
 <li>执行客户端发来的命令；</li>
@@ -992,29 +1023,27 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
 </ul>
 </blockquote>
 <h3 id="2-2-4-重启加载"><a href="#2-2-4-重启加载" class="headerlink" title="2.2.4 重启加载"></a>2.2.4 重启加载</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Reload.png"><div class="caption"><b class="center-caption">Redis持久化文件加载流程</b></div>
-
-<h3 id="2-2-5-文件校验"><a href="#2-2-5-文件校验" class="headerlink" title="2.2.5 文件校验"></a>2.2.5 文件校验</h3><p>加载<strong>损坏</strong>的AOF文件时会拒绝启动，并打印如下日志：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># Bad file format reading the append only file: make a backup of your AOF file, then use ./redis-check-aof --fix &lt;filename></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>两点建议：</p>
+<h3 id="2-2-5-文件校验"><a href="#2-2-5-文件校验" class="headerlink" title="2.2.5 文件校验"></a>2.2.5 文件校验</h3><p>加载<strong>损坏</strong>的AOF文件时会拒绝启动，并打印如下日志：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># Bad file format reading the append only file: make a backup of your AOF file, then use ./redis-check-aof --fix &lt;filename></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>两点建议：</p>
 <ul>
 <li>对于<code>错误格式的AOF文件</code>，先进行备份，然后采用<code>redis-check-aof--fix</code>命令进行修复，修复后使用<code>diff -u</code>对比数据的差异，找出丢失的数据，有些可以人工修改补全。</li>
 <li>对于<code>不完整</code>的情况，Redis为我们提供了<code>aof-load-truncated</code>配置来兼容这种情况，<code>默认开启</code>。加载AOF时，当遇到此问题时会忽略并继续启动，同时打印警告日志。<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#警告日志：</span>
 
 <span class="token comment"># !!! Warning: short read while loading the AOF file !!!</span>
 <span class="token comment"># !!! Truncating the AOF at offset 397856725 !!!</span>
-<span class="token comment"># AOF loaded anyway because aof-load-truncated is enabled</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre></li>
+<span class="token comment"># AOF loaded anyway because aof-load-truncated is enabled</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="3-RDB"><a href="#3-RDB" class="headerlink" title="3 RDB"></a>3 RDB</h1>RDB就是<code>Redis DataBase</code>的缩写，中文名为<code>快照/内存快照</code>，RDB持久化是把<code>当前内存中的数据库快照</code>保存到<code>磁盘</code>上的过程。</li>
 </ul>
-<h1 id="3-RDB"><a href="#3-RDB" class="headerlink" title="3 RDB"></a>3 RDB</h1><p>RDB就是<code>Redis DataBase</code>的缩写，中文名为<code>快照/内存快照</code>，RDB持久化是把<code>当前内存中的数据库快照</code>保存到<code>磁盘</code>上的过程。</p>
 <p>由于是某一时刻的快照，那么快照中的值要早于或者等于内存中的值。另外在 Redis <code>恢复数据</code>时， RDB恢复数据的效率会比 AOF 高些，因为直接将 RDB 文件读入内存就可以，不需要像 AOF 那样还需要额外执行操作命令的步骤才能恢复数据。</p>
 <h2 id="3-1-触发方式"><a href="#3-1-触发方式" class="headerlink" title="3.1 触发方式"></a>3.1 触发方式</h2><p>分为<code>手动触发</code>和<code>自动触发</code>两种方式。</p>
 <h3 id="3-1-1-手动触发"><a href="#3-1-1-手动触发" class="headerlink" title="3.1.1 手动触发"></a>3.1.1 手动触发</h3><ul>
 <li><code>save</code>命令：阻塞当前Redis服务器，直到RDB过程完成为止。</li>
-<li><code>bgsave</code>命令：Redis进程执行<code>fork操作</code>创建子进程，RDB持久化过程由<code>子进程</code>负责，完成后自动结束。<strong>阻塞只发生在fork阶段</strong>，一般时间很短。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-RDB-bgsave.png"><div class="caption"><b class="center-caption">bgsave流程</b></div></li>
+<li><code>bgsave</code>命令：Redis进程执行<code>fork操作</code>创建子进程，RDB持久化过程由<code>子进程</code>负责，完成后自动结束。<strong>阻塞只发生在fork阶段</strong>，一般时间很短。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-RDB-bgsave.png"><div class="caption"><b class="center-caption">bgsave流程</b></div>
+</li>
 </ul>
 <p><code>bgsave</code>具体流程如下：</p>
 <ul>
 <li>redis客户端执行<code>bgsave命令</code>或者<code>自动触发bgsave命令</code>；</li>
-<li>主进程判断当前<code>是否已经存在</code>正在执行的子进程（如RDB&#x2F;AOF子进程）：<ul>
+<li>主进程判断当前<code>是否已经存在</code>正在执行的子进程（如RDB/AOF子进程）：<ul>
 <li>如果存在，那么主进程直接返回；</li>
 <li>如果不存在正在执行的子进程，那么就<code>fork</code>一个新的子进程进行持久化数据，fork过程是阻塞的，fork操作完成后主进程即可执行其他操作；</li>
 </ul>
@@ -1045,18 +1074,14 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
 <li>如果频率太低，两次快照间一旦服务器发生宕机，就可能会比较多的数据丢失；</li>
 <li>如果频率太高，频繁写入磁盘和创建子进程会带来额外的性能开销。</li>
 </ul>
-<p><code>Redis 4.0</code>提出方法叫<code>混合使用 AOF 日志和内存快照</code>，也叫<code>混合持久化</code>。如果想要开启混合持久化功能，可以在 Redis 配置文件将下面这个配置项设置成<code>yes</code>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">aof-use-rdb-preamble <span class="token function">yes</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>混合持久化工作在 <code>AOF 日志重写过程</code>。</p>
+<p><code>Redis 4.0</code>提出方法叫<code>混合使用 AOF 日志和内存快照</code>，也叫<code>混合持久化</code>。如果想要开启混合持久化功能，可以在 Redis 配置文件将下面这个配置项设置成<code>yes</code>：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">aof-use-rdb-preamble <span class="token function">yes</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>混合持久化工作在 <code>AOF 日志重写过程</code>。</p>
 <ul>
 <li>当开启了混合持久化时，在 AOF 重写日志时，fork 出来的<code>重写子进程</code>会先将与主线程共享的内存数据以 <code>RDB 方式</code>写入到 AOF 文件；</li>
 <li>然后主线程处理的操作命令会被记录在<code>重写缓冲区</code>里，重写缓冲区里的<code>增量命令</code>会以 <code>AOF 方式</code>写入到 AOF 文件；</li>
 <li>写入完成后通知主进程将新的含有 <code>RDB 格式</code>和 <code>AOF 格式</code>的 AOF 文件替换<code>旧的AOF 文件</code>。</li>
 </ul>
-<p>也就是说，使用了混合持久化，AOF 文件的前半部分是 RDB 格式的全量数据，后半部分是 AOF 格式的增量数据。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Mix-Persistency.png"><div class="caption"><b class="center-caption">混合持久化的AOF文件组成</b></div>
-
-<h1 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h1><p>[^1] 张益军（付磊）. 《Redis 开发与运维》4.1节。<br>[^2] <a target="_blank" rel="noopener" href="https://pdai.tech/md/db/nosql-redis/db-redis-x-rdb-aof.html">Redis进阶 - 持久化：RDB和AOF机制详解</a><br>[^3] <a target="_blank" rel="noopener" href="https://www.xiaolincoding.com/redis/storage/aof.html#aof-%E6%97%A5%E5%BF%97">AOF 持久化是怎么实现的？</a></p>
+<p>也就是说，使用了混合持久化，AOF 文件的前半部分是 RDB 格式的全量数据，后半部分是 AOF 格式的增量数据。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Mix-Persistency.png"><div class="caption"><b class="center-caption">混合持久化的AOF文件组成</b></div></p>
+<h1 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h1><p><sup><a href="#fn_1" id="reffn_1">1</a></sup> 张益军（付磊）. 《Redis 开发与运维》4.1节。<br><sup><a href="#fn_2" id="reffn_2">2</a></sup> <a target="_blank" rel="noopener" href="https://pdai.tech/md/db/nosql-redis/db-redis-x-rdb-aof.html">Redis进阶 - 持久化：RDB和AOF机制详解</a><br><sup><a href="#fn_3" id="reffn_3">3</a></sup> <a target="_blank" rel="noopener" href="https://www.xiaolincoding.com/redis/storage/aof.html#aof-%E6%97%A5%E5%BF%97">AOF 持久化是怎么实现的？</a></p>
 
                 
             </div>
@@ -1753,7 +1778,7 @@ $<span class="token operator">&lt;</span>参数N的字节数量<span class="toke
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2016,6 +2041,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

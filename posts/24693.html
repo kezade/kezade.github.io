@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -823,23 +880,12 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="一、核心配置类"><a href="#一、核心配置类" class="headerlink" title="一、核心配置类"></a>一、核心配置类</h1><p>XMLConfigBuilder： 主要负责解析mybatis-config.xml；<br>XMLMapperBuilder： 主要负责解析映射配置Mapper.xml 文件；<br>XMLStatementBuilder： 主要负责解析映射配置文件中的SQL 节点<br>三者之间的关系，如下图</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311160137766.png"><div class="caption"><b class="center-caption">"核心配置类三剑客关系图"</b></div>
-
-<h2 id="1-XMLConfigBuilder"><a href="#1-XMLConfigBuilder" class="headerlink" title="1.XMLConfigBuilder"></a>1.XMLConfigBuilder</h2><p>主要负责解析mybatis关键配置文件mybatis-config.xml，重点关注91行，全局唯一初始化的大配置类。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161114699.png"><div class="caption"><b class="center-caption">"图1"</b></div><br>面试题经常会问，为啥mybatis的配置类Configuration是单例的？首先我们在BaseBuilder中发现它是final类型的，其次91行是全局唯一初始化它的地方。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161415639.png"><div class="caption"><b class="center-caption">"图2"</b></div>
-
-<h2 id="2-XMLMapperBuilder"><a href="#2-XMLMapperBuilder" class="headerlink" title="2.XMLMapperBuilder"></a>2.XMLMapperBuilder</h2><p>负责解析<em>mapper.xml和</em>mapper.java文件，关键代码</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116211879.png"><div class="caption"><b class="center-caption">"图3"</b></div>
-<p>重点关注下configurationElement方法</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311162203404.png"><div class="caption"><b class="center-caption">"图4"</b></div>
-
-<h2 id="3-XMLStatementBuilder"><a href="#3-XMLStatementBuilder" class="headerlink" title="3.XMLStatementBuilder"></a>3.XMLStatementBuilder</h2><p>主要负责解析*mapper.xml中的select、insert、update、delete标签语句。重点关注下这个方法</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116252489.png"><div class="caption"><b class="center-caption">"图5"</b></div>
-
+                <h1 id="一、核心配置类"><a href="#一、核心配置类" class="headerlink" title="一、核心配置类"></a>一、核心配置类</h1><p>XMLConfigBuilder： 主要负责解析mybatis-config.xml；<br>XMLMapperBuilder： 主要负责解析映射配置Mapper.xml 文件；<br>XMLStatementBuilder： 主要负责解析映射配置文件中的SQL 节点<br>三者之间的关系，如下图<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311160137766.png"><div class="caption"><b class="center-caption">"核心配置类三剑客关系图"</b></div></p>
+<h2 id="1-XMLConfigBuilder"><a href="#1-XMLConfigBuilder" class="headerlink" title="1.XMLConfigBuilder"></a>1.XMLConfigBuilder</h2><p>主要负责解析mybatis关键配置文件mybatis-config.xml，重点关注91行，全局唯一初始化的大配置类。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161114699.png"><div class="caption"><b class="center-caption">"图1"</b></div><br>面试题经常会问，为啥mybatis的配置类Configuration是单例的？首先我们在BaseBuilder中发现它是final类型的，其次91行是全局唯一初始化它的地方。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161415639.png"><div class="caption"><b class="center-caption">"图2"</b></div></p>
+<h2 id="2-XMLMapperBuilder"><a href="#2-XMLMapperBuilder" class="headerlink" title="2.XMLMapperBuilder"></a>2.XMLMapperBuilder</h2><p>负责解析<em>mapper.xml和</em>mapper.java文件，关键代码<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116211879.png"><div class="caption"><b class="center-caption">"图3"</b></div><br>重点关注下configurationElement方法<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311162203404.png"><div class="caption"><b class="center-caption">"图4"</b></div></p>
+<h2 id="3-XMLStatementBuilder"><a href="#3-XMLStatementBuilder" class="headerlink" title="3.XMLStatementBuilder"></a>3.XMLStatementBuilder</h2><p>主要负责解析*mapper.xml中的select、insert、update、delete标签语句。重点关注下这个方法<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116252489.png"><div class="caption"><b class="center-caption">"图5"</b></div></p>
 <h2 id="4-Configuration"><a href="#4-Configuration" class="headerlink" title="4.Configuration"></a>4.Configuration</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311162859567.png"><div class="caption"><b class="center-caption">"图6"</b></div>
-<h1 id="二、源码追踪初始化流程"><a href="#二、源码追踪初始化流程" class="headerlink" title="二、源码追踪初始化流程"></a>二、源码追踪初始化流程</h1><h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1.准备工作"></a>1.准备工作</h2><p>编写测试类</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MybatisDemo</span> <span class="token punctuation">&#123;</span>
+<h1 id="二、源码追踪初始化流程"><a href="#二、源码追踪初始化流程" class="headerlink" title="二、源码追踪初始化流程"></a>二、源码追踪初始化流程</h1><h2 id="1-准备工作"><a href="#1-准备工作" class="headerlink" title="1.准备工作"></a>1.准备工作</h2><p>编写测试类<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MybatisDemo</span> <span class="token punctuation">&#123;</span>
 	<span class="token keyword">private</span> <span class="token class-name">SqlSessionFactory</span> sqlSessionFactory<span class="token punctuation">;</span>
 	
 	<span class="token annotation punctuation">@Before</span>
@@ -852,8 +898,7 @@
 		sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
 		inputStream<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 	<span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="2-源码分析"><a href="#2-源码分析" class="headerlink" title="2.源码分析"></a>2.源码分析</h2><h3 id="2-1-第一阶段"><a href="#2-1-第一阶段" class="headerlink" title="2.1.第一阶段"></a>2.1.第一阶段</h3><h4 id="2-1-1-生成SqlSessionFactory"><a href="#2-1-1-生成SqlSessionFactory" class="headerlink" title="2.1.1.生成SqlSessionFactory"></a>2.1.1.生成SqlSessionFactory</h4><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// 1.1 读取mybatis配置文件创SqlSessionFactory</span>
 <span class="token class-name">String</span> resource <span class="token operator">=</span> <span class="token string">"mybatis-config.xml"</span><span class="token punctuation">;</span>
 <span class="token class-name">InputStream</span> inputStream <span class="token operator">=</span> <span class="token class-name">Resources</span><span class="token punctuation">.</span><span class="token function">getResourceAsStream</span><span class="token punctuation">(</span>resource<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
@@ -861,8 +906,7 @@
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// 1.2 读取mybatis配置文件创SqlSessionFactory</span>
 sqlSessionFactory <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SqlSessionFactoryBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>读取配置文件流并将这些配置信息存放到Configuration类中.</p>
-<h4 id="2-1-2-解析配置，生成configuration对象"><a href="#2-1-2-解析配置，生成configuration对象" class="headerlink" title="2.1.2.解析配置，生成configuration对象"></a>2.1.2.解析配置，生成configuration对象</h4><p>重点关注下SqlSessionFactoryBuilder的build方法，主要分为两类：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//字符流</span>
+<h4 id="2-1-2-解析配置，生成configuration对象"><a href="#2-1-2-解析配置，生成configuration对象" class="headerlink" title="2.1.2.解析配置，生成configuration对象"></a>2.1.2.解析配置，生成configuration对象</h4><p>重点关注下SqlSessionFactoryBuilder的build方法，主要分为两类：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//字符流</span>
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">Reader</span> reader<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">Reader</span> reader<span class="token punctuation">,</span> <span class="token class-name">String</span> environment<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">Reader</span> reader<span class="token punctuation">,</span> <span class="token class-name">Properties</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -871,11 +915,8 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">InputStream</span> inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">InputStream</span> inputStream<span class="token punctuation">,</span> <span class="token class-name">String</span> environment<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">InputStream</span> inputStream<span class="token punctuation">,</span> <span class="token class-name">Properties</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">InputStream</span> inputStream<span class="token punctuation">,</span> <span class="token class-name">String</span> environment<span class="token punctuation">,</span> <span class="token class-name">Properties</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>我们只看InputStream对应的build方法即可，顺带一提的是，其实我们可以通过</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Reader</span> reader<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">InputStreamReader</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>来将Inputstream转换为Reader对象。</p>
+<span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">InputStream</span> inputStream<span class="token punctuation">,</span> <span class="token class-name">String</span> environment<span class="token punctuation">,</span> <span class="token class-name">Properties</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>我们只看InputStream对应的build方法即可，顺带一提的是，其实我们可以通过<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">Reader</span> reader<span class="token operator">=</span><span class="token keyword">new</span> <span class="token class-name">InputStreamReader</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>来将Inputstream转换为Reader对象。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 通过字节流创建 SqlSessionFactory
   *
@@ -899,7 +940,6 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
          <span class="token punctuation">&#125;</span>
      <span class="token punctuation">&#125;</span>
  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>点进去XMLConfigBuilder的构造方法</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token class-name">XMLConfigBuilder</span><span class="token punctuation">(</span><span class="token class-name">XPathParser</span> parser<span class="token punctuation">,</span> <span class="token class-name">String</span> environment<span class="token punctuation">,</span> <span class="token class-name">Properties</span> props<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
 	<span class="token comment">//重点地方，全局唯一构造Configuration对象的地方</span>
@@ -910,7 +950,6 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
     <span class="token keyword">this</span><span class="token punctuation">.</span>environment <span class="token operator">=</span> environment<span class="token punctuation">;</span>
     <span class="token keyword">this</span><span class="token punctuation">.</span>parser <span class="token operator">=</span> parser<span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>再去瞧瞧XMLConfigBuilder的parse方法，重点关注parseConfiguration方法。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">Configuration</span> <span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token keyword">if</span> <span class="token punctuation">(</span>parsed<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -954,21 +993,16 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
     <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">BuilderException</span><span class="token punctuation">(</span><span class="token string">"Error parsing SQL Mapper Configuration. Cause: "</span> <span class="token operator">+</span> e<span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>以上是分析</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">XMLConfigBuilder</span> parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLConfigBuilder</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">,</span> environment<span class="token punctuation">,</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<p>以上是分析<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">XMLConfigBuilder</span> parser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">XMLConfigBuilder</span><span class="token punctuation">(</span>inputStream<span class="token punctuation">,</span> environment<span class="token punctuation">,</span> properties<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">//解析配置文件得到configuration对象，并返回SqlSessionFactory</span>
-<span class="token keyword">return</span> <span class="token function">build</span><span class="token punctuation">(</span>parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>parser.parse()的部分，下面看看build()部分：</p>
+<span class="token keyword">return</span> <span class="token function">build</span><span class="token punctuation">(</span>parser<span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><br>parser.parse()的部分，下面看看build()部分：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">SqlSessionFactory</span> <span class="token function">build</span><span class="token punctuation">(</span><span class="token class-name">Configuration</span> config<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">DefaultSqlSessionFactory</span><span class="token punctuation">(</span>config<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>很简单，就是把读取配置文件后的Configuration对象赋给DefaultSqlSessionFactory，返回一个构建好的sqlSessionFactory，而DefaultSqlSessionFactory是SqlSessionFactory的默认实现. </p>
 <h3 id="2-2-第二阶段"><a href="#2-2-第二阶段" class="headerlink" title="2.2.第二阶段"></a>2.2.第二阶段</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// 2.获取sqlSession	</span>
 <span class="token class-name">SqlSession</span> sqlSession <span class="token operator">=</span> sqlSessionFactory<span class="token punctuation">.</span><span class="token function">openSession</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>通过调用DefaultSqlSessionFactory的openSession方法返回一个SqlSession实例,我们看一下具体是怎么得到一个SqlSession实例的。首先调用openSessionFromDataSource方法。<br>摸进去看看openSessionFromDataSource():</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<p>通过调用DefaultSqlSessionFactory的openSession方法返回一个SqlSession实例,我们看一下具体是怎么得到一个SqlSession实例的。首先调用openSessionFromDataSource方法。<br>摸进去看看openSessionFromDataSource():<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
   * 从数据源获取数据库连接
   *
   * @param execType   执行类型，ExecutorType主要有三种类型：SIMPLE, REUSE, BATCH，默认是SIMPLE，都在枚举类ExecutorType里面
@@ -996,7 +1030,7 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
    <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
      <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
    <span class="token punctuation">&#125;</span>
- <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+ <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>步骤一：读取Mybatis的主配置文件，并将文件读成文件流形式(InputStream)。</p>
 <p>步骤二：从主配置文件流中读取文件的各个节点信息并存放到Configuration对象中。读取mappers节点的引用文件，并将这些文件的各个节点信息存放到Configuration对象。</p>
 <p>步骤三：根据Configuration对象的信息获取数据库连接，并设置连接的事务隔离级别等信息，将经过包装数据库连接对象SqlSession接口返回，DefaultSqlSession是SqlSession的实现类，所以这里返回的是DefaultSqlSession，SqlSession接口里面就是对外提供的各种数据库操作。</p>
@@ -1706,7 +1740,7 @@ sqlSessionFactory <span class="token operator">=</span> <span class="token keywo
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1969,6 +2003,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

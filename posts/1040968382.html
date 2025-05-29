@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -831,9 +888,7 @@
                 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><p>自5.0开始，RocketMQ开始用DDD思想划分，包括Topic、Message、Queue、Producer、Consumer、ConsumerGroup、Subscription等。这些概念已经在<a href="/posts/4061920465.html" title="【RocketMQ学习】1.基础知识">基础知识</a>一文中有做介绍。</p>
 <p>本章主要学习和介绍RocketMQ的存储设计。</p>
 <h1 id="2-领域模型"><a href="#2-领域模型" class="headerlink" title="2 领域模型"></a>2 领域模型</h1><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-ddd-model.png"><div class="caption"><b class="center-caption">RocketMQ领域模型</b></div>
-
-<h1 id="3-存储"><a href="#3-存储" class="headerlink" title="3 存储"></a>3 存储</h1><h2 id="3-1-存储文件"><a href="#3-1-存储文件" class="headerlink" title="3.1 存储文件"></a>3.1 存储文件</h2><p>一般位于<code>broker</code>的<code>store/</code>之下，其包含的文件、目录如下：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll /home/rocketmq/store/</span>
+<h1 id="3-存储"><a href="#3-存储" class="headerlink" title="3 存储"></a>3 存储</h1><h2 id="3-1-存储文件"><a href="#3-1-存储文件" class="headerlink" title="3.1 存储文件"></a>3.1 存储文件</h2><p>一般位于<code>broker</code>的<code>store/</code>之下，其包含的文件、目录如下：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll /home/rocketmq/store/</span>
 total <span class="token number">24</span>
 -rw-r--r-- <span class="token number">1</span> rocketmq rocketmq    <span class="token number">0</span> Jul <span class="token number">17</span> <span class="token number">10</span>:36 abort
 -rw-r--r-- <span class="token number">1</span> rocketmq rocketmq <span class="token number">4096</span> Jul <span class="token number">17</span> <span class="token number">10</span>:52 checkpoint
@@ -841,8 +896,7 @@ drwxr-xr-x <span class="token number">2</span> rocketmq rocketmq <span class="to
 drwxr-xr-x <span class="token number">2</span> rocketmq rocketmq <span class="token number">4096</span> Jul <span class="token number">17</span> <span class="token number">10</span>:53 config
 drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="token number">4096</span> Jul <span class="token number">17</span> <span class="token number">10</span>:39 consumequeue
 drwxr-xr-x <span class="token number">2</span> rocketmq rocketmq <span class="token number">4096</span> Jul <span class="token number">17</span> <span class="token number">10</span>:37 index
--rw-r--r-- <span class="token number">1</span> rocketmq rocketmq    <span class="token number">4</span> Jul <span class="token number">17</span> <span class="token number">10</span>:36 lock<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+-rw-r--r-- <span class="token number">1</span> rocketmq rocketmq    <span class="token number">4</span> Jul <span class="token number">17</span> <span class="token number">10</span>:36 lock<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>其中：</p>
 <ul>
 <li><code>commitLog</code>：消息存储目录</li>
@@ -860,21 +914,18 @@ drwxr-xr-x <span class="token number">2</span> rocketmq rocketmq <span class="to
 <ul>
 <li><code>CommitLog</code>：存储消息的元数据</li>
 <li><code>ConsumerQueue</code>：存储消息在<code>CommitLog</code>的索引</li>
-<li><code>IndexFile</code>：为了消息查询提供了一种通过<code>key</code>或<code>时间区间</code>来查询消息的方法，这种通过<code>IndexFile</code>来查找消息的方法不影响发送与消费消息的主流程。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-relationship.png"><div class="caption"><b class="center-caption">消息在文件中的关联</b></div></li>
+<li><code>IndexFile</code>：为了消息查询提供了一种通过<code>key</code>或<code>时间区间</code>来查询消息的方法，这种通过<code>IndexFile</code>来查找消息的方法不影响发送与消费消息的主流程。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-relationship.png"><div class="caption"><b class="center-caption">消息在文件中的关联</b></div>
+</li>
 </ul>
 <h3 id="3-2-1-CommitLog"><a href="#3-2-1-CommitLog" class="headerlink" title="3.2.1 CommitLog"></a>3.2.1 CommitLog</h3><p><code>CommitLog</code>以<strong>物理文件</strong>的方式存放，每台Broker上的<code>CommitLog</code>被本机器所有<code>ConsumeQueue</code>共享，文件地址：<code>$&#123;user.home&#125;\store\$&#123;commitlog&#125;\$&#123;fileName&#125;</code>。</p>
-<p>在<code>CommitLog</code>中，一个消息的存储长度是<code>不固定的</code>，RocketMQ采取一些机制，尽量向<code>CommitLog</code>中<strong>顺序写</strong>，但是<strong>随机读</strong>。CommitLog文件默认大小为<code>1G</code>，可通过在broker置文件中设置<code>mappedFileSizeCommitLog</code>属性来改变默认大小。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll -alh commitlog/</span>
+<p>在<code>CommitLog</code>中，一个消息的存储长度是<code>不固定的</code>，RocketMQ采取一些机制，尽量向<code>CommitLog</code>中<strong>顺序写</strong>，但是<strong>随机读</strong>。CommitLog文件默认大小为<code>1G</code>，可通过在broker置文件中设置<code>mappedFileSizeCommitLog</code>属性来改变默认大小。<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll -alh commitlog/</span>
 total 12K
 drwxr-xr-x <span class="token number">2</span> rocketmq rocketmq <span class="token number">4</span>.0K Jul <span class="token number">17</span> <span class="token number">10</span>:37 <span class="token builtin class-name">.</span>
 drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="token number">4</span>.0K Jul <span class="token number">17</span> <span class="token number">10</span>:37 <span class="token punctuation">..</span>
 -rw-r--r--    <span class="token number">1</span> rocketmq rocketmq <span class="token number">1</span>.0G Jul <span class="token number">17</span> <span class="token number">10</span>:39 00000000000000000000
--rw-r--r--    <span class="token number">1</span> rocketmq rocketmq <span class="token number">1</span>.0G Jul <span class="token number">17</span> <span class="token number">10</span>:37 00000000001073741824<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><code>CommitLog</code>文件存储的逻辑视图如下，每条消息的<code>前面 4 个字节</code>存储该条消息的总长度。但是一个消息的存储长度是不固定的。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CommitLog-view.png"><div class="caption"><b class="center-caption">CommitLog文件存储示意图</b></div>
-
-<p>每个<code>CommitLog文件</code>的大小为<code>1G</code>，一般情况下第一个<code>CommitLog</code>的起始偏移量为<code>0</code>，第二个<code>CommitLog</code>的起始偏移量为<code>1073741824</code>(1G&#x3D;1073741824byte)。</p>
+-rw-r--r--    <span class="token number">1</span> rocketmq rocketmq <span class="token number">1</span>.0G Jul <span class="token number">17</span> <span class="token number">10</span>:37 00000000001073741824<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p><code>CommitLog</code>文件存储的逻辑视图如下，每条消息的<code>前面 4 个字节</code>存储该条消息的总长度。但是一个消息的存储长度是不固定的。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CommitLog-view.png"><div class="caption"><b class="center-caption">CommitLog文件存储示意图</b></div></p>
+<p>每个<code>CommitLog文件</code>的大小为<code>1G</code>，一般情况下第一个<code>CommitLog</code>的起始偏移量为<code>0</code>，第二个<code>CommitLog</code>的起始偏移量为<code>1073741824</code>(1G=1073741824byte)。</p>
 <blockquote>
 <p>为什么使用的是1G?——MMAP 使用时必须实现指定好内存映射的大小，mmap 在 Java 中一次只能映射 1.5~2G 的文件内存，其中RocketMQ 中限制了单文件1G来避免这个问题。</p>
 </blockquote>
@@ -882,13 +933,9 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
 <p>每台Rocket只会往一个<code>CommitLog</code>文件中写，写完一个接着写下一个。</p>
 <p><code>indexFile</code>和<code>ComsumerQueue</code>中都有消息对应的物理偏移量，通过物理偏移量就可以计算出该消息位于哪个<code>CommitLog</code>文件上。</p>
 <h3 id="3-2-2-ConsumeQueue"><a href="#3-2-2-ConsumeQueue" class="headerlink" title="3.2.2 ConsumeQueue"></a>3.2.2 ConsumeQueue</h3><p><code>ConsumeQueue</code>是消息的<code>逻辑队列</code>，类似数据库的索引文件，存储的是指向物理存储的地址。每个Topic下的每个MessageQueue都有一个对应的<code>ConsumeQueue</code>文件，文件地址在<code>$&#123;$storeRoot&#125;\consumequeue\$&#123;topicName&#125;\$&#123;queueld&#125;\$&#123;fileName&#125;</code>。</p>
-<p>如下，Topic为<code>TOPIC_DELAY</code>的<code>ConsumeQueue</code>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll consumequeue/TOPIC_DELAY/3/00000000000000000000</span>
--rw-r--r-- <span class="token number">1</span> rocketmq rocketmq <span class="token number">6000000</span> Jul <span class="token number">17</span> <span class="token number">10</span>:39 consumequeue/TOPIC_DELAY/3/00000000000000000000<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p><code>ConsumeQueue</code>中存储的是<code>消息条目</code>，为了加速<code>ConsumeQueue</code>消息条目的检索速度与节省磁盘空间，每一个<code>ConsumeQueue</code>条目<strong>不会</strong>存储消息的全量信息，消息条目如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-item-view.png"><div class="caption"><b class="center-caption">消息条目示意图</b></div>
-
+<p>如下，Topic为<code>TOPIC_DELAY</code>的<code>ConsumeQueue</code>：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@1ef139d74985 store<span class="token punctuation">]</span><span class="token comment"># ll consumequeue/TOPIC_DELAY/3/00000000000000000000</span>
+-rw-r--r-- <span class="token number">1</span> rocketmq rocketmq <span class="token number">6000000</span> Jul <span class="token number">17</span> <span class="token number">10</span>:39 consumequeue/TOPIC_DELAY/3/00000000000000000000<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p><code>ConsumeQueue</code>中存储的是<code>消息条目</code>，为了加速<code>ConsumeQueue</code>消息条目的检索速度与节省磁盘空间，每一个<code>ConsumeQueue</code>条目<strong>不会</strong>存储消息的全量信息，消息条目如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-item-view.png"><div class="caption"><b class="center-caption">消息条目示意图</b></div></p>
 <p><code>ConsumeQueue</code>即为<code>CommitLog</code>文件的索引文件，其构建机制是当消息到达<code>CommitLog文件</code>后由专门的线程产生消息转发任务，从而构建消息消费队列文件(ConsumeQueue)与下文提到的索引文件。</p>
 <blockquote>
 <p>存储机制这样设计有以下几个好处：</p>
@@ -924,12 +971,9 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
 </blockquote>
 <p>RocketMQ 清除过期文件的方法是：如果<code>非当前写文件</code>在一定时间间隔内没有再次被更新，则认为是过期文件，可以被删除， RocketMQ 不会关注这个文件上的消息是否全部被消费。默认每个文件的过期时间为<code>72 小时</code>(不同版本的默认值不同，这里以 4.7.0 为例) ，通过在 Broker 配置文件中设置 <code>fileReservedTime</code>来改变过期时间，单位为<code>小时</code>。</p>
 <blockquote>
-<p><code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中可以找到<code>fileReservedTime</code>的默认值。</p>
+<p><code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中可以找到<code>fileReservedTime</code>的默认值。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">int</span> fileReservedTime <span class="token operator">=</span> <span class="token number">72</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 </blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">int</span> fileReservedTime <span class="token operator">=</span> <span class="token number">72</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>触发文件清除操作的是一个<code>定时任务</code>，而且只有定时任务，文件过期删除定时任务的<code>周期</code>由该删除决定，默认<code>每 10s 执行一次</code>。如下源码所示：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>rocketmq<span class="token punctuation">.</span>store</span><span class="token punctuation">;</span>
+<p>触发文件清除操作的是一个<code>定时任务</code>，而且只有定时任务，文件过期删除定时任务的<code>周期</code>由该删除决定，默认<code>每 10s 执行一次</code>。如下源码所示：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">package</span> <span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>rocketmq<span class="token punctuation">.</span>store</span><span class="token punctuation">;</span>
 
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMessageStore</span> <span class="token keyword">implements</span> <span class="token class-name">MessageStore</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">addScheduleTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -941,12 +985,9 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">60</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>messageStoreConfig<span class="token punctuation">.</span><span class="token function">getCleanResourceInterval</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token class-name">TimeUnit</span><span class="token punctuation">.</span><span class="token constant">MILLISECONDS</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>其中<code>this.messageStoreConfig.getCleanResourceInterval()</code>同样位于<code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中，其默认值源码中是这样子的：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// Resource reclaim interval</span>
-    <span class="token keyword">private</span> <span class="token keyword">int</span> cleanResourceInterval <span class="token operator">=</span> <span class="token number">10000</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>其中<code>this.messageStoreConfig.getCleanResourceInterval()</code>同样位于<code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中，其默认值源码中是这样子的：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">// Resource reclaim interval</span>
+    <span class="token keyword">private</span> <span class="token keyword">int</span> cleanResourceInterval <span class="token operator">=</span> <span class="token number">10000</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
 <h2 id="4-2-过期判断"><a href="#4-2-过期判断" class="headerlink" title="4.2 过期判断"></a>4.2 过期判断</h2><p>除了上述中的<code>fileReservedTime</code>参数，另外还有其他两个配置参数：</p>
 <ul>
 <li><code>deletePhysicFilesInterval</code>：删除物理文件的时间间隔(默认是<code>100ms</code>)，在一次定时任务触发时，可能会有多个物理文件超过过期时间可被删除，因此删除一个文件后需要间隔 <code>deletePhysicFilesInterval</code> 这个时间再删除另外一个文件，由于删除文件是一个非常耗费 <code>I/O</code> 的操作，会引起消息插入消费的延迟(相比于正常情况下)，所以<strong>不建议直接删除所有过期文件</strong>。</li>
@@ -965,9 +1006,7 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
 <p>没有说不需要拷贝，只是说减少冗余、或者说是减少<strong>不必要</strong>的拷贝。<br>使用了零拷贝技术的组件：Kafka、Netty、Rocketmq、Nginx、Apache。</p>
 </blockquote>
 <h2 id="5-2-原理及流程"><a href="#5-2-原理及流程" class="headerlink" title="5.2 原理及流程"></a>5.2 原理及流程</h2><p>在讲解零拷贝之前，先说说传统数据传送的机制和流程，后面就很直观地有了对比，非常容易找到零拷贝与其的改进之处，还有优势。</p>
-<h3 id="5-2-1-传统数据传送机制"><a href="#5-2-1-传统数据传送机制" class="headerlink" title="5.2.1 传统数据传送机制"></a>5.2.1 传统数据传送机制</h3><p>上图。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/traditional-data-flow.png"><div class="caption"><b class="center-caption">传统数据传送流程</b></div>
-
+<h3 id="5-2-1-传统数据传送机制"><a href="#5-2-1-传统数据传送机制" class="headerlink" title="5.2.1 传统数据传送机制"></a>5.2.1 传统数据传送机制</h3><p>上图。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/traditional-data-flow.png"><div class="caption"><b class="center-caption">传统数据传送流程</b></div></p>
 <p>其4次拷贝流程如下：</p>
 <ul>
 <li>第一次：将磁盘文件，读取到<code>操作系统内核缓冲区</code>；</li>
@@ -979,13 +1018,10 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
 <blockquote>
 <p>Tips: DMA，Direct Memory Access，即<code>直接内存访问</code>。其本质上是一块主板上独立的芯片，允许<code>外设设备</code>和<code>内存存储器</code>之间直接进行<code>IO数据传输</code>，其过程<strong>不需要CPU的参与</strong>。</p>
 </blockquote>
-<h3 id="5-2-2-mmap-内存映射-write"><a href="#5-2-2-mmap-内存映射-write" class="headerlink" title="5.2.2 mmap 内存映射 + write"></a>5.2.2 mmap 内存映射 + write</h3><p>上图。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mmap-write.png"><div class="caption"><b class="center-caption">零拷贝之mmap+write</b></div>
-
+<h3 id="5-2-2-mmap-内存映射-write"><a href="#5-2-2-mmap-内存映射-write" class="headerlink" title="5.2.2 mmap 内存映射 + write"></a>5.2.2 mmap 内存映射 + write</h3><p>上图。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mmap-write.png"><div class="caption"><b class="center-caption">零拷贝之mmap+write</b></div></p>
 <p><code>硬盘上文件的位置</code>和<code>应用程序缓冲区</code>(application buffers)进行映射(一一对应关系)，由于 <code>mmap()</code>将文件直接映射到用户空间，所以实际文件读取时根据这个映射关系，<strong>直接</strong>将文件从硬盘拷贝到用户空间，只进行了<code>一次数据拷贝</code>，不再有文件内容从硬盘拷贝到内核空间的一个缓冲区。</p>
 <p>mmap 内存映射将会经历<code>3 次拷贝</code>: <code>1 次 cpu copy</code>，<code>2 次 DMA copy</code>; 以及 <code>4 次上下文切换</code>。</p>
-<h4 id="5-2-2-1-RocketMQ-源码中的-MMAP-运用"><a href="#5-2-2-1-RocketMQ-源码中的-MMAP-运用" class="headerlink" title="5.2.2.1 RocketMQ 源码中的 MMAP 运用"></a>5.2.2.1 RocketMQ 源码中的 MMAP 运用</h4><p>RocketMQ 源码中，使用<code>MappedFile</code>这个类进行<code>MMAP</code>的映射。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MappedFile</span> <span class="token keyword">extends</span> <span class="token class-name">ReferenceResource</span> <span class="token punctuation">&#123;</span>
+<h4 id="5-2-2-1-RocketMQ-源码中的-MMAP-运用"><a href="#5-2-2-1-RocketMQ-源码中的-MMAP-运用" class="headerlink" title="5.2.2.1 RocketMQ 源码中的 MMAP 运用"></a>5.2.2.1 RocketMQ 源码中的 MMAP 运用</h4><p>RocketMQ 源码中，使用<code>MappedFile</code>这个类进行<code>MMAP</code>的映射。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MappedFile</span> <span class="token keyword">extends</span> <span class="token class-name">ReferenceResource</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//前后省略部分代码</span>
     <span class="token keyword">public</span> <span class="token class-name">MappedFile</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> fileName<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token keyword">int</span> fileSize<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
         <span class="token function">init</span><span class="token punctuation">(</span>fileName<span class="token punctuation">,</span> fileSize<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1020,16 +1056,12 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h3 id="5-2-3-sendFile-Linux-2-1"><a href="#5-2-3-sendFile-Linux-2-1" class="headerlink" title="5.2.3 sendFile(Linux 2.1)"></a>5.2.3 sendFile(Linux 2.1)</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/sendFile.png"><div class="caption"><b class="center-caption">零拷贝之sendFile</b></div>
-
 <p>整个过程经历<code>3 次拷贝</code>，<code>1 次CPU copy</code>，<code>2 次DMA copy</code>。</p>
-<h3 id="5-2-4-sendFile-scatter-x2F-gather-Linux-2-4"><a href="#5-2-4-sendFile-scatter-x2F-gather-Linux-2-4" class="headerlink" title="5.2.4 sendFile + scatter&#x2F;gather(Linux 2.4)"></a>5.2.4 sendFile + scatter&#x2F;gather(Linux 2.4)</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/sendFile-scatter-and-gather.png"><div class="caption"><b class="center-caption">零拷贝之sendFile + scatter/gather</b></div>
-
+<h3 id="5-2-4-sendFile-scatter-gather-Linux-2-4"><a href="#5-2-4-sendFile-scatter-gather-Linux-2-4" class="headerlink" title="5.2.4 sendFile + scatter/gather(Linux 2.4)"></a>5.2.4 sendFile + scatter/gather(Linux 2.4)</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/sendFile-scatter-and-gather.png"><div class="caption"><b class="center-caption">零拷贝之sendFile + scatter/gather</b></div>
 <p>整个过程经历<code>2次上下文切换</code>以及<code>2次数据拷贝</code>。</p>
 <h3 id="5-2-5-splice-linux-2-6"><a href="#5-2-5-splice-linux-2-6" class="headerlink" title="5.2.5 splice(linux 2.6)"></a>5.2.5 splice(linux 2.6)</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/splice.png"><div class="caption"><b class="center-caption">零拷贝之splice</b></div>
-
 <p>不需要硬件支持；不再限定于socket上，实现两个普通文件之间的数据零拷贝。</p>
 <p>整个过程经历<code>0 次cpu copy</code>，<code>2 次DMA copy</code>。</p>
 <p>局限性体现在：它的两个文件描述符参数中<strong>有一个必须</strong>是<code>管道设备</code>。</p>
@@ -1727,7 +1759,7 @@ drwxr-xr-x <span class="token number">6</span> rocketmq rocketmq <span class="to
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1990,6 +2022,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

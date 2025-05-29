@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -845,30 +902,24 @@
 <p>二叉树的 <strong>垂序遍历</strong> 从最左边的列开始直到最右边的列结束，按列索引每一列上的所有结点，形成一个按出现位置从上到下排序的有序列表。如果同行同列上有多个结点，则按结点的值从小到大进行排序。</p>
 <p>返回二叉树的 <strong>垂序遍历</strong> 序列。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/e04967e5622978d8f038f3f484c96344.jpeg"><div class="caption"><b class="center-caption">"图1"</b></div>
-
 <blockquote>
-<p>输入：root &#x3D; [3,9,20,null,null,15,7]<br>输出：[[9],[3,15],[20],[7]]</p>
+<p>输入：root = [3,9,20,null,null,15,7]<br>输出：[[9],[3,15],[20],[7]]</p>
 </blockquote>
 <p><strong>解释</strong>：<br>列 -1 ：只有结点 9 在此列中。<br>列  0 ：只有结点 3 和 15 在此列中，按从上到下顺序。<br>列  1 ：只有结点 20 在此列中。<br>列  2 ：只有结点 7 在此列中。</p>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/928311391554fa02c32df8d2fe82f29f.jpeg"><div class="caption"><b class="center-caption">"图2"</b></div>
-
 <blockquote>
-<p>输入：root &#x3D; [1,2,3,4,5,6,7]<br>输出：[[4],[2],[1,5,6],[3],[7]]</p>
+<p>输入：root = [1,2,3,4,5,6,7]<br>输出：[[4],[2],[1,5,6],[3],[7]]</p>
 </blockquote>
 <p><strong>解释</strong>：<br>列 -2 ：只有结点 4 在此列中。<br>列 -1 ：只有结点 2 在此列中。<br>列  0 ：结点 1 、5 和 6 都在此列中。<br>          1 在上面，所以它出现在前面。<br>          5 和 6 位置都是 (2, 0) ，所以按值从小到大排序，5 在 6 的前面。<br>列  1 ：只有结点 3 在此列中。<br>列  2 ：只有结点 7 在此列中。</p>
 <h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/21f2fd6f20821d1e1279984777466b85.jpeg"><div class="caption"><b class="center-caption">"图3"</b></div>
-
 <blockquote>
-<p>输入：root &#x3D; [1,2,3,4,6,5,7]<br>输出：[[4],[2],[1,5,6],[3],[7]]</p>
+<p>输入：root = [1,2,3,4,6,5,7]<br>输出：[[4],[2],[1,5,6],[3],[7]]</p>
 </blockquote>
 <p><strong>解释</strong>：<br>这个示例实际上与示例 2 完全相同，只是结点 5 和 6 在树中的位置发生了交换。<br>因为 5 和 6 的位置仍然相同，所以答案保持不变，仍然按值从小到大排序。</p>
 <p><strong>提示</strong>：</p>
 <ul>
 <li>树中结点数目总数在范围 [1, 1000] 内</li>
-<li>0 &lt;&#x3D; Node.val &lt;&#x3D; 1000</li>
-</ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><p>从示例可以得出，最终答案是先按列号从小到大排列，列号相同再按行号从小到大，行号相同再按值从小到大输出。因而我们在遍历二叉树时需要统计各个节点(列号，行号，值)的三元组，然后按照列号、行号、值的升序排列，最后输出结果。</p>
-<ul>
+<li>0 &lt;= Node.val &lt;= 1000<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1>从示例可以得出，最终答案是先按列号从小到大排列，列号相同再按行号从小到大，行号相同再按值从小到大输出。因而我们在遍历二叉树时需要统计各个节点(列号，行号，值)的三元组，然后按照列号、行号、值的升序排列，最后输出结果。</li>
 <li>定义一个map，key为节点，value存储该节点的列号，行号，值</li>
 <li>深度优先算法，遍历各个节点，记录各节点 列号、行号、值，保存至map中</li>
 <li>对map的values按照排序规则进行排序</li>
@@ -1682,7 +1733,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1945,6 +1996,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

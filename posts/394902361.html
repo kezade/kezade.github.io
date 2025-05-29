@@ -11,8 +11,7 @@
 
 示例 1示例1
 
-
-输入：root &amp;#x3D; [5,4,8,">
+输入：root = [5,4,8,11,nul">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -68,7 +67,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -186,7 +185,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -262,6 +261,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -284,6 +292,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -464,7 +490,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -548,6 +574,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -570,6 +606,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -809,7 +865,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    519
+                    509
                 </div>
                 
 
@@ -839,23 +895,17 @@
 <p><code>叶子节点</code>是指没有子节点的节点。</p>
 </blockquote>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC113-1.jpeg"><div class="caption"><b class="center-caption">示例1</b></div>
-
 <blockquote>
-<p>输入：root &#x3D; [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum &#x3D; 22<br>输出：[[5,4,11,2],[5,8,4,5]]</p>
-</blockquote>
+<p>输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22<br>输出：[[5,4,11,2],[5,8,4,5]]</p>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC113-2.jpeg"><div class="caption"><b class="center-caption">示例2</b></div>
-
-<blockquote>
-<p>输入：root &#x3D; [1,2,3], targetSum &#x3D; 5<br>输出：[]</p>
-</blockquote>
-<h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><blockquote>
-<p>输入：root &#x3D; [1,2], targetSum &#x3D; 0<br>输出：[]</p>
+<p>输入：root = [1,2,3], targetSum = 5<br>输出：[]</p>
+<h2 id="示例-3"><a href="#示例-3" class="headerlink" title="示例 3"></a>示例 3</h2><p>输入：root = [1,2], targetSum = 0<br>输出：[]</p>
 </blockquote>
 <p><strong>提示</strong></p>
 <ul>
 <li>树中节点总数在范围 [0, 5000] 内</li>
-<li>-1000 &lt;&#x3D; Node.val &lt;&#x3D; 1000</li>
-<li>-1000 &lt;&#x3D; targetSum &lt;&#x3D; 1000</li>
+<li>-1000 &lt;= Node.val &lt;= 1000</li>
+<li>-1000 &lt;= targetSum &lt;= 1000</li>
 </ul>
 <h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2 解题思路"></a>2 解题思路</h1><p>这一题是<a href="/posts/3347276408.html" title="【LeetCode】112.路径总和">第 112 题</a>和<a href="/posts/144184336.html" title="【LeetCode】257.二叉树的所有路径">第 257 题</a>的组合增强版。<br>两种方法都是递归思想，常用的回溯法也是递归的一种，这题采用回溯法公式，可以马上解出来。公式参见<a href="/posts/558427405.html" title="【LeetCode】46.全排列">【LeetCode】46.全排列</a>。</p>
 <h1 id="3-代码"><a href="#3-代码" class="headerlink" title="3 代码"></a>3 代码</h1><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
@@ -1620,7 +1670,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1638,7 +1688,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1901,6 +1951,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

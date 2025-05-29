@@ -66,7 +66,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +184,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +260,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +291,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +489,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +573,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +605,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -898,13 +955,11 @@
 <p>事务将数据库从<strong>一种一致性状态</strong>转换到<strong>另外一种一致性状态</strong>，在事务开始之前和事务结束之后数据库中数据的完整性没有被破坏。</p>
 </blockquote>
 </li>
-<li><p>隔离性（Isolation）</p>
-<blockquote>
+<li>隔离性（Isolation）<blockquote>
 <p>一个事务的执行不能被其他事务干扰。即一个事务内部的操作及使用的数据对并发的其他事务是隔离的，并发执行的各个事务之间不能互相干扰。</p>
 </blockquote>
 </li>
-<li><p>持久性（Durability）</p>
-<blockquote>
+<li>持久性（Durability）<blockquote>
 <p>一旦事务提交，则其所做的修改就会永久保存到数据库中。此时即使系统崩溃，已经提交的修改数据也不会丢失。</p>
 </blockquote>
 </li>
@@ -927,16 +982,14 @@
 <li><p>与ACID中的C（一致性）区别</p>
 <blockquote>
 <p>ACID的C：逻辑上的一致性，即所有操作是符合现实当中的期望的，事务执行后不会出现任何无效的数据状态，强调数据的完整性。</p>
-</blockquote>
 <ul>
 <li>比如：如果带有一个外键的一行记录被删除，那么其外键相关记录也应该被删除，这就是ACID一致性意思。</li>
 </ul>
-<blockquote>
 <p>CAP的C：物理上的一致性，强调数据的正确性。</p>
-</blockquote>
 <ul>
 <li>同样数据在分布式系统中所有地方都是被复制成相同。</li>
 </ul>
+</blockquote>
 </li>
 </ul>
 </li>
@@ -952,20 +1005,18 @@
 </li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CAP.png"><div class="caption"><b class="center-caption">CAP</b></div>
-
 <p><strong>CAP理论告诉我们C、A、P三者不能同时满足，最多只能满足其中两个。</strong></p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Non-CAP.png"><div class="caption"><b class="center-caption">鱼和熊掌不可兼得</b></div>
-
 <h3 id="2-4-6-BASE理论"><a href="#2-4-6-BASE理论" class="headerlink" title="2.4.6 BASE理论"></a>2.4.6 BASE理论</h3><p>即使无法做到强一致性，但分布式系统可以根据自己的业务特点，采用适当的方式来使系统达到<strong>最终的一致性</strong>。</p>
 <ul>
 <li><p>Basically Available（BA基本可用）</p>
 <blockquote>
 <p>允许损失部分可用性，不等价于系统不可用。具体损失表现在：</p>
-</blockquote>
 <ul>
 <li>响应时间上的损失，</li>
 <li>功能上的损失（峰值并发时可能会引导到一个降级的页面）</li>
 </ul>
+</blockquote>
 </li>
 <li><p>Soft state（S软状态）</p>
 <blockquote>
@@ -979,7 +1030,6 @@
 </li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CAP2.png"><div class="caption"><b class="center-caption">BASE理论</b></div>
-
 <p>下一章讨论分布式中的一致性协议。敬请期待！</p>
 
                 
@@ -1715,7 +1765,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1978,6 +2028,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

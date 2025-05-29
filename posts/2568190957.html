@@ -64,7 +64,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -834,6 +891,7 @@
 <h2 id="2-3-隔离性（isolation）"><a href="#2-3-隔离性（isolation）" class="headerlink" title="2.3 隔离性（isolation）"></a>2.3 隔离性（isolation）</h2><p>一个事务的执行不能被其他事务<code>干扰</code>。即一个事务内部的操作及使用的数据对并发的其他事务是<code>隔离的</code>，并发执行的各个事务之间不能互相干扰。</p>
 <h2 id="2-4-持久性（durability）"><a href="#2-4-持久性（durability）" class="headerlink" title="2.4 持久性（durability）"></a>2.4 持久性（durability）</h2><p>一旦事务提交，则其所做的修改就会<code>永久保存</code>到数据库中。此时即使系统崩溃，已经提交的修改数据也不会丢失。</p>
 <h1 id="3-事务并发引发的问题"><a href="#3-事务并发引发的问题" class="headerlink" title="3 事务并发引发的问题"></a>3 事务并发引发的问题</h1><h2 id="3-1-脏读"><a href="#3-1-脏读" class="headerlink" title="3.1 脏读"></a>3.1 脏读</h2><p>当一个事务读取到了另外一个事务<code>修改但未提交</code>的数据。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -841,29 +899,33 @@
 <th>T2</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>begin</td>
 <td></td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td>begin</td>
 </tr>
 <tr>
 <td></td>
-<td>update t1 set money&#x3D;1500 where id&#x3D;King</td>
+<td>update t1 set money=1500 where id=King</td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td></td>
 </tr>
 <tr>
 <td></td>
 <td>rollback</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>上表中，事务 T2 修改了一行记录，但是没有提交。然后事务 T1 读取到了<code>未提交</code>的数据， 如果事务 T2 <code>回滚</code>其更改的数据或者<code>再次更新</code>，那么在事务 T1 中看到的记录可能就是<code>错误的</code>。事务 T1 读取到了 King 老师余额为 <code>1500</code> 的记录，但是事务 T2 执行了<code>回滚</code>操作，这时并不存在 King 老师余额为 1500 记录。</p>
 <h2 id="3-2-不可重复读"><a href="#3-2-不可重复读" class="headerlink" title="3.2 不可重复读"></a>3.2 不可重复读</h2><p>当事务内相同的记录被检索两次，且两次得到的结果不同时（<code>强调修改</code>）。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -871,32 +933,35 @@
 <th>T2</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>begin</td>
 <td></td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td>begin</td>
 </tr>
 <tr>
 <td></td>
-<td>update t1 set money&#x3D;1500 where id&#x3D;King</td>
+<td>update t1 set money=1500 where id=King</td>
 </tr>
 <tr>
 <td></td>
 <td>commit;</td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td></td>
 </tr>
 <tr>
 <td>commit;</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="3-3-幻读（phantom-read）"><a href="#3-3-幻读（phantom-read）" class="headerlink" title="3.3 幻读（phantom read）"></a>3.3 幻读（phantom read）</h2><p>在事务执行过程中，另一个事务将<code>新记录</code>添加到正在读取的事务中时，会发生幻读（<code>强调新增</code>）。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -904,12 +969,13 @@
 <th>T2</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>begin</td>
 <td></td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td>begin</td>
 </tr>
 <tr>
@@ -921,14 +987,15 @@
 <td>commit;</td>
 </tr>
 <tr>
-<td>select money from t1 where id&#x3D;King</td>
+<td>select money from t1 where id=King</td>
 <td></td>
 </tr>
 <tr>
 <td>commit;</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>那如果事务 T2 中是<code>删除</code>了符合的记录而不是插入新记录，那事务T1中之后再根据条件读取的记录变少了，这种现象算不算幻读呢?</p>
 <blockquote>
 <p>明确说一下，在<code>MySQL</code>中这种现象<code>不属于幻读</code>，幻读强调的是<strong>一个事务按照某个相同条件多次读取记录时，后读取时读到了之前没有读到的记录</strong>。</p>
@@ -944,6 +1011,7 @@
 <li><code>SERIALIZABLE</code>：可串行化。</li>
 </ul>
 <h2 id="4-1-SQL-标准中的四种隔离级别"><a href="#4-1-SQL-标准中的四种隔离级别" class="headerlink" title="4.1 SQL 标准中的四种隔离级别"></a>4.1 SQL 标准中的四种隔离级别</h2><p><code>SQL 标准</code>中规定，针对不同的隔离级别，并发事务可以发生不同严重程度的问题，具体情况如下:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -953,7 +1021,8 @@
 <th>幻读</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>READ UNCOMMITTED</td>
 <td>可能</td>
 <td>可能</td>
@@ -975,10 +1044,12 @@
 <td>SERIALIZABLE</td>
 <td>-</td>
 <td>-</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="4-2-MySQL中的隔离级别"><a href="#4-2-MySQL中的隔离级别" class="headerlink" title="4.2 MySQL中的隔离级别"></a>4.2 MySQL中的隔离级别</h2><p>不同的数据库厂商对 SQL 标准中规定的四种隔离级别支持不一样，比方说 <code>Oracle</code> 就只支持 <code>READ COMMITTED</code> 和 <code>SERIALIZABLE</code> 隔离级别。本书中所讨论的 MySQL 虽然支持 4 种隔离级别，但与 SQL 标准中所规定的各级隔离级别允许发生的问题却有些出入，MySQL在<code>REPEATABLE READ</code>隔离级别下，是可以<code>禁止幻读问题的发生的</code>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -988,7 +1059,8 @@
 <th>幻读</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>READ UNCOMMITTED</td>
 <td>可能</td>
 <td>可能</td>
@@ -1010,15 +1082,14 @@
 <td>SERIALIZABLE</td>
 <td>-</td>
 <td>-</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>Tips: MySQL的<code>默认隔离级别</code>为 <code>REPEATABLE READ</code>。</p>
 </blockquote>
-<h3 id="4-2-1-如何设置事务的隔离级别？"><a href="#4-2-1-如何设置事务的隔离级别？" class="headerlink" title="4.2.1 如何设置事务的隔离级别？"></a>4.2.1 如何设置事务的隔离级别？</h3><p>我们可以通过下边的语句修改事务的隔离级别:</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SET</span> <span class="token punctuation">[</span><span class="token keyword">GLOBAL</span><span class="token operator">|</span><span class="token keyword">SESSION</span><span class="token punctuation">]</span> <span class="token keyword">TRANSACTION</span> <span class="token keyword">ISOLATION</span> <span class="token keyword">LEVEL</span> <span class="token keyword">level</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<h3 id="4-2-1-如何设置事务的隔离级别？"><a href="#4-2-1-如何设置事务的隔离级别？" class="headerlink" title="4.2.1 如何设置事务的隔离级别？"></a>4.2.1 如何设置事务的隔离级别？</h3><p>我们可以通过下边的语句修改事务的隔离级别:<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">SET</span> <span class="token punctuation">[</span><span class="token keyword">GLOBAL</span><span class="token operator">|</span><span class="token keyword">SESSION</span><span class="token punctuation">]</span> <span class="token keyword">TRANSACTION</span> <span class="token keyword">ISOLATION</span> <span class="token keyword">LEVEL</span> <span class="token keyword">level</span><span class="token punctuation">;</span> <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>其中的 level 可选值有 4 个：<code>REPEATABLE READ</code> | <code>READ COMMITTED</code> | <code>READ UNCOMMITTED</code> | <code>SERIALIZABLE</code>。</p>
 <ul>
 <li><p>使用 <code>GLOBAL</code> 关键字(在全局范围影响):<br>比方说这样:</p>
@@ -1727,7 +1798,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1745,7 +1816,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2008,6 +2079,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

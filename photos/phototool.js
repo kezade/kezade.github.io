@@ -33,6 +33,7 @@ function createPlotIconsData() {
     let allPlotGroups = [];
     console.log("dirname: " + __dirname);
     const plotJsonFile = path.join(__dirname, './photosInfo.json');
+    //先删除_data目录下的galleries.json，再执行 node phototool.js，以免重复数据
     const plotGroupJsonFile = path.join(__dirname+ "/../_data", './galleries.json');
 
     if (fs.existsSync(plotJsonFile)) {

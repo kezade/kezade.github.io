@@ -11,7 +11,7 @@
 
 示例 1示例1
 
-输入: head &amp;#x3D; [-">
+输入: head = [-10,-3">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -67,7 +67,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -185,7 +185,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -261,6 +261,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -283,6 +292,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -463,7 +490,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -547,6 +574,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -569,6 +606,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -847,18 +904,17 @@
 </blockquote>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC109-1.jpeg"><div class="caption"><b class="center-caption">示例1</b></div>
 <blockquote>
-<p>输入: head &#x3D; [-10,-3,0,5,9]<br>输出: [0,-3,9,-10,null,5]<br>解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。</p>
+<p>输入: head = [-10,-3,0,5,9]<br>输出: [0,-3,9,-10,null,5]<br>解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入: head &#x3D; []<br>输出: []</p>
+<p>输入: head = []<br>输出: []</p>
 </blockquote>
 <p><strong>提示</strong></p>
 <ul>
 <li>head中的节点数在[0, 2 * 104]范围内</li>
-<li>-105&lt;&#x3D; Node.val &lt;&#x3D; 105</li>
+<li>-105&lt;= Node.val &lt;= 105</li>
 </ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2 解题思路"></a>2 解题思路</h1><p>单链表、二叉树结构：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ListNode</span> <span class="token punctuation">&#123;</span>
+<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2 解题思路"></a>2 解题思路</h1><p>单链表、二叉树结构：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"> <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ListNode</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">int</span> val<span class="token punctuation">;</span>
     <span class="token class-name">ListNode</span> next<span class="token punctuation">;</span>
 
@@ -892,8 +948,7 @@
         <span class="token keyword">this</span><span class="token punctuation">.</span>left <span class="token operator">=</span> left<span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>right <span class="token operator">=</span> right<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>不同于<a href="/posts/3979272212.html" title="【LeetCode】108.将有序数组转换为二叉搜索树">【LeetCode】108.将有序数组转换为二叉搜索树</a> ，本题中已知输入为<code>有序链表</code>，但思想还是一样的。</p>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>不同于<a href="/posts/3979272212.html" title="【LeetCode】108.将有序数组转换为二叉搜索树">【LeetCode】108.将有序数组转换为二叉搜索树</a> ，本题中已知输入为<code>有序链表</code>，但思想还是一样的。</p>
 <h2 id="2-1-递归-快慢指针"><a href="#2-1-递归-快慢指针" class="headerlink" title="2.1 递归 + 快慢指针"></a>2.1 递归 + 快慢指针</h2><p>数组可以根据下标快速定位左右子树的范围，对于链表，我们同样可以利用指针来划分，原理就是<code>快慢指针</code>。</p>
 <blockquote>
 <p>快指针速度是慢指针的两倍，等到快指针到底链表末尾或者为null，慢指针刚好位于中间节点。</p>
@@ -905,7 +960,8 @@
 <li>只要<code>null != fast</code> 且 <code>null != fast.next</code>，则循环执行<code>slow = slow.next; fast = fast.next.next;</code>；</li>
 <li>执行完上一步的循环，此时<code>slow</code>的下一个节点即为链表中点，则以该中点为根节点<code>root</code>，root左子树范围为<code>[head, slow]</code>，其右子树范围为<code>[slow.next.next, 链表结尾]</code>；</li>
 <li>上述结论用已知的构造方法表示为：<pre class="line-numbers language-java" data-language="java"><code class="language-java">root<span class="token punctuation">.</span>left <span class="token operator">=</span> <span class="token function">sortedListToBST</span><span class="token punctuation">(</span>head<span class="token punctuation">)</span><span class="token punctuation">;</span>
-root<span class="token punctuation">.</span>right <span class="token operator">=</span> <span class="token function">sortedListToBST</span><span class="token punctuation">(</span>slow<span class="token punctuation">.</span>next<span class="token punctuation">.</span>next<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></li>
+root<span class="token punctuation">.</span>right <span class="token operator">=</span> <span class="token function">sortedListToBST</span><span class="token punctuation">(</span>slow<span class="token punctuation">.</span>next<span class="token punctuation">.</span>next<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+</li>
 </ul>
 <h2 id="2-2-递归-中序遍历"><a href="#2-2-递归-中序遍历" class="headerlink" title="2.2 递归 + 中序遍历"></a>2.2 递归 + 中序遍历</h2><p>学习了k神的思想，觉得真是🐂🍺，上述算法存在的问题时，每次递归都需要重新遍历节点找出根节点，左右子树范围，效率略低。k神的算法就是想减少循环遍历，通过一次遍历链表的过程，来构造题目要求的<code>高度平衡二叉搜索树</code>。<br>大致流程：</p>
 <ul>
@@ -949,7 +1005,6 @@ root<span class="token punctuation">.</span>right <span class="token operator">=
         <span class="token keyword">return</span> root<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="3-2-递归-中序遍历"><a href="#3-2-递归-中序遍历" class="headerlink" title="3.2 递归 + 中序遍历"></a>3.2 递归 + 中序遍历</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">class</span> <span class="token class-name">Solution</span> <span class="token punctuation">&#123;</span>
     <span class="token class-name">ListNode</span> newNode<span class="token punctuation">;</span>
 
@@ -988,9 +1043,8 @@ root<span class="token punctuation">.</span>right <span class="token operator">=
         <span class="token keyword">return</span> root<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <blockquote>
-<p>注：LC108&#x2F;LC109构造结果不唯一，比如[-10,-3,0,5,9]，可以构造出以下<code>高度平衡的二叉搜索树</code>：</p>
+<p>注：LC108/LC109构造结果不唯一，比如[-10,-3,0,5,9]，可以构造出以下<code>高度平衡的二叉搜索树</code>：</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC109-2.png"><div class="caption"><b class="center-caption">两颗不同的高度平衡二叉搜索树</b></div>
                 
@@ -1695,7 +1749,7 @@ root<span class="token punctuation">.</span>right <span class="token operator">=
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1713,7 +1767,7 @@ root<span class="token punctuation">.</span>right <span class="token operator">=
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1976,6 +2030,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

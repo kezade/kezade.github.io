@@ -62,7 +62,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -828,9 +885,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 <p>Zookeeper是一个典型的<code>分布式数据一致性的解决方案</code>，分布式应用程序可以基于它实现诸如<code>数据发布/订阅</code>、<code>负载均衡</code>、<code>命名服务</code>、<code>分布式协调/通知</code>、<code>集群管理</code>、<code>Master选举</code>、<code>分布式锁</code>和<code>分布式队列</code>等功能。</p>
 <h1 id="2-Zookeeper基本概念"><a href="#2-Zookeeper基本概念" class="headerlink" title="2 Zookeeper基本概念"></a>2 Zookeeper基本概念</h1><h2 id="2-1-集群角色"><a href="#2-1-集群角色" class="headerlink" title="2.1 集群角色"></a>2.1 集群角色</h2><p><code>Leader</code>：Leader服务器为客户端提供读写服务<br><code>Follower</code>：Follower为客户端提供读服务<br><code>Observer</code>：Observer为客户端提供读服务，不参与选举Leader，不参与事务投票，不影响写性能提高集群的读性能。</p>
 <h2 id="2-2-会话（Session）"><a href="#2-2-会话（Session）" class="headerlink" title="2.2 会话（Session）"></a>2.2 会话（Session）</h2><p><code>Session</code>是指<code>客户端会话</code>，是客户端连接服务端的一个<code>TCP长连接</code>。服务端的<code>Watch事件通知</code>也是通过该<code>TCP连接</code>。</p>
-<h2 id="2-3-数据节点（Znode）"><a href="#2-3-数据节点（Znode）" class="headerlink" title="2.3 数据节点（Znode）"></a>2.3 数据节点（Znode）</h2><p>Zookeeper将所有的数据存储在<code>内存</code>中，数据模型是<code>一棵树</code>（Znode Tree），由斜杆进行分割的路径，就是一个<code>Znode</code>，每个<code>Znode</code>上都会保存自己的数据内容，同时还会保存一些列的属性信息。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Znode(v3.6.0).png"><div class="caption"><b class="center-caption">Znode结构</b></div>
-
+<h2 id="2-3-数据节点（Znode）"><a href="#2-3-数据节点（Znode）" class="headerlink" title="2.3 数据节点（Znode）"></a>2.3 数据节点（Znode）</h2><p>Zookeeper将所有的数据存储在<code>内存</code>中，数据模型是<code>一棵树</code>（Znode Tree），由斜杆进行分割的路径，就是一个<code>Znode</code>，每个<code>Znode</code>上都会保存自己的数据内容，同时还会保存一些列的属性信息。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Znode(v3.6.0).png"><div class="caption"><b class="center-caption">Znode结构</b></div></p>
 <p>在Zookeeper中，Znode分为<code>持久节点</code>和<code>临时节点</code>，持久节点是指一旦创建，除非主动删除，否则这个Znode会一直在Zookeeper中，临时节点它的生命周期是跟<code>会话</code>绑定，一旦客户端<code>会话失效</code>，临时节点将会<code>删除</code>。另外，Zookeeper可以为每个节点添加<code>SEQUENTIAL</code>属性，一旦有这个属性，那么节点就是一个<code>有序节点</code>。</p>
 <ul>
 <li>持久节点（PERSISTENT）（默认）：在该数据节点创建后，就<code>一直存在</code>与Zookeeper服务器上，直到有<code>删除操作</code>来<code>主动清除</code>这个节点。不会因为创建该节点的客户端会话失效而消失；</li>
@@ -845,7 +900,6 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 <li><code>aversion</code>（当前Znode的<code>ACL版本</code>）</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Znode-Stat.png"><div class="caption"><b class="center-caption">Znode stat</b></div>
-
 <h2 id="2-5-Watcher"><a href="#2-5-Watcher" class="headerlink" title="2.5 Watcher"></a>2.5 Watcher</h2><p><code>Watcher</code>（事件监听器），Zookeeper允许用户在<code>指定节点</code>上<code>注册watcher</code>，并且在一些特定事件<code>触发</code>的时候，Zookeeper服务端会将事件<code>通知</code>到感兴趣的客户端上去，该机制是Zookeeper实现<code>分布式协调服务</code>的重要特性。</p>
 <ul>
 <li>特点<ul>
@@ -870,7 +924,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 </ul>
 <h3 id="2-5-1-工作机制"><a href="#2-5-1-工作机制" class="headerlink" title="2.5.1 工作机制"></a>2.5.1 工作机制</h3><ul>
 <li>客户端注册 watcher<ul>
-<li>调用 <code>getData()</code>&#x2F;<code>getChildren()</code>&#x2F;<code>exist()</code>三个 API，传入 <code>Watcher 对象</code>；</li>
+<li>调用 <code>getData()</code>/<code>getChildren()</code>/<code>exist()</code>三个 API，传入 <code>Watcher 对象</code>；</li>
 <li>标记请求 <code>request</code>，封装 <code>Watcher</code> 到 <code>WatchRegistration</code>；</li>
 <li>封装成 <code>Packet 对象</code>，向服务端发送 <code>request</code>；</li>
 <li>收到服务端响应后，将 <code>Watcher</code> <strong>注册</strong>到 <code>ZKWatcherManager</code> 中进行管理；</li>
@@ -1570,7 +1624,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1588,7 +1642,7 @@ Zookeeper是一个典型的分布式数据一致性的解决方">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1851,6 +1905,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

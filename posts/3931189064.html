@@ -5,9 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【RocketMQ学习】15.源码之顺序消息, Back-End Dev Java">
-    <meta name="description" content="1 demo1.1 Producer根据不同订单id的取模，把不同订单的消息分配到不同的MessageQueue，把相同订单消息分配到相同的MessageQueue。
-public class ProducerInOrder &amp;#123;
-">
+    <meta name="description" content="1 demo1.1 Producer根据不同订单id的取模，把不同订单的消息分配到不同的MessageQueue，把相同订单消息分配到相同的MessageQueue。public class ProducerInOrder &amp;#123;
+ ">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -63,7 +62,7 @@ public class ProducerInOrder &amp;#123;
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -181,7 +180,7 @@ public class ProducerInOrder &amp;#123;
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -257,6 +256,15 @@ public class ProducerInOrder &amp;#123;
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -279,6 +287,24 @@ public class ProducerInOrder &amp;#123;
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -459,7 +485,7 @@ public class ProducerInOrder &amp;#123;
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -543,6 +569,16 @@ public class ProducerInOrder &amp;#123;
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -565,6 +601,26 @@ public class ProducerInOrder &amp;#123;
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -829,8 +885,7 @@ public class ProducerInOrder &amp;#123;
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="1-demo"><a href="#1-demo" class="headerlink" title="1 demo"></a>1 demo</h1><h2 id="1-1-Producer"><a href="#1-1-Producer" class="headerlink" title="1.1 Producer"></a>1.1 Producer</h2><p>根据不同订单id的取模，把不同订单的消息分配到不同的MessageQueue，把相同订单消息分配到相同的MessageQueue。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProducerInOrder</span> <span class="token punctuation">&#123;</span>
+                <h1 id="1-demo"><a href="#1-demo" class="headerlink" title="1 demo"></a>1 demo</h1><h2 id="1-1-Producer"><a href="#1-1-Producer" class="headerlink" title="1.1 Producer"></a>1.1 Producer</h2><p>根据不同订单id的取模，把不同订单的消息分配到不同的MessageQueue，把相同订单消息分配到相同的MessageQueue。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProducerInOrder</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         <span class="token class-name">DefaultMQProducer</span> producer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultMQProducer</span><span class="token punctuation">(</span><span class="token string">"OrderProducer"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         producer<span class="token punctuation">.</span><span class="token function">setNamesrvAddr</span><span class="token punctuation">(</span><span class="token string">"localhost:9876"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -971,8 +1026,7 @@ public class ProducerInOrder &amp;#123;
 
         <span class="token keyword">return</span> orderList<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="1-2-Consumer"><a href="#1-2-Consumer" class="headerlink" title="1.2 Consumer"></a>1.2 Consumer</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumerInOrder</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
         <span class="token class-name">DefaultMQPushConsumer</span> consumer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">DefaultMQPushConsumer</span><span class="token punctuation">(</span><span class="token string">"OrderConsumer"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1008,13 +1062,11 @@ public class ProducerInOrder &amp;#123;
         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Consumer Started."</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="2-有序"><a href="#2-有序" class="headerlink" title="2 有序"></a>2 有序</h1><h2 id="2-1-全局顺序消息"><a href="#2-1-全局顺序消息" class="headerlink" title="2.1 全局顺序消息"></a>2.1 全局顺序消息</h2><ul>
 <li>对于指定的同一个topic，为其分配一个消息队列，使用一个生产者，所有消息都按照<code>FIFO</code>的顺序进行发布和消费；</li>
 <li>适用于性能要求不高，对数据有严格一致性发布和消费的场景。</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Global-Order-Msg.png"><div class="caption"><b class="center-caption">全局顺序消息</b></div>
-
 <h2 id="2-2-分区顺序消息"><a href="#2-2-分区顺序消息" class="headerlink" title="2.2 分区顺序消息"></a>2.2 分区顺序消息</h2><ul>
 <li>对于指定的同一个topic，所有消息根据<code>Sharding Key</code>进行区块分区。同一个分区内的消息会严格按照<code>FIFO</code>顺序进行发布和消费。而<code>Sharding Key</code>是顺序消息中用来区分不同区的关键字，和普通消息中key不是同一个概念；</li>
 <li>适用于对性能要求高，在同一个区块中要求FIFO进行发布和消费的场景。<blockquote>
@@ -1023,7 +1075,6 @@ public class ProducerInOrder &amp;#123;
 </li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Partial-Order-Msg.png"><div class="caption"><b class="center-caption">部分顺序消息</b></div>
-
 <h2 id="2-3-如何保证有序"><a href="#2-3-如何保证有序" class="headerlink" title="2.3 如何保证有序"></a>2.3 如何保证有序</h2><p>Apache RocketMQ 的消息的顺序性分为两部分，<code>生产顺序性</code>和<code>消费顺序性</code>。</p>
 <h3 id="2-3-1-生产顺序性"><a href="#2-3-1-生产顺序性" class="headerlink" title="2.3.1 生产顺序性"></a>2.3.1 生产顺序性</h3><p>Apache RocketMQ 通过生产者和服务端的协议保障<code>单个生产者</code><strong>串行地</strong>发送消息，并按序存储和持久化。<br>如需保证消息生产的顺序性，则必须满足以下条件：</p>
 <ul>
@@ -1036,10 +1087,10 @@ public class ProducerInOrder &amp;#123;
 <li>不同消息组的消息可以混合在同一个队列中，且不保证连续。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Producer-OrderRules.png"><div class="caption"><b class="center-caption">生产顺序性</b></div>
 <blockquote>
 <p>如上图所示，<code>消息组1</code>和<code>消息组4</code>的消息混合存储在<code>队列1</code>中， Apache RocketMQ保证<code>消息组1</code>中的消息<code>G1-M1</code>、<code>G1-M2</code>、<code>G1-M3</code>是按发送顺序存储，且<code>消息组4</code>的消息<code>G4-M1</code>、<code>G4-M2</code>也是按顺序存储，但<code>消息组1</code>和<code>消息组4</code>中的消息不涉及顺序关系。</p>
+<h3 id="2-3-2-消费顺序性"><a href="#2-3-2-消费顺序性" class="headerlink" title="2.3.2 消费顺序性"></a>2.3.2 消费顺序性</h3><p>Apache RocketMQ 通过消费者和服务端的协议保障消息消费严格按照存储的先后顺序来处理。</p>
 </blockquote>
 </li>
 </ul>
-<h3 id="2-3-2-消费顺序性"><a href="#2-3-2-消费顺序性" class="headerlink" title="2.3.2 消费顺序性"></a>2.3.2 消费顺序性</h3><p>Apache RocketMQ 通过消费者和服务端的协议保障消息消费严格按照存储的先后顺序来处理。</p>
 <p>如需保证消息消费的顺序性，则必须满足以下条件：</p>
 <ul>
 <li>投递顺序：Apache RocketMQ 通过客户端SDK和服务端通信协议保障消息按照服务端存储顺序投递，但业务方消费消息时需要严格按照<code>接收---处理---应答</code>的语义处理消息，避免因异步处理导致消息乱序。</li>
@@ -1054,11 +1105,8 @@ public class ProducerInOrder &amp;#123;
 <li>并发处理（无序处理）：<code>ConsumeMessageOrderlyService</code>。</li>
 </ul>
 <p>怎么决定？由你定义的消费者监听类型决定。一种是<code>MessageListenerOrderly</code>、另一种是<code>MessageListenerConcurrently</code>。</p>
-<p>在<code>DefaultMQPushConsumerImpl#start()</code>方法中，对消息监听器类型进行了判断，如果类型是<code>MessageListenerOrderly</code>表示要进行<code>顺序消费</code>，此时使用<code>ConsumeMessageOrderlyService</code>对<code>ConsumeMessageService</code>进行实例化，然后调用它的<code>start方法</code>进行启动：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Listener-Rules.png"><div class="caption"><b class="center-caption">监听类型决定消费模式</b></div>
-
-<h2 id="3-1-第一把锁"><a href="#3-1-第一把锁" class="headerlink" title="3.1 第一把锁"></a>3.1 第一把锁</h2><p>点进去看看：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token punctuation">&#123;</span>
+<p>在<code>DefaultMQPushConsumerImpl#start()</code>方法中，对消息监听器类型进行了判断，如果类型是<code>MessageListenerOrderly</code>表示要进行<code>顺序消费</code>，此时使用<code>ConsumeMessageOrderlyService</code>对<code>ConsumeMessageService</code>进行实例化，然后调用它的<code>start方法</code>进行启动：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Listener-Rules.png"><div class="caption"><b class="center-caption">监听类型决定消费模式</b></div></p>
+<h2 id="3-1-第一把锁"><a href="#3-1-第一把锁" class="headerlink" title="3.1 第一把锁"></a>3.1 第一把锁</h2><p>点进去看看：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//只有在集群消费模式下才有效</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token class-name">MessageModel</span><span class="token punctuation">.</span><span class="token constant">CLUSTERING</span><span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span><span class="token class-name">ConsumeMessageOrderlyService</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQPushConsumerImpl<span class="token punctuation">.</span><span class="token function">messageModel</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1078,8 +1126,7 @@ public class ProducerInOrder &amp;#123;
             <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQPushConsumerImpl<span class="token punctuation">.</span><span class="token function">getRebalanceImpl</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">lockAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>为什么集群模式下需要加锁？</p>
 <blockquote>
 <p>因为广播模式下，消息队列会分配给消费组下的每一个消费者，而在集群模式下，一个消息队列同一时刻只能被同一个消费组下的某一个消费者进行，所以在广播模式下不存在竞争关系，也就不需要对消息队列进行加锁，而在集群模式下，有可能因为<code>负载均衡</code>等原因将<code>某一个消息队列</code>分配到了<code>另外一个消费者</code>中，因此在集群模式下就要加锁，当某个消息队列被锁定时，其他的消费者不能进行消费。</p>
@@ -1152,23 +1199,20 @@ public class ProducerInOrder &amp;#123;
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>在<code>RebalanceImpl#lockAll</code>方法中，首先从处理队列表中获取当前消费者订阅的<code>所有消息队列MessageQueue</code>信息，返回数据是一个MAP，<code>key</code>为<code>broker名称</code>，<code>value</code>为<code>broker下的消息队列</code>，接着对MAP进行遍历，处理每一个broker下的消息队列：</p>
 <ul>
 <li>获取broker名称，根据broker名称查找broker的相关信息；</li>
 <li>构建<code>加锁请求</code>，在请求中设置<code>要加锁的消息队列</code>，然后将请求发送给broker，表示<code>要对这些消息队列进行加锁</code>；</li>
 <li>加锁请求返回的响应结果中包含了<code>加锁成功的消息队列</code>(可能有失败的)，此时遍历加锁成功的消息队列，将消息队列对应的<code>ProcessQueue</code>中的<code>locked</code>属性置为<code>true</code>，表示该消息队列已加锁成功；</li>
-<li>处理加锁失败的消息队列，如果响应中<code>未包含</code>某个消息队列的信息，表示此消息队列<code>加锁失败</code>，需要将其对应的<code>ProcessQueue</code>对象中的<code>locked</code>属性置为<code>false</code>，表示加锁失败。</li>
+<li>处理加锁失败的消息队列，如果响应中<code>未包含</code>某个消息队列的信息，表示此消息队列<code>加锁失败</code>，需要将其对应的<code>ProcessQueue</code>对象中的<code>locked</code>属性置为<code>false</code>，表示加锁失败。<h2 id="3-2-第二把锁"><a href="#3-2-第二把锁" class="headerlink" title="3.2 第二把锁"></a>3.2 第二把锁</h2>有了消息队列，那消费者就要着手处理消息的拉取动作。通过之前的学习，消费者拉取消息，那就要构建拉取请求，然后把获取的消息进行消费处理，反馈结果给broker。</li>
 </ul>
-<h2 id="3-2-第二把锁"><a href="#3-2-第二把锁" class="headerlink" title="3.2 第二把锁"></a>3.2 第二把锁</h2><p>有了消息队列，那消费者就要着手处理消息的拉取动作。通过之前的学习，消费者拉取消息，那就要构建拉取请求，然后把获取的消息进行消费处理，反馈结果给broker。</p>
 <p>这里有两步动作：</p>
 <ul>
 <li>构建拉取请求；</li>
 <li>消费消息。</li>
 </ul>
 <p>拉取消息请求构建在<code>RebalanceImpl</code>的<code>updateProcessQueueTableInRebalance</code>方法中，拉取消息的响应结果处理在<code>PullCallback</code>的<code>onSuccess</code>方法中，接下来看下顺序消费时在这两个过程中是如何处理的。</p>
-<h3 id="3-2-1-构建拉取请求"><a href="#3-2-1-构建拉取请求" class="headerlink" title="3.2.1 构建拉取请求"></a>3.2.1 构建拉取请求</h3><p>上面已经知道，在使用顺序消息时，会<code>周期性</code>的对订阅的消息队列进行<code>加锁</code>，不过由于<code>负载均衡</code>等原因，有可能给当前消费者分配<code>新的消息队列</code>，此时可能还<code>未来得及</code>通过定时任务加锁，所以消费者在构建消息拉取请求前会再次进行判断，如果<code>processQueueTable</code>中之前<code>未包含</code>某个消息队列，会先调用<code>lock方法</code>进行加锁，lock方法的实现逻辑与<code>lockAll</code>基本一致，如果加锁成功构建拉取请求进行消息拉取，如果加锁失败，则跳过继续处理下一个消息队列：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">RebalanceImpl</span> <span class="token punctuation">&#123;</span>
+<h3 id="3-2-1-构建拉取请求"><a href="#3-2-1-构建拉取请求" class="headerlink" title="3.2.1 构建拉取请求"></a>3.2.1 构建拉取请求</h3><p>上面已经知道，在使用顺序消息时，会<code>周期性</code>的对订阅的消息队列进行<code>加锁</code>，不过由于<code>负载均衡</code>等原因，有可能给当前消费者分配<code>新的消息队列</code>，此时可能还<code>未来得及</code>通过定时任务加锁，所以消费者在构建消息拉取请求前会再次进行判断，如果<code>processQueueTable</code>中之前<code>未包含</code>某个消息队列，会先调用<code>lock方法</code>进行加锁，lock方法的实现逻辑与<code>lockAll</code>基本一致，如果加锁成功构建拉取请求进行消息拉取，如果加锁失败，则跳过继续处理下一个消息队列：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">RebalanceImpl</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">boolean</span> <span class="token function">updateProcessQueueTableInRebalance</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> topic<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">Set</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">MessageQueue</span><span class="token punctuation">></span></span> mqSet<span class="token punctuation">,</span>
                                                        <span class="token keyword">final</span> <span class="token keyword">boolean</span> isOrder<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// ...</span>
@@ -1246,9 +1290,8 @@ public class ProducerInOrder &amp;#123;
         <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="3-2-2-消费消息"><a href="#3-2-2-消费消息" class="headerlink" title="3.2.2 消费消息"></a>3.2.2 消费消息</h3><p>在<code>PullCallback</code>的<code>onSuccess</code>方法中可以看到，如果从Broker拉取到消息，会调用<code>ConsumeMessageService#submitConsumeRequest</code>方法将消息提交到<code>ConsumeMessageService</code>中进行消费：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMQPushConsumerImpl</span> <span class="token keyword">implements</span> <span class="token class-name">MQConsumerInner</span> <span class="token punctuation">&#123;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h3 id="3-2-2-消费消息"><a href="#3-2-2-消费消息" class="headerlink" title="3.2.2 消费消息"></a>3.2.2 消费消息</h3><p>在<code>PullCallback</code>的<code>onSuccess</code>方法中可以看到，如果从Broker拉取到消息，会调用<code>ConsumeMessageService#submitConsumeRequest</code>方法将消息提交到<code>ConsumeMessageService</code>中进行消费：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMQPushConsumerImpl</span> <span class="token keyword">implements</span> <span class="token class-name">MQConsumerInner</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">pullMessage</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">PullRequest</span> pullRequest<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// ...</span>
         <span class="token comment">// 拉取消息回调函数</span>
@@ -1284,10 +1327,8 @@ public class ProducerInOrder &amp;#123;
         <span class="token punctuation">&#125;</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>前面知道顺序消费时使用的是<code>ConsumeMessageOrderlyService</code>，首先在<code>ConsumeMessageOrderlyService</code>的构造函数中可以看到初始化了一个消息消费线程池，也就是说顺序消费时也是<code>开启多线程进行消费的</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token keyword">implements</span> <span class="token class-name">ConsumeMessageService</span> <span class="token punctuation">&#123;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>前面知道顺序消费时使用的是<code>ConsumeMessageOrderlyService</code>，首先在<code>ConsumeMessageOrderlyService</code>的构造函数中可以看到初始化了一个消息消费线程池，也就是说顺序消费时也是<code>开启多线程进行消费的</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token keyword">implements</span> <span class="token class-name">ConsumeMessageService</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">ConsumeMessageOrderlyService</span><span class="token punctuation">(</span><span class="token class-name">DefaultMQPushConsumerImpl</span> defaultMQPushConsumerImpl<span class="token punctuation">,</span>
         <span class="token class-name">MessageListenerOrderly</span> messageListener<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// ...</span>
@@ -1302,10 +1343,8 @@ public class ProducerInOrder &amp;#123;
         <span class="token keyword">this</span><span class="token punctuation">.</span>scheduledExecutorService <span class="token operator">=</span> <span class="token class-name">Executors</span><span class="token punctuation">.</span><span class="token function">newSingleThreadScheduledExecutor</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">ThreadFactoryImpl</span><span class="token punctuation">(</span><span class="token string">"ConsumeMessageScheduledThread_"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>接下来看<code>submitConsumeRequest</code>方法，可以看到构建了ConsumeRequest对象，将拉取的消息提交到了消息消费线程池中进行消费：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token keyword">implements</span> <span class="token class-name">ConsumeMessageService</span> <span class="token punctuation">&#123;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>接下来看<code>submitConsumeRequest</code>方法，可以看到构建了ConsumeRequest对象，将拉取的消息提交到了消息消费线程池中进行消费：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ConsumeMessageOrderlyService</span> <span class="token keyword">implements</span> <span class="token class-name">ConsumeMessageService</span> <span class="token punctuation">&#123;</span>
    
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">submitConsumeRequest</span><span class="token punctuation">(</span>
@@ -1321,8 +1360,7 @@ public class ProducerInOrder &amp;#123;
     <span class="token punctuation">&#125;</span>
     
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p><code>ConsumeRequest</code>是<code>ConsumeMessageOrderlyService</code>的内部类，它有两个成员变量，分别为<code>MessageQueue消息队列</code>和它对应的<code>处理队列ProcessQueue对象</code>。<br>在<code>run方法</code>中，对消息进行消费，处理逻辑如下：</p>
 <ul>
 <li>判断<code>ProcessQueue</code>是否被删除，如果被删除终止处理；</li>
@@ -1444,9 +1482,7 @@ public class ProducerInOrder &amp;#123;
 
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p><code>MessageQueueLock</code>中使用了<code>ConcurrentHashMap</code>存储每个消息队列对应的对象锁，对象锁实际上是一个<code>Object类</code>的对象，从Map中获取消息队列的对象锁时，如果对象锁不存在，则新建一个<code>Object对象</code>，并放入Map集合中：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MessageQueueLock</span> <span class="token punctuation">&#123;</span>
+<p><code>MessageQueueLock</code>中使用了<code>ConcurrentHashMap</code>存储每个消息队列对应的对象锁，对象锁实际上是一个<code>Object类</code>的对象，从Map中获取消息队列的对象锁时，如果对象锁不存在，则新建一个<code>Object对象</code>，并放入Map集合中：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MessageQueueLock</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token class-name">ConcurrentMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">MessageQueue</span><span class="token punctuation">,</span> <span class="token class-name">Object</span><span class="token punctuation">></span></span> mqLockTable <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConcurrentHashMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">MessageQueue</span><span class="token punctuation">,</span> <span class="token class-name">Object</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
     <span class="token keyword">public</span> <span class="token class-name">Object</span> <span class="token function">fetchLockObject</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageQueue</span> mq<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1464,23 +1500,18 @@ public class ProducerInOrder &amp;#123;
 
         <span class="token keyword">return</span> objLock<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h2 id="3-3-第三把锁"><a href="#3-3-第三把锁" class="headerlink" title="3.3 第三把锁"></a>3.3 第三把锁</h2><p>即为<code>消息消费锁</code>。<code>ProcessQueue</code>中持有一个<code>消息消费锁</code>，消费者调用<code>consumeMessage</code>进行消息前，会添加<code>消费锁</code>，上面已经知道在处理拉取到的消息时就已经调用<code>messageQueueLock#fetchLockObject</code>方法获取消息队列的对象锁然后使用<code>synchronized</code>对其加锁，那么为什么在消费之前还要再加一个消费锁呢？</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProcessQueue</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="3-3-第三把锁"><a href="#3-3-第三把锁" class="headerlink" title="3.3 第三把锁"></a>3.3 第三把锁</h2><p>即为<code>消息消费锁</code>。<code>ProcessQueue</code>中持有一个<code>消息消费锁</code>，消费者调用<code>consumeMessage</code>进行消息前，会添加<code>消费锁</code>，上面已经知道在处理拉取到的消息时就已经调用<code>messageQueueLock#fetchLockObject</code>方法获取消息队列的对象锁然后使用<code>synchronized</code>对其加锁，那么为什么在消费之前还要再加一个消费锁呢？<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProcessQueue</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">// 消息消费锁</span>
     <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">Lock</span> lockConsume <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ReentrantLock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
     <span class="token keyword">public</span> <span class="token class-name">Lock</span> <span class="token function">getLockConsume</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">return</span> lockConsume<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>先看看哪些地方会调用这个东东：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeLock-Caller.png"><div class="caption"><b class="center-caption">消费锁调用者</b></div>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>先看看哪些地方会调用这个东东：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeLock-Caller.png"><div class="caption"><b class="center-caption">消费锁调用者</b></div></p>
 <p><code>removeUnnecessaryMessageQueue</code>从名字猜测是移除无用的消息队列，其归属于类<code>RebalancePushImpl</code>，而它的这个方法基本就是与负载均衡相关了。</p>
-<p>既然这里有移除消息队列的风险，那么消费的时候通过消息队列拉取消息必然要保证该队列可用，即没被删除；而删除的时候，也要保证这个队列没人用了，安全地进行删除动作。所以，上述两个动作都需要对队列先进行加锁，再进行各自的处理。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//RebalancePushImpl</span>
+<p>既然这里有移除消息队列的风险，那么消费的时候通过消息队列拉取消息必然要保证该队列可用，即没被删除；而删除的时候，也要保证这个队列没人用了，安全地进行删除动作。所以，上述两个动作都需要对队列先进行加锁，再进行各自的处理。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//RebalancePushImpl</span>
 <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">removeUnnecessaryMessageQueue</span><span class="token punctuation">(</span><span class="token class-name">MessageQueue</span> mq<span class="token punctuation">,</span> <span class="token class-name">ProcessQueue</span> pq<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQPushConsumerImpl<span class="token punctuation">.</span><span class="token function">getOffsetStore</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">persist</span><span class="token punctuation">(</span>mq<span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQPushConsumerImpl<span class="token punctuation">.</span><span class="token function">getOffsetStore</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">removeOffset</span><span class="token punctuation">(</span>mq<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1507,8 +1538,7 @@ public class ProducerInOrder &amp;#123;
             <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>不过在消费者在消费消息前已经对队列进行了加锁，负载均衡的时候为什么不使用<code>队列锁</code>而要使用<code>消费锁</code>？</p>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>不过在消费者在消费消息前已经对队列进行了加锁，负载均衡的时候为什么不使用<code>队列锁</code>而要使用<code>消费锁</code>？</p>
 <blockquote>
 <p>这里应该是为了<code>减小锁的粒度</code>，因为消费者在对消息队列加锁后，还进行了一系列的判断（就是<code>ConsumeRequest</code>中的1-2-3），校验都成功之后从处理队列中获取消息内容，之后才开始消费消息，如果负载均衡使用消息队列锁就要等待整个过程完成才有可能加锁成功，这样显然会降低性能，而如果使用消息消费锁，就可以减少等待的时间，并且消费者在进行消息消费前也会判断ProcessQueue是否被移除，所以只要保证consumeMessage方法在执行的过程中，ProcessQueue不被移除即可。</p>
 </blockquote>
@@ -1519,7 +1549,6 @@ public class ProducerInOrder &amp;#123;
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ProcessQueue</span> <span class="token punctuation">&#123;</span>
 <span class="token keyword">private</span> <span class="token keyword">volatile</span> <span class="token keyword">boolean</span> locked <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
 <ul>
 <li>消费者处理拉取消息时的消息队列锁(<code>第二把锁</code>)<br>消费者在处理拉取到的消息时，由于可以开启<code>多线程</code>进行处理，所以处理消息前通过<code>MessageQueueLock</code>中的<code>mqLockTable</code>获取到了消息队列对应的锁，锁住要处理的消息队列，这里加消息队列锁主要是<strong>处理多线程之间的竞争</strong>：</li>
 </ul>
@@ -2222,7 +2251,7 @@ public class ProducerInOrder &amp;#123;
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2485,6 +2514,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

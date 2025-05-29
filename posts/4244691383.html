@@ -5,10 +5,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【JVM学习】1.JVM基础知识, Back-End Dev Java">
-    <meta name="description" content="1 JVM 从编译到执行首先给出基于JDK8的JAVA SE产品组件，里面包含了JDK，JRE，JVM三者之间的关系：
-the components of Oracle&#39;s Java SE products
-
-JVM：Java Virtua">
+    <meta name="description" content="1 JVM 从编译到执行首先给出基于JDK8的JAVA SE产品组件，里面包含了JDK，JRE，JVM三者之间的关系：the components of Oracle&#39;s Java SE products
+JVM：Java Virtual ">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -64,7 +62,7 @@ JVM：Java Virtua">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +180,7 @@ JVM：Java Virtua">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +256,15 @@ JVM：Java Virtua">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +287,24 @@ JVM：Java Virtua">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +485,7 @@ JVM：Java Virtua">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +569,16 @@ JVM：Java Virtua">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +601,26 @@ JVM：Java Virtua">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -822,26 +877,17 @@ JVM：Java Virtua">
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="1-JVM-从编译到执行"><a href="#1-JVM-从编译到执行" class="headerlink" title="1 JVM 从编译到执行"></a>1 JVM 从编译到执行</h1><p>首先给出基于JDK8的JAVA SE产品组件，里面包含了JDK，JRE，JVM三者之间的关系：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-components-of-Oracle's-Java-SE-products.png"><div class="caption"><b class="center-caption">the components of Oracle's Java SE products</b></div>
-
+                <h1 id="1-JVM-从编译到执行"><a href="#1-JVM-从编译到执行" class="headerlink" title="1 JVM 从编译到执行"></a>1 JVM 从编译到执行</h1><p>首先给出基于JDK8的JAVA SE产品组件，里面包含了JDK，JRE，JVM三者之间的关系：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-components-of-Oracle's-Java-SE-products.png"><div class="caption"><b class="center-caption">the components of Oracle's Java SE products</b></div></p>
 <p><code>JVM</code>：Java Virtual Machine，可运行 Java 代码的抽象计算机，包括<code>一套字节码指令集</code>、<code>一组寄存器</code>、<code>一个栈</code>、 <code>一个垃圾回收</code>，<code>堆</code>和<code>一个存储方法域</code>。JVM 是运行在操作系统之上的，它与硬件<code>没有直接的交互</code>。</p>
 <p><code>JRE</code>：Java Runtime Environment，除了包含 <code>JVM</code> 之外，提供了很多的<code>类库</code>(就是我们说的 jar 包，它可以提供一些即插即用的功能，比如读取或者操作文件，连接网络，使用 <code>I/O</code> 等等之类的)，这些东西就是 <code>JRE</code> 提供的<code>基础类库</code>。</p>
 <p><code>JDK</code>：Java Development Kits，包含<code>JRE</code>，还有一些非常好用的小工具，比如 <code>javac</code>(编译代码)、<code>java</code>、<code>jar</code> (打包代码)、<code>javap</code>(反编译&lt;反汇编&gt;)等。</p>
-<h2 id="1-1-Java-程序的执行过程"><a href="#1-1-Java-程序的执行过程" class="headerlink" title="1.1 Java 程序的执行过程"></a>1.1 Java 程序的执行过程</h2><p>一个 Java 程序，首先经过 <code>javac</code> 编译成 <code>.class 文件</code>，然后 JVM 将其加载到<code>方法区</code>，执行引擎将会<strong>执行</strong>这些<code>字节码</code>。执行时，会翻译成操作系统相关的函数。JVM 作为 <code>.class 文件</code>的翻译存在，输入字节码，调用操作系统函数。<br>过程如下：<code>Java 文件</code> -&gt; <code>编译器</code> -&gt; <code>字节码</code> -&gt; <code>JVM</code> -&gt; <code>机器码</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-diagram-of-java-program.png"><div class="caption"><b class="center-caption">Java 程序的执行过程</b></div>
-
-<h2 id="1-2-从跨平台到跨语言"><a href="#1-2-从跨平台到跨语言" class="headerlink" title="1.2 从跨平台到跨语言"></a>1.2 从跨平台到跨语言</h2><p>跨平台：我们写的一个类，在不同的操作系统上(Linux、Windows、MacOS 等平台)执行，效果是一样，这个就是 JVM 的<code>跨平台性</code>。 为了实现跨平台型，不同操作系统有对应的 JDK 的版本。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JDK-Version-in-OS.png"><div class="caption"><b class="center-caption">不同操作系统的JDK版本</b></div>
-
-<p>跨语言(语言无关性)：JVM 只识别<code>字节码</code>，所以 JVM 其实跟语言是<code>解耦</code>的，也就是没有直接关联，JVM 运行<code>不是翻译 Java 文件</code>，而是<code>识别 class 文件</code>，这个一般称之为<code>字节码</code>。还有像 <code>Groovy</code> 、<code>Kotlin</code>、<code>Scala</code> 等等语言，它们其实也是编译成字节码，所以它们也可以在 JVM 上面跑，这个就是 JVM 的<code>跨语言</code>特征。Java 的跨语言性一定程度上奠定了非常强大的 java 语言生态圈。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/kuapingtai-kuayuyan.png"><div class="caption"><b class="center-caption">跨平台到跨语言</b></div>
-<h1 id="2-JVM-的发展"><a href="#2-JVM-的发展" class="headerlink" title="2 JVM 的发展"></a>2 JVM 的发展</h1><p>常见的 JVM：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JVM-Implementations.png"><div class="caption"><b class="center-caption">常见的JVM</b></div>
-
+<h2 id="1-1-Java-程序的执行过程"><a href="#1-1-Java-程序的执行过程" class="headerlink" title="1.1 Java 程序的执行过程"></a>1.1 Java 程序的执行过程</h2><p>一个 Java 程序，首先经过 <code>javac</code> 编译成 <code>.class 文件</code>，然后 JVM 将其加载到<code>方法区</code>，执行引擎将会<strong>执行</strong>这些<code>字节码</code>。执行时，会翻译成操作系统相关的函数。JVM 作为 <code>.class 文件</code>的翻译存在，输入字节码，调用操作系统函数。<br>过程如下：<code>Java 文件</code> -&gt; <code>编译器</code> -&gt; <code>字节码</code> -&gt; <code>JVM</code> -&gt; <code>机器码</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-diagram-of-java-program.png"><div class="caption"><b class="center-caption">Java 程序的执行过程</b></div></p>
+<h2 id="1-2-从跨平台到跨语言"><a href="#1-2-从跨平台到跨语言" class="headerlink" title="1.2 从跨平台到跨语言"></a>1.2 从跨平台到跨语言</h2><p>跨平台：我们写的一个类，在不同的操作系统上(Linux、Windows、MacOS 等平台)执行，效果是一样，这个就是 JVM 的<code>跨平台性</code>。 为了实现跨平台型，不同操作系统有对应的 JDK 的版本。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JDK-Version-in-OS.png"><div class="caption"><b class="center-caption">不同操作系统的JDK版本</b></div></p>
+<p>跨语言(语言无关性)：JVM 只识别<code>字节码</code>，所以 JVM 其实跟语言是<code>解耦</code>的，也就是没有直接关联，JVM 运行<code>不是翻译 Java 文件</code>，而是<code>识别 class 文件</code>，这个一般称之为<code>字节码</code>。还有像 <code>Groovy</code> 、<code>Kotlin</code>、<code>Scala</code> 等等语言，它们其实也是编译成字节码，所以它们也可以在 JVM 上面跑，这个就是 JVM 的<code>跨语言</code>特征。Java 的跨语言性一定程度上奠定了非常强大的 java 语言生态圈。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/kuapingtai-kuayuyan.png"><div class="caption"><b class="center-caption">跨平台到跨语言</b></div></p>
+<h1 id="2-JVM-的发展"><a href="#2-JVM-的发展" class="headerlink" title="2 JVM 的发展"></a>2 JVM 的发展</h1><p>常见的 JVM：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JVM-Implementations.png"><div class="caption"><b class="center-caption">常见的JVM</b></div></p>
 <h1 id="3-JVM-整体知识模块"><a href="#3-JVM-整体知识模块" class="headerlink" title="3 JVM 整体知识模块"></a>3 JVM 整体知识模块</h1><p>JVM 能涉及非常庞大的一块知识体系，比如<code>内存结构</code>、<code>垃圾回收</code>、<code>类加载</code>、<code>性能调优</code>、<code>JVM 自身优化技术</code>、<code>执行引擎</code>、<code>类文件结构</code>、<code>监控工具</code>等。 但是在所有的知识体系中，都或多或少跟<code>内存结构</code>有一定的关系: 比如<code>垃圾回收</code>回收的就是内存、<code>类加载</code>加载到的地方也是内存、<code>性能优化</code>也涉及到内存优化、<code>执行引擎</code>与内存密不可分、<code>类文件结构</code>与内存的设计有关系，<code>监控工具</code>也会监控内存。所以<code>内存结构</code>处于 JVM 中<code>核心位置</code>。也是属于我们入门 JVM 学习的最好的选择。</p>
-<p>同时 JVM 是一个虚拟化的操作系统，所以除了要<code>虚拟指令</code>之外，最重要的一个事情就是需要<code>虚拟化内存</code>，这个虚拟化内存就是我们马上要讲到的 <code>JVM 的内存区域</code>。下章见分晓。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Hole-of-JVM.png"><div class="caption"><b class="center-caption">JVM 整体知识模块</b></div>
+<p>同时 JVM 是一个虚拟化的操作系统，所以除了要<code>虚拟指令</code>之外，最重要的一个事情就是需要<code>虚拟化内存</code>，这个虚拟化内存就是我们马上要讲到的 <code>JVM 的内存区域</code>。下章见分晓。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Hole-of-JVM.png"><div class="caption"><b class="center-caption">JVM 整体知识模块</b></div></p>
+
                 
             </div>
             <hr/>
@@ -1516,7 +1562,7 @@ JVM：Java Virtua">
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1534,7 +1580,7 @@ JVM：Java Virtua">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1797,6 +1843,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

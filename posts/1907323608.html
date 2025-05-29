@@ -62,7 +62,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -180,7 +180,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -256,6 +256,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -278,6 +287,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -458,7 +485,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -542,6 +569,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -564,6 +601,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -848,7 +905,6 @@
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="2-启动流程"><a href="#2-启动流程" class="headerlink" title="2 启动流程"></a>2 启动流程</h1><p>启动开始从<code>producer.start()</code>开始。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DefaultMQProducer#start</span>
 <span class="token annotation punctuation">@Override</span>
@@ -865,7 +921,6 @@
             <span class="token punctuation">&#125;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p><code>DefaultMQProducerImpl</code>中的<code>start()</code>方法是生产者启动的<code>核心方法</code>，包括<code>检查</code>、<code>获取MQ ClientInstance实例</code>、<code>启动</code>三个步骤。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">DefaultMQProducerImpl</span> <span class="token keyword">implements</span> <span class="token class-name">MQProducerInner</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token keyword">boolean</span> startFactory<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
@@ -929,7 +984,6 @@
         <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">1000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="2-1-检查"><a href="#2-1-检查" class="headerlink" title="2.1 检查"></a>2.1 检查</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">checkConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//1.ProducerGroup名称是否为空、是否超过255、是否包含了除%，字母，数字，横线，下划线，空串以外的字符</span>
         <span class="token class-name">Validators</span><span class="token punctuation">.</span><span class="token function">checkGroup</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQProducer<span class="token punctuation">.</span><span class="token function">getProducerGroup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -945,7 +999,6 @@
         <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="2-2-获取MQ-ClientInstance实例"><a href="#2-2-获取MQ-ClientInstance实例" class="headerlink" title="2.2 获取MQ ClientInstance实例"></a>2.2 获取MQ ClientInstance实例</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">MQClientInstance</span> <span class="token function">getOrCreateMQClientInstance</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">ClientConfig</span> clientConfig<span class="token punctuation">,</span> <span class="token class-name">RPCHook</span> rpcHook<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//1.创建clientId</span>
     <span class="token class-name">String</span> clientId <span class="token operator">=</span> clientConfig<span class="token punctuation">.</span><span class="token function">buildMQClientId</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -964,16 +1017,11 @@
 
     <span class="token keyword">return</span> instance<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>这里，<code>clientID</code>与<code>MQClientInstance</code>一一对应，保存在一个ConcurrentHashMap当中。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//MQClientManager</span>
-<span class="token keyword">private</span> <span class="token class-name">ConcurrentMap</span><span class="token operator">&lt;</span><span class="token class-name">String</span><span class="token comment">/* clientId */</span><span class="token punctuation">,</span> <span class="token class-name">MQClientInstance</span><span class="token operator">></span> factoryTable <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConcurrentHashMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span> <span class="token class-name">MQClientInstance</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>另外，创建完<code>MQClientInstance</code>实例，还要把该Producer注册进实例当中，<code>key</code>为<strong>生产者组名</strong>。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//4.注册当前生产者至MQClientInstance管理之中</span>
-<span class="token keyword">boolean</span> registerOK <span class="token operator">=</span> mQClientFactory<span class="token punctuation">.</span><span class="token function">registerProducer</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQProducer<span class="token punctuation">.</span><span class="token function">getProducerGroup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h2 id="2-3-启动"><a href="#2-3-启动" class="headerlink" title="2.3 启动"></a>2.3 启动</h2><p>通过<code>MQClientInstance</code>启动。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
+<p>这里，<code>clientID</code>与<code>MQClientInstance</code>一一对应，保存在一个ConcurrentHashMap当中。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//MQClientManager</span>
+<span class="token keyword">private</span> <span class="token class-name">ConcurrentMap</span><span class="token operator">&lt;</span><span class="token class-name">String</span><span class="token comment">/* clientId */</span><span class="token punctuation">,</span> <span class="token class-name">MQClientInstance</span><span class="token operator">></span> factoryTable <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ConcurrentHashMap</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">,</span> <span class="token class-name">MQClientInstance</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<p>另外，创建完<code>MQClientInstance</code>实例，还要把该Producer注册进实例当中，<code>key</code>为<strong>生产者组名</strong>。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//4.注册当前生产者至MQClientInstance管理之中</span>
+<span class="token keyword">boolean</span> registerOK <span class="token operator">=</span> mQClientFactory<span class="token punctuation">.</span><span class="token function">registerProducer</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>defaultMQProducer<span class="token punctuation">.</span><span class="token function">getProducerGroup</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre></p>
+<h2 id="2-3-启动"><a href="#2-3-启动" class="headerlink" title="2.3 启动"></a>2.3 启动</h2><p>通过<code>MQClientInstance</code>启动。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">MQClientException</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">synchronized</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">switch</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>serviceState<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token keyword">case</span> <span class="token constant">CREATE_JUST</span><span class="token operator">:</span>
@@ -1002,13 +1050,9 @@
                 <span class="token keyword">break</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="3-消息发送流程"><a href="#3-消息发送流程" class="headerlink" title="3 消息发送流程"></a>3 消息发送流程</h1><p><code>DefaultMQProducerImpl</code>中的<code>sendDefaultImpl()</code>是生产者消息发送的<code>核心方法</code>。</p>
-<p>我们从开头给的例子中send()方法出发。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">SendResult</span> sendResult <span class="token operator">=</span> producer<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>我们从开头给的例子中send()方法出发。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token class-name">SendResult</span> sendResult <span class="token operator">=</span> producer<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span>msg<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <p>依次经过<code>DefaultMQProducer#send</code>、<code>DefaultMQProducerImpl#send()</code>、<code>DefaultMQProducerImpl#send()</code>、<code>DefaultMQProducerImpl#sendDefaultImpl()</code>。</p>
 <p>主要也是三个步骤：</p>
 <ul>
@@ -1119,7 +1163,6 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="3-2-查找路由"><a href="#3-2-查找路由" class="headerlink" title="3.2 查找路由"></a>3.2 查找路由</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token class-name">TopicPublishInfo</span> <span class="token function">tryToFindTopicPublishInfo</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> topic<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//1. 本地缓存中是否有该主题的路由信息</span>
     <span class="token class-name">TopicPublishInfo</span> topicPublishInfo <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>topicPublishInfoTable<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>topic<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1139,7 +1182,6 @@
         <span class="token keyword">return</span> topicPublishInfo<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="3-3-选择队列"><a href="#3-3-选择队列" class="headerlink" title="3.3 选择队列"></a>3.3 选择队列</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TopicPublishInfo</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//默认不启用Broker故障延迟机制</span>
     <span class="token keyword">public</span> <span class="token class-name">MessageQueue</span> <span class="token function">selectOneMessageQueue</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> lastBrokerName<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1179,14 +1221,11 @@
         <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>messageQueueList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="3-3-1-选择策略"><a href="#3-3-1-选择策略" class="headerlink" title="3.3.1 选择策略"></a>3.3.1 选择策略</h3><h4 id="3-3-1-1-默认策略-轮询"><a href="#3-3-1-1-默认策略-轮询" class="headerlink" title="3.3.1.1 默认策略-轮询"></a>3.3.1.1 默认策略-轮询</h4><p>采用了最简单的<code>轮询算法</code>，这种算法有个很好的特性就是，保证每一个Queue队列的消息投递数量<code>尽可能均匀</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-roundRobin.png"><div class="caption"><b class="center-caption">默认走轮询</b></div>
+<h3 id="3-3-1-选择策略"><a href="#3-3-1-选择策略" class="headerlink" title="3.3.1 选择策略"></a>3.3.1 选择策略</h3><h4 id="3-3-1-1-默认策略-轮询"><a href="#3-3-1-1-默认策略-轮询" class="headerlink" title="3.3.1.1 默认策略-轮询"></a>3.3.1.1 默认策略-轮询</h4><p>采用了最简单的<code>轮询算法</code>，这种算法有个很好的特性就是，保证每一个Queue队列的消息投递数量<code>尽可能均匀</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-roundRobin.png"><div class="caption"><b class="center-caption">默认走轮询</b></div></p>
 <blockquote>
 <p>代码见3.3节：<code>selectOneMessageQueue()</code>。</p>
 </blockquote>
-<p>有一个注意的地方就是<code>计数器</code>使用了线程的<code>ThreadLocal</code>：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">volatile</span> <span class="token class-name">ThreadLocalIndex</span> sendWhichQueue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocalIndex</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<p>有一个注意的地方就是<code>计数器</code>使用了线程的<code>ThreadLocal</code>：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">volatile</span> <span class="token class-name">ThreadLocalIndex</span> sendWhichQueue <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocalIndex</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ThreadLocalIndex</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">ThreadLocal</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span> threadLocalIndex <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadLocal</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Integer</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1200,8 +1239,7 @@
     <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//..............</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>因为本身消息的生产就可以多线程进行，所以当然要基于<code>线程的上下文</code>来计数递增。</p>
 <h4 id="3-3-1-2-带有规避机制的策略"><a href="#3-3-1-2-带有规避机制的策略" class="headerlink" title="3.3.1.2 带有规避机制的策略"></a>3.3.1.2 带有规避机制的策略</h4><p>默认的投递方式比较简单，但是也暴露了一个问题：</p>
 <blockquote>
@@ -1209,8 +1247,7 @@
 </blockquote>
 <p>基于这种现象，RocketMQ在每发送一个MQ消息后，都会<code>统计</code>一下消息投递的<code>时间延迟</code>，根据这个时间延迟，可以知道往哪些Queue队列投递的速度快。</p>
 <p>在这种场景下，会优先使用消息投递延迟最小的策略，如果没有生效，再使用Queue队列轮询的方式。</p>
-<p>统计一下消息投递的时间延迟：<code>org.apache.rocketmq.client.latency.MQFaultStrategy#updateFaultItem</code>的实现。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//MQFaultStrategy</span>
+<p>统计一下消息投递的时间延迟：<code>org.apache.rocketmq.client.latency.MQFaultStrategy#updateFaultItem</code>的实现。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//MQFaultStrategy</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MQFaultStrategy</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">updateFaultItem</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> brokerName<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token keyword">long</span> currentLatency<span class="token punctuation">,</span> <span class="token keyword">boolean</span> isolation<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>sendLatencyFaultEnable<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1237,10 +1274,8 @@
         <span class="token punctuation">&#125;</span>
         <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-latency.png"><div class="caption"><b class="center-caption">更新消息投递延迟</b></div>
-
 <p>这里的操作大概如下：</p>
 <ul>
 <li><p>根据消息发送时长(currentLatency)，计算broker不可用时长(duration)，即如果消息发送时间越久，mq会认为broker不可用的时长越久，broker不可用时长是个<code>经验值</code>，如果传入isolation为true，表示默认当前发送时长为30000ms，即broker不可用时长为600000ms。</p>
@@ -1285,13 +1320,11 @@
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>因此<code>LatencyFaultToleranceImpl#isAvailable</code>判断broker是否预计可用的实现也很清晰了：</p>
 <blockquote>
 <p>只要<code>当前时间&gt;startTimestamp</code>，即表示该broker正常了(逻辑意义上的正常，预计broker会在这个时间点后恢复正常)。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-latencyFault.png"><div class="caption"><b class="center-caption">故障规避启用后的broker队列选择逻辑</b></div>
-
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//LatencyFaultToleranceImpl</span>
 <span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isAvailable</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> name<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1306,7 +1339,6 @@
 <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isAvailable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">return</span> <span class="token punctuation">(</span><span class="token class-name">System</span><span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> startTimestamp<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p><strong>总结下带有故障规避策略的整体实现思路</strong>：</p>
 <ul>
 <li>在消息发送失败，mq根据消息发送耗时来<code>预测该broker不可用的时长</code>，并将<code>broker名称</code>，<code>发送时长</code>及<code>预计恢复时间点</code>，存储于<code>ConcurrentHashMap</code>类型的<code>faultItemTable</code>中；</li>
@@ -2002,7 +2034,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -2020,7 +2052,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2283,6 +2315,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

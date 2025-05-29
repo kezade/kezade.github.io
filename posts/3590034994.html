@@ -6,10 +6,9 @@
     <meta charset="utf-8">
     <meta name="keywords" content="【MySQL学习】8.事务原理与MVCC, Back-End Dev Java">
     <meta name="description" content="1 实现机制WAL（Write-ahead logging，预写式日志）机制。
-在使用 WAL 的系统中，所有的修改都先被写入到日志中，然后再被应用到系统中。通常包含 redo 和 undo 两部分信息。
-WAL机制
+在使用 WAL 的系统中，所有的修改都先被写入到日志中，然后再被应用到系统中。通常包含 redo 和 undo 两部分信息。WAL机制
 
-这两个日志都是 In">
+这两个日志都是 Inn">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -65,7 +64,7 @@ WAL机制
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -183,7 +182,7 @@ WAL机制
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -259,6 +258,15 @@ WAL机制
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -281,6 +289,24 @@ WAL机制
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -461,7 +487,7 @@ WAL机制
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -545,6 +571,16 @@ WAL机制
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -567,6 +603,26 @@ WAL机制
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -802,7 +858,7 @@ WAL机制
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    8.6k
+                    8.5k
                 </div>
                 
 
@@ -828,14 +884,12 @@ WAL机制
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-实现机制"><a href="#1-实现机制" class="headerlink" title="1 实现机制"></a>1 实现机制</h1><p><code>WAL</code>（Write-ahead logging，预写式日志）机制。</p>
-<p>在使用 <code>WAL</code> 的系统中，所有的修改都先被写入到<code>日志</code>中，然后再被应用到系统中。通常包含 <code>redo</code> 和 <code>undo</code> 两部分信息。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-WAL.png"><div class="caption"><b class="center-caption">WAL机制</b></div>
+<p>在使用 <code>WAL</code> 的系统中，所有的修改都先被写入到<code>日志</code>中，然后再被应用到系统中。通常包含 <code>redo</code> 和 <code>undo</code> 两部分信息。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-WAL.png"><div class="caption"><b class="center-caption">WAL机制</b></div></p>
 <blockquote>
 <p>这两个日志都是 <code>InnoDB</code>存储引擎生成的。</p>
-</blockquote>
 <h1 id="2-redo-log"><a href="#2-redo-log" class="headerlink" title="2 redo log"></a>2 redo log</h1><p><code>重做日志</code>，每当有操作时，在数据变更之前将操作写入<code>redo log</code>，这样当发生<code>掉电</code>之类的情况时系统可以在重启后继续操作。在系统Crash重启之类的情况时修复数据（事务的持久性）。</p>
+</blockquote>
 <h2 id="2-1-日志格式（通用）"><a href="#2-1-日志格式（通用）" class="headerlink" title="2.1 日志格式（通用）"></a>2.1 日志格式（通用）</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png"><div class="caption"><b class="center-caption">redo log 格式</b></div>
-
 <ul>
 <li><code>type</code>：该条<code>redo log</code>的类型，redo log 设计大约有<code>53种</code>不同的类型日志。</li>
 <li><code>space ID</code>：表空间ID，但采用压缩的方式，因此占用的空间可能<code>小于4字节</code>。</li>
@@ -851,12 +905,10 @@ WAL机制
 <li>一个事务可以包含若干条语句，每一条语句其实是由<code>若干个Mini-Transaction</code>组成，每一个<code>Mini-Transaction</code>又可以包含若干条<code>redo log</code>，最终形成了一个<code>树形结构</code>。</li>
 </ul>
 <h2 id="2-3-写入过程"><a href="#2-3-写入过程" class="headerlink" title="2.3 写入过程"></a>2.3 写入过程</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log-writing-flow.png"><div class="caption"><b class="center-caption">redo log写入过程</b></div>
-
 <blockquote>
 <p>从重做日志缓冲（redo log buffer）往磁盘写入时，是按<code>512个字节</code>，也就是一个扇区的大小进行写入。因为<code>扇区</code>是写入的<code>最小单位</code>，因此可以保证写入<code>必定是成功的</code>。因此在重做日志的写入过程中<strong>不需要</strong>有<code>doublewrite</code>。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-redo-log-persistent.jpg"><div class="caption"><b class="center-caption">redo log持久化过程</b></div>
-
 <h3 id="2-3-1-redo-log-buffer"><a href="#2-3-1-redo-log-buffer" class="headerlink" title="2.3.1 redo log buffer"></a>2.3.1 redo log buffer</h3><p>InnoDB 为了更好的进行系统崩溃恢复，把通过 <code>Mini-Transaction</code> 生成的 redo log都放在了大小为 <code>512 字节</code>的<code>块(block)</code>中。</p>
 <ul>
 <li>为了解决<code>磁盘速度过慢的问题</code>而引入了<code>Buffer Pool</code>。同理，写入<code>redo log</code>时也<code>不能直接写</code>到磁盘上，实际上在服务器启动时就向操作系统申请了一大片称之为<code>redo log buffer</code>的连续内存空间，我们也可以简称为<code>log buffer</code>。这片内存空间被划分成<strong>若干个连续的</strong><code>redo log block</code>，我们可以通过启动参数 <code>innodb_log_buffer_size</code> 来指定 log buffer 的大小，该启动参数的默认值为 <code>16MB</code>。</li>
@@ -878,16 +930,13 @@ WAL机制
 </ul>
 <p>所以磁盘上的 redo log文件可以<code>不只一个</code>，而是以一个<code>日志文件组</code>的形式出现的。这些文件以<code>ib_logfile[数字]</code>(数字可以是0、1、2…)的形式进行命名。</p>
 <p>在将 redo log写入日志文件组时，是从 <code>ib_logfile0</code> 开始写，如果 <code>ib_logfile0</code> 写满了，就接着<code>ib_logfile1</code>写，同理，<code>ib_logfile1</code>写满了就去写<code>ib_logfile2</code>，依此类推。</p>
-<p>如果写到最后一个文件该咋办？那就<code>重新转到ib_logfile0继续写</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/writing-type.png"><div class="caption"><b class="center-caption">写入形式：大小固定，循环写入</b></div>
-
+<p>如果写到最后一个文件该咋办？那就<code>重新转到ib_logfile0继续写</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/writing-type.png"><div class="caption"><b class="center-caption">写入形式：大小固定，循环写入</b></div></p>
 <pre class="line-numbers language-none"><code class="language-none">说明：
 write pos：表示redo log当前记录的LSN(逻辑序列号)位置。
 check point：表示「数据页更改记录」刷盘后对应redo log所处的LSN(逻辑序列号)位置。
 write pos到check point之间的部分是redo log空着的部分，用于记录新的记录。
 check point到write pos之间是redo log待落盘的数据页更改记录。
 当write pos追上check point时，会先推动check point向前移动，空出位置再记录新的日志。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="2-3-4-redo-log文件格式"><a href="#2-3-4-redo-log文件格式" class="headerlink" title="2.3.4 redo log文件格式"></a>2.3.4 redo log文件格式</h3><ul>
 <li>由若干个<code>512字节</code>大小的<code>block</code>组成。</li>
 <li><code>前2048个字节</code>，也就是<code>前4个block</code>是用来存储一些<code>管理信息</code>的。</li>
@@ -900,7 +949,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <li>MySQL 可以根据 redo log中的各种 <code>LSN</code> 值，来确定<code>恢复的起点和终点</code>。然后将 redo log中的数据，以<code>哈希表</code>的形式，将一个页面下的放到哈希表的一个<code>槽</code>中。</li>
 <li>之后就可以遍历<code>哈希表</code>，因为对同一个页面进行修改的 redo log都放在了一个槽里，所以可以一次性将一个页面修复好(避免了很多读取页面的随机IO)。并且通过各种机制，避免无谓的页面修复，比如已经刷新的页面，进而提升崩溃恢复的速度。</li>
 </ul>
-<h3 id="2-5-2-崩溃后的恢复为什么不用-binlog"><a href="#2-5-2-崩溃后的恢复为什么不用-binlog" class="headerlink" title="2.5.2 崩溃后的恢复为什么不用 binlog?"></a>2.5.2 崩溃后的恢复为什么不用 binlog?</h3><table>
+<h3 id="2-5-2-崩溃后的恢复为什么不用-binlog"><a href="#2-5-2-崩溃后的恢复为什么不用-binlog" class="headerlink" title="2.5.2 崩溃后的恢复为什么不用 binlog?"></a>2.5.2 崩溃后的恢复为什么不用 binlog?</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>-</th>
@@ -908,7 +958,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>binlog</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>作用不同</td>
 <td>MySQL自己使用，用于保证在数据库崩溃时的<code>事务持久性</code></td>
 <td>用作主从复制、人工恢复数据，如：<code>误删数据恢复</code></td>
@@ -933,20 +984,19 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td><code>循环写</code>的日志文件，redo log只会记录<code>未刷盘的日志</code>，已经刷入磁盘的数据都会从redo log这个有限大小的日志文件里删除</td>
 <td><code>追加日志</code>，保存的是<code>全量的日志</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>当数据库crash 后，想要恢复<code>未刷盘</code>但已经写入redo log 和binlog 的数据到内存时，binlog 是无法恢复的，但redo log 不一样，只要刷入磁盘的数据，都会从redo log 中抹掉，数据库重启后，直接把redo log 中的数据都恢复至内存就可以了.</p>
-</blockquote>
-<blockquote>
 <p>binlog是【用于时间点恢复】的，保证服务器可以<code>基于时间点恢复数据</code>或者用于<code>主从复制</code>;</p>
-</blockquote>
-<blockquote>
 <p>redo log是用于【崩溃恢复】.</p>
 </blockquote>
 <h1 id="3-binlog"><a href="#3-binlog" class="headerlink" title="3 binlog"></a>3 binlog</h1><p>文章开头说道，<code>redo log</code>和<code>undo log</code>这两个日志都是 <code>InnoDB 存储引擎</code>生成的，属于InnoDB存储引擎特有。而<code>binlog</code>属于MySQL Server层，所有引擎均可使用。</p>
 <h2 id="3-1-为什么需要-binlog？"><a href="#3-1-为什么需要-binlog？" class="headerlink" title="3.1 为什么需要 binlog？"></a>3.1 为什么需要 binlog？</h2><p><code>binlog</code>文件是记录了<strong>所有数据库表结构变更和表数据修改的日志</strong>，不会记录查询类的操作，比如 SELECT 和 SHOW 操作。早期的MySQL版本是没有InnoDB这个存储引擎的，MySQL自带的引擎是<code>MyISAM</code>，但是 MyISAM <code>没有 crash-safe 的能力</code>，<code>binlog</code>日志只能用于<code>归档</code>。后来版本加入InnoDB后，利用<code>redo log</code>实现了<code>crash-safe</code>的能力。</p>
 <p>两者的区别，上一小节已经列举，参见2.5.2节。</p>
 <h2 id="3-2-binlog文件是如何刷入磁盘的？"><a href="#3-2-binlog文件是如何刷入磁盘的？" class="headerlink" title="3.2 binlog文件是如何刷入磁盘的？"></a>3.2 binlog文件是如何刷入磁盘的？</h2><p>通过参数<code>sync_binlog</code>来设定，默认为0，各个值的意义如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -955,7 +1005,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>特点</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>0</td>
 <td>每次提交事务都只 <code>write</code>，不 <code>fsync</code>，后续交由<strong>操作系统决定</strong>何时将数据<code>持久化</code>到磁盘；</td>
 <td>性能最好，一旦主机发生异常重启，还没持久化到磁盘的数据就会丢失。</td>
@@ -970,7 +1021,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>每次提交事务都 write，但累积 <code>N</code> 个事务后才 <code>fsync</code>。</td>
 <td>能容忍少量事务的binlog日志丢失的风险，兼顾写入性能，一般设置<code>100~1000</code>中的某个值。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="3-3-binlog文件格式"><a href="#3-3-binlog文件格式" class="headerlink" title="3.3 binlog文件格式"></a>3.3 binlog文件格式</h2><p>binlog 有 <code>3</code> 种格式类型，分别是 <code>STATEMENT</code>（默认格式）、<code>ROW</code>、 <code>MIXED</code>。</p>
 <ul>
 <li><code>STATEMENT</code>：每一条修改数据的 SQL 都会被记录到 binlog 中（相当于记录了逻辑操作，所以针对这种格式， binlog 可以称为逻辑日志），主从复制中 slave 端再根据 SQL 语句重现；<ul>
@@ -985,13 +1038,11 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </li>
 <li><code>MIXED</code>：包含了 <code>STATEMENT</code> 和 <code>ROW</code> 模式，它会根据不同的情况自动使用 <code>ROW</code> 模式和 <code>STATEMENT</code> 模式；</li>
 </ul>
-<h2 id="3-4-写入了什么数据？"><a href="#3-4-写入了什么数据？" class="headerlink" title="3.4 写入了什么数据？"></a>3.4 写入了什么数据？</h2><p>MySQL 在<code>提交事务</code>的时候，不仅仅会将 <code>redo log buffer</code> 中的数据写入到<code>redo log</code>文件中，同时也会将本次修改的数据记录到 <code>binlog文件</code>中，同时会将本次修改的<code>binlog文件名</code>和<code>修改的内容在binlog中的位置</code>记录到<code>redo log</code>中，最后还会在<code>redo log</code>最后写入<code> commit 标记</code>，这样就表示本次事务被成功地提交了。</p>
+<h2 id="3-4-写入了什么数据？"><a href="#3-4-写入了什么数据？" class="headerlink" title="3.4 写入了什么数据？"></a>3.4 写入了什么数据？</h2><p>MySQL 在<code>提交事务</code>的时候，不仅仅会将 <code>redo log buffer</code> 中的数据写入到<code>redo log</code>文件中，同时也会将本次修改的数据记录到 <code>binlog文件</code>中，同时会将本次修改的<code>binlog文件名</code>和<code>修改的内容在binlog中的位置</code>记录到<code>redo log</code>中，最后还会在<code>redo log</code>最后写入<code>commit 标记</code>，这样就表示本次事务被成功地提交了。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-binlog-flow.png"><div class="caption"><b class="center-caption">binlog写入过程示意图</b></div>
-
 <h2 id="3-5-主从复制是怎么实现？"><a href="#3-5-主从复制是怎么实现？" class="headerlink" title="3.5 主从复制是怎么实现？"></a>3.5 主从复制是怎么实现？</h2><p>MySQL 的<code>主从复制</code>依赖于 <code>binlog</code> ，也就是记录 MySQL 上的所有变化并以<code>二进制</code>形式保存在磁盘上。复制的过程就是将 <code>binlog</code> 中的数据从<code>主库</code>传输到<code>从库</code>上。</p>
 <p>这个过程一般是<code>异步的</code>，也就是主库上执行事务操作的线程不会等待复制 binlog 的线程同步完成。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-Master-Slave-Replication.jpg"><div class="caption"><b class="center-caption">主从复制过程示意图</b></div>
-
 <p>具体详细过程如下：</p>
 <ul>
 <li>MySQL 主库在收到客户端提交事务的请求之后，会先写入 binlog，再提交事务，更新存储引擎中的数据，事务提交完成后，返回给客户端“操作成功”的响应。</li>
@@ -1000,14 +1051,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </ul>
 <p>在完成主从复制之后，你就可以在写数据时只写主库，在读数据时只读从库，这样即使写请求会锁表或者锁记录，也不会影响读请求的执行。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-Read-Write-Dispatch.jpg"><div class="caption"><b class="center-caption">主从结构的读写分离模型</b></div>
-
 <blockquote>
 <p>并不是从库越多越好，随着从库数量的增加，从库连接上来的 <code>I/O 线程</code>也比较多，主库也要创建同样多的 <code>log dump 线程</code>来处理复制的请求，对主库资源消耗比较高，同时还受限于主库的网络带宽。</p>
-</blockquote>
-<blockquote>
 <p>一般情况下，一个主库一般跟 <code>2～3</code> 个从库（1 套数据库，1 主 2 从 1 备主）。</p>
-</blockquote>
-<blockquote>
 <p>MySQL 主从复制还有哪些模型？</p>
 </blockquote>
 <p>主要有三种：</p>
@@ -1029,14 +1075,11 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <p>MySQL 为了避免出现两份日志之间的逻辑不一致的问题，使用了<code>「两阶段提交」</code>来解决，两阶段提交其实是<code>分布式事务一致性协议</code>，它可以保证多个逻辑操作要不全部成功，要不全部失败，不会出现半成功的状态。</p>
 <p><code>两阶段提交</code>分为两个部分：</p>
 <ul>
-<li><code>prepare阶段</code>：将 XID（内部 XA 事务的 ID） 写入到 redo log，同时将 redo log 对应的事务状态设置为 <code>prepare</code>，然后将 redo log 持久化到磁盘（innodb_flush_log_at_trx_commit &#x3D; 1 的作用）；</li>
-<li><code>commit阶段</code>：把 XID 写入到 binlog，然后将 binlog 持久化到磁盘（sync_binlog &#x3D; 1 的作用），接着调用引擎的提交事务接口，将 redo log 状态设置为 <code>commit</code>，此时该状态并不需要持久化到磁盘，只需要 write 到文件系统的 page cache 中就够了，因为只要 binlog 写磁盘成功，就算 redo log 的状态还是 prepare 也没有关系，一样会被认为事务已经执行成功。</li>
+<li><code>prepare阶段</code>：将 XID（内部 XA 事务的 ID） 写入到 redo log，同时将 redo log 对应的事务状态设置为 <code>prepare</code>，然后将 redo log 持久化到磁盘（innodb_flush_log_at_trx_commit = 1 的作用）；</li>
+<li><code>commit阶段</code>：把 XID 写入到 binlog，然后将 binlog 持久化到磁盘（sync_binlog = 1 的作用），接着调用引擎的提交事务接口，将 redo log 状态设置为 <code>commit</code>，此时该状态并不需要持久化到磁盘，只需要 write 到文件系统的 page cache 中就够了，因为只要 binlog 写磁盘成功，就算 redo log 的状态还是 prepare 也没有关系，一样会被认为事务已经执行成功。</li>
 </ul>
-<p>将3.4节的图简化下，如下所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-binlog-2pc.png"><div class="caption"><b class="center-caption">两阶段提交示意图</b></div>
-
+<p>将3.4节的图简化下，如下所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-binlog-2pc.png"><div class="caption"><b class="center-caption">两阶段提交示意图</b></div></p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-binlog-2pc3.jpg"><div class="caption"><b class="center-caption">两阶段提交异常情况示意图</b></div>
-
 <p>异常情况：</p>
 <ul>
 <li>如果在写入<code>redo log</code><strong>之前</strong>崩溃，那么此时<code>redo log</code>与<code>binlog</code>中都没有，是一致的情况，崩溃也无所谓。</li>
@@ -1046,13 +1089,11 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <blockquote>
 <p>总的来说，在崩溃恢复后，只要redo log不是处于commit阶段，那么就拿着redo log中的XID去binlog中寻找，找得到就提交，否则就回滚。</p>
 <p>事务没提交的时候，redo log 也是可能被持久化到磁盘的.</p>
-</blockquote>
-<blockquote>
 <p>两阶段提交有什么问题？</p>
 </blockquote>
 <p>两阶段提交虽然保证了两个日志文件的数据一致性，但是<code>性能很差</code>，主要有两个方面的影响：</p>
 <ul>
-<li>磁盘 I&#x2F;O 次数高：对于“双1”配置，每个事务提交都会进行两次 fsync（刷盘），一次是 redo log 刷盘，另一次是 binlog 刷盘。</li>
+<li>磁盘 I/O 次数高：对于“双1”配置，每个事务提交都会进行两次 fsync（刷盘），一次是 redo log 刷盘，另一次是 binlog 刷盘。</li>
 <li>锁竞争激烈：两阶段提交虽然能够保证「单事务」两个日志的内容一致，但在「多事务」的情况下，却不能保证两者的提交顺序一致，因此，在两阶段提交的流程基础上，还需要加一个锁来保证提交的原子性，从而保证多事务的情况下，两个日志的提交顺序一致。</li>
 </ul>
 <p>解决方案：参见<a target="_blank" rel="noopener" href="https://www.xiaolincoding.com/mysql/log/how_update.html#%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4%E6%9C%89%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">组提交</a>.</p>
@@ -1066,9 +1107,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <blockquote>
 <p>当一些变更执行到一半<code>无法完成</code>时，可以根据<code>撤销日志</code><strong>恢复</strong>到变更之前的状态。<br>保证ACID中的原子性(Atomic)。</p>
 </blockquote>
-<p>在事务没提交之前，MySQL 会先记录更新前的数据到<code>undo log</code>日志文件里面，当事务回滚时，可以利用<code>undo log</code>来进行回滚。如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/tx-rollback.png"><div class="caption"><b class="center-caption">事务回滚流程</b></div>
-
+<p>在事务没提交之前，MySQL 会先记录更新前的数据到<code>undo log</code>日志文件里面，当事务回滚时，可以利用<code>undo log</code>来进行回滚。如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/tx-rollback.png"><div class="caption"><b class="center-caption">事务回滚流程</b></div></p>
 <blockquote>
 <p>在真实的 InnoDB 中，undo log其实并不像我们上边所说的那么简单，不同类型的操作产生的undo log的格式也是不同的。</p>
 </blockquote>
@@ -1087,10 +1126,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <blockquote>
 <p>一条记录的每一次<code>更新</code>操作产生的 undo log 格式都有一个 <code>roll_pointer</code> 指针和一个 <code>trx_id</code> 事务id.</p>
 </blockquote>
-<p>对于数据库中的一条记录，其真实格式如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/hiden-rows-format.png"><div class="caption"><b class="center-caption">隐藏列</b></div>
-
+<p>对于数据库中的一条记录，其真实格式如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/hiden-rows-format.png"><div class="caption"><b class="center-caption">隐藏列</b></div></p>
 <p>其中，<code>row_id</code>、<code>trx_id</code>、<code>roll_ptr</code>为三个隐藏字段。若某表已经定义了主键或者唯一索引，则无<code>row_id</code>。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1099,7 +1137,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>是否必须</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>row_id</td>
 <td>隐藏主键，若表中无主键或唯一索引，则会生成一<code>单调递增</code>的行ID作为<code>聚簇索引</code></td>
 <td>否</td>
@@ -1114,23 +1153,20 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>占用7B，回滚指针，指向当前记录的上一版本undo log，存储于回滚段中</td>
 <td>是</td>
 </tr>
-</tbody></table>
-<h2 id="5-3-版本链"><a href="#5-3-版本链" class="headerlink" title="5.3 版本链"></a>5.3 版本链</h2><p>假设，有这样一个表：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> teacher
+</tbody>
+</table>
+</div>
+<h2 id="5-3-版本链"><a href="#5-3-版本链" class="headerlink" title="5.3 版本链"></a>5.3 版本链</h2><p>假设，有这样一个表：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> teacher
 <span class="token punctuation">(</span>
     number <span class="token keyword">INT</span><span class="token punctuation">,</span>
     name   <span class="token keyword">VARCHAR</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
     domain <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
     <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span>number<span class="token punctuation">)</span>
 <span class="token punctuation">)</span> <span class="token keyword">Engine</span> <span class="token operator">=</span> <span class="token keyword">InnoDB</span>
-  <span class="token keyword">CHARSET</span> <span class="token operator">=</span> utf8mb4<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>然后向这个表里插入一条数据：</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">INSERT</span> <span class="token keyword">INTO</span> teacher <span class="token keyword">VALUES</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'Jack'</span><span class="token punctuation">,</span> <span class="token string">'源码系列'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>假设插入该记录的<code>事务 id</code> 为 <code>60</code>，那么此刻该条记录的示意图如下所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-record.png"><div class="caption"><b class="center-caption">一条记录</b></div>
-
+  <span class="token keyword">CHARSET</span> <span class="token operator">=</span> utf8mb4<span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>然后向这个表里插入一条数据：<br><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">INSERT</span> <span class="token keyword">INTO</span> teacher <span class="token keyword">VALUES</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">'Jack'</span><span class="token punctuation">,</span> <span class="token string">'源码系列'</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
+<p>假设插入该记录的<code>事务 id</code> 为 <code>60</code>，那么此刻该条记录的示意图如下所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-record.png"><div class="caption"><b class="center-caption">一条记录</b></div></p>
 <p>之后两个事务 id 分别为 <code>80</code>、<code>120</code> 的事务对这条记录进行 <code>UPDATE</code> 操作，操作流程如下：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1138,7 +1174,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>Trx-120</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>BEGIN</td>
 <td></td>
 </tr>
@@ -1147,11 +1184,11 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>BEGIN</td>
 </tr>
 <tr>
-<td>UPDATE teacher SET name &#x3D; ‘Mark’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘Mark’ WHERE number = 1;</td>
 <td></td>
 </tr>
 <tr>
-<td>UPDATE teacher SET name &#x3D; ‘James’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘James’ WHERE number = 1;</td>
 <td></td>
 </tr>
 <tr>
@@ -1160,20 +1197,20 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </tr>
 <tr>
 <td></td>
-<td>UPDATE teacher SET name &#x3D; ‘King’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘King’ WHERE number = 1;</td>
 </tr>
 <tr>
 <td></td>
-<td>UPDATE teacher SET name &#x3D; ‘大飞’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘大飞’ WHERE number = 1;</td>
 </tr>
 <tr>
 <td></td>
 <td>COMMIT</td>
 </tr>
-</tbody></table>
-<p>每次对记录进行改动，都会记录一条 undo log，每条 undo log也都有一 个 <code>roll_pointer</code> 属性(<code>INSERT</code> 操作对应的 undo log<strong>没有</strong>该属性，因为该记录并<code>没有更早的版本</code>)，可以将这些 undo log都连起来，串成一个<code>链表</code>，所以现在的情况就像下图一样：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-links.png"><div class="caption"><b class="center-caption">版本链</b></div>
-
+</tbody>
+</table>
+</div>
+<p>每次对记录进行改动，都会记录一条 undo log，每条 undo log也都有一 个 <code>roll_pointer</code> 属性(<code>INSERT</code> 操作对应的 undo log<strong>没有</strong>该属性，因为该记录并<code>没有更早的版本</code>)，可以将这些 undo log都连起来，串成一个<code>链表</code>，所以现在的情况就像下图一样：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-links.png"><div class="caption"><b class="center-caption">版本链</b></div></p>
 <p>对该记录每次更新后，都会将<code>旧值</code>放到一条 undo log中，就算是该记录的一个<code>旧版本</code>，随着更新次数的增多，所有的版本都会被 <code>roll_pointer</code> 属性连接成一个链表，我们把这个链表称之为<code>版本链</code>，版本链的<code>头节点</code>就是当前记录<code>最新</code>的值。另外，每个版本中还包含生成该版本时对应的事务 id。于是可以利用这个记录的<code>版本链</code>来控制<code>并发事务访问相同记录的行为</code>，那么这种机制就被称之为<code>多版本并发控制</code>(Mulit-Version Concurrency Control, MVCC)。</p>
 <h2 id="5-4-ReadView"><a href="#5-4-ReadView" class="headerlink" title="5.4 ReadView"></a>5.4 ReadView</h2><p>MySQL中，有4种事务隔离级别，对于这几种级别，要实现快照读的下的并发控制，MySQL是这样处理的：</p>
 <ul>
@@ -1182,6 +1219,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <li>对于使用 <code>READ COMMITTED</code> 和 <code>REPEATABLE READ</code> 隔离级别的事务来说，都必须保证读到<code>已经提交</code>了的事务修改过的记录。因此需要判断一下<code>版本链</code>中的哪个版本是<strong>当前事务</strong><code>可见的</code>。</li>
 </ul>
 <p>为此，InnoDB 提出了一个 <code>ReadView</code> 的概念，这个 <code>ReadView</code> 中主要包含 <code>4</code> 个比较重要的内容:</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1189,7 +1227,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>creator_trx_id</td>
 <td>创建当前read view的事务ID</td>
 </tr>
@@ -1205,7 +1244,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>m_up_limit_id</td>
 <td>当前系统中事务的 id 值最大的那个事务 id 值<code>再加 1</code>，也就是系统中<code>下一个要生成的事务 id</code></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>有了这个 <code>ReadView</code>，这样在访问某条记录时，只需要按照下边的步骤判断记录的某个版本<code>是否可见</code>:</p>
 <ul>
 <li>如果被访问版本的 <code>trx_id == creator_trx_id</code> ， 意味着当前事务在访问它自己修改过的记录，所以该版本<code>可以被当前事务访问</code>；</li>
@@ -1216,12 +1257,13 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </ul>
 <blockquote>
 <p>在 MySQL 中，<code>READ COMMITTED</code> 和 <code>REPEATABLE READ</code> 隔离级别的一个非常大的区别就是它们<strong>生成 ReadView 的时机不同</strong>。</p>
-</blockquote>
 <ul>
 <li>READ COMMITTED：ReadView在事务后<code>每次select</code>都会重新生成；</li>
 <li>REPEATABLE READ：ReadView在<code>第一次select</code>时生成，<code>事务操作期间不更新</code>。</li>
 </ul>
+</blockquote>
 <p>以表 <code>teacher</code> 为例，假设现在表 <code>teacher</code> 中只有一条由事务 id 为 <code>60</code> 的事务插入的一条记录，如下表所示，接下来看一下 <code>READ COMMITTED</code> 和 <code>REPEATABLE READ</code> 所谓的生成 <code>ReadView</code> 的时机不同到底不同在哪里。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1230,13 +1272,17 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h3 id="5-4-1-READ-COMMITTED"><a href="#5-4-1-READ-COMMITTED" class="headerlink" title="5.4.1 READ COMMITTED"></a>5.4.1 READ COMMITTED</h3><p>在<code>READ COMMITTED</code>隔离级别下，<code>每次读取数据前</code><strong>都生成</strong>一个新的<code>ReadView</code>。<br>现在系统里有两个事务 id 分别为 <code>80</code>、<code>120</code> 的事务在执行。</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1246,7 +1292,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>Trx-0</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>p1</td>
 <td>BEGIN</td>
 <td></td>
@@ -1260,13 +1307,13 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </tr>
 <tr>
 <td>p3</td>
-<td>UPDATE teacher SET name &#x3D; ‘Mark’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘Mark’ WHERE number = 1;</td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td>p4</td>
-<td>UPDATE teacher SET name &#x3D; ‘James’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘James’ WHERE number = 1;</td>
 <td></td>
 <td></td>
 </tr>
@@ -1280,7 +1327,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>p6</td>
 <td></td>
 <td></td>
-<td>SELECT * FROM teacher WHERE number &#x3D; 1;</td>
+<td>SELECT * FROM teacher WHERE number = 1;</td>
 </tr>
 <tr>
 <td>p7</td>
@@ -1291,32 +1338,32 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <tr>
 <td>p8</td>
 <td></td>
-<td>UPDATE teacher SET name &#x3D; ‘King’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘King’ WHERE number = 1;</td>
 <td></td>
 </tr>
 <tr>
 <td>p9</td>
 <td></td>
-<td>UPDATE teacher SET name &#x3D; ‘大飞’ WHERE number &#x3D; 1;</td>
+<td>UPDATE teacher SET name = ‘大飞’ WHERE number = 1;</td>
 <td></td>
 </tr>
 <tr>
 <td>p10</td>
 <td></td>
 <td></td>
-<td>SELECT * FROM teacher WHERE number &#x3D; 1;</td>
+<td>SELECT * FROM teacher WHERE number = 1;</td>
 </tr>
 <tr>
 <td>p11</td>
 <td></td>
 <td>COMMIT</td>
-<td></td>
 </tr>
-</tbody></table>
-<p>执行完<code>p4</code>后，表 <code>teacher</code> 中 <code>number=1</code> 的记录得到的<code>版本链表</code>如下所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx80-mvcc.png"><div class="caption"><b class="center-caption">事务80下的版本链</b></div>
-
+</tbody>
+</table>
+</div>
+<p>执行完<code>p4</code>后，表 <code>teacher</code> 中 <code>number=1</code> 的记录得到的<code>版本链表</code>如下所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx80-mvcc.png"><div class="caption"><b class="center-caption">事务80下的版本链</b></div></p>
 <p>在执行到步骤<code>p6</code>时，假定现在查询的事务id为<code>0</code>，得到的结果为：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1325,17 +1372,21 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>现具体分析下为什么<code>name=Jack</code>。</p>
 <p><code>p6</code>SQL语句执行过程如下：</p>
 <ul>
 <li>生成一个 <code>ReadView</code>，结果如下：</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1343,7 +1394,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>creator_trx_id</td>
 <td>0</td>
 </tr>
@@ -1359,16 +1411,17 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>m_up_limit_id</td>
 <td>121</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <ul>
 <li>先分析版本链第一条记录，其<code>trx_id=80</code>，且位于活跃事务列表<code>m_ids</code>中，根据<code>5.4</code>节中，可见性判别规则第<code>4</code>条，对于当前查询事务id为0，不可见，根据 <code>roll_ptr</code> 跳到下一个版本；</li>
 <li>下一个版本的列 <code>name=&#39;Mark&#39;</code>，该版本的 <code>trx_id=80</code>，也在 <code>m_ids</code> 列表内，所以也不符合要求，继续跳到下一个版本；</li>
 <li>下一个版本的列 <code>name=&#39;Jack&#39;</code>，该版本的 <code>trx_id=60</code>，小于 ReadView 中的 <code>min_trx_id</code> 值，所以这个版本是符合要求的（<code>5.4</code>节中，可见性判别规则第<code>2</code>条），可见，最后返回给用户的版本就是这条列 <code>name=&#39;Jack&#39;</code>的记录。</li>
 </ul>
-<p>然后，将事务id <code>80</code>提交，对事务id <code>120</code>执行完<code>update</code>语句，然后分析下进行到步骤<code>p10</code>，可见性分析情况：<br>执行到步骤<code>p10</code>后，版本链情况：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx120-mvcc.png"><div class="caption"><b class="center-caption">事务120下的版本链</b></div>
-
+<p>然后，将事务id <code>80</code>提交，对事务id <code>120</code>执行完<code>update</code>语句，然后分析下进行到步骤<code>p10</code>，可见性分析情况：<br>执行到步骤<code>p10</code>后，版本链情况：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx120-mvcc.png"><div class="caption"><b class="center-caption">事务120下的版本链</b></div></p>
 <p>则事务id <code>0</code>查询得到的结果为：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1377,13 +1430,17 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>James</td>
 <td>源码系列</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>在执行步骤<code>p10</code>当中的语句时又会<code>重新生成</code>一个<code>ReadView</code>，结果如下所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1391,7 +1448,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>creator_trx_id</td>
 <td>0</td>
 </tr>
@@ -1407,7 +1465,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>m_up_limit_id</td>
 <td>121</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <ul>
 <li>版本链第一条记录，<code>name=&#39;大飞&#39;</code>，<code>trx_id=120</code>，位于<code>m_ids</code>当中，不可见，根据 <code>roll_ptr</code> 跳到下一个版本；</li>
 <li>该版本的列 <code>name=&#39;King&#39;</code>，该版本的 <code>trx_id=120</code>，也在 <code>m_ids</code> 列表内，所以也不符合要求，继续跳到下一个版本；</li>
@@ -1419,6 +1479,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <h3 id="5-4-2-REPEATABLE-READ"><a href="#5-4-2-REPEATABLE-READ" class="headerlink" title="5.4.2 REPEATABLE READ"></a>5.4.2 REPEATABLE READ</h3><p>对于使用 <code>REPEATABLE READ</code> 隔离级别的事务来说，只会在<code>第一次执行查询语句</code>时生成一个 <code>ReadView</code>，之后的查询就<strong>不会重复生成</strong>了。</p>
 <p>同样拿上一节中的例子，这次的查询事务为<code>REPEATABLE READ 隔离级别</code>下的，<code>id=1</code>。</p>
 <p>在执行到步骤<code>p6</code>时，事务id为<code>80</code>、<code>120</code>均未提交，得到的结果为：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1427,16 +1488,20 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>分析：</p>
 <ul>
 <li>在执行 <code>p6</code>中的SELECT 语句时，会先生成一个 <code>ReadView</code>，<code>ReadView</code> 结果如下：</li>
 </ul>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1444,7 +1509,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>creator_trx_id</td>
 <td>1</td>
 </tr>
@@ -1460,20 +1526,19 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>m_up_limit_id</td>
 <td>121</td>
 </tr>
-</tbody></table>
-<p>版本链与上节一样，为：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx80-mvcc.png"><div class="caption"><b class="center-caption">事务80下的版本链</b></div>
-
+</tbody>
+</table>
+</div>
+<p>版本链与上节一样，为：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx80-mvcc.png"><div class="caption"><b class="center-caption">事务80下的版本链</b></div></p>
 <ul>
 <li>最新版本的列 <code>name=&#39;James&#39;</code>，该版本的 <code>trx_id=80</code>，在 <code>m_ids</code> 列表内，所以不符合可见性要求，根据 <code>roll_ptr</code> 跳到下一个版本；</li>
 <li>下一个版本的列 <code>name=&#39;Mark&#39;</code>，该版本的 <code>trx_id=80</code>，也在 <code>m_ids</code> 列表内，所以也不符合要求，继续跳到下一个版本；</li>
 <li>下一个版本的列 <code>name=&#39;Jack&#39;</code>，该版本的 <code>trx_id=60</code>，小于 <code>ReadView</code> 中的 <code>min_trx_id</code> 值，所以这个版本是<strong>符合要求的</strong>，最后返回给用户的 版本就是这条列 <code>name=&#39;Jack&#39;</code>的记录。</li>
 </ul>
 <p>然后，提交一下事务id为<code>80</code>的事务。</p>
-<p>执行到步骤<code>p10</code>后，版本链情况同上节：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx120-mvcc.png"><div class="caption"><b class="center-caption">事务120下的版本链</b></div>
-
+<p>执行到步骤<code>p10</code>后，版本链情况同上节：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/trx120-mvcc.png"><div class="caption"><b class="center-caption">事务120下的版本链</b></div></p>
 <p>则事务id <code>1</code>查询得到的结果为：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1482,13 +1547,17 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>在执行步骤<code>p10</code>当中的语句时<strong>不会</strong><code>重新生成</code>一个<code>ReadView</code>，仍然是步骤<code>p6</code>时的结果：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1496,7 +1565,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>creator_trx_id</td>
 <td>1</td>
 </tr>
@@ -1512,7 +1582,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>m_up_limit_id</td>
 <td>121</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>执行过程分析类似，这里不再赘述。两次 <code>SELECT</code> 查询得到的结果是<code>重复的</code>，记录的列 <code>name</code> 值都是<code>Jack</code>， 这就是<code>可重复读</code>的含义。如果我们之后再把事务 id 为 <code>120</code> 的记录提交了，然后再到刚才使用 <code>REPEATABLE READ</code> 隔离级别的事务中继续查找这个 <code>number=1</code> 的记录，得到的结果还是’Jack’。</p>
 <blockquote>
 <p>总结：使用 <code>REPEATABLE READ</code> 隔离级别的事务，在<strong>在第一次读取数据时生成一个 ReadView</strong>。</p>
@@ -1527,6 +1599,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <p>不管事务 <code>T2</code> 比事务 <code>T1</code> 是否先开启，事务 <code>T1</code> 都是<strong>看不到</strong> <code>T2</code> 的提交。</p>
 <p>但是，在 <code>REPEATABLE READ</code> 隔离级别下 InnoDB 中的 <code>MVCC</code> 可以<code>很大程度地避免幻读现象</code>，<code>而不是完全禁止幻读</code>。怎么回事呢？我们来看下面的情况：</p>
 <p>还是5.3节中的表<code>teacher</code>，目前拥有以下数据：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1535,7 +1608,8 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>domain</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>Jack</td>
 <td>源码系列</td>
@@ -1560,8 +1634,11 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>Dafei</td>
 <td>MySQL</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>执行以下操作：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -1569,8 +1646,9 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <th>T2</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>select * from teacher where number &#x3D; 30;</td>
+<tbody>
+<tr>
+<td>select * from teacher where number = 30;</td>
 <td></td>
 </tr>
 <tr>
@@ -1586,17 +1664,16 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 <td>commit;</td>
 </tr>
 <tr>
-<td>update teacher set domain&#x3D;’RabbitMQ’ where number&#x3D;30;</td>
+<td>update teacher set domain=’RabbitMQ’ where number=30;</td>
 <td></td>
 </tr>
 <tr>
-<td>select * from teacher where number &#x3D; 30;</td>
-<td></td>
+<td>select * from teacher where number = 30;</td>
 </tr>
-</tbody></table>
-<p>结果如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-phantom-read.png"><div class="caption"><b class="center-caption">幻读</b></div>
-
+</tbody>
+</table>
+</div>
+<p>结果如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mvcc-phantom-read.png"><div class="caption"><b class="center-caption">幻读</b></div></p>
 <p>咋回事儿？</p>
 <p>在 REPEATABLE READ 隔离级别下，T1 第一次执行普通的 SELECT 语句时生成 了一个 ReadView，之后 T2 向 teacher 表中新插入一条记录并提交。</p>
 <p><code>ReadView</code>并不能阻止<code>T1</code>执行<code>UPDATE</code>或者<code>DELETE</code>语句来改动这个新插入的记录(由于<code>T2</code>已经提交，因此改动该记录并不会造成阻塞)，但是这样一来，这条新记录的<code>trx_id</code>隐藏列的值就变成了<code>T1</code>的<code>事务id</code>。之后<code>T1</code>再使用<code>普通的SELECT语句</code>去查询这条记录时就<code>可以看到</code>这条记录了，也就可以把这条记录返回给客户端。</p>
@@ -2280,7 +2357,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -2298,7 +2375,7 @@ check point到write pos之间是redo log待落盘的数据页更改记录。
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2561,6 +2638,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -64,7 +64,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -848,9 +905,7 @@
         <span class="token key atrule">compressMessageBodyThreshold</span><span class="token punctuation">:</span> <span class="token number">4096</span>
         <span class="token comment"># 是否在内部发送失败时重试另一个broker，默认false</span>
         <span class="token key atrule">retryNextServer</span><span class="token punctuation">:</span> <span class="token boolean important">false</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="1-3-消费监听"><a href="#1-3-消费监听" class="headerlink" title="1.3 消费监听"></a>1.3 消费监听</h2><p>实现RocketMQListener接口，完成消息的监听，消费消息。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>rocketmq<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">RocketMQMessageListener</span></span><span class="token punctuation">;</span>
+<h2 id="1-3-消费监听"><a href="#1-3-消费监听" class="headerlink" title="1.3 消费监听"></a>1.3 消费监听</h2><p>实现RocketMQListener接口，完成消息的监听，消费消息。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>rocketmq<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>annotation<span class="token punctuation">.</span></span><span class="token class-name">RocketMQMessageListener</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>apache<span class="token punctuation">.</span>rocketmq<span class="token punctuation">.</span>spring<span class="token punctuation">.</span>core<span class="token punctuation">.</span></span><span class="token class-name">RocketMQListener</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">org<span class="token punctuation">.</span>springframework<span class="token punctuation">.</span>stereotype<span class="token punctuation">.</span></span><span class="token class-name">Component</span></span><span class="token punctuation">;</span>
 
@@ -863,10 +918,8 @@
         <span class="token comment">// 处理消息的逻辑</span>
         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Received message: "</span> <span class="token operator">+</span> message<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="1-4-发送接口"><a href="#1-4-发送接口" class="headerlink" title="1.4 发送接口"></a>1.4 发送接口</h2><p>这里将发送消息（生产者）写成接口，方便调试。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="1-4-发送接口"><a href="#1-4-发送接口" class="headerlink" title="1.4 发送接口"></a>1.4 发送接口</h2><p>这里将发送消息（生产者）写成接口，方便调试。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NormalProduceController</span> <span class="token punctuation">&#123;</span>
   <span class="token annotation punctuation">@Autowired</span>
   <span class="token keyword">private</span> <span class="token class-name">RocketMQTemplate</span> rocketmqTemplate<span class="token punctuation">;</span>
@@ -877,13 +930,9 @@
       rocketmqTemplate<span class="token punctuation">.</span><span class="token function">send</span><span class="token punctuation">(</span><span class="token string">"SqlFilterTest"</span><span class="token punctuation">,</span> msg<span class="token punctuation">)</span><span class="token punctuation">;</span>
       <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">SendResult</span><span class="token punctuation">(</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="2-常见的使用过程中的问题"><a href="#2-常见的使用过程中的问题" class="headerlink" title="2 常见的使用过程中的问题"></a>2 常见的使用过程中的问题</h1><h2 id="2-1-WARN-No-appenders-could-be-found-for-logger"><a href="#2-1-WARN-No-appenders-could-be-found-for-logger" class="headerlink" title="2.1 WARN No appenders could be found for logger"></a>2.1 WARN No appenders could be found for logger</h2><p>启动项目时会在日志中看到如下告警</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">RocketMQLog:WARN No appenders could be found <span class="token keyword">for</span> logger <span class="token punctuation">(</span>io.netty.util.internal.InternalThreadLocalMap<span class="token punctuation">)</span>.
-RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<p>此时我们只需要在启动类中设置环境变量<code>rocketmq.client.logUseSlf4j</code> 为 <code>true</code>，明确指定RocketMQ的日志框架。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="2-常见的使用过程中的问题"><a href="#2-常见的使用过程中的问题" class="headerlink" title="2 常见的使用过程中的问题"></a>2 常见的使用过程中的问题</h1><h2 id="2-1-WARN-No-appenders-could-be-found-for-logger"><a href="#2-1-WARN-No-appenders-could-be-found-for-logger" class="headerlink" title="2.1 WARN No appenders could be found for logger"></a>2.1 WARN No appenders could be found for logger</h2><p>启动项目时会在日志中看到如下告警<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">RocketMQLog:WARN No appenders could be found <span class="token keyword">for</span> logger <span class="token punctuation">(</span>io.netty.util.internal.InternalThreadLocalMap<span class="token punctuation">)</span>.
+RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre><br>此时我们只需要在启动类中设置环境变量<code>rocketmq.client.logUseSlf4j</code> 为 <code>true</code>，明确指定RocketMQ的日志框架。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@SpringBootApplication</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketDemoApplication</span> <span class="token punctuation">&#123;</span>
 
     <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -896,19 +945,15 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
         <span class="token class-name">SpringApplication</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token class-name">RocketDemoApplication</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">,</span> args<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
-<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>同时还得在配置文件中调整<code>日志级别</code>，不然在控制台会一直看到broker的日志信息。</p>
-<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">logging</span><span class="token punctuation">:</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>同时还得在配置文件中调整<code>日志级别</code>，不然在控制台会一直看到broker的日志信息。<br><pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">logging</span><span class="token punctuation">:</span>
   <span class="token key atrule">level</span><span class="token punctuation">:</span>
     <span class="token comment"># 关闭RocketmqClient info日志，不然每隔几秒就会打印broker信息</span>
     <span class="token key atrule">RocketmqClient</span><span class="token punctuation">:</span> ERROR
     <span class="token key atrule">io</span><span class="token punctuation">:</span>
-      <span class="token key atrule">netty</span><span class="token punctuation">:</span> ERROR<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+      <span class="token key atrule">netty</span><span class="token punctuation">:</span> ERROR<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="2-2-不支持LocalDate-和-LocalDateTime"><a href="#2-2-不支持LocalDate-和-LocalDateTime" class="headerlink" title="2.2 不支持LocalDate 和 LocalDateTime"></a>2.2 不支持LocalDate 和 LocalDateTime</h2><p>在使用Java8后经常会使用<code>LocalDate/LocalDateTime</code>这两个时间类型字段，然而RocketMQ原始配置并不支持Java时间类型，当我们发送的实体消息中包含上述两个字段时，消费端在消费时会出现如下所示的错误。</p>
-<p>比如生产者的代码如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/test"</span><span class="token punctuation">)</span>
+<p>比如生产者的代码如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@GetMapping</span><span class="token punctuation">(</span><span class="token string">"/test"</span><span class="token punctuation">)</span>
     <span class="token annotation punctuation">@ApiOperation</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"发送RocketMQ普通消息-时间格式"</span><span class="token punctuation">)</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">//普通消息无返回值，只负责发送消息⽽不等待服务器回应且没有回调函数触发。</span>
@@ -919,25 +964,18 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
                 <span class="token punctuation">.</span><span class="token function">localDateTime</span><span class="token punctuation">(</span><span class="token class-name">LocalDateTime</span><span class="token punctuation">.</span><span class="token function">now</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
                 <span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         rocketmqTemplate<span class="token punctuation">.</span><span class="token function">convertAndSend</span><span class="token punctuation">(</span><span class="token string">"SqlFilterTest"</span><span class="token punctuation">,</span> rocketMessage<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>消费者的代码如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>消费者的代码如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
 <span class="token annotation punctuation">@RocketMQMessageListener</span><span class="token punctuation">(</span>consumerGroup <span class="token operator">=</span> <span class="token string">"springboot_consumer_group"</span><span class="token punctuation">,</span> topic <span class="token operator">=</span> <span class="token string">"SqlFilterTest"</span><span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQConsumer</span> <span class="token keyword">implements</span> <span class="token class-name">RocketMQListener</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">RMQController<span class="token punctuation">.</span>RocketMessage</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onMessage</span><span class="token punctuation">(</span><span class="token class-name">RMQController<span class="token punctuation">.</span>RocketMessage</span> message<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"RocketMQConsumer消费消息-"</span> <span class="token operator">+</span> message<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>消费者开始消费时会出现类型转换异常错误<code>Cannot construct instance of java.time.LocalDate</code>，错误详情如下：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-localDate-Error.png"><div class="caption"><b class="center-caption">解析java时间格式错误</b></div>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>消费者开始消费时会出现类型转换异常错误<code>Cannot construct instance of java.time.LocalDate</code>，错误详情如下：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-localDate-Error.png"><div class="caption"><b class="center-caption">解析java时间格式错误</b></div></p>
 <p>原因：</p>
 <blockquote>
-<p>RocketMQ内置使用的转换器是<code>RocketMQMessageConverter</code>，转换Json时使用的是<code>MappingJackson2MessageConverter</code>，但是这个转换器不支持时间类型。</p>
-</blockquote>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQMessageConverter</span> <span class="token punctuation">&#123;</span>
+<p>RocketMQ内置使用的转换器是<code>RocketMQMessageConverter</code>，转换Json时使用的是<code>MappingJackson2MessageConverter</code>，但是这个转换器不支持时间类型。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQMessageConverter</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">boolean</span> <span class="token constant">JACKSON_PRESENT</span><span class="token punctuation">;</span>
     <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">boolean</span> <span class="token constant">FASTJSON_PRESENT</span><span class="token punctuation">;</span>
     <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">CompositeMessageConverter</span> messageConverter<span class="token punctuation">;</span>
@@ -964,8 +1002,8 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token punctuation">&#125;</span>
     
     <span class="token comment">//.............</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+</blockquote>
 <p>解决办法：需要自定义消息转换器，将<code>MappingJackson2MessageConverter</code>进行替换，并添加支持时间模块。</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQEnhanceConfig</span> <span class="token punctuation">&#123;</span>
@@ -991,12 +1029,10 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <blockquote>
 <p>PS：上述出问题，主要是依赖<code>rocketmq-spring-boot-starter</code>的版本在2.2.1及之前老版本会有，2.1的问题在2.2.2版本依然存在，但2.2.3之后就没有了，读者不信的话，可以自己去实践一下。</p>
 </blockquote>
-<p><code>rocketmq-spring-boot-starter</code> 2.2.3版本的转换器已经更新解决了这个bug。可以看看这个版本的实现：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQMessageConverter</span> <span class="token punctuation">&#123;</span>
+<p><code>rocketmq-spring-boot-starter</code> 2.2.3版本的转换器已经更新解决了这个bug。可以看看这个版本的实现：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">RocketMQMessageConverter</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">boolean</span> <span class="token constant">JACKSON_PRESENT</span><span class="token punctuation">;</span>
     <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">final</span> <span class="token keyword">boolean</span> <span class="token constant">FASTJSON_PRESENT</span><span class="token punctuation">;</span>
     <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token class-name">CompositeMessageConverter</span> messageConverter<span class="token punctuation">;</span>
@@ -1028,8 +1064,7 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
         <span class="token keyword">this</span><span class="token punctuation">.</span>messageConverter <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">CompositeMessageConverter</span><span class="token punctuation">(</span>messageConverters<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
     <span class="token comment">//.................</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h2 id="2-3-RocketMQ环境隔离"><a href="#2-3-RocketMQ环境隔离" class="headerlink" title="2.3 RocketMQ环境隔离"></a>2.3 RocketMQ环境隔离</h2><p>在使用RocketMQ时，通常会在代码中直接指定消息主题(topic)，而且<code>开发环境</code>和<code>测试环境</code>可能共用一个RocketMQ环境。如果没有进行处理，在开发环境发送的消息就可能被测试环境的消费者消费，测试环境发送的消息也可能被开发环境的消费者消费，从而导致数据混乱的问题。</p>
 <p>为了解决这个问题，我们可以根据不同的环境实现<code>自动隔离</code>。通过简单配置一个选项，如<code>dev</code>、<code>test</code>、<code>prod</code>等不同环境，所有的消息都会被自动隔离。</p>
 <p>例如，当发送的消息主题为<code>consumer_topic</code>时，可以自动在topic后面加上环境后缀，如<code>consumer_topic_dev</code>。</p>
@@ -1051,7 +1086,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token key atrule">enabledIsolation</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
     <span class="token comment"># 隔离环境名称，拼接到topic后，topic_dev，默认空字符串</span>
     <span class="token key atrule">environment</span><span class="token punctuation">:</span> dev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="2-3-2-新增配置类，在实例化消息监听者之前把topic修改掉"><a href="#2-3-2-新增配置类，在实例化消息监听者之前把topic修改掉" class="headerlink" title="2.3.2 新增配置类，在实例化消息监听者之前把topic修改掉"></a>2.3.2 新增配置类，在实例化消息监听者之前把topic修改掉</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">
 <span class="token annotation punctuation">@Configuration</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">EnvironmentIsolationConfig</span> <span class="token keyword">implements</span> <span class="token class-name">BeanPostProcessor</span> <span class="token punctuation">&#123;</span>
@@ -1076,9 +1110,7 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
         <span class="token keyword">return</span> bean<span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>启动项目可以看到日志中消息监听的队列已经被修改了：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">2023</span>-08-23 <span class="token number">17</span>:04:59.726 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  o.a.r.s.support.DefaultRocketMQListenerContainer:290 - running container: DefaultRocketMQListenerContainer<span class="token punctuation">&#123;</span>consumerGroup<span class="token operator">=</span><span class="token string">'springboot_consumer_group'</span>, <span class="token assign-left variable">nameServer</span><span class="token operator">=</span><span class="token string">'10.5.103.6:9876'</span>, <span class="token assign-left variable">topic</span><span class="token operator">=</span><span class="token string">'consumer_topic_dev'</span>, <span class="token assign-left variable">consumeMode</span><span class="token operator">=</span>CONCURRENTLY, <span class="token assign-left variable">selectorType</span><span class="token operator">=</span>TAG, <span class="token assign-left variable">selectorExpression</span><span class="token operator">=</span><span class="token string">'*'</span>, <span class="token assign-left variable">messageModel</span><span class="token operator">=</span>CLUSTERING<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>启动项目可以看到日志中消息监听的队列已经被修改了：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">2023</span>-08-23 <span class="token number">17</span>:04:59.726 <span class="token punctuation">[</span>main<span class="token punctuation">]</span> INFO  o.a.r.s.support.DefaultRocketMQListenerContainer:290 - running container: DefaultRocketMQListenerContainer<span class="token punctuation">&#123;</span>consumerGroup<span class="token operator">=</span><span class="token string">'springboot_consumer_group'</span>, <span class="token assign-left variable">nameServer</span><span class="token operator">=</span><span class="token string">'10.5.103.6:9876'</span>, <span class="token assign-left variable">topic</span><span class="token operator">=</span><span class="token string">'consumer_topic_dev'</span>, <span class="token assign-left variable">consumeMode</span><span class="token operator">=</span>CONCURRENTLY, <span class="token assign-left variable">selectorType</span><span class="token operator">=</span>TAG, <span class="token assign-left variable">selectorExpression</span><span class="token operator">=</span><span class="token string">'*'</span>, <span class="token assign-left variable">messageModel</span><span class="token operator">=</span>CLUSTERING<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <h1 id="3-如何封装RocketMQ"><a href="#3-如何封装RocketMQ" class="headerlink" title="3 如何封装RocketMQ"></a>3 如何封装RocketMQ</h1><p>先来看看RocketMQ官方文档中推荐的最佳实践</p>
 <ul>
 <li>消息发送成功或者失败要<code>打印消息日志</code>，用于业务排查问题。</li>
@@ -1136,7 +1168,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token keyword">protected</span> <span class="token class-name">Integer</span> retryTimes <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="3-2-2-消息发送工具类的封装"><a href="#3-2-2-消息发送工具类的封装" class="headerlink" title="3.2.2 消息发送工具类的封装"></a>3.2.2 消息发送工具类的封装</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">
 <span class="token annotation punctuation">@Slf4j</span>
 <span class="token annotation punctuation">@Configuration</span>
@@ -1205,7 +1236,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>这里封装了一个消息发送类，实现了<code>日志记录</code>以及<code>自动重建topic</code>的功能（即生产者实现环境隔离），后面项目中只需要注入<code>RocketMQEnhanceTemplate</code>来实现消息的发送。</p>
 <h3 id="3-2-3-消费者的封装"><a href="#3-2-3-消费者的封装" class="headerlink" title="3.2.3 消费者的封装"></a>3.2.3 消费者的封装</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">
 <span class="token annotation punctuation">@Slf4j</span>
@@ -1346,7 +1376,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>使用模版设计模式定义了消息消费的骨架，实现了<code>日志打印</code>，<code>异常处理</code>，<code>异常重试</code>等公共逻辑，<code>消息过滤</code>（查重）、<code>业务处理</code>则交由子类实现。</p>
 <h3 id="3-2-4-基础配置类"><a href="#3-2-4-基础配置类" class="headerlink" title="3.2.4 基础配置类"></a>3.2.4 基础配置类</h3><ul>
 <li><p>增强配置类</p>
@@ -1415,7 +1444,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token keyword">private</span> <span class="token class-name">String</span> environment<span class="token punctuation">;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="3-3-封装后的使用"><a href="#3-3-封装后的使用" class="headerlink" title="3.3 封装后的使用"></a>3.3 封装后的使用</h2><h3 id="3-3-1-引入依赖"><a href="#3-3-1-引入依赖" class="headerlink" title="3.3.1 引入依赖"></a>3.3.1 引入依赖</h3><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>com.taeyeon<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>cloud-rocket-starter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
@@ -1428,7 +1456,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
         <span class="token key atrule">enabledIsolation</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
         <span class="token comment"># 隔离环境名称，拼接到topic后，topic_dev，默认空字符串</span>
         <span class="token key atrule">environment</span><span class="token punctuation">:</span> dev<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="3-3-3-发送消息"><a href="#3-3-3-发送消息" class="headerlink" title="3.3.3 发送消息"></a>3.3.3 发送消息</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java">
 <span class="token annotation punctuation">@RestController</span>
 <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"enhance"</span><span class="token punctuation">)</span>
@@ -1518,7 +1545,6 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <p>为了方便消费者对RocketMQ中的消息进行处理，我们可以使用<code>EnhanceMessageHandler</code>来进行消息的处理和逻辑的处理。</p>
 <p>消费者实现了<code>RocketMQListener</code>的同时，可以继承<code>EnhanceMessageHandler</code>来进行公共逻辑的处理，而核心业务逻辑需要自己实现<code>handleMessage</code>方法。 如果需要对消息进行<code>过滤</code>或者<code>去重</code>处理，则可以重写父类的<code>filter</code>方法进行实现。这样可以更加方便地对消息进行处理，减轻开发者的工作量。</p>
 <h1 id="4-参考文献"><a href="#4-参考文献" class="headerlink" title="4 参考文献"></a>4 参考文献</h1><ul>
@@ -2215,7 +2241,7 @@ RocketMQLog:WARN Please initialize the logger system properly.<span aria-hidden=
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2478,6 +2504,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

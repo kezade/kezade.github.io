@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -825,7 +882,6 @@
             <div id="articleContent">
                 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><p>网上虽然有很多通过 GitHub Actions 自动部署 Hexo 的教程，但都有各种各样的问题。主要问题还是 Workflow 脚本没有写正确，比如插件部分。</p>
 <h1 id="2-步骤"><a href="#2-步骤" class="headerlink" title="2 步骤"></a>2 步骤</h1><h2 id="2-1-生成密钥对"><a href="#2-1-生成密钥对" class="headerlink" title="2.1 生成密钥对"></a>2.1 生成密钥对</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">ssh-keygen <span class="token parameter variable">-t</span> rsa <span class="token parameter variable">-b</span> <span class="token number">4096</span> <span class="token parameter variable">-f</span> ~/.ssh/GitHub-actions-deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <p>然后会获得一个公钥(<code>GitHub-actions-deploy.pub</code>)和私钥(<code>GitHub-actions-deploy</code>)。</p>
 <h2 id="2-2-在-GitHub-Pages-所在的仓库中添加公钥"><a href="#2-2-在-GitHub-Pages-所在的仓库中添加公钥" class="headerlink" title="2.2 在 GitHub Pages 所在的仓库中添加公钥"></a>2.2 在 GitHub Pages 所在的仓库中添加<code>公钥</code></h2><blockquote>
 <p>注意这里是配置生成的<code>公钥</code>，且是配置在<code>Hexo生成的静态页面所在的git内</code>。</p>
@@ -848,16 +904,13 @@
 <blockquote>
 <p>注意：需要复制<code>GitHub-actions-deploy</code>文件中包括 <code>-----BEGIN OPENSSH PRIVATE KEY-----</code> 和 <code>-----END OPENSSH PRIVATE KEY-----</code> 的整个内容。</p>
 </blockquote>
-<h2 id="2-4-修改一下-Actions-脚本"><a href="#2-4-修改一下-Actions-脚本" class="headerlink" title="2.4 修改一下 Actions 脚本"></a>2.4 修改一下 Actions 脚本</h2><p>下文贴出的 Actions 的 Wordflows 脚本中，其中 3 个地方要改为自己的信息：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> config <span class="token parameter variable">--global</span> user.name <span class="token string">"你的github用户名"</span>
+<h2 id="2-4-修改一下-Actions-脚本"><a href="#2-4-修改一下-Actions-脚本" class="headerlink" title="2.4 修改一下 Actions 脚本"></a>2.4 修改一下 Actions 脚本</h2><p>下文贴出的 Actions 的 Wordflows 脚本中，其中 3 个地方要改为自己的信息：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> config <span class="token parameter variable">--global</span> user.name <span class="token string">"你的github用户名"</span>
 <span class="token function">git</span> config <span class="token parameter variable">--global</span> user.email <span class="token string">"你的github注册的邮箱"</span>
-<span class="token function">git</span> clone https://github.com/<span class="token punctuation">[</span>你的github用户名<span class="token punctuation">]</span>/<span class="token punctuation">[</span>你的github用户名<span class="token punctuation">]</span>.github.io .deploy_git<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<span class="token function">git</span> clone https://github.com/<span class="token punctuation">[</span>你的github用户名<span class="token punctuation">]</span>/<span class="token punctuation">[</span>你的github用户名<span class="token punctuation">]</span>.github.io .deploy_git<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre></p>
 <blockquote>
 <p>clone那一行最后的项目，你的名字可能与我的不同，但都指的是你的博客静态页面所在的项目名。</p>
 </blockquote>
-<h2 id="2-5-其他注意事项"><a href="#2-5-其他注意事项" class="headerlink" title="2.5 其他注意事项"></a>2.5 其他注意事项</h2><p>脚本中插件部分可按自己实际用的插件删改，<code>npm ls --depth 0</code> 可查看自己安装了哪些插件。如果没有用到 <code>hexo douban</code> 插件，部署命令：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hexo g <span class="token operator">&amp;&amp;</span> hexo douban <span class="token operator">&amp;&amp;</span> hexo deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p> 可改为<br> <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hexo g <span class="token parameter variable">-d</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>另外一个建议是，所使用的 theme 中的 <code>主题目录</code> 用 <code>git subtree</code> 添加为子项目去维护。这样在多环境多终端发布文章时，不会 clone 或 pull 一个空 theme。</p>
+<h2 id="2-5-其他注意事项"><a href="#2-5-其他注意事项" class="headerlink" title="2.5 其他注意事项"></a>2.5 其他注意事项</h2><p>脚本中插件部分可按自己实际用的插件删改，<code>npm ls --depth 0</code> 可查看自己安装了哪些插件。如果没有用到 <code>hexo douban</code> 插件，部署命令：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hexo g <span class="token operator">&amp;&amp;</span> hexo douban <span class="token operator">&amp;&amp;</span> hexo deploy<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br> 可改为<br> <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">hexo g <span class="token parameter variable">-d</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>另外一个建议是，所使用的 theme 中的 <code>主题目录</code> 用 <code>git subtree</code> 添加为子项目去维护。这样在多环境多终端发布文章时，不会 clone 或 pull 一个空 theme。</p>
 <h2 id="2-6-git-push"><a href="#2-6-git-push" class="headerlink" title="2.6 git push"></a>2.6 git push</h2><p>文章写好后，不需要在本地构建，只需要 <code>git push</code> 到 GitHub 仓库即可自动部署。其中部署方式在 Hexo 根目录的 <code>_config.yml</code> 中配置。</p>
 <h1 id="3-脚本配置"><a href="#3-脚本配置" class="headerlink" title="3 脚本配置"></a>3 脚本配置</h1><p>注意修改其中提到的几个地方。</p>
 <pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">name: 自动部署 Hexo
@@ -916,7 +969,6 @@ jobs:
           <span class="token function">rm</span> <span class="token parameter variable">-rf</span> .deploy_git
           hexo clean <span class="token operator">&amp;&amp;</span> hexo g <span class="token operator">&amp;&amp;</span> hexo d
           <span class="token function">rm</span> ~/.ssh/id_rsa<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="4-参考文档"><a href="#4-参考文档" class="headerlink" title="4 参考文档"></a>4 参考文档</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://eallion.com/github-actions-hexo-ci">GitHub Actions 自动部署 Hexo 脚本</a></li>
 <li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904067123150855">使用 GitHub Actions 实现 Hexo 博客自动部署</a></li>
@@ -1600,7 +1652,7 @@ jobs:
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1618,7 +1670,7 @@ jobs:
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1881,6 +1933,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

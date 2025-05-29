@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -826,16 +883,12 @@
                 <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><p><code>ZAB协议</code>全称：Zookeeper Atomic Broadcast，即<code>Zookeeper 原子广播协议</code>。而<code>ZooKeeper</code>是一个开放源代码的<strong>分布式协调服务</strong>，由知名互联网公司<code>雅虎</code>创建，是<code>Google Chubby</code>的开源实现。ZooKeeper的<code>设计目标</code>是将那些复杂且容易出错的分布式一致性服务封装起来，构成一个高效可靠的原语集，并以一系列简单易用的接口提供给用户使用。</p>
 <p><code>ZooKeeper</code>是一个典型的<strong>分布式数据一致性的解决方案</strong>，分布式应用程序可以基于它实现诸如<code>数据发布/订阅</code>、<code>负载均衡</code>、<code>命名服务</code>、<code>分布式协调/通知</code>、<code>集群管理</code>、<code>Master 选举</code>、<code>分布式锁</code>和<code>分布式队列</code>等功能。</p>
 <p>在一致性算法上，<code>ZooKeeper</code>采用了<code>ZAB</code>，但其并不是Paxos算法的实现，也不是一种通用的分布式一致性算法，而是一种改进的、专为<code>ZooKeeper</code>服务设计的崩溃可恢复的原子消息广播算法。</p>
-<h1 id="2-原理"><a href="#2-原理" class="headerlink" title="2 原理"></a>2 原理</h1><p><code>Zookeeper</code>根据<code>ZAB协议</code>建立了<code>主备模型</code>完成Zookeeper集群中数据的同步。这里的<code>主备模型</code>具体是指ZooKeeper使用一个单一的主进程（Leader）来接收并处理客户端的所有<code>事务请求</code>，并采用ZAB的<code>原子广播协议</code>，将服务器数据的状态变更以<code>事务Proposal</code>的形式广播到所有的副本进程（Follower）上去。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Zk-Master-Slave-Model.png"><div class="caption"><b class="center-caption">主备模型</b></div>
-
+<h1 id="2-原理"><a href="#2-原理" class="headerlink" title="2 原理"></a>2 原理</h1><p><code>Zookeeper</code>根据<code>ZAB协议</code>建立了<code>主备模型</code>完成Zookeeper集群中数据的同步。这里的<code>主备模型</code>具体是指ZooKeeper使用一个单一的主进程（Leader）来接收并处理客户端的所有<code>事务请求</code>，并采用ZAB的<code>原子广播协议</code>，将服务器数据的状态变更以<code>事务Proposal</code>的形式广播到所有的副本进程（Follower）上去。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Zk-Master-Slave-Model.png"><div class="caption"><b class="center-caption">主备模型</b></div></p>
 <p><code>ZAB</code>协议的核心就是：</p>
 <blockquote>
 <p>在整个<code>Zookeeper</code>集群中，所有<code>事务请求</code>必须由<strong>一个全局唯一的服务器</strong>，即<code>Leader服务器</code>来协调处理，而余下的其他服务器则成为 <code>Follower 服务器</code>。Leader 服务器负责将一个客户端<code>事务请求</code>转换成一个<code>事务 Proposal</code>（提议），并将该 Proposal 分发给集群中所有的Follower服务器。之后 Leader 服务器需要等待所有 Follower 服务器的反馈，一旦<code>超过半数</code>的 Follower 服务器进行了正确地反馈后，那么Leader就会再次向所有的 Follower服务器分发<code>Commit消息</code>，要求其将前一个Proposal进行<code>提交</code>。</p>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Zk-Broadcasting-Model.png"><div class="caption"><b class="center-caption">消息广播示意图</b></div>
-
-
 <h1 id="3-两种基本模式"><a href="#3-两种基本模式" class="headerlink" title="3 两种基本模式"></a>3 两种基本模式</h1><p>ZAB协议包括两种基本的模式，分别是<code>崩溃恢复</code>和<code>消息广播</code>。</p>
 <ul>
 <li>当整个服务框架在启动过程中，或是当Leader服务器出现网络中断、崩溃退出与重启等异常情况时，ZAB 协议就会进入<code>恢复模式</code>并选举产生新的 Leader 服务器。</li>
@@ -849,10 +902,10 @@
 </li>
 <li>当<code>Leader服务器</code>出现<code>崩溃退出</code>或<code>机器重启</code>，亦或是集群中已经<code>不存在过半的</code>服务器与该Leader服务器保持正常通信时，那么在重新开始新一轮的原子广播事务操作之前，所有进程首先会使用<code>崩溃恢复协议</code>来使彼此达到一个一致的状态，于是整个 ZAB 流程就会从<code>消息广播模式</code>进入到<code>崩溃恢复模式</code>。<blockquote>
 <p>整个 Zookeeper 就是在这两个模式之间切换。 简而言之，当 Leader 服务可以<code>正常使用</code>，就进入<code>消息广播模式</code>，当 Leader <code>不可用</code>时，则进入<code>崩溃恢复模式</code>。</p>
+<h2 id="3-1-消息广播"><a href="#3-1-消息广播" class="headerlink" title="3.1 消息广播"></a>3.1 消息广播</h2><p><code>ZAB协议</code>的<code>消息广播</code>过程使用的是一个原子广播协议，类似于一个<code>二阶段提交</code>过程。针对客户端的事务请求，Leader服务器会为其生成对应的事务<code>Proposal</code>，并将其发送给集群中其余所有的机器，然后再分别收集各自的<code>选票</code>，如果<code>超过半数成功响应</code>，则进行事务<code>提交</code>。</p>
 </blockquote>
 </li>
 </ul>
-<h2 id="3-1-消息广播"><a href="#3-1-消息广播" class="headerlink" title="3.1 消息广播"></a>3.1 消息广播</h2><p><code>ZAB协议</code>的<code>消息广播</code>过程使用的是一个原子广播协议，类似于一个<code>二阶段提交</code>过程。针对客户端的事务请求，Leader服务器会为其生成对应的事务<code>Proposal</code>，并将其发送给集群中其余所有的机器，然后再分别收集各自的<code>选票</code>，如果<code>超过半数成功响应</code>，则进行事务<code>提交</code>。</p>
 <p>具体步骤如下： </p>
 <ul>
 <li>客户端发起一个写操作请求；</li>
@@ -862,10 +915,8 @@
 <li>Leader服务器收到<code>半数以上</code>的follower的<code>ACK</code>后，即认为可以发送<code>commit</code>；</li>
 <li>Leader向所有的follower服务器发送<code>commit</code>消息。</li>
 </ul>
-<p>这个流程如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Zk-Broadcasting-Model2.png"><div class="caption"><b class="center-caption">消息广播模式示意图</b></div>
+<p>这个流程如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Zk-Broadcasting-Model2.png"><div class="caption"><b class="center-caption">消息广播模式示意图</b></div></p>
 <h2 id="3-2-崩溃恢复"><a href="#3-2-崩溃恢复" class="headerlink" title="3.2 崩溃恢复"></a>3.2 崩溃恢复</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZK-data-sync.jpg"><div class="caption"><b class="center-caption">崩溃恢复过程示意图</b></div>
-
 <ul>
 <li>假设一个事务在 Leader 服务器上被提交了，并且已经得到<code>过半</code> Follower 服务器的<code>Ack</code>反馈，但是在它将Commit消息发送给所有Follower机器之前，Leader服务器挂了；</li>
 <li>假设初始的 Leader 服务器 Server1 在提出了一个事务<code>Proposal-3</code>之后就崩溃退出了，从而导致集群中的其他服务器都没有收到这个事务Proposal。</li>
@@ -873,12 +924,12 @@
 <p>针对这些问题，ZAB 定义了 <code>2 个原则</code>：</p>
 <ul>
 <li><code>原则一</code>：ZAB 协议<strong>确保</strong>那些已经在 Leader 提交的事务最终会被所有服务器提交。</li>
-<li><code>原则二</code>：ZAB 协议<strong>确保</strong>丢弃那些只在 Leader 提出&#x2F;复制，但没有提交的事务。</li>
+<li><code>原则二</code>：ZAB 协议<strong>确保</strong>丢弃那些只在 Leader 提出/复制，但没有提交的事务。</li>
 </ul>
 <h3 id="3-2-1-Leader选举"><a href="#3-2-1-Leader选举" class="headerlink" title="3.2.1 Leader选举"></a>3.2.1 Leader选举</h3><p>所以，ZAB 设计了下面这样一个<code>选举算法</code>：能够确保<strong>提交</strong><code>已经被 Leader 提交的事务</code>，同时<strong>丢弃</strong>只在Leader服务器上<code>被提出的事务</code>。</p>
 <p>针对这个要求，如果让 Leader 选举算法能够保证新选举出来的 Leader 服务器拥有集群中所有机器编号（即 <code>ZXID</code> 最大）的事务，那么就能够保证这个新选举出来的 Leader 一定具有<code>所有已经提交的提案</code>。而且这么做有一个好处是：<strong>可以省去 Leader 服务器检查事务的提交和丢弃工作的这一步操作</strong>。</p>
 <blockquote>
-<p>详细Leader选举过程，可参考我写的这篇文章[^1]。</p>
+<p>详细Leader选举过程，可参考我写的这篇文章<sup><a href="#fn_1" id="reffn_1">1</a></sup>。</p>
 </blockquote>
 <h3 id="3-2-2-数据同步"><a href="#3-2-2-数据同步" class="headerlink" title="3.2.2 数据同步"></a>3.2.2 数据同步</h3><p>完成<code>Leader选举</code>之后，在正式开始工作（即接收客户端的事务请求，然后提出新的提案）之前，Leader服务器会首先确认事务日志中的所有Proposal是否都已经被集群中过半的机器提交了，即是否完成数据同步。<strong>目的是为了保持数据一致</strong>。</p>
 <p>当所有的 Follower 服务器都成功同步之后，Leader 会将这些服务器加入到可用服务器列表中。参见3.2节开头<code>崩溃恢复过程示意图</code>。</p>
@@ -886,9 +937,7 @@
 <blockquote>
 <p>怎么对比呢？</p>
 </blockquote>
-<p>这里就有必要了解下<code>ZXID</code>的组成结构了，如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZK-zxid.png"><div class="caption"><b class="center-caption">ZXID示意图</b></div>
-
+<p>这里就有必要了解下<code>ZXID</code>的组成结构了，如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ZK-zxid.png"><div class="caption"><b class="center-caption">ZXID示意图</b></div></p>
 <p>在<code>ZAB协议</code>的事务编号<code>ZXID</code>设计中，<code>ZXID</code>是一个<code>64位</code>的数字，其中：</p>
 <ul>
 <li><code>低 32 位</code>可以看作是一个简单的单调递增的<code>计数器</code>，针对客户端的每一个事务请求，Leader服务器在产生一个新的事务Proposal的时候，都会对该计数器进行加1操作；</li>
@@ -900,12 +949,12 @@
 <p>基于这样的策略，当一个包含了<strong>上一个</strong> Leader 周期中<code>尚未提交过</code>的事务 Proposal 的服务器启动时，其肯定无法成为 Leader，原因很简单，因为当前集群中一定包含一个Quorum集合，该集合中的机器一定包含了<code>更高epoch</code>的事务Proposal，因此这台机器的事务 Proposal 肯定不是最高，也就无法成为 Leader 了。当这台机器加入到集群中，以Follower角色连接上Leader服务器之后，Leader服务器会根据自己服务器上<code>最后被提交的Proposal</code>来和 Follower服务器的<code>Proposal</code>进行比对，比对的结果当然是Leader会要求 Follower 进行一个<code>回退操作</code>——回退到一个确实已经被集群中<code>过半</code>机器提交的最新的事务Proposal。</p>
 <blockquote>
 <p>这也就是ZK<code>原则二</code>的实现原理：丢弃那些原来Leader的提案（Old Proposal）。</p>
-</blockquote>
 <h1 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h1><ul>
-<li>[^1] <a target="_blank" rel="noopener" href="https://blog.csdn.net/kezade/article/details/125375679">【Zookeeper学习】集群选举机制</a></li>
+<li><sup><a href="#fn_1" id="reffn_1">1</a></sup> <a target="_blank" rel="noopener" href="https://blog.csdn.net/kezade/article/details/125375679">【Zookeeper学习】集群选举机制</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/a724888/article/details/80757503">搞懂分布式技术4：ZAB协议概述与选主流程详解</a></li>
-<li>倪超. 《从Paxos到Zookeeper分布式一致性原理与实践》.</li>
+<li>倪超. 《从Paxos到Zookeeper分布式一致性原理与实践》. </li>
 </ul>
+</blockquote>
 
                 
             </div>
@@ -1598,7 +1647,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1861,6 +1910,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

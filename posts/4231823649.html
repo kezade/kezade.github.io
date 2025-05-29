@@ -66,7 +66,7 @@ public class ScheduledMessageProducer &amp;#123;
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +184,7 @@ public class ScheduledMessageProducer &amp;#123;
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +260,15 @@ public class ScheduledMessageProducer &amp;#123;
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +291,24 @@ public class ScheduledMessageProducer &amp;#123;
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +489,7 @@ public class ScheduledMessageProducer &amp;#123;
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +573,16 @@ public class ScheduledMessageProducer &amp;#123;
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +605,26 @@ public class ScheduledMessageProducer &amp;#123;
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -853,7 +910,6 @@ public class ScheduledMessageProducer &amp;#123;
         producer<span class="token punctuation">.</span><span class="token function">shutdown</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="1-2-Consumer"><a href="#1-2-Consumer" class="headerlink" title="1.2 Consumer"></a>1.2 Consumer</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * @author zyx
  * 延时消息-消费者
@@ -882,8 +938,8 @@ public class ScheduledMessageProducer &amp;#123;
         consumer<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="2-源码追踪"><a href="#2-源码追踪" class="headerlink" title="2 源码追踪"></a>2 源码追踪</h1><p>Apache RocketMQ 一共支持<code>18个等级</code>的延迟投递，具体时间如下：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -893,7 +949,8 @@ public class ScheduledMessageProducer &amp;#123;
 <th>延迟时间</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>1s</td>
 <td>10</td>
@@ -947,12 +1004,13 @@ public class ScheduledMessageProducer &amp;#123;
 <td>18</td>
 <td>2h</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>对于生产者而言，延迟消息与普通消息没有多大差异，就按照普通消息发送的。只是把消息对象Message的<code>setDelayTimeLevel(int level)</code>方法设置一个延迟等级，这样该条消息就是一个延迟消息了。</p>
 <h2 id="2-1-Broker保存"><a href="#2-1-Broker保存" class="headerlink" title="2.1 Broker保存"></a>2.1 Broker保存</h2><p>通过前面的学习，我们也大概了解了消息发送的过程，这里就会省略一些步骤了。</p>
 <p>Broker处理生产者发送过来的消息，请求代号为：<code>SEND_MESSAGE_V2</code>，其对应的处理器为：<code>SendMessageProcessor</code>。依次通过<code>processRequest()</code>、<code>asyncProcessRequest()</code>、<code>asyncSendMessage()</code>等方法的处理，然后调用<code>DefaultMessageStore#asyncPutMessage()</code>进行消息的落地。</p>
-<p>处理过程与普通消息大同小异，就是一些小的方面做了些处理：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//CommitLog</span>
+<p>处理过程与普通消息大同小异，就是一些小的方面做了些处理：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//CommitLog</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">CommitLog</span> <span class="token punctuation">&#123;</span>
     <span class="token keyword">public</span> <span class="token class-name">CompletableFuture</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">PutMessageResult</span><span class="token punctuation">></span></span> <span class="token function">asyncPutMessage</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">MessageExtBrokerInner</span> msg<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// 1.记录消息存储时间</span>
@@ -991,8 +1049,7 @@ public class ScheduledMessageProducer &amp;#123;
         <span class="token punctuation">&#125;</span>
         <span class="token comment">//..........省略</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>总结下该方法处理的过程：</p>
 <ul>
 <li>将原始topic替换为延迟消息固定的topic：<code>SCHEDULE_TOPIC_XXXX</code>，所有的延时消息共用这一个topic；</li>
@@ -1000,7 +1057,7 @@ public class ScheduledMessageProducer &amp;#123;
 <p>这样做最大的好处就是避免了排序，举个简单的例子：上午10:00，broker收到了一条<code>延迟消息1</code>，延迟级别为5；然后在10:02又收到了一条<code>延迟消息2</code>，延迟级别也为5，由于延迟级别相同，他们会存储在同一条队列中;<br>由于队列天生有序，入队时间先按送达broker的时间先后进行排序，而同一队列上延迟时间也相同，因此<code>延迟消息1</code>一定会在<code>延迟消息2</code>前进行消消费，后面如果有消息再进入该队列中，也会按照<code>先进先出</code>的方式进行消费。</p>
 </blockquote>
 </li>
-<li>备份原始topic&#x2F;queueid, 保存到原始消息的properties属性至propertiesString。</li>
+<li>备份原始topic/queueid, 保存到原始消息的properties属性至propertiesString。</li>
 </ul>
 <p>这样就处理完了一条延迟消息，然后就是存储消息，和普通一样，这里就不展示了。</p>
 <p>不过在消息分发(构建消息索引）时，将索引单元的<code>tag hashcode</code>替换为<code>消息的投递时间</code>，处理方法为<code>CommitLog#checkMessageAndReturnSize()</code>，该方法在目前我们熟知的有两个地方（DLedger的后面另说）有调用：</p>
@@ -1023,11 +1080,11 @@ public class ScheduledMessageProducer &amp;#123;
                         <span class="token punctuation">&#125;</span>
                     <span class="token punctuation">&#125;</span>
                 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeQueue-Item.png"><div class="caption"><b class="center-caption">ConsumeQueue条目变化</b></div></li>
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeQueue-Item.png"><div class="caption"><b class="center-caption">ConsumeQueue条目变化</b></div>
+</li>
 </ul>
 <h2 id="2-2-投递与持久化"><a href="#2-2-投递与持久化" class="headerlink" title="2.2 投递与持久化"></a>2.2 投递与持久化</h2><p>既然消息已经更改了topic，那消费者肯定是拉取不到的。只有到了时间，Broker才会将该消息还原为原来的topic，让消费者能够拉取到并消费掉。</p>
-<p>处理这个过程的类为：<code>ScheduleMessageService</code>。其会在BrokerController执行<code>initialize()</code>时，创建<code>DefaultMessageStore</code>实例时初始化一个实例。其本身继承自<code>ConfigManager</code>，我们可以看看其<code>start()</code>干了啥。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ScheduleMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ConfigManager</span> <span class="token punctuation">&#123;</span>
+<p>处理这个过程的类为：<code>ScheduleMessageService</code>。其会在BrokerController执行<code>initialize()</code>时，创建<code>DefaultMessageStore</code>实例时初始化一个实例。其本身继承自<code>ConfigManager</code>，我们可以看看其<code>start()</code>干了啥。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">ScheduleMessageService</span> <span class="token keyword">extends</span> <span class="token class-name">ConfigManager</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">/**
      * 延迟消息服务的启动方式
      */</span>
@@ -1063,15 +1120,13 @@ public class ScheduledMessageProducer &amp;#123;
             <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">10000</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFlushDelayOffsetInterval</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>主要做了两件事：</p>
 <ul>
 <li>遍历所有的延迟级别，为每个延迟级别在延迟<code>FIRST_DELAY_TIME</code>毫秒后就处理延迟消息的<code>投递操作</code>;</li>
 <li>开启执久化定时任务：定时将延迟消息的相关信息<code>持久化</code>到硬盘中.</li>
 </ul>
-<h3 id="2-2-1-消息投递"><a href="#2-2-1-消息投递" class="headerlink" title="2.2.1 消息投递"></a>2.2.1 消息投递</h3><p>投递主要看<code>DeliverDelayedMessageTimerTask</code>，其实质是个线程类，我们看看其<code>run()</code>方法：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DeliverDelayedMessageTimerTask</span>
+<h3 id="2-2-1-消息投递"><a href="#2-2-1-消息投递" class="headerlink" title="2.2.1 消息投递"></a>2.2.1 消息投递</h3><p>投递主要看<code>DeliverDelayedMessageTimerTask</code>，其实质是个线程类，我们看看其<code>run()</code>方法：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//DeliverDelayedMessageTimerTask</span>
 <span class="token annotation punctuation">@Override</span>
         <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
@@ -1085,10 +1140,8 @@ public class ScheduledMessageProducer &amp;#123;
                 <span class="token class-name">ScheduleMessageService</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>timer<span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">DeliverDelayedMessageTimerTask</span><span class="token punctuation">(</span>
                     <span class="token keyword">this</span><span class="token punctuation">.</span>delayLevel<span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>offset<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token constant">DELAY_FOR_A_PERIOD</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token punctuation">&#125;</span>
-        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>关键看<code>executeOnTimeup()</code>方法：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">executeOnTimeup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>关键看<code>executeOnTimeup()</code>方法：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">executeOnTimeup</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
             <span class="token comment">//根据延迟topic和延迟queueid 去获取Consumequeue</span>
             <span class="token class-name">ConsumeQueue</span> cq <span class="token operator">=</span> <span class="token class-name">ScheduleMessageService</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">findConsumeQueue</span><span class="token punctuation">(</span>
                     <span class="token class-name">TopicValidator</span><span class="token punctuation">.</span><span class="token constant">RMQ_SYS_SCHEDULE_TOPIC</span><span class="token punctuation">,</span>
@@ -1200,8 +1253,7 @@ public class ScheduledMessageProducer &amp;#123;
 
             <span class="token class-name">ScheduleMessageService</span><span class="token punctuation">.</span><span class="token keyword">this</span><span class="token punctuation">.</span>timer<span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">DeliverDelayedMessageTimerTask</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>delayLevel<span class="token punctuation">,</span>
                 failScheduleOffset<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token constant">DELAY_FOR_A_WHILE</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+        <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>总结下这个方法的作用及过程：</p>
 <ul>
 <li>根据延迟topic和延迟queueid获取consumequeue，并从队列中读取索引单元；</li>
@@ -1219,9 +1271,7 @@ public class ScheduledMessageProducer &amp;#123;
 <li>更新延迟消息队列的消费进度(后面持久化也就是指的它）。</li>
 </ul>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Delay-Queue-Overview.png"><div class="caption"><b class="center-caption">延迟队列概览</b></div>
-
-<h3 id="2-2-2-消息持久化"><a href="#2-2-2-消息持久化" class="headerlink" title="2.2.2 消息持久化"></a>2.2.2 消息持久化</h3><p>回到<code>ScheduleMessageService#start()</code>，关键的第2步就是持久化任务。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//ScheduleMessageService#start()</span>
+<h3 id="2-2-2-消息持久化"><a href="#2-2-2-消息持久化" class="headerlink" title="2.2.2 消息持久化"></a>2.2.2 消息持久化</h3><p>回到<code>ScheduleMessageService#start()</code>，关键的第2步就是持久化任务。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//ScheduleMessageService#start()</span>
             <span class="token comment">// 2.每隔10s，将延迟消息的相关信息持久化到硬盘中</span>
             <span class="token keyword">this</span><span class="token punctuation">.</span>timer<span class="token punctuation">.</span><span class="token function">scheduleAtFixedRate</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">TimerTask</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
                 <span class="token annotation punctuation">@Override</span>
@@ -1234,8 +1284,7 @@ public class ScheduledMessageProducer &amp;#123;
                         log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"scheduleAtFixedRate flush exception"</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
                     <span class="token punctuation">&#125;</span>
                 <span class="token punctuation">&#125;</span>
-            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">10000</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFlushDelayOffsetInterval</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+            <span class="token punctuation">&#125;</span><span class="token punctuation">,</span> <span class="token number">10000</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span>defaultMessageStore<span class="token punctuation">.</span><span class="token function">getMessageStoreConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getFlushDelayOffsetInterval</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <p>该任务会定期执行<code>ConfigManager#persist</code>方法进行持久化操作，即<strong>定期将延迟队列的消费位置偏移量持久化到文件中</strong>：</p>
 <pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">ConfigManager</span> <span class="token punctuation">&#123;</span>
   <span class="token keyword">public</span> <span class="token keyword">synchronized</span> <span class="token keyword">void</span> <span class="token function">persist</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1251,11 +1300,10 @@ public class ScheduledMessageProducer &amp;#123;
     <span class="token punctuation">&#125;</span>
   <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="3-总结"><a href="#3-总结" class="headerlink" title="3 总结"></a>3 总结</h1><ul>
 <li>发送消息时，通过<code>setDelayTimeLevel(int level)</code>来设置延迟等级，RocketMQ默认支持<code>18种延迟等级</code>，每个延迟等级对应不同的延迟时间；</li>
 <li>所有延迟消息共用一个topic: <code>SCHEDULE_TOPIC_XXXX</code>；</li>
-<li>相同延迟等级的消息会放到同一个队列中(queueid&#x3D;delayLevel - 1)；</li>
+<li>相同延迟等级的消息会放到同一个队列中(queueid=delayLevel - 1)；</li>
 <li>相同等级的消息会被同一个线程去处理。</li>
 </ul>
 
@@ -1960,7 +2008,7 @@ public class ScheduledMessageProducer &amp;#123;
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2223,6 +2271,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

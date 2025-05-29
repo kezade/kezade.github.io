@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -838,17 +895,12 @@
 <li>SqlSessionFactoryBean：用于创建SqlSessionFactory；</li>
 <li>MapperScannerConfigurer：自动扫描所有的 Mapper 接口，使用时可以直接注入接口。</li>
 </ul>
-<h2 id="1-SqlSessionFactoryBean"><a href="#1-SqlSessionFactoryBean" class="headerlink" title="1.SqlSessionFactoryBean"></a>1.SqlSessionFactoryBean</h2><p>(1) UML</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324100712686.png"><div class="caption"><b class="center-caption">"SqlSessionFactoryBean"</b></div>
-<p>(2) 配置和源码解析<br>通常我们在项目中整合Spring和mybatis时，Spring相关的配置文件会包含：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --></span>
+<h2 id="1-SqlSessionFactoryBean"><a href="#1-SqlSessionFactoryBean" class="headerlink" title="1.SqlSessionFactoryBean"></a>1.SqlSessionFactoryBean</h2><p>(1) UML<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324100712686.png"><div class="caption"><b class="center-caption">"SqlSessionFactoryBean"</b></div><br>(2) 配置和源码解析<br>通常我们在项目中整合Spring和mybatis时，Spring相关的配置文件会包含：<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlSessionFactory<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org.mybatis.spring.SqlSessionFactoryBean<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>dataSource<span class="token punctuation">"</span></span> <span class="token attr-name">ref</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>dataSource<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>typeAliasesPackage<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.entity<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>mapperLocations<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>classpath:sqlmapper/*.xml<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>并且dataSource必须配置，我们可以从方法afterPropertiesSet()看出来：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>并且dataSource必须配置，我们可以从方法afterPropertiesSet()看出来：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
    * 在spring容器中创建全局唯一的sqlSessionFactory
    *
    * @throws Exception 异常
@@ -863,9 +915,7 @@
               <span class="token string">"Property 'configuration' and 'configLocation' can not specified with together"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
     <span class="token keyword">this</span><span class="token punctuation">.</span>sqlSessionFactory <span class="token operator">=</span> <span class="token function">buildSqlSessionFactory</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>接下来，看看方法。主要功能构建和丰富Configuration，并创建sqlSessionFactory.</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>接下来，看看方法。主要功能构建和丰富Configuration，并创建sqlSessionFactory.<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
    * Build a &#123;@code SqlSessionFactory&#125; instance.
    *
    * The default implementation uses the standard MyBatis &#123;@code XMLConfigBuilder&#125; API to build a
@@ -1016,14 +1066,8 @@
     <span class="token punctuation">&#125;</span>
     <span class="token comment">//最终使用sqlSessionFactoryBuilder创建sqlSessionFactory</span>
     <span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>sqlSessionFactoryBuilder<span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>configuration<span class="token punctuation">)</span><span class="token punctuation">;</span>
-  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>最后一句</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>sqlSessionFactoryBuilder<span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>configuration<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-<p>是不是又回到了熟悉的地方。</p>
-<h2 id="2-MapperScannerConfigurer"><a href="#2-MapperScannerConfigurer" class="headerlink" title="2.MapperScannerConfigurer"></a>2.MapperScannerConfigurer</h2><p>(1) UML</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324140422191.png"><div class="caption"><b class="center-caption">"MapperScannerConfigurer UML"</b></div>
-<p>(2) 配置和源码解析<br>这里我们主要关注这个接口：BeanDefinitionRegistryPostProcessor<br>MapperScannerConfigurer实现了BeanDefinitionRegistryPostProcessor接口，BeanDefinitionRegistryPostProcessor接口是一个可以修改spring工厂中已定义的bean的接口，该接口有个postProcessBeanDefinitionRegistry方法。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
+  <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>最后一句<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">return</span> <span class="token keyword">this</span><span class="token punctuation">.</span>sqlSessionFactoryBuilder<span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span>configuration<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><br>是不是又回到了熟悉的地方。</p>
+<h2 id="2-MapperScannerConfigurer"><a href="#2-MapperScannerConfigurer" class="headerlink" title="2.MapperScannerConfigurer"></a>2.MapperScannerConfigurer</h2><p>(1) UML<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324140422191.png"><div class="caption"><b class="center-caption">"MapperScannerConfigurer UML"</b></div><br>(2) 配置和源码解析<br>这里我们主要关注这个接口：BeanDefinitionRegistryPostProcessor<br>MapperScannerConfigurer实现了BeanDefinitionRegistryPostProcessor接口，BeanDefinitionRegistryPostProcessor接口是一个可以修改spring工厂中已定义的bean的接口，该接口有个postProcessBeanDefinitionRegistry方法。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Override</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">postProcessBeanDefinitionRegistry</span><span class="token punctuation">(</span><span class="token class-name">BeanDefinitionRegistry</span> registry<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
   <span class="token comment">//占位符处理</span>
   <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>processPropertyPlaceHolders<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -1044,9 +1088,7 @@
   scanner<span class="token punctuation">.</span><span class="token function">registerFilters</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   <span class="token comment">//扫描指定的包以及其子包</span>
   scanner<span class="token punctuation">.</span><span class="token function">scan</span><span class="token punctuation">(</span><span class="token class-name">StringUtils</span><span class="token punctuation">.</span><span class="token function">tokenizeToStringArray</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>basePackage<span class="token punctuation">,</span> <span class="token class-name">ConfigurableApplicationContext</span><span class="token punctuation">.</span><span class="token constant">CONFIG_LOCATION_DELIMITERS</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>点进去，看看ClassPathMapperScanner.scan()方法：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>点进去，看看ClassPathMapperScanner.scan()方法：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * Calls the parent search that will search and register all the candidates.
  * Then the registered objects are post processed to set them as
  * MapperFactoryBeans
@@ -1117,11 +1159,7 @@
             definition<span class="token punctuation">.</span><span class="token function">setAutowireMode</span><span class="token punctuation">(</span><span class="token class-name">AbstractBeanDefinition</span><span class="token punctuation">.</span><span class="token constant">AUTOWIRE_BY_TYPE</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
         <span class="token punctuation">&#125;</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>注释已经写得很清楚了，这里再看看MapperFactoryBean.</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324144607379.png"><div class="caption"><b class="center-caption">MapperFactoryBean</b></div>
-<p>其继承了SqlSessionDaoSupport类，SqlSessionDaoSupport类继承DaoSupport抽象类，DaoSupport抽象类实现了InitializingBean接口，因此实例一个MapperFactoryBean的时候，都会调用InitializingBean接口的afterPropertiesSet方法。而MapperFactoryBean也重写了：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>注释已经写得很清楚了，这里再看看MapperFactoryBean.<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324144607379.png"><div class="caption"><b class="center-caption">MapperFactoryBean</b></div><br>其继承了SqlSessionDaoSupport类，SqlSessionDaoSupport类继承DaoSupport抽象类，DaoSupport抽象类实现了InitializingBean接口，因此实例一个MapperFactoryBean的时候，都会调用InitializingBean接口的afterPropertiesSet方法。而MapperFactoryBean也重写了：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * MapperFactoryBean在容器初始化时，要确保mapper接口被注册到mapperRegistry
  * &#123;@inheritDoc&#125;
  */</span>
@@ -1142,22 +1180,17 @@
       <span class="token class-name">ErrorContext</span><span class="token punctuation">.</span><span class="token function">instance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">reset</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
   <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>看到configuration.addMapper()方法，是不是又想起了configuration熟悉的味道了。</p>
-<p>MapperScannerConfigurer在Spring配置文件中的应用如下：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- DAO接口所在包名，Spring会自动查找其下的类 --></span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>看到configuration.addMapper()方法，是不是又想起了configuration熟悉的味道了。</p>
+<p>MapperScannerConfigurer在Spring配置文件中的应用如下：<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- DAO接口所在包名，Spring会自动查找其下的类 --></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org.mybatis.spring.mapper.MapperScannerConfigurer<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
 	<span class="token comment">&lt;!-- 可以使用分号或逗号作为分隔符设置多于一个的包路径 --></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>basePackage<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.mapper<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
 	<span class="token comment">&lt;!-- optional unless there are multiple session factories defined --></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlSessionFactoryBeanName<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlSessionFactory<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>作用很简单，扫描特定目录下的所有mapper.java，生成MapperFactoryBean，然后创建动态代理工厂类MapperProxyFactory，并注册至mapperRegistry当中。使用时依赖注入即可。<br>当然，如果只有一个mapper，我们也可以这样配置：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>tUserMapper<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org.mybatis.spring.mapper.MapperFactoryBean<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><br>作用很简单，扫描特定目录下的所有mapper.java，生成MapperFactoryBean，然后创建动态代理工厂类MapperProxyFactory，并注册至mapperRegistry当中。使用时依赖注入即可。<br>当然，如果只有一个mapper，我们也可以这样配置：<br><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>tUserMapper<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>org.mybatis.spring.mapper.MapperFactoryBean<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>mapperInterface<span class="token punctuation">"</span></span> <span class="token attr-name">value</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>com.enjoylearning.mybatis.mapper.TUserMapper<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
 	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlSessionFactory<span class="token punctuation">"</span></span> <span class="token attr-name">ref</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">"</span>sqlSessionFactory<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<p>但是，一般项目中mapper肯定不止一个，一旦新增了一个新的mapper，我们就需要配置很多个这样子的bean，MapperScannerConfigurer帮我们解决了这样的问题。</p>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre><br>但是，一般项目中mapper肯定不止一个，一旦新增了一个新的mapper，我们就需要配置很多个这样子的bean，MapperScannerConfigurer帮我们解决了这样的问题。</p>
 <p>sqlSessionFactoryBeanName非必填，但是如果是多数据源的环境，就必须配置好。注意 bean 的<strong>名称name</strong>是<strong>必须</strong>的,而不是 bean 的引用,因此,value 属性在这里替代通常的ref。</p>
 
                 
@@ -1865,7 +1898,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2128,6 +2161,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

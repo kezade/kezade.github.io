@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【RocketMQ学习】6.源码之Remoting, Back-End Dev Java">
-    <meta name="description" content="0 前言RocketMQ消息队列集群主要包括NameServer、Broker(Master&amp;#x2F;Slave)、Producer、Consumer4个角色。在【RocketMQ学习】1.基础知识一文中，我们了解了其物理架构，本章将深入">
+    <meta name="description" content="0 前言RocketMQ消息队列集群主要包括NameServer、Broker(Master/Slave)、Producer、Consumer4个角色。在【RocketMQ学习】1.基础知识一文中，我们了解了其物理架构，本章将深入了解其各个">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -823,7 +880,7 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0 前言"></a>0 前言</h1><p>RocketMQ消息队列集群主要包括<code>NameServer</code>、<code>Broker</code>(Master&#x2F;Slave)、<code>Producer</code>、<code>Consumer</code>4个角色。在<a href="/posts/4061920465.html" title="【RocketMQ学习】1.基础知识">【RocketMQ学习】1.基础知识</a>一文中，我们了解了其物理架构，本章将深入了解其各个组件的通信机制及其对于Netty的整合。</p>
+                <h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0 前言"></a>0 前言</h1><p>RocketMQ消息队列集群主要包括<code>NameServer</code>、<code>Broker</code>(Master/Slave)、<code>Producer</code>、<code>Consumer</code>4个角色。在<a href="/posts/4061920465.html" title="【RocketMQ学习】1.基础知识">【RocketMQ学习】1.基础知识</a>一文中，我们了解了其物理架构，本章将深入了解其各个组件的通信机制及其对于Netty的整合。</p>
 <h1 id="1-通信过程"><a href="#1-通信过程" class="headerlink" title="1 通信过程"></a>1 通信过程</h1><p>先来了解下上述4个组件的通信过程：</p>
 <ul>
 <li>(1) <code>Broker</code>启动后需要完成一次将自己<strong>注册</strong>至<code>NameServer</code>的操作；随后<code>每隔30s</code>时间定时向NameServer上报<code>Topic路由信息</code>。</li>
@@ -831,18 +888,14 @@
 <li>(3) 消息生产者<code>Producer</code>根据<code>(2)</code>中获取的路由信息选择一个队列（MessageQueue）进行消息发送；<code>Broker</code>作为消息的接收者<code>接收消息</code>并<code>落盘存储</code>。</li>
 <li>(4) 消息消费者<code>Consumer</code>根据<code>(2)</code>中获取的路由信息，并再完成客户端的负载均衡后，选择其中的某一个或者某几个消息队列来<code>拉取消息</code>并进行<code>消费</code>。</li>
 </ul>
-<p>从上面(1)~(3)中可以看出在消息生产者<code>Producer</code>, <code>Broker</code>和<code>NameServer</code>之间都会发生通信（这里只说了MQ的部分通信），因此如何设计一个良好的网络通信模块在MQ中至关重要，它将决定RocketMQ集群整体的消息传输能力与最终的性能。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Components.png"><div class="caption"><b class="center-caption">RocketMQ核心组件通信概览</b></div>
-
+<p>从上面(1)~(3)中可以看出在消息生产者<code>Producer</code>, <code>Broker</code>和<code>NameServer</code>之间都会发生通信（这里只说了MQ的部分通信），因此如何设计一个良好的网络通信模块在MQ中至关重要，它将决定RocketMQ集群整体的消息传输能力与最终的性能。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Components.png"><div class="caption"><b class="center-caption">RocketMQ核心组件通信概览</b></div></p>
 <p><code>rocketmq-remoting</code>模块是RocketMQ消息队列中负责网络通信的模块，它几乎被其他所有需要网络通信的模块（诸如rocketmq-client、rocketmq-broker、rocketmq-namesrv）所依赖和引用。为了实现客户端与服务器之间高效的数据请求与接收，RocketMQ消息队列自定义了通信协议并在<code>Netty</code>的基础之上扩展了通信模块。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Remoting-UML.png"><div class="caption"><b class="center-caption">Remoting通信类结构</b></div>
-
-<p>其中<code>RemotingService</code>提供了公共接口，<code>RemotingClient</code>、<code>RemotingServer</code>接口封装了一些功能接口，包括<code>注册每种消息类型的处理器及对应的线程池</code>、消息发送的三种实现方式[^1]：<code>同步</code>(sync)、<code>异步</code>(async)、<code>单向</code>(oneway)，<code>NettyRemotingClient</code>、<code>NettyRemotingServer</code>则分别为其各自的具体实现类。</p>
+<p>其中<code>RemotingService</code>提供了公共接口，<code>RemotingClient</code>、<code>RemotingServer</code>接口封装了一些功能接口，包括<code>注册每种消息类型的处理器及对应的线程池</code>、消息发送的三种实现方式<sup><a href="#fn_1" id="reffn_1">1</a></sup>：<code>同步</code>(sync)、<code>异步</code>(async)、<code>单向</code>(oneway)，<code>NettyRemotingClient</code>、<code>NettyRemotingServer</code>则分别为其各自的具体实现类。</p>
 <h1 id="2-协议设计与编解码"><a href="#2-协议设计与编解码" class="headerlink" title="2 协议设计与编解码"></a>2 协议设计与编解码</h1><p>前面学习Netty时，我们已经知道，要使得组件之间能够通信，能够识别发送过来的消息，需要进行一种消息的约定，这种约定规定了消息的结构，编解码方式，才能使得消息被正确接收和解读。</p>
-<p>在RocketMQ中，<code>RemotingCommand</code>这个类在消息传输过程中对所有数据内容的封装，不但包含了<code>所有的数据结构</code>，还包含了<code>编码解码操作</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Structure.png"><div class="caption"><b class="center-caption">消息的组成</b></div>
-
+<p>在RocketMQ中，<code>RemotingCommand</code>这个类在消息传输过程中对所有数据内容的封装，不但包含了<code>所有的数据结构</code>，还包含了<code>编码解码操作</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Structure.png"><div class="caption"><b class="center-caption">消息的组成</b></div></p>
 <p>下表为Header部分字段说明：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -852,7 +905,8 @@
 <th>Response说明</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>code</td>
 <td>int</td>
 <td>请求操作码，应答方根据不同的请求码进行不同的业务处理</td>
@@ -890,11 +944,13 @@
 </tr>
 <tr>
 <td>extFields</td>
-<td>HashMap&lt;String, String&gt;</td>
+<td>HashMap<String, string></String,></td>
 <td>请求自定义扩展信息</td>
 <td>响应自定义扩展信息</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>传输内容主要可以分为以下4部分：</p>
 <ul>
 <li>(1) 消息长度：<code>总长度</code>，<code>四个字节</code>存储，占用一个int类型；</li>
@@ -902,8 +958,7 @@
 <li>(3) 消息头数据：经过<code>序列化</code>后的消息头数据；</li>
 <li>(4) 消息主体数据：消息主体的<code>二进制字节数据内容</code>；</li>
 </ul>
-<p>编解码器分为两大部分：一部分是对整个消息的编解码，一个是对消息头数据的编解码，以下为消息主体的编码实现：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">ByteBuffer</span> <span class="token function">encode</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
+<p>编解码器分为两大部分：一部分是对整个消息的编解码，一个是对消息头数据的编解码，以下为消息主体的编码实现：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">ByteBuffer</span> <span class="token function">encode</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
         <span class="token comment">// 1> 消息长度占4字节</span>
         <span class="token keyword">int</span> length <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">;</span>
 
@@ -935,11 +990,9 @@
         result<span class="token punctuation">.</span><span class="token function">flip</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
         <span class="token keyword">return</span> result<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
+    <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
 <h1 id="3-NettyRemotingServer"><a href="#3-NettyRemotingServer" class="headerlink" title="3 NettyRemotingServer"></a>3 NettyRemotingServer</h1><h2 id="3-1-启动"><a href="#3-1-启动" class="headerlink" title="3.1 启动"></a>3.1 启动</h2><p>回顾下<a href="/posts/1478672774.html" title="【Netty学习】4.Netty的一个例子">【Netty学习】4.Netty的一个例子</a>中，NettyServer启动过程。</p>
-<p>首先需要一个<code>ServerBootstrap</code>、其次是两个<code>EventLoopGroup</code>、然后是通信模式（NIO or BIO or IO Multiplexing）、最后是绑定端口、注册Handler。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NettyRemotingServer</span> <span class="token keyword">extends</span> <span class="token class-name">NettyRemotingAbstract</span> <span class="token keyword">implements</span> <span class="token class-name">RemotingServer</span> <span class="token punctuation">&#123;</span>
+<p>首先需要一个<code>ServerBootstrap</code>、其次是两个<code>EventLoopGroup</code>、然后是通信模式（NIO or BIO or IO Multiplexing）、最后是绑定端口、注册Handler。<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">NettyRemotingServer</span> <span class="token keyword">extends</span> <span class="token class-name">NettyRemotingAbstract</span> <span class="token keyword">implements</span> <span class="token class-name">RemotingServer</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//NettyRemotingServer#start()</span>
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
@@ -988,10 +1041,8 @@
         
         <span class="token comment">//....................</span>
     <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="3-2-发送方式"><a href="#3-2-发送方式" class="headerlink" title="3.2 发送方式"></a>3.2 发送方式</h2><p><code>NettyRemotingServer</code>不光是一个<code>NettyServer</code>，还提供了RocketMQ消息发送方式的具体实现，先来看看其直接父级接口：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">RemotingServer</span> <span class="token keyword">extends</span> <span class="token class-name">RemotingService</span> <span class="token punctuation">&#123;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h2 id="3-2-发送方式"><a href="#3-2-发送方式" class="headerlink" title="3.2 发送方式"></a>3.2 发送方式</h2><p><code>NettyRemotingServer</code>不光是一个<code>NettyServer</code>，还提供了RocketMQ消息发送方式的具体实现，先来看看其直接父级接口：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">RemotingServer</span> <span class="token keyword">extends</span> <span class="token class-name">RemotingService</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//注册每种消息类型的处理器及对应的线程池</span>
     <span class="token keyword">void</span> <span class="token function">registerProcessor</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token keyword">int</span> requestCode<span class="token punctuation">,</span> <span class="token keyword">final</span> <span class="token class-name">NettyRequestProcessor</span> processor<span class="token punctuation">,</span>
                            <span class="token keyword">final</span> <span class="token class-name">ExecutorService</span> executor<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1014,14 +1065,10 @@
             <span class="token keyword">throws</span> <span class="token class-name">InterruptedException</span><span class="token punctuation">,</span> <span class="token class-name">RemotingTooMuchRequestException</span><span class="token punctuation">,</span> <span class="token class-name">RemotingTimeoutException</span><span class="token punctuation">,</span>
             <span class="token class-name">RemotingSendRequestException</span><span class="token punctuation">;</span>
 
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>三种方式具体调用仍然是抽象父类<code>NettyRemotingAbstract</code>的实现。下图为<code>消息发送之异步发送</code>的流程：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-async.png"><div class="caption"><b class="center-caption">异步发送流程</b></div>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<p>三种方式具体调用仍然是抽象父类<code>NettyRemotingAbstract</code>的实现。下图为<code>消息发送之异步发送</code>的流程：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-async.png"><div class="caption"><b class="center-caption">异步发送流程</b></div></p>
 <h2 id="3-3-消息类型及其处理器、线程池注册"><a href="#3-3-消息类型及其处理器、线程池注册" class="headerlink" title="3.3 消息类型及其处理器、线程池注册"></a>3.3 消息类型及其处理器、线程池注册</h2><p>同上。</p>
-<h1 id="4-NettyRemotingClient"><a href="#4-NettyRemotingClient" class="headerlink" title="4 NettyRemotingClient"></a>4 NettyRemotingClient</h1><p>类似<code>NettyRemotingServer</code>，其直接父级接口如下：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">RemotingClient</span> <span class="token keyword">extends</span> <span class="token class-name">RemotingService</span> <span class="token punctuation">&#123;</span>
+<h1 id="4-NettyRemotingClient"><a href="#4-NettyRemotingClient" class="headerlink" title="4 NettyRemotingClient"></a>4 NettyRemotingClient</h1><p>类似<code>NettyRemotingServer</code>，其直接父级接口如下：<br><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">RemotingClient</span> <span class="token keyword">extends</span> <span class="token class-name">RemotingService</span> <span class="token punctuation">&#123;</span>
     <span class="token comment">//更新服务端地址列表</span>
     <span class="token keyword">void</span> <span class="token function">updateNameServerAddressList</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">List</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">String</span><span class="token punctuation">></span></span> addrs<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -1052,11 +1099,8 @@
     <span class="token class-name">ExecutorService</span> <span class="token function">getCallbackExecutor</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
     <span class="token keyword">boolean</span> <span class="token function">isChannelWritable</span><span class="token punctuation">(</span><span class="token keyword">final</span> <span class="token class-name">String</span> addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="5-RocketMQ中的Reactor"><a href="#5-RocketMQ中的Reactor" class="headerlink" title="5 RocketMQ中的Reactor"></a>5 RocketMQ中的Reactor</h1><p>RocketMQ的RPC通信采用Netty组件作为底层通信库，同样也遵循了Reactor多线程模型，同时又在这之上做了一些扩展和优化。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-reactor.png"><div class="caption"><b class="center-caption">RocketMQ中的Reactor</b></div>
-
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre></p>
+<h1 id="5-RocketMQ中的Reactor"><a href="#5-RocketMQ中的Reactor" class="headerlink" title="5 RocketMQ中的Reactor"></a>5 RocketMQ中的Reactor</h1><p>RocketMQ的RPC通信采用Netty组件作为底层通信库，同样也遵循了Reactor多线程模型，同时又在这之上做了一些扩展和优化。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-reactor.png"><div class="caption"><b class="center-caption">RocketMQ中的Reactor</b></div></p>
 <p>上面的框图中可以大致了解RocketMQ中<code>NettyRemotingServer</code>的<code>Reactor多线程模型</code>。<br>以下是官方解释流程：</p>
 <ul>
 <li>一个 <code>Reactor</code>主线程（eventLoopGroupBoss，即为上面的1）负责监听 TCP网络连接请求，建立好连接，创建<code>SocketChannel</code>，并注册到selector上。</li>
@@ -1065,7 +1109,10 @@
 <li>而处理业务操作放在业务线程池中执行，根据<code>RemotingCommand</code>的业务请求码code去<code>processorTable</code>这个本地缓存变量中找到对应的<code>processor</code>，然后封装成task任务后，提交给对应的业务processor处理线程池来执行（sendMessageExecutor，以发送消息为例，即为上面的 “M2”）。</li>
 <li>从入口到业务逻辑的几个步骤中线程池一直再增加，这跟每一步逻辑复杂性相关，越复杂，需要的并发通道越宽。</li>
 </ul>
-<p>参阅：<br>[^1]: <a href="/posts/2143052843.html" title="【RocketMQ学习】2.玩转各种消息">2.1 普通消息发送方式</a></p>
+<p>参阅：</p>
+<blockquote id="fn_1">
+<sup>1</sup>. <a href="/posts/2143052843.html" title="【RocketMQ学习】2.玩转各种消息">2.1 普通消息发送方式</a><a href="#reffn_1" title="Jump back to footnote [1] in the text."> &#8617;</a>
+</blockquote>
 
                 
             </div>
@@ -1752,7 +1799,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2015,6 +2062,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -8,7 +8,7 @@
     <meta name="description" content="1.问题给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。
 请你设计并实现时间复杂度为 O(n) 的算法解决此问题。
 示例 1
-输入：nums &amp;#x3D; [100,4,200,1,3,2">
+输入：nums = [100,4,200,1,3,2]输出：4">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -64,7 +64,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -182,7 +182,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -258,6 +258,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -280,6 +289,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -460,7 +487,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -544,6 +571,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -566,6 +603,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -801,7 +858,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                    1.6k
+                    1.5k
                 </div>
                 
 
@@ -829,17 +886,16 @@
                 <h1 id="1-问题"><a href="#1-问题" class="headerlink" title="1.问题"></a>1.问题</h1><p>给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
 <p>请你设计并实现时间复杂度为 O(n) 的算法解决此问题。</p>
 <h2 id="示例-1"><a href="#示例-1" class="headerlink" title="示例 1"></a>示例 1</h2><blockquote>
-<p>输入：nums &#x3D; [100,4,200,1,3,2]<br>输出：4<br>解释：最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。</p>
+<p>输入：nums = [100,4,200,1,3,2]<br>输出：4<br>解释：最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。</p>
 </blockquote>
 <h2 id="示例-2"><a href="#示例-2" class="headerlink" title="示例 2"></a>示例 2</h2><blockquote>
-<p>输入：nums &#x3D; [0,3,7,2,5,8,4,6,0,1]<br>输出：9</p>
+<p>输入：nums = [0,3,7,2,5,8,4,6,0,1]<br>输出：9</p>
 </blockquote>
 <p><strong>提示</strong></p>
 <ul>
-<li>0 &lt;&#x3D; nums.length &lt;&#x3D; 105</li>
-<li>-109 &lt;&#x3D; nums[i] &lt;&#x3D; 109</li>
+<li>0 &lt;= nums.length &lt;= 105</li>
+<li>-109 &lt;= nums[i] &lt;= 109<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-先排序后遍历再判断"><a href="#2-1-先排序后遍历再判断" class="headerlink" title="2.1 先排序后遍历再判断"></a>2.1 先排序后遍历再判断</h2>先对数组进行升序排列，则若存在连续序列，当遍历到某一值时，其前后之差应该为1，则进行最长序列长度统计；若不为1，如果相等，则跳过此值，进行下一个循环；如果不等，则不连续，当前统计的连续序列长度置为1。见方法<code>longestConsecutive2</code>。<br>此方法，虽然看似时间复杂度为O(N)，其实排序就占用了至少O(N)，还是不是很理想的算法。</li>
 </ul>
-<h1 id="2-解题思路"><a href="#2-解题思路" class="headerlink" title="2.解题思路"></a>2.解题思路</h1><h2 id="2-1-先排序后遍历再判断"><a href="#2-1-先排序后遍历再判断" class="headerlink" title="2.1 先排序后遍历再判断"></a>2.1 先排序后遍历再判断</h2><p>先对数组进行升序排列，则若存在连续序列，当遍历到某一值时，其前后之差应该为1，则进行最长序列长度统计；若不为1，如果相等，则跳过此值，进行下一个循环；如果不等，则不连续，当前统计的连续序列长度置为1。见方法<code>longestConsecutive2</code>。<br>此方法，虽然看似时间复杂度为O(N)，其实排序就占用了至少O(N)，还是不是很理想的算法。</p>
 <h2 id="2-2-哈希表"><a href="#2-2-哈希表" class="headerlink" title="2.2 哈希表"></a>2.2 哈希表</h2><p>定义一哈希表，key为数组中的元素，value为当前元素所在连续序列的长度。<br>对于<strong>不存在</strong>于哈希表中的元素：</p>
 <ul>
 <li>取出其左右相邻数已有的连续区间长度 left 和 right</li>
@@ -847,8 +903,8 @@
 <li>根据 cur_length 更新最大长度 max_length 的值</li>
 <li>更新区间两端点的长度值</li>
 </ul>
-<p>例如，key &#x3D; 5， value &#x3D; 3，意味着对于5来说，有一个长度为3的连续区间，5属于这个区间(不要纠结5这个元素到底在该区间的哪个位置) 具体来说，这个连续区间可能是[4, 6], [3, 5], [5,7]都是满足定义的，具体看nums里有哪些元素。</p>
-<p>如果对于元素 num&#x3D;5，在判断 <code>!map.contains(num)</code> 时，其不存在于哈希表中，即第一次遍历到5这个元素，则对于可能存在的连续序列，num-1若出现在序列当中，则其范围应为<code>[num-value, num-1]</code>. 比如：上述元素5，则4所在范围只能是<code>[4-value, 4]</code>，如果不是，那5必在其中，不符合我们的循环条件。这里value表示4所对应的连续序列长度。</p>
+<p>例如，key = 5， value = 3，意味着对于5来说，有一个长度为3的连续区间，5属于这个区间(不要纠结5这个元素到底在该区间的哪个位置) 具体来说，这个连续区间可能是[4, 6], [3, 5], [5,7]都是满足定义的，具体看nums里有哪些元素。</p>
+<p>如果对于元素 num=5，在判断 <code>!map.contains(num)</code> 时，其不存在于哈希表中，即第一次遍历到5这个元素，则对于可能存在的连续序列，num-1若出现在序列当中，则其范围应为<code>[num-value, num-1]</code>. 比如：上述元素5，则4所在范围只能是<code>[4-value, 4]</code>，如果不是，那5必在其中，不符合我们的循环条件。这里value表示4所对应的连续序列长度。</p>
 <p>同样道理，对于6，其出现的范围只能是<code>[6, 6+value]</code>；这里value表示6所对应的连续序列长度。详见代码中方法<code>longestConsecutive</code>。</p>
 <p>接着需要将之前计算的合并长度进行赋值，并且只要赋值给端点就行了，这是因为整个子序列 <code>[num-left, num+right]</code> 中的元素都已经被访问过了所有的值都已经存储到了map里面，那么如果其他数字想要通过这个判断 <code>!map.contains(num)</code> ，这个数字只可能在这个子序列的左边或者右边.</p>
 <p>我们还是以左边为例，当我们放入第num-left-1个数字的时候就需要知道我们的右边第num-left的子序列长度，而通过之前的计算 <code>map[num - left] = cur_length</code>我们可以知道第num-left为开头的最大子序列长度为cur_length, 可以看出左端点（num-left）的值只有其左边的数字用的上，那么他自己自然只需要存右边的子序列长度就可以了，右边同理。</p>
@@ -1663,7 +1719,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1926,6 +1982,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

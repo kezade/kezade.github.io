@@ -67,7 +67,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -185,7 +185,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -261,6 +261,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -283,6 +292,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -463,7 +490,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -547,6 +574,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -569,6 +606,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -846,7 +903,7 @@
 <li>代码维护成本：加入缓存后，需要同时处理缓存层和存储层的逻辑，增大了开发者维护代码的成本。</li>
 <li>运维成本。</li>
 </ul>
-<h1 id="2-更新策略"><a href="#2-更新策略" class="headerlink" title="2 更新策略"></a>2 更新策略</h1><h2 id="2-1-LRU-x2F-LFU-x2F-FIFO算法剔除"><a href="#2-1-LRU-x2F-LFU-x2F-FIFO算法剔除" class="headerlink" title="2.1 LRU&#x2F;LFU&#x2F;FIFO算法剔除"></a>2.1 LRU&#x2F;LFU&#x2F;FIFO算法剔除</h2><h3 id="2-1-1-使用场景"><a href="#2-1-1-使用场景" class="headerlink" title="2.1.1 使用场景"></a>2.1.1 使用场景</h3><p><code>剔除算法</code>通常用于缓存使用量<strong>超过</strong>了预设的最大值时候，如何对现有的数据进行剔除。例如Redis使用<code>maxmemory-policy</code>这个配置作为内存最大值后对于数据的剔除策略。</p>
+<h1 id="2-更新策略"><a href="#2-更新策略" class="headerlink" title="2 更新策略"></a>2 更新策略</h1><h2 id="2-1-LRU-LFU-FIFO算法剔除"><a href="#2-1-LRU-LFU-FIFO算法剔除" class="headerlink" title="2.1 LRU/LFU/FIFO算法剔除"></a>2.1 LRU/LFU/FIFO算法剔除</h2><h3 id="2-1-1-使用场景"><a href="#2-1-1-使用场景" class="headerlink" title="2.1.1 使用场景"></a>2.1.1 使用场景</h3><p><code>剔除算法</code>通常用于缓存使用量<strong>超过</strong>了预设的最大值时候，如何对现有的数据进行剔除。例如Redis使用<code>maxmemory-policy</code>这个配置作为内存最大值后对于数据的剔除策略。</p>
 <h3 id="2-1-2-一致性"><a href="#2-1-2-一致性" class="headerlink" title="2.1.2 一致性"></a>2.1.2 一致性</h3><p>要清理哪些数据是由具体算法决定，开发人员只能决定使用哪种算法，所以数据的一致性是<code>最差的</code>。</p>
 <h3 id="2-1-3-维护成本"><a href="#2-1-3-维护成本" class="headerlink" title="2.1.3 维护成本"></a>2.1.3 维护成本</h3><p>算法不需要开发人员自己来实现，通常只需要配置最大<code>maxmemory</code>和对应的<code>策略</code>即可。开发人员只需要知道每种算法的含义，选择适合自己的算法即可。</p>
 <h2 id="2-2-超时剔除"><a href="#2-2-超时剔除" class="headerlink" title="2.2 超时剔除"></a>2.2 超时剔除</h2><h3 id="2-2-1-使用场景"><a href="#2-2-1-使用场景" class="headerlink" title="2.2.1 使用场景"></a>2.2.1 使用场景</h3><p>一般用于能够容忍一段时间不一致的场景。通过对数据进行有限时间的缓存，等到过期了，再通过一定的策略进行更新，达到快速响应的目的。而对于一些交易类的场景，此种更新策略就显得不合适。</p>
@@ -855,7 +912,8 @@
 <h2 id="2-3-主动更新"><a href="#2-3-主动更新" class="headerlink" title="2.3 主动更新"></a>2.3 主动更新</h2><h3 id="2-3-1-使用场景"><a href="#2-3-1-使用场景" class="headerlink" title="2.3.1 使用场景"></a>2.3.1 使用场景</h3><p>一致性要求比较高的场景。一般通过消息系统或者canal方式更新缓存。</p>
 <h3 id="2-3-2-一致性"><a href="#2-3-2-一致性" class="headerlink" title="2.3.2 一致性"></a>2.3.2 一致性</h3><p>一致性最高，但如果主动更新发生了问题，那么这条数据很可能很长时间不会更新，所以建议结合<code>超时剔除</code>一起使用效果会更好。</p>
 <h3 id="2-3-3-维护成本"><a href="#2-3-3-维护成本" class="headerlink" title="2.3.3 维护成本"></a>2.3.3 维护成本</h3><p>维护成本会比较高，开发者需要自己来完成更新，并保证更新操作的正确性。</p>
-<h2 id="2-4-三种常见更新策略的对比"><a href="#2-4-三种常见更新策略的对比" class="headerlink" title="2.4 三种常见更新策略的对比"></a>2.4 三种常见更新策略的对比</h2><table>
+<h2 id="2-4-三种常见更新策略的对比"><a href="#2-4-三种常见更新策略的对比" class="headerlink" title="2.4 三种常见更新策略的对比"></a>2.4 三种常见更新策略的对比</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>策略</th>
@@ -863,8 +921,9 @@
 <th>维护成本</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>LRU&#x2F;LFU&#x2F;FIFO算法剔除</td>
+<tbody>
+<tr>
+<td>LRU/LFU/FIFO算法剔除</td>
 <td>最差</td>
 <td>低</td>
 </tr>
@@ -878,12 +937,15 @@
 <td>强</td>
 <td>高</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="2-5-最佳实践"><a href="#2-5-最佳实践" class="headerlink" title="2.5 最佳实践"></a>2.5 最佳实践</h2><ul>
 <li>低一致性业务建议配置最大内存和淘汰策略的方式使用;</li>
 <li>高一致性业务可以结合使用超时剔除和主动更新.</li>
 </ul>
 <h1 id="3-粒度控制"><a href="#3-粒度控制" class="headerlink" title="3 粒度控制"></a>3 粒度控制</h1><p>缓存全部数据和部分数据对比：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -893,7 +955,8 @@
 <th>代码维护</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>全部数据</td>
 <td>高</td>
 <td>大</td>
@@ -905,19 +968,19 @@
 <td>小</td>
 <td>较为复杂</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>缓存粒度问题是一个容易被忽视的问题，如果使用不当，可能会造成很多无用空间的浪费，网络带宽的浪费，代码通用性较差等情况，需要综合数据<code>通用性</code>、<code>空间占用比</code>、<code>代码维护性</code>三点进行取舍。</p>
-</blockquote>
-<h1 id="4-穿透优化"><a href="#4-穿透优化" class="headerlink" title="4 穿透优化"></a>4 穿透优化</h1><h2 id="4-1-定义"><a href="#4-1-定义" class="headerlink" title="4.1 定义"></a>4.1 定义</h2><p><code>缓存穿透</code>是指查询一个根本不存在的数据，结果将压力全部给到关系数据库当中，当存在大量这种数据时，导致后端压力倍增，甚至宕机。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Through.png"><div class="caption"><b class="center-caption">缓存穿透示意图</b></div>
-<h2 id="4-2-解决方案"><a href="#4-2-解决方案" class="headerlink" title="4.2 解决方案"></a>4.2 解决方案</h2><h3 id="4-2-1-缓存空对象"><a href="#4-2-1-缓存空对象" class="headerlink" title="4.2.1 缓存空对象"></a>4.2.1 缓存空对象</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Null.png"><div class="caption"><b class="center-caption">缓存空对象示意图</b></div>
-
+<h1 id="4-穿透优化"><a href="#4-穿透优化" class="headerlink" title="4 穿透优化"></a>4 穿透优化</h1><h2 id="4-1-定义"><a href="#4-1-定义" class="headerlink" title="4.1 定义"></a>4.1 定义</h2><p><code>缓存穿透</code>是指查询一个根本不存在的数据，结果将压力全部给到关系数据库当中，当存在大量这种数据时，导致后端压力倍增，甚至宕机。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Through.png"><div class="caption"><b class="center-caption">缓存穿透示意图</b></div></p>
+<h2 id="4-2-解决方案"><a href="#4-2-解决方案" class="headerlink" title="4.2 解决方案"></a>4.2 解决方案</h2><h3 id="4-2-1-缓存空对象"><a href="#4-2-1-缓存空对象" class="headerlink" title="4.2.1 缓存空对象"></a>4.2.1 缓存空对象</h3></blockquote>
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Null.png"><div class="caption"><b class="center-caption">缓存空对象示意图</b></div>
 <h3 id="4-2-2-布隆过滤器"><a href="#4-2-2-布隆过滤器" class="headerlink" title="4.2.2 布隆过滤器"></a>4.2.2 布隆过滤器</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-BloomFilter.png"><div class="caption"><b class="center-caption">布隆过滤器示意图</b></div>
 <blockquote>
 <p>查询布隆过滤器说数据<code>存在</code>，并<code>不一定</code>证明数据库中<code>存在</code>这个数据，但是查询到数据<code>不存在</code>，数据库中<code>一定就不存在</code>这个数据</p>
-</blockquote>
-<h3 id="4-2-3-方案对比"><a href="#4-2-3-方案对比" class="headerlink" title="4.2.3 方案对比"></a>4.2.3 方案对比</h3><table>
+<h3 id="4-2-3-方案对比"><a href="#4-2-3-方案对比" class="headerlink" title="4.2.3 方案对比"></a>4.2.3 方案对比</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>方案</th>
@@ -925,7 +988,8 @@
 <th>维护成本</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>缓存空对象</td>
 <td>数据命中不高；数据频率变化实时性高</td>
 <td>代码维护简单；需要过多的缓存空间；数据不一致</td>
@@ -935,19 +999,18 @@
 <td>数据命中不高；数据相对固定实时性低</td>
 <td>代码维护复杂；缓存空间占用少</td>
 </tr>
-</tbody></table>
-<h1 id="5-击穿优化"><a href="#5-击穿优化" class="headerlink" title="5 击穿优化"></a>5 击穿优化</h1><h2 id="5-1-定义"><a href="#5-1-定义" class="headerlink" title="5.1 定义"></a>5.1 定义</h2><p>指对于热key，如果在某个时间缓存失效，导致这个时间段访问突然增高，导致全部压力集中至后端存储层，甚至宕机。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-JiChuan.png"><div class="caption"><b class="center-caption">缓存击穿示意图</b></div>
-
+</tbody>
+</table>
+</div>
+</blockquote>
+<h1 id="5-击穿优化"><a href="#5-击穿优化" class="headerlink" title="5 击穿优化"></a>5 击穿优化</h1><h2 id="5-1-定义"><a href="#5-1-定义" class="headerlink" title="5.1 定义"></a>5.1 定义</h2><p>指对于热key，如果在某个时间缓存失效，导致这个时间段访问突然增高，导致全部压力集中至后端存储层，甚至宕机。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-JiChuan.png"><div class="caption"><b class="center-caption">缓存击穿示意图</b></div></p>
 <h2 id="5-2-解决方案"><a href="#5-2-解决方案" class="headerlink" title="5.2 解决方案"></a>5.2 解决方案</h2><h3 id="5-2-1-永不过期"><a href="#5-2-1-永不过期" class="headerlink" title="5.2.1 永不过期"></a>5.2.1 永不过期</h3><p>将不变的少量数据设置永不过期，就不会出现击穿的风险。但是实际生产中，热key都是变化的，只是时间长短而已。因而一般处理步骤是：</p>
 <ul>
 <li><code>提前预热</code>：根据业务部门和营销部门的统计数据，将非常热点的数据提前装入缓存，并适当延长过期时间；</li>
 <li><code>定时更新</code>：实时监控哪些数据热门，实时调整key过期时间。</li>
 </ul>
 <h3 id="5-2-2-分布式锁"><a href="#5-2-2-分布式锁" class="headerlink" title="5.2.2 分布式锁"></a>5.2.2 分布式锁</h3><p>当要对热key进行更新时，同一时间，只能允许一个线程做出更改。其他线程需等待构建完成后，才能读取数据。但是存在一定的隐患，如果构建缓存过程出现问题或者时间较长，可能会存在<code>死锁</code>和<code>线程池阻塞</code>的风险，但是这种方法能够较好地降低后端存储负载，并在一致性上做得比较好。</p>
-<h1 id="6-雪崩优化"><a href="#6-雪崩优化" class="headerlink" title="6 雪崩优化"></a>6 雪崩优化</h1><h2 id="6-1-定义"><a href="#6-1-定义" class="headerlink" title="6.1 定义"></a>6.1 定义</h2><p>指<code>大量key</code>设置<code>同一过期时间</code>，这个时间点大量请求过来，可能就会把redis打崩，也可能造成后端宕机。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-xuebeng.png"><div class="caption"><b class="center-caption">缓存雪崩示意图</b></div>
-
+<h1 id="6-雪崩优化"><a href="#6-雪崩优化" class="headerlink" title="6 雪崩优化"></a>6 雪崩优化</h1><h2 id="6-1-定义"><a href="#6-1-定义" class="headerlink" title="6.1 定义"></a>6.1 定义</h2><p>指<code>大量key</code>设置<code>同一过期时间</code>，这个时间点大量请求过来，可能就会把redis打崩，也可能造成后端宕机。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-xuebeng.png"><div class="caption"><b class="center-caption">缓存雪崩示意图</b></div></p>
 <h2 id="6-2-解决方案"><a href="#6-2-解决方案" class="headerlink" title="6.2 解决方案"></a>6.2 解决方案</h2><h3 id="6-2-1-过期时间-随机值"><a href="#6-2-1-过期时间-随机值" class="headerlink" title="6.2.1 过期时间+随机值"></a>6.2.1 过期时间+随机值</h3><p>对缓存的数据过期时间采用：<code>固定值+随机值</code>。</p>
 <h3 id="6-2-2-双缓存"><a href="#6-2-2-双缓存" class="headerlink" title="6.2.2 双缓存"></a>6.2.2 双缓存</h3><p>对缓存的数据做<code>双缓存</code>，A缓存时间短一些，B缓存的长一些。更新时采用队列或者canal方式或者加锁机制进行。</p>
 <h3 id="6-2-3-互斥锁"><a href="#6-2-3-互斥锁" class="headerlink" title="6.2.3 互斥锁"></a>6.2.3 互斥锁</h3><p>当业务线程在处理用户请求时，如果发现访问的数据不在 Redis 里，就加个<code>互斥锁</code>，<strong>保证同一时间内只有一个请求来构建缓存</strong>（从数据库读取数据，再将数据更新到 Redis 里），当缓存构建完成后，再释放锁。未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值。</p>
@@ -1667,7 +1730,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1930,6 +1993,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

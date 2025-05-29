@@ -6,10 +6,8 @@
     <meta charset="utf-8">
     <meta name="keywords" content="【Netty学习】5.Netty中的粘包和拆包, Back-End Dev Java">
     <meta name="description" content="1 什么是粘包和半包?粘包问题是指数据在传输时，在一条消息中读取到了另一条消息的部分数据，这种现象就叫做粘包。
-半包问题是指接收端只收到了部分数据，而非完整的数据的情况就叫做半包。
-粘包半包问题
-
-2 为什么 TCP 应用中会出现粘包和半包">
+半包问题是指接收端只收到了部分数据，而非完整的数据的情况就叫做半包。粘包半包问题
+2 为什么 TCP 应用中会出现粘包和半包现象">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -65,7 +63,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -183,7 +181,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -259,6 +257,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -281,6 +288,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -461,7 +486,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -545,6 +570,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -567,6 +602,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -828,9 +883,7 @@
         <div class="card-content article-card-content">
             <div id="articleContent">
                 <h1 id="1-什么是粘包和半包"><a href="#1-什么是粘包和半包" class="headerlink" title="1 什么是粘包和半包?"></a>1 什么是粘包和半包?</h1><p><code>粘包问题</code>是指数据在传输时，在一条消息中读取到了另一条消息的<code>部分数据</code>，这种现象就叫做<code>粘包</code>。</p>
-<p><code>半包问题</code>是指接收端只收到了部分数据，而非完整的数据的情况就叫做<code>半包</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/nianbao-banbao.png"><div class="caption"><b class="center-caption">粘包半包问题</b></div>
-
+<p><code>半包问题</code>是指接收端只收到了部分数据，而非完整的数据的情况就叫做<code>半包</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/nianbao-banbao.png"><div class="caption"><b class="center-caption">粘包半包问题</b></div></p>
 <h1 id="2-为什么-TCP-应用中会出现粘包和半包现象"><a href="#2-为什么-TCP-应用中会出现粘包和半包现象" class="headerlink" title="2 为什么 TCP 应用中会出现粘包和半包现象?"></a>2 为什么 TCP 应用中会出现粘包和半包现象?</h1><h2 id="2-1-粘包的主要原因"><a href="#2-1-粘包的主要原因" class="headerlink" title="2.1 粘包的主要原因"></a>2.1 粘包的主要原因</h2><ul>
 <li>发送方每次写入数据 &lt; 套接字缓冲区大小；<blockquote>
 <p>由于 TCP 协议本身的机制(面向连接的可靠的协议-三次握手机制)客户端与服务器会维持一个连接(Channel)，数据在连接不断开的情况下，可以持续不断地将多个数据包发往服务器，但是如果发送的网络数据包太小，那么他本身会启用 <code>Nagle 算法</code>对较小的数据包进行合并，然后再发送(超时或者包大小足够)。那么这样的话，服务器在接收到消息(数据流)的时候就无法区分哪些数据包是客户端自己分开发送的，这样产生了粘包。</p>
@@ -844,7 +897,7 @@
 <h2 id="2-2-半包的主要原因"><a href="#2-2-半包的主要原因" class="headerlink" title="2.2 半包的主要原因"></a>2.2 半包的主要原因</h2><ul>
 <li>发送方写入数据 &gt; 套接字缓冲区大小；</li>
 <li>进行 MSS 大小的 TCP 分段。<blockquote>
-<p>MSS&#x3D;TCP 报文段长度-TCP 首部长度</p>
+<p>MSS=TCP 报文段长度-TCP 首部长度</p>
 </blockquote>
 </li>
 <li>发送的数据大于协议的 MTU(Maximum Transmission Unit，最大传输单元)，必须拆包。</li>
@@ -855,8 +908,6 @@
 </ul>
 <h2 id="2-4-根本原因"><a href="#2-4-根本原因" class="headerlink" title="2.4 根本原因"></a>2.4 根本原因</h2><blockquote>
 <p>TCP 是流式协议，消息无边界。</p>
-</blockquote>
-<blockquote>
 <p>Tips: UDP本身作为无连接的不可靠的传输协议，<code>不会</code>对数据包进行<code>合并发送</code>(也就没有 Nagle 算法之说了)，它直接是一端发送什么数据，直接就发出去了，既然他不会对数据合并，每一个数据包都是<code>完整的</code>(数据+UDP 头+IP 头等等，即每个数据包均有界)，也就没有粘包一说了。</p>
 </blockquote>
 <h2 id="2-5-示例"><a href="#2-5-示例" class="headerlink" title="2.5 示例"></a>2.5 示例</h2><h3 id="2-5-1-服务端"><a href="#2-5-1-服务端" class="headerlink" title="2.5.1 服务端"></a>2.5.1 服务端</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
@@ -887,7 +938,6 @@
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="2-5-2-客户端"><a href="#2-5-2-客户端" class="headerlink" title="2.5.2 客户端"></a>2.5.2 客户端</h3><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">/**
  * 客户端（只负责发送消息）
  */</span>
@@ -908,14 +958,14 @@
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h3 id="2-5-3-结果"><a href="#2-5-3-结果" class="headerlink" title="2.5.3 结果"></a>2.5.3 结果</h3><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/nianbao-banbao-sample.png"><div class="caption"><b class="center-caption">粘包半包</b></div>
 <h1 id="3-解决粘包和半包问题的几种常用方法"><a href="#3-解决粘包和半包问题的几种常用方法" class="headerlink" title="3 解决粘包和半包问题的几种常用方法"></a>3 解决粘包和半包问题的几种常用方法</h1><p>解决问题的根本手段：<strong>找出消息的边界</strong>。</p>
 <h2 id="3-1-消息定长"><a href="#3-1-消息定长" class="headerlink" title="3.1 消息定长"></a>3.1 消息定长</h2><p>发送方和接收方固定发送数据的大小，当字符<code>长度不够</code>时用<code>空字符</code>弥补，有了固定大小之后就知道每条消息的具体边界了，这样就没有粘包的问题了。</p>
 <h2 id="3-2-分隔符"><a href="#3-2-分隔符" class="headerlink" title="3.2 分隔符"></a>3.2 分隔符</h2><p>以特殊的字符结尾，比如以“\n”结尾，这样我们就知道数据的具体边界了，从而避免了粘包问题。</p>
 <h2 id="3-3-消息头-消息体"><a href="#3-3-消息头-消息体" class="headerlink" title="3.3 消息头+消息体"></a>3.3 消息头+消息体</h2><p>在 TCP 协议的基础上封装一层<code>自定义数据协议</code>，在自定义数据协议中，包含数据头（存储数据的大小）和 数据的具体内容，这样服务端得到数据之后，通过解析数据头就可以知道数据的具体长度了，也就没有粘包的问题了。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ways-to-solve-problems.png"><div class="caption"><b class="center-caption">解决方案及各自优缺点</b></div>
-<h1 id="4-Netty-对三种常用封帧方式的支持"><a href="#4-Netty-对三种常用封帧方式的支持" class="headerlink" title="4 Netty 对三种常用封帧方式的支持"></a>4 Netty 对三种常用封帧方式的支持</h1><table>
+<h1 id="4-Netty-对三种常用封帧方式的支持"><a href="#4-Netty-对三种常用封帧方式的支持" class="headerlink" title="4 Netty 对三种常用封帧方式的支持"></a>4 Netty 对三种常用封帧方式的支持</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>方式</th>
@@ -923,7 +973,8 @@
 <th>编码</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>固定长度</td>
 <td>FixedLengthFrameDecoder</td>
 <td>简单</td>
@@ -938,9 +989,11 @@
 <td>LengthFieldBasedFrameDecoder</td>
 <td>LengthFieldPrepender</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>下一章，具体了解下Netty的编解码技术。</p>
-<p>参考文章：<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/vipstone/p/16541606.html">面试突击70：什么是粘包和半包？怎么解决？</a><br><a target="_blank" rel="noopener" href="https://time.geekbang.org/course/detail/100036701-151113">TCP粘包&#x2F;半包Netty全搞定 - 极客时间</a></p>
+<p>参考文章：<br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/vipstone/p/16541606.html">面试突击70：什么是粘包和半包？怎么解决？</a><br><a target="_blank" rel="noopener" href="https://time.geekbang.org/course/detail/100036701-151113">TCP粘包/半包Netty全搞定 - 极客时间</a></p>
 
                 
             </div>
@@ -1620,7 +1673,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1638,7 +1691,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1901,6 +1954,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

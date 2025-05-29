@@ -66,7 +66,7 @@ do">
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -184,7 +184,7 @@ do">
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -260,6 +260,15 @@ do">
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -282,6 +291,24 @@ do">
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -462,7 +489,7 @@ do">
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -546,6 +573,16 @@ do">
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -568,6 +605,26 @@ do">
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -829,24 +886,26 @@ do">
 <ul>
 <li>-d：在分离模式下运行容器</li>
 <li>-p 80:80 - 将端口 80 映射到容器中的端口 80</li>
-<li>docker&#x2F;getting-started - 要使用的镜像</li>
+<li>docker/getting-started - 要使用的镜像</li>
 </ul>
 <h2 id="1-2-在前台创建并运行容器"><a href="#1-2-在前台创建并运行容器" class="headerlink" title="1.2 在前台创建并运行容器"></a>1.2 在前台创建并运行容器</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> run <span class="token parameter variable">-it</span> <span class="token parameter variable">-p</span> <span class="token number">8001</span>:8080 <span class="token parameter variable">--name</span> my-nginx nginx<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>参数说明：</p>
 <ul>
 <li>-it - 交互式 bash 模式</li>
 <li>-p 8001:8080 - 将端口 8001 映射到容器中的端口 8080</li>
-<li>–name my-nginx - 指定名称</li>
+<li>—name my-nginx - 指定名称</li>
 <li>nginx - 要使用的镜像</li>
 </ul>
-<h1 id="2-一般命令"><a href="#2-一般命令" class="headerlink" title="2 一般命令"></a>2 一般命令</h1><table>
+<h1 id="2-一般命令"><a href="#2-一般命令" class="headerlink" title="2 一般命令"></a>2 一般命令</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>命令</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker ps</td>
 <td>列出正在运行的容器</td>
 </tr>
@@ -856,7 +915,7 @@ do">
 </tr>
 <tr>
 <td>docker ps -s</td>
-<td>列出正在运行的容器（带 CPU&#x2F;内存）</td>
+<td>列出正在运行的容器（带 CPU/内存）</td>
 </tr>
 <tr>
 <td>docker images</td>
@@ -894,19 +953,23 @@ do">
 <td>docker kill <container></container></td>
 <td>杀死一个容器</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <blockquote>
 <p>ps: 参数<container>可以是容器 ID 或名称.</container></p>
 </blockquote>
 <p>以下命令，与Docker 容器相关。</p>
-<h1 id="3-Docker容器"><a href="#3-Docker容器" class="headerlink" title="3 Docker容器"></a>3 Docker容器</h1><h2 id="3-1-启动和停止"><a href="#3-1-启动和停止" class="headerlink" title="3.1 启动和停止"></a>3.1 启动和停止</h2><table>
+<h1 id="3-Docker容器"><a href="#3-Docker容器" class="headerlink" title="3 Docker容器"></a>3 Docker容器</h1><h2 id="3-1-启动和停止"><a href="#3-1-启动和停止" class="headerlink" title="3.1 启动和停止"></a>3.1 启动和停止</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>命令</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker start nginx-server</td>
 <td>开始</td>
 </tr>
@@ -938,15 +1001,19 @@ do">
 <td>docker attach nginx-server</td>
 <td>连接到现有容器</td>
 </tr>
-</tbody></table>
-<h2 id="3-2-信息"><a href="#3-2-信息" class="headerlink" title="3.2 信息"></a>3.2 信息</h2><table>
+</tbody>
+</table>
+</div>
+<h2 id="3-2-信息"><a href="#3-2-信息" class="headerlink" title="3.2 信息"></a>3.2 信息</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>命令</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker ps</td>
 <td>列出正在运行的容器</td>
 </tr>
@@ -982,7 +1049,9 @@ do">
 <td>docker diff nginx-server</td>
 <td>列出对容器所做的更改。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="3-3-创建"><a href="#3-3-创建" class="headerlink" title="3.3 创建"></a>3.3 创建</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">
 <span class="token function">docker</span> create <span class="token punctuation">[</span>options<span class="token punctuation">]</span> IMAGE
     -a, <span class="token parameter variable">--attach</span>               <span class="token comment"># attach stdout/err</span>
@@ -995,23 +1064,20 @@ do">
         <span class="token parameter variable">--link</span> container:alias <span class="token comment"># linking</span>
     -v, <span class="token parameter variable">--volume</span> <span class="token variable"><span class="token variable">`</span><span class="token builtin class-name">pwd</span><span class="token variable">`</span></span>:/app    <span class="token comment"># mount (absolute paths needed)</span>
     -e, <span class="token parameter variable">--env</span> <span class="token assign-left variable">NAME</span><span class="token operator">=</span>hello       <span class="token comment"># env vars</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<p>举例：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> create <span class="token parameter variable">--name</span> my_redis <span class="token parameter variable">--expose</span> <span class="token number">6379</span> redis:3.0.2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
+<p>举例：<br><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> create <span class="token parameter variable">--name</span> my_redis <span class="token parameter variable">--expose</span> <span class="token number">6379</span> redis:3.0.2<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></p>
 <h2 id="3-4-操作"><a href="#3-4-操作" class="headerlink" title="3.4 操作"></a>3.4 操作</h2><h3 id="3-4-1-重命名容器"><a href="#3-4-1-重命名容器" class="headerlink" title="3.4.1 重命名容器"></a>3.4.1 重命名容器</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">rename</span> my-nginx nginx-server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="3-4-2-移除容器"><a href="#3-4-2-移除容器" class="headerlink" title="3.4.2 移除容器"></a>3.4.2 移除容器</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token function">rm</span> nginx-server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="3-4-3-更新容器"><a href="#3-4-3-更新容器" class="headerlink" title="3.4.3 更新容器"></a>3.4.3 更新容器</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> update --cpu-shares <span class="token number">512</span> <span class="token parameter variable">-m</span> 300M nginx-server<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h1 id="4-Docker-镜像"><a href="#4-Docker-镜像" class="headerlink" title="4 Docker 镜像"></a>4 Docker 镜像</h1><h2 id="4-1-操作"><a href="#4-1-操作" class="headerlink" title="4.1 操作"></a>4.1 操作</h2><table>
+<h1 id="4-Docker-镜像"><a href="#4-Docker-镜像" class="headerlink" title="4 Docker 镜像"></a>4 Docker 镜像</h1><h2 id="4-1-操作"><a href="#4-1-操作" class="headerlink" title="4.1 操作"></a>4.1 操作</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>命令</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker images</td>
 <td>列出镜像</td>
 </tr>
@@ -1024,7 +1090,7 @@ do">
 <td>加载 tarred 存储库</td>
 </tr>
 <tr>
-<td>docker load –input ubuntu.tar</td>
+<td>docker load —input ubuntu.tar</td>
 <td>加载 tarred 存储库</td>
 </tr>
 <tr>
@@ -1040,14 +1106,16 @@ do">
 <td>将容器另存为镜像</td>
 </tr>
 <tr>
-<td>docker tag nginx eon01&#x2F;nginx</td>
+<td>docker tag nginx eon01/nginx</td>
 <td>标记镜像</td>
 </tr>
 <tr>
-<td>docker push eon01&#x2F;nginx</td>
+<td>docker push eon01/nginx</td>
 <td>推送图片</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="4-2-构建镜像"><a href="#4-2-构建镜像" class="headerlink" title="4.2 构建镜像"></a>4.2 构建镜像</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> build <span class="token builtin class-name">.</span>
 $ <span class="token function">docker</span> build github.com/creack/docker-firefox
 $ <span class="token function">docker</span> build - <span class="token operator">&lt;</span> Dockerfile
@@ -1055,19 +1123,12 @@ $ <span class="token function">docker</span> build - <span class="token operator
 $ <span class="token function">docker</span> build <span class="token parameter variable">-t</span> eon/nginx-server <span class="token builtin class-name">.</span>
 $ <span class="token function">docker</span> build <span class="token parameter variable">-f</span> myOtherDockerfile <span class="token builtin class-name">.</span>
 $ <span class="token function">curl</span> example.com/remote/Dockerfile <span class="token operator">|</span> <span class="token function">docker</span> build <span class="token parameter variable">-f</span> - <span class="token builtin class-name">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h1 id="5-Docker-网络"><a href="#5-Docker-网络" class="headerlink" title="5 Docker 网络"></a>5 Docker 网络</h1><h2 id="5-1-操作"><a href="#5-1-操作" class="headerlink" title="5.1 操作"></a>5.1 操作</h2><h3 id="5-1-1-删除网络"><a href="#5-1-1-删除网络" class="headerlink" title="5.1.1 删除网络"></a>5.1.1 删除网络</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network <span class="token function">rm</span> MyOverlayNetwork<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-2-列出网络"><a href="#5-1-2-列出网络" class="headerlink" title="5.1.2 列出网络"></a>5.1.2 列出网络</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network <span class="token function">ls</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-3-获取有关网络的信息"><a href="#5-1-3-获取有关网络的信息" class="headerlink" title="5.1.3 获取有关网络的信息"></a>5.1.3 获取有关网络的信息</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network inspect MyOverlayNetwork<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-4-将正在运行的容器连接到网络"><a href="#5-1-4-将正在运行的容器连接到网络" class="headerlink" title="5.1.4 将正在运行的容器连接到网络"></a>5.1.4 将正在运行的容器连接到网络</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network connect MyOverlayNetwork nginx<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-5-启动时将容器连接到网络"><a href="#5-1-5-启动时将容器连接到网络" class="headerlink" title="5.1.5 启动时将容器连接到网络"></a>5.1.5 启动时将容器连接到网络</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-it</span> <span class="token parameter variable">-d</span> <span class="token parameter variable">--network</span><span class="token operator">=</span>MyOverlayNetwork nginx<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-6-断开容器与网络的连接"><a href="#5-1-6-断开容器与网络的连接" class="headerlink" title="5.1.6 断开容器与网络的连接"></a>5.1.6 断开容器与网络的连接</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network disconnect MyOverlayNetwork nginx<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="5-1-7-创建网络"><a href="#5-1-7-创建网络" class="headerlink" title="5.1.7 创建网络"></a>5.1.7 创建网络</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> network create <span class="token parameter variable">-d</span> overlay MyOverlayNetwork
 
 <span class="token function">docker</span> network create <span class="token parameter variable">-d</span> bridge MyBridgeNetwork
@@ -1083,8 +1144,8 @@ $ <span class="token function">curl</span> example.com/remote/Dockerfile <span c
 --aux-address<span class="token operator">=</span><span class="token string">"my-printer=192.170.1.5"</span> <span class="token punctuation">\</span>
 --aux-address<span class="token operator">=</span><span class="token string">"my-nas=192.170.1.6"</span> <span class="token punctuation">\</span>
 MyOverlayNetwork<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="6-其他"><a href="#6-其他" class="headerlink" title="6 其他"></a>6 其他</h1><h2 id="6-1-Docker-Hub"><a href="#6-1-Docker-Hub" class="headerlink" title="6.1 Docker Hub"></a>6.1 Docker Hub</h2><table>
+<h1 id="6-其他"><a href="#6-其他" class="headerlink" title="6 其他"></a>6 其他</h1><h2 id="6-1-Docker-Hub"><a href="#6-1-Docker-Hub" class="headerlink" title="6.1 Docker Hub"></a>6.1 Docker Hub</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>Docker</th>
@@ -1092,50 +1153,46 @@ MyOverlayNetwork<span aria-hidden="true" class="line-numbers-rows"><span></span>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker search search_word</td>
 <td>在 docker hub 中搜索镜像。</td>
-<td></td>
 </tr>
 <tr>
-<td>docker pull user&#x2F;image</td>
+<td>docker pull user/image</td>
 <td>从 docker hub 下载镜像。</td>
-<td></td>
 </tr>
 <tr>
 <td>docker login</td>
 <td>向 docker hub 进行身份验证</td>
-<td></td>
 </tr>
 <tr>
-<td>docker push user&#x2F;image</td>
+<td>docker push user/image</td>
 <td>将镜像上传到 docker hub。</td>
-<td></td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="6-2-注册表命令"><a href="#6-2-注册表命令" class="headerlink" title="6.2 注册表命令"></a>6.2 注册表命令</h2><h3 id="6-2-1-登录注册表"><a href="#6-2-1-登录注册表" class="headerlink" title="6.2.1 登录注册表"></a>6.2.1 登录注册表</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> login
 $ <span class="token function">docker</span> login localhost:8080<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
 <h3 id="6-2-2-从注册表注销"><a href="#6-2-2-从注册表注销" class="headerlink" title="6.2.2 从注册表注销"></a>6.2.2 从注册表注销</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> <span class="token builtin class-name">logout</span>
 $ <span class="token function">docker</span> <span class="token builtin class-name">logout</span> localhost:8080<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
 <h3 id="6-2-3-搜索镜像"><a href="#6-2-3-搜索镜像" class="headerlink" title="6.2.3 搜索镜像"></a>6.2.3 搜索镜像</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> search nginx
 $ <span class="token function">docker</span> search nginx <span class="token parameter variable">--stars</span><span class="token operator">=</span><span class="token number">3</span> --no-trunc busybox<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
 <h3 id="6-2-4-拉取镜像"><a href="#6-2-4-拉取镜像" class="headerlink" title="6.2.4 拉取镜像"></a>6.2.4 拉取镜像</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> pull nginx
 $ <span class="token function">docker</span> pull eon01/nginx localhost:5000/myadmin/nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
 <h3 id="6-2-5-推送镜像"><a href="#6-2-5-推送镜像" class="headerlink" title="6.2.5 推送镜像"></a>6.2.5 推送镜像</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> push eon01/nginx
 $ <span class="token function">docker</span> push eon01/nginx localhost:5000/myadmin/nginx<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h2 id="6-3-批量清理"><a href="#6-3-批量清理" class="headerlink" title="6.3 批量清理"></a>6.3 批量清理</h2><table>
+<h2 id="6-3-批量清理"><a href="#6-3-批量清理" class="headerlink" title="6.3 批量清理"></a>6.3 批量清理</h2><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>命令</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>docker stop -f $(docker ps -a -q)</td>
 <td>停止所有容器</td>
 </tr>
@@ -1147,11 +1204,11 @@ $ <span class="token function">docker</span> push eon01/nginx localhost:5000/mya
 <td>docker rmi -f $(docker images -q)</td>
 <td>删除所有镜像</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="6-4-容量"><a href="#6-4-容量" class="headerlink" title="6.4 容量"></a>6.4 容量</h2><h3 id="6-4-1-检查容量"><a href="#6-4-1-检查容量" class="headerlink" title="6.4.1 检查容量"></a>6.4.1 检查容量</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> volume <span class="token function">ls</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h3 id="6-4-2-清理未使用的容量"><a href="#6-4-2-清理未使用的容量" class="headerlink" title="6.4.2 清理未使用的容量"></a>6.4.2 清理未使用的容量</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">docker</span> volume prune<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
 <h1 id="7-参考"><a href="#7-参考" class="headerlink" title="7 参考"></a>7 参考</h1><ul>
 <li><a target="_blank" rel="noopener" href="https://www.w3cschool.cn/docker/docker-vi4f3kdl.html">Docker备忘录</a></li>
 <li><a target="_blank" rel="noopener" href="https://quickref.me/zh-CN/docs/docker.html">Docker备忘清单</a></li>
@@ -1829,7 +1886,7 @@ $ <span class="token function">docker</span> push eon01/nginx localhost:5000/mya
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1847,7 +1904,7 @@ $ <span class="token function">docker</span> push eon01/nginx localhost:5000/mya
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2110,6 +2167,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

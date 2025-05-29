@@ -5,13 +5,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="【RocketMQ学习】4.RocketMQ的高可用, Back-End Dev Java">
-    <meta name="description" content="1 前言2 RocketMQ中的高可用机制RocketMQ分布式集群是通过 Master 和 Slave 的配合达到高可用性的。
-RocketMQ的HA架构
-
+    <meta name="description" content="1 前言2 RocketMQ中的高可用机制RocketMQ分布式集群是通过 Master 和 Slave 的配合达到高可用性的。RocketMQ的HA架构
 
 Master和Slave的区别：
 
-在Broker的配置文件中，参数broke">
+在Broker的配置文件中，参数brokerI">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -67,7 +65,7 @@ Master和Slave的区别：
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -185,7 +183,7 @@ Master和Slave的区别：
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -261,6 +259,15 @@ Master和Slave的区别：
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -283,6 +290,24 @@ Master和Slave的区别：
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -463,7 +488,7 @@ Master和Slave的区别：
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -547,6 +572,16 @@ Master和Slave的区别：
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -569,6 +604,26 @@ Master和Slave的区别：
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -829,9 +884,7 @@ Master和Slave的区别：
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><h1 id="2-RocketMQ中的高可用机制"><a href="#2-RocketMQ中的高可用机制" class="headerlink" title="2 RocketMQ中的高可用机制"></a>2 RocketMQ中的高可用机制</h1><p>RocketMQ分布式集群是通过 <code>Master</code> 和 <code>Slave</code> 的配合达到高可用性的。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-HA.png"><div class="caption"><b class="center-caption">RocketMQ的HA架构</b></div>
-
+                <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1 前言"></a>1 前言</h1><h1 id="2-RocketMQ中的高可用机制"><a href="#2-RocketMQ中的高可用机制" class="headerlink" title="2 RocketMQ中的高可用机制"></a>2 RocketMQ中的高可用机制</h1><p>RocketMQ分布式集群是通过 <code>Master</code> 和 <code>Slave</code> 的配合达到高可用性的。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-HA.png"><div class="caption"><b class="center-caption">RocketMQ的HA架构</b></div></p>
 <blockquote>
 <p>Master和Slave的区别：</p>
 <ul>
@@ -853,16 +906,12 @@ Master和Slave的区别：
 <p>在多 master 模式的基础上，每个 master 节点都有<code>至少一个</code>对应的 slave。master 节点可读可写，但是 slave 只能读不能写，类似于 mysql 的主备模式。</p>
 <ul>
 <li>优点： 一般情况下都是master消费，在master 宕机或超过负载时，消费者可以从slave 读取消息，消息的实时性不会受影响，性能几乎和多master一样。</li>
-<li>缺点：使用异步复制的同步方式有可能会有消息丢失的问题。（Master 宕机后，生产者发送的消息没有消费完，同时到Slave 节点的数据也没有同步完）。</li>
-</ul>
-<h3 id="2-1-4-多master-多slave-主从同步复制-异步刷盘（最优推荐）"><a href="#2-1-4-多master-多slave-主从同步复制-异步刷盘（最优推荐）" class="headerlink" title="2.1.4 多master 多slave 主从同步复制+异步刷盘（最优推荐）"></a>2.1.4 多master 多slave 主从同步复制+异步刷盘（最优推荐）</h3><ul>
+<li>缺点：使用异步复制的同步方式有可能会有消息丢失的问题。（Master 宕机后，生产者发送的消息没有消费完，同时到Slave 节点的数据也没有同步完）。<h3 id="2-1-4-多master-多slave-主从同步复制-异步刷盘（最优推荐）"><a href="#2-1-4-多master-多slave-主从同步复制-异步刷盘（最优推荐）" class="headerlink" title="2.1.4 多master 多slave 主从同步复制+异步刷盘（最优推荐）"></a>2.1.4 多master 多slave 主从同步复制+异步刷盘（最优推荐）</h3></li>
 <li>优点：主从同步复制模式能保证数据不丢失。</li>
 <li>缺点：发送单个消息响应时间会略长，性能相比异步复制<code>低10%左右</code>。</li>
 </ul>
-<h3 id="2-1-5-DLedger-1"><a href="#2-1-5-DLedger-1" class="headerlink" title="2.1.5 DLedger[^1]"></a>2.1.5 DLedger[^1]</h3><p>类似于<code>Zookeeper</code>的<code>集群选举模式</code>（raft协议）。</p>
-<p><code>DLedger</code>是一套基于<code>Raft协议</code>的<code>分布式日志存储组件</code>，也是 RocketMQ 实现新的高可用多副本架构的关键。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Dledger-Arch.png"><div class="caption"><b class="center-caption">DLedger模式架构图</b></div>
-
+<h3 id="2-1-5-DLedger1"><a href="#2-1-5-DLedger1" class="headerlink" title="2.1.5 DLedger1"></a>2.1.5 DLedger<sup><a href="#fn_1" id="reffn_1">1</a></sup></h3><p>类似于<code>Zookeeper</code>的<code>集群选举模式</code>（raft协议）。</p>
+<p><code>DLedger</code>是一套基于<code>Raft协议</code>的<code>分布式日志存储组件</code>，也是 RocketMQ 实现新的高可用多副本架构的关键。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Dledger-Arch.png"><div class="caption"><b class="center-caption">DLedger模式架构图</b></div></p>
 <p><code>RocketMQ 4.5</code> 版本发布后，可以采用 <code>RocketMQ on DLedger</code> 方式进行部署。<code>DLedger CommitLog</code>代替了原来的 <code>CommitLog</code>，使得 CommitLog 拥有了<code>选举复制</code>能力，然后通过角色透传的方式，raft 角色透传给外部 broker 角色，leader 对应原来的 master，follower 和 candidate 对应原来的 slave。</p>
 <p>因此 RocketMQ 的 broker 拥有了<code>自动故障转移</code>的能力，在一组 broker 中如果 Master 挂了，能够依靠 DLedger 自动选主能力重新选出一个 leader，然后通过角色透传变成新的 Master。</p>
 <p>但是存在一些缺点：</p>
@@ -872,24 +921,22 @@ Master和Slave的区别：
 <li>DLedger 模式下，由于存储库使用了 <code>OpenMessaging DLedger</code> 存储，因此<strong>无法复用</strong> RocketMQ 原生的存储和复制的能力（比如 transientStorePool 和零拷贝能力），且对维护造成了困难。</li>
 </ul>
 <p>在<code>RocketMQ5.0</code>版本新增了<code>DLedger Controller模式</code>来解决上面对的痛点。</p>
-<h3 id="2-1-6-DLedger-Controller模式架构-2"><a href="#2-1-6-DLedger-Controller模式架构-2" class="headerlink" title="2.1.6 DLedger Controller模式架构[^2]"></a>2.1.6 DLedger Controller模式架构[^2]</h3><p>DLedger Controller模式的<strong>核心思想</strong>：将其作为一个选主组件，并且是一个<code>可选择</code>、<code>松耦合</code>的组件。当部署 DLedger Controller 组件后，原本 Master-Slave 部署模式下 Broker 组就拥有 <code>Failover</code> 能力。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ_controller_design_1.png"><div class="caption"><b class="center-caption">DLedger Controller模式架构</b></div>
-<p>其中：</p>
+<h3 id="2-1-6-DLedger-Controller模式架构2"><a href="#2-1-6-DLedger-Controller模式架构2" class="headerlink" title="2.1.6 DLedger Controller模式架构2"></a>2.1.6 DLedger Controller模式架构<sup><a href="#fn_2" id="reffn_2">2</a></sup></h3><p>DLedger Controller模式的<strong>核心思想</strong>：将其作为一个选主组件，并且是一个<code>可选择</code>、<code>松耦合</code>的组件。当部署 DLedger Controller 组件后，原本 Master-Slave 部署模式下 Broker 组就拥有 <code>Failover</code> 能力。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ_controller_design_1.png"><div class="caption"><b class="center-caption">DLedger Controller模式架构</b></div><br>其中：</p>
 <ul>
 <li><code>DledgerController</code>：利⽤ DLedger ，构建⼀个保证元数据强⼀致性的 DLedger Controller 控制器，利⽤ Raft 选举会选出⼀个 Active DLedger Controller 作为主控制器，DLedger Controller 可以内嵌在 Nameserver中，也可以独立的部署。其主要作用是，用来存储和管理 Broker 的 SyncStateSet 列表，并在某个 Broker 的 Master Broker 下线或⽹络隔离时，主动发出调度指令来切换 Broker 的 Master。</li>
 <li><code>SyncStateSet</code>：主要表示⼀个 broker 副本组中跟上 Master 的 Slave 副本加上 Master 的集合。主要判断标准是 Master 和 Slave 之间的差距。当 Master 下线时，我们会从 SyncStateSet 列表中选出新的 Master。 SyncStateSet 列表的变更主要由 Master Broker 发起。Master通过定时任务判断和同步过程中完成 SyncStateSet 的Shrink 和 Expand，并向选举组件 Controller 发起 Alter SyncStateSet 请求。</li>
 <li><code>AutoSwitchHAService</code>：一个新的 HAService，在 DefaultHAService 的基础上，支持 BrokerRole 的切换，支持 Master 和 Slave 之间互相转换 (在 Controller 的控制下) 。此外，该 HAService 统一了日志复制流程，会在 HA HandShake 阶段进行日志的截断。</li>
 <li><code>ReplicasManager</code>：作为一个中间组件，起到承上启下的作用。对上，可以定期同步来自 Controller 的控制指令，对下，可以定期监控 HAService 的状态，并在合适的时间修改 SyncStateSet。ReplicasManager 会定期同步 Controller 中关于该 Broker 的元数据，当 Controller 选举出一个新的 Master 的时候，ReplicasManager 能够感知到元数据的变化，并进行 BrokerRole 的切换。</li>
 </ul>
-<p>核心设计[^3]：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Controller-Arch.png"><div class="caption"><b class="center-caption">DLedgerController 核心设计</b></div>
+<p>核心设计<sup><a href="#fn_3" id="reffn_3">3</a></sup>：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Controller-Arch.png"><div class="caption"><b class="center-caption">DLedgerController 核心设计</b></div></p>
 <blockquote>
 <p>详细可参考<a target="_blank" rel="noopener" href="https://github.com/apache/rocketmq/blob/develop/docs/cn/controller/design.md">设计思想</a>.</p>
 </blockquote>
 <p>Controller 部署有两种方式。</p>
 <ul>
 <li>嵌入于 NameServer 进行部署<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Controller-as-plugin.png"><div class="caption"><b class="center-caption">“嵌入部署”</b></div></li>
-<li>独立部署，需要单独部署 Controller 组件<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Controller-deploy-indepdent.png"><div class="caption"><b class="center-caption">“独立部署”</b></div></li>
+<li>独立部署，需要单独部署 Controller 组件<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Controller-deploy-indepdent.png"><div class="caption"><b class="center-caption">“独立部署”</b></div>
+</li>
 </ul>
 <blockquote>
 <p>详情参考<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/deploymentOperations/03autofailover">主备自动切换模式部署</a>.</p>
@@ -913,43 +960,45 @@ Master和Slave的区别：
 <p>在同步复制方式下，如果 Master 出故障， Slave 上有全部的备份数据，容易恢复，但是同步复制会增大数据<code>写入延迟</code>，<code>降低系统吞吐量</code>。</p>
 <h4 id="2-2-2-2-异步复制"><a href="#2-2-2-2-异步复制" class="headerlink" title="2.2.2.2 异步复制"></a>2.2.2.2 异步复制</h4><p>生产者发送的每一条消息只要写入 master 就返回告诉生产者成功。然后再<code>异步复制</code>到 slave。 </p>
 <p>在异步复制方式下，系统拥有<code>较低的延迟</code>和<code>较高的吞吐量</code>，但是如果 Master 出了故障，有些数据因为没有被写入 Slave，有可能会<code>丢失</code>。</p>
-<h3 id="2-2-3-配置参数及意义"><a href="#2-2-3-配置参数及意义" class="headerlink" title="2.2.3 配置参数及意义"></a>2.2.3 配置参数及意义</h3><table>
+<h3 id="2-2-3-配置参数及意义"><a href="#2-2-3-配置参数及意义" class="headerlink" title="2.2.3 配置参数及意义"></a>2.2.3 配置参数及意义</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>broker参数</th>
 <th>意义</th>
 </tr>
 </thead>
-<tbody><tr>
-<td>brokerId&#x3D;0</td>
+<tbody>
+<tr>
+<td>brokerId=0</td>
 <td>代表主</td>
 </tr>
 <tr>
-<td>brokerId&#x3D;1</td>
+<td>brokerId=1</td>
 <td>代表从(大于 0 都代表从)</td>
 </tr>
 <tr>
-<td>brokerRole&#x3D;SYNC_MASTER</td>
+<td>brokerRole=SYNC_MASTER</td>
 <td>同步复制(主从)</td>
 </tr>
 <tr>
-<td>brokerRole&#x3D;ASYNC_MASTER</td>
+<td>brokerRole=ASYNC_MASTER</td>
 <td>异步复制(主从)</td>
 </tr>
 <tr>
-<td>flushDiskType&#x3D;SYNC_FLUSH</td>
+<td>flushDiskType=SYNC_FLUSH</td>
 <td>同步刷盘</td>
 </tr>
 <tr>
-<td>flushDiskType&#x3D;ASYNC_FLUSH</td>
+<td>flushDiskType=ASYNC_FLUSH</td>
 <td>异步刷盘</td>
+<td>.</td>
 </tr>
-</tbody></table>
-<h1 id="3-消息生产的高可用机制"><a href="#3-消息生产的高可用机制" class="headerlink" title="3 消息生产的高可用机制"></a>3 消息生产的高可用机制</h1><p>在创建Topic的时候，把Topic的多个<code>Message Queue</code>创建在<code>多个Broker组</code>上（相同Broker名称，不同 brokerId的机器组成一个Broker组），这样当一个Broker组的Master不可用后，其他组的Master仍然可用，Producer仍然可以发送消息。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/broker-group.png"><div class="caption"><b class="center-caption">Broker组</b></div>
-
+</tbody>
+</table>
+</div>
+<h1 id="3-消息生产的高可用机制"><a href="#3-消息生产的高可用机制" class="headerlink" title="3 消息生产的高可用机制"></a>3 消息生产的高可用机制</h1><p>在创建Topic的时候，把Topic的多个<code>Message Queue</code>创建在<code>多个Broker组</code>上（相同Broker名称，不同 brokerId的机器组成一个Broker组），这样当一个Broker组的Master不可用后，其他组的Master仍然可用，Producer仍然可以发送消息。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/broker-group.png"><div class="caption"><b class="center-caption">Broker组</b></div></p>
 <h2 id="3-1-高可用消息生产流程"><a href="#3-1-高可用消息生产流程" class="headerlink" title="3.1 高可用消息生产流程"></a>3.1 高可用消息生产流程</h2><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Producer-HA-Flow.png"><div class="caption"><b class="center-caption">高可用消息生产流程</b></div>
-
 <ul>
 <li><code>TopicA</code>创建在双主<code>BrokerA</code>和<code>BrokerB</code>中，每一个Broker 中有<code>4 个队列</code>；</li>
 <li>选择队列时，默认使用<code>轮训</code>的方式，比如发送一条消息A 时，选择<code>BrokerA</code>中的<code>Q4</code>；</li>
@@ -965,16 +1014,11 @@ Master和Slave的区别：
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/broker-health-check.png"><div class="caption"><b class="center-caption">broker检测机制流程</b></div>
 <blockquote>
 <p>为什么默认不启用？<br>如果所有的 Broker 都触发了<code>故障规避</code>，并且 Broker 只是<code>那一瞬间压力大</code>，那岂不是明明存在可用的 Broker，但经过你这样规避，反倒是没有 Broker 可用来，那岂不是更糟糕了。</p>
-</blockquote>
 <ul>
 <li>启用Broker 故障延迟机制：开启延迟规避机制，一旦消息发送失败（不是重试的）会将 BrokerA“悲观”地认为在接下来的一段时间内<code>不可用</code>，在未来某一段时间内所有的客户端不会向该 Broker 发送消息。</li>
 </ul>
-<blockquote>
 <p>注意，这里的规避仅仅只针对<code>消息重试</code>，例如在一次消息发送过程中如果遇到消息发送失败，规避 BrokerA，但是在下一次消息发送时，即再次调用 <code>DefaultMQProducer</code> 的 <code>send 方法</code>发送消息时，还是会选择 BrokerA 的消息进行发送，<strong>只有继续发送失败后，重试时再次规避 BrokerA</strong>。</p>
-</blockquote>
-<h1 id="4-消息消费的高可用机制"><a href="#4-消息消费的高可用机制" class="headerlink" title="4 消息消费的高可用机制"></a>4 消息消费的高可用机制</h1><p>在Consumer的配置文件中，并<strong>不需要设置</strong>是从Master读还是从Slave读，当Master<code>不可用</code>或者<code>繁忙</code>的时候，Consumer会被<code>自动切换</code>到从Slave 读。有了自动切换Consumer这种机制，当一个Master角色的机器出现故障后，Consumer仍然可以从Slave读取消息，不影响Consumer程序。这就达到了消费端的高可用性。</p>
-<blockquote>
-<p>什么是Master繁忙呢？<br>这个繁忙其实是RocketMQ服务器的<code>内存不够</code>导致的。<br>比如，10w的消息，只消费了2w，还有8w待消费，而master最多只能用10GB的OS cache，只能缓存5w条数据，还有3w就要去磁盘中拉取，此时他就会认为可能是master负载太高了，你去slave拉取吧。</p>
+<h1 id="4-消息消费的高可用机制"><a href="#4-消息消费的高可用机制" class="headerlink" title="4 消息消费的高可用机制"></a>4 消息消费的高可用机制</h1><p>在Consumer的配置文件中，并<strong>不需要设置</strong>是从Master读还是从Slave读，当Master<code>不可用</code>或者<code>繁忙</code>的时候，Consumer会被<code>自动切换</code>到从Slave 读。有了自动切换Consumer这种机制，当一个Master角色的机器出现故障后，Consumer仍然可以从Slave读取消息，不影响Consumer程序。这就达到了消费端的高可用性。<br>什么是Master繁忙呢？<br>这个繁忙其实是RocketMQ服务器的<code>内存不够</code>导致的。<br>比如，10w的消息，只消费了2w，还有8w待消费，而master最多只能用10GB的OS cache，只能缓存5w条数据，还有3w就要去磁盘中拉取，此时他就会认为可能是master负载太高了，你去slave拉取吧。</p>
 </blockquote>
 <h2 id="4-1-消息消费重试"><a href="#4-1-消息消费重试" class="headerlink" title="4.1 消息消费重试"></a>4.1 消息消费重试</h2><p>消费端如果发生消息失败，没有提交成功，消息<code>默认情况下</code>会进入重试队列中。</p>
 <p>重试队列的名字其实是跟<code>消费群组</code>有关，<code>不是主题</code>，<strong>因为一个主题可以有多个群组消费</strong>。</p>
@@ -983,6 +1027,7 @@ Master和Slave的区别：
 <h3 id="4-1-2-无序消息的重试"><a href="#4-1-2-无序消息的重试" class="headerlink" title="4.1.2 无序消息的重试"></a>4.1.2 无序消息的重试</h3><p>对于无序消息（普通、定时、延时、事务消息），当消费者消费消息失败时，您可以通过<code>设置返回状态</code>达到消息重试的结果。</p>
 <p>无序消息的重试只针对<code>集群消费方式</code>生效；广播方式<code>不提供</code>失败重试特性，即消费失败后，失败消息不再重试，继续消费新的消息。</p>
 <h3 id="4-1-3-重试次数"><a href="#4-1-3-重试次数" class="headerlink" title="4.1.3 重试次数"></a>4.1.3 重试次数</h3><p>如下表所示：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -992,7 +1037,8 @@ Master和Slave的区别：
 <th>与上次重试的间隔时间</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>1</td>
 <td>10 秒</td>
 <td>9</td>
@@ -1040,7 +1086,9 @@ Master和Slave的区别：
 <td>16</td>
 <td>2 小时</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <p>如果消息重试 <code>16次</code>后仍然失败，消息将不再投递。如果严格按照上述重试时间间隔计算，某条消息在一直消费失败的前提下，将会在接下来的 <code>4 小时 46 分钟</code>之内进行 16 次重试，<strong>超过这个时间范围消息将不再重试投递</strong>。</p>
 <blockquote>
 <p>注意： 一条消息无论重试多少次，这些重试消息的 <code>Message ID 不会改变</code>。</p>
@@ -1073,9 +1121,7 @@ Master和Slave的区别：
 <blockquote>
 <p>一条消息进入死信队列，意味着某些因素导致消费者无法正常消费该消息，因此，通常需要您对其进行特殊处理。<strong>排查可疑因素并解决问题后</strong>，可以在消息队列 RocketMQ 控制台<code>重新发送</code>该消息，让消费者重新消费一次。</p>
 </blockquote>
-<h1 id="5-负载均衡"><a href="#5-负载均衡" class="headerlink" title="5 负载均衡"></a>5 负载均衡</h1><h2 id="5-1-Producer负载均衡"><a href="#5-1-Producer负载均衡" class="headerlink" title="5.1 Producer负载均衡"></a>5.1 Producer负载均衡</h2><p>Producer端，每个实例在发消息的时候，默认会<code>轮询</code>所有的<code>message queue</code>发送，以达到让消息平均落在不同的queue上。而由于queue可以散落在不同的broker，所以消息就发送到不同的broker下，如下图：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/producer-lb.png"><div class="caption"><b class="center-caption">Producer端的负载均衡</b></div>
-
+<h1 id="5-负载均衡"><a href="#5-负载均衡" class="headerlink" title="5 负载均衡"></a>5 负载均衡</h1><h2 id="5-1-Producer负载均衡"><a href="#5-1-Producer负载均衡" class="headerlink" title="5.1 Producer负载均衡"></a>5.1 Producer负载均衡</h2><p>Producer端，每个实例在发消息的时候，默认会<code>轮询</code>所有的<code>message queue</code>发送，以达到让消息平均落在不同的queue上。而由于queue可以散落在不同的broker，所以消息就发送到不同的broker下，如下图：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/producer-lb.png"><div class="caption"><b class="center-caption">Producer端的负载均衡</b></div></p>
 <h2 id="5-2-Consumer负载均衡"><a href="#5-2-Consumer负载均衡" class="headerlink" title="5.2 Consumer负载均衡"></a>5.2 Consumer负载均衡</h2><h3 id="5-2-1-集群模式"><a href="#5-2-1-集群模式" class="headerlink" title="5.2.1 集群模式"></a>5.2.1 集群模式</h3><p>在<code>集群消费模式</code>下，每条消息只需要投递到订阅这个topic的<code>Consumer Group</code>下的<code>一个实例</code>即可。RocketMQ采用<code>主动拉取</code>的方式拉取并消费消息，在拉取的时候需要明确指定拉取哪一条message queue。</p>
 <p>而每当实例的数量有变更，都会触发一次所有实例的负载均衡，这时候会按照queue的数量和实例的数量平均分配queue给每个实例。</p>
 <p>默认的分配算法是<code>AllocateMessageQueueAveragely</code>，还有另外一种平均的算法是<code>AllocateMessageQueueAveragelyByCircle</code>，也是平均分摊每一条queue，只是以环状轮流分queue的形式。</p>
@@ -1089,14 +1135,13 @@ Master和Slave的区别：
 </ul>
 </blockquote>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/consumer-lb.png"><div class="caption"><b class="center-caption">Consumer端的负载均衡</b></div>
-
 <p>需要注意的是，集群模式下，<code>queue</code>都是<strong>只允许分配只一个实例</strong>，这是由于如果多个实例同时消费一个queue的消息，由于拉取哪些消息是consumer主动控制的，那样会导致同一个消息在不同的实例下<code>被消费多次</code>，所以算法上都是一个queue只分给一个consumer实例，一个consumer实例可以允许同时分到不同的queue。</p>
 <p>通过增加consumer实例去分摊queue的消费，可以起到水平扩展的消费能力的作用。而在有实例下线的时候，会重新触发负载均衡，这时候原来分配到的queue将分配到其他实例上继续消费。</p>
 <blockquote>
 <p>如果consumer 实例的数量比message queue 的总数量还多的话，多出来的consumer 实例将无法分到queue，因此需要控制让<code>queue 的总数量大于等于consumer 的数量</code>。</p>
 </blockquote>
 <h3 id="5-2-2-广播模式"><a href="#5-2-2-广播模式" class="headerlink" title="5.2.2 广播模式"></a>5.2.2 广播模式</h3><p>由于广播模式下要求一条消息需要投递到一个消费组下面所有的消费者实例，所以也就没有消息被分摊消费的说法。</p>
-<h1 id="6-参考文献"><a href="#6-参考文献" class="headerlink" title="6 参考文献"></a>6 参考文献</h1><p>[^1] <a target="_blank" rel="noopener" href="https://www.yii666.com/article/567736.html">Docker 部署 RocketMQ Dledger 集群模式（ 版本v4.7.0）</a><br>[^2] <a target="_blank" rel="noopener" href="https://blog.csdn.net/Huangjiazhen711/article/details/127221881">RocketMQ5.0 DLedger Controller模式</a><br>[^3] <a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/deploymentOperations/03autofailover">主备自动切换模式部署</a></p>
+<h1 id="6-参考文献"><a href="#6-参考文献" class="headerlink" title="6 参考文献"></a>6 参考文献</h1><p><sup><a href="#fn_1" id="reffn_1">1</a></sup> <a target="_blank" rel="noopener" href="https://www.yii666.com/article/567736.html">Docker 部署 RocketMQ Dledger 集群模式（ 版本v4.7.0）</a><br><sup><a href="#fn_2" id="reffn_2">2</a></sup> <a target="_blank" rel="noopener" href="https://blog.csdn.net/Huangjiazhen711/article/details/127221881">RocketMQ5.0 DLedger Controller模式</a><br><sup><a href="#fn_3" id="reffn_3">3</a></sup> <a target="_blank" rel="noopener" href="https://rocketmq.apache.org/zh/docs/deploymentOperations/03autofailover">主备自动切换模式部署</a></p>
 
                 
             </div>
@@ -1795,7 +1840,7 @@ Master和Slave的区别：
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2058,6 +2103,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

@@ -61,7 +61,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -179,7 +179,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -255,6 +255,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -277,6 +286,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -457,7 +484,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -541,6 +568,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -563,6 +600,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -835,11 +892,10 @@
 </ul>
 <p>如果这些都没有限制的话，对于我们用户而言，是相对危险的，因此需要一些安全策略来保障我们的隐私和数据安全。</p>
 <p>这就引出了最基础、最核心的安全策略：<code>同源策略</code>。</p>
-<h2 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h2><p>两个URL，如果<strong>协议</strong>、<strong>主机</strong>、<strong>端口</strong>均一致，则认定这两个URL同源。</p>
-<pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown"><span class="token list punctuation">-</span> 协议：协议是定义了数据如何在计算机内和之间进行交换的规则的系统，例如 HTTP、HTTPS。
+<h2 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h2><p>两个URL，如果<strong>协议</strong>、<strong>主机</strong>、<strong>端口</strong>均一致，则认定这两个URL同源。<br><pre class="line-numbers language-markdown" data-language="markdown"><code class="language-markdown"><span class="token list punctuation">-</span> 协议：协议是定义了数据如何在计算机内和之间进行交换的规则的系统，例如 HTTP、HTTPS。
 <span class="token list punctuation">-</span> 主机：是已连接到一个计算机网络的一台电子计算机或其他设备。网络主机可以向网络上的用户或其他节点提供信息资源、服务和应用。使用 TCP/IP 协议族参与网络的计算机也可称为 IP 主机。
-<span class="token list punctuation">-</span> 端口：主机是计算机到计算机之间的通信，那么端口就是进程到进程之间的通信。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-<p>比如：<br>当前URL为：<code>http://store.company.com:80/dir/page.html</code>，下表中的源与之进行对比的示例：</p>
+<span class="token list punctuation">-</span> 端口：主机是计算机到计算机之间的通信，那么端口就是进程到进程之间的通信。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre><br>比如：<br>当前URL为：<code>http://store.company.com:80/dir/page.html</code>，下表中的源与之进行对比的示例：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -848,7 +904,8 @@
 <th>原因</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>http://store.company.com:80/dir2/page.html</code></td>
 <td>同源</td>
 <td>只有路径不同</td>
@@ -873,7 +930,9 @@
 <td>不同源</td>
 <td>主机不同</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h2 id="1-2-主要表现"><a href="#1-2-主要表现" class="headerlink" title="1.2 主要表现"></a>1.2 主要表现</h2><p>同源策略主要表现在以下三个方面：<code>DOM</code>、<code>Web 数据</code>和<code>网络</code>。</p>
 <ul>
 <li>DOM 访问限制：同源策略限制了网页脚本（如 JavaScript）访问其他源的 DOM。这意味着通过脚本无法直接访问跨源页面的 DOM 元素、属性或方法。这是为了<strong>防止恶意网站从其他网站窃取敏感信息</strong>。</li>
@@ -899,19 +958,15 @@
 </ul>
 <h2 id="2-2-预检请求"><a href="#2-2-预检请求" class="headerlink" title="2.2 预检请求"></a>2.2 预检请求</h2><p>非简单请求的 CORS 请求，会在正式通信之前，增加一次 HTTP 查询请求，称为<strong>预检请求</strong>。</p>
 <p>需预检的请求要求必须首先使用 <code>OPTIONS</code> 方法发起一个<code>预检请求</code>到服务器，以获知服务器是否允许该实际请求。预检请求的使用，可以<strong>避免跨域请求对服务器的用户数据产生未预期的影响</strong>。</p>
-<p>例如我们在掘金上删除一条沸点:</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-options.jpg"><div class="caption"><b class="center-caption">删除请求中的OPTIONS</b></div>
-
+<p>例如我们在掘金上删除一条沸点:<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-options.jpg"><div class="caption"><b class="center-caption">删除请求中的OPTIONS</b></div></p>
 <p>它首先会发起一个预检请求,预检请求的头信息包括两个特殊字段：</p>
 <ul>
 <li>Access-Control-Request-Method：该字段是必须的，用来列出浏览器的 CORS 请求会用到哪些 HTTP 方法，上例是 POST。</li>
 <li>Access-Control-Request-Headers：该字段是一个逗号分隔的字符串，指定浏览器 CORS 请求会额外发送的头信息字段，上例是 content-type,x-secsdk-csrf-token。</li>
-<li>access-control-allow-origin：在上述例子中，表示 <a target="_blank" rel="noopener" href="https://juejin.cn/">https://juejin.cn</a> 可以请求数据，也可以设置为* 符号，表示统一任意跨源请求。</li>
+<li>access-control-allow-origin：在上述例子中，表示 <a target="_blank" rel="noopener" href="https://juejin.cn">https://juejin.cn</a> 可以请求数据，也可以设置为* 符号，表示统一任意跨源请求。</li>
 <li>access-control-max-age：该字段可选，用来指定本次预检请求的有效期，单位为秒。上面结果中，有效期是 1 天（86408 秒），即允许缓存该条回应 1 天（86408 秒），在此期间，不用发出另一条预检请求。</li>
 </ul>
-<p>一旦服务器通过了<code>预检请求</code>，以后每次浏览器正常的 CORS 请求，就都跟<code>简单请求</code>一样，会有一个 <code>Origin</code> 头信息字段。服务器的回应，也都会有一个 <code>Access-Control-Allow-Origin</code> 头信息字段。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-options2.jpg"><div class="caption"><b class="center-caption">删除请求中的OPTIONS</b></div>
-<p>上面头信息中，Access-Control-Allow-Origin 字段是每次回应都必定包含的。</p>
+<p>一旦服务器通过了<code>预检请求</code>，以后每次浏览器正常的 CORS 请求，就都跟<code>简单请求</code>一样，会有一个 <code>Origin</code> 头信息字段。服务器的回应，也都会有一个 <code>Access-Control-Allow-Origin</code> 头信息字段。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-options2.jpg"><div class="caption"><b class="center-caption">删除请求中的OPTIONS</b></div><br>上面头信息中，Access-Control-Allow-Origin 字段是每次回应都必定包含的。</p>
 <h2 id="2-3-附带身份凭证的请求与通配符"><a href="#2-3-附带身份凭证的请求与通配符" class="headerlink" title="2.3 附带身份凭证的请求与通配符"></a>2.3 附带身份凭证的请求与通配符</h2><p>在响应附带身份凭证的请求时：</p>
 <ul>
 <li>为了避免恶意网站滥用 <code>Access-Control-Allow-Origin</code> 头部字段来获取用户敏感信息，服务器在设置时不能将其值设为通配符 <code>*</code>。相反，应该将其设置为特定的域，例如：<code>Access-Control-Allow-Origin: https://juejin.cn</code>。通过将 <code>Access-Control-Allow-Origin</code> 设置为特定的域，服务器只允许来自指定域的请求进行跨域访问。这样可以限制跨域请求的范围，避免不可信的域获取到用户敏感信息。</li>
@@ -919,7 +974,7 @@
 <li>为了避免潜在的安全风险，服务器不能将 <code>Access-Control-Allow-Methods</code> 的值设为通配符 <code>*</code>。这样做将允许来自任意域的请求使用任意的 HTTP 方法，可能导致滥用行为的发生。相反，应该将其设置为一个特定的请求方法名称列表，例如：<code>Access-Control-Allow-Methods: POST, GET</code>。通过将 <code>Access-Control-Allow-Methods</code> 设置为明确的请求方法列表，服务器可以限制哪些方法是允许的。只有在允许的方法列表中的方法才能在跨域请求中被接受和处理。</li>
 <li>对于附带身份凭证的请求（通常是 Cookie），</li>
 </ul>
-<p>这是因为请求的标头中携带了 Cookie 信息，如果 <code>Access-Control-Allow-Origin</code> 的值为 *，请求将会失败。而将 <code>Access-Control-Allow-Origin</code> 的值设置为 <a target="_blank" rel="noopener" href="https://juejin.cn,则请求将成功执行./">https://juejin.cn，则请求将成功执行。</a></p>
+<p>这是因为请求的标头中携带了 Cookie 信息，如果 <code>Access-Control-Allow-Origin</code> 的值为 *，请求将会失败。而将 <code>Access-Control-Allow-Origin</code> 的值设置为 <a target="_blank" rel="noopener" href="https://juejin.cn，则请求将成功执行。">https://juejin.cn，则请求将成功执行。</a></p>
 <p>另外，响应标头中也携带了 <code>Set-Cookie</code> 字段，尝试对 Cookie 进行修改。如果操作失败，将会抛出异常。</p>
 <h1 id="3-为什么本地使用-webpack-进行-dev-开发时，不需要服务器端配置-cors-的情况下访问到线上接口？"><a href="#3-为什么本地使用-webpack-进行-dev-开发时，不需要服务器端配置-cors-的情况下访问到线上接口？" class="headerlink" title="3 为什么本地使用 webpack 进行 dev 开发时，不需要服务器端配置 cors 的情况下访问到线上接口？"></a>3 为什么本地使用 webpack 进行 dev 开发时，不需要服务器端配置 cors 的情况下访问到线上接口？</h1><p>当你在<code>本地</code>通过 <code>Ajax</code> 或其他方式请求线上接口时，由于<code>浏览器的同源策略</code>，会出现跨域的问题。但是在<code>服务器端</code>并不会出现这个问题。</p>
 <p>它是通过 Webpack Dev Server 来实现这个功能。当你在浏览器中发送请求时，请求会先被 Webpack Dev Server 捕获，然后根据你的代理规则将请求转发到目标服务器，目标服务器返回的数据再经由 Webpack Dev Server 转发回浏览器。这样就绕过了浏览器的同源策略限制，使你能够在本地开发环境中访问线上接口。</p>
@@ -929,13 +984,11 @@
 <li><code>预检请求</code>中包含了一些额外的头部信息，如 <code>Origin</code> 和 <code>Access-Control-Request-Method</code> 等，用于告知服务器实际请求的方法和来源。服务器收到预检请求后，可以根据这些头部信息，进行验证和授权判断。如果服务器认可该跨域请求，将返回一个包含 <code>Access-Control-Allow-Origin</code> 等头部信息的响应，浏览器才会继续发送实际的跨域请求。</li>
 <li>使用<code>预检请求机制</code>可以有效地防范跨域请求带来的安全风险，保护用户数据和隐私。</li>
 </ul>
-<p>整个完整的请求流程有如下图所示：</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-flow.jpg"><div class="caption"><b class="center-caption">完整的请求流程</b></div>
-
+<p>整个完整的请求流程有如下图所示：<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/post-flow.jpg"><div class="caption"><b class="center-caption">完整的请求流程</b></div></p>
 <h1 id="5-参考文章"><a href="#5-参考文章" class="headerlink" title="5 参考文章"></a>5 参考文章</h1><ul>
-<li><a href="https://link.juejin.cn/?target=https://github.com/amandakelake/blog/issues/62">CORS 简单请求+预检请求（彻底理解跨域）</a></li>
-<li><a href="https://link.juejin.cn/?target=http://www.ruanyifeng.com/blog/2016/04/cors.html">跨域资源共享 CORS 详解</a></li>
-<li><a href="https://link.juejin.cn/?target=https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS%23%25E9%25A2%2584%25E6%25A3%2580%25E8%25AF%25B7%25E6%25B1%2582">跨源资源共享（CORS）</a></li>
+<li><a href="https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Famandakelake%2Fblog%2Fissues%2F62">CORS 简单请求+预检请求（彻底理解跨域）</a></li>
+<li><a href="https://link.juejin.cn/?target=http%3A%2F%2Fwww.ruanyifeng.com%2Fblog%2F2016%2F04%2Fcors.html">跨域资源共享 CORS 详解</a></li>
+<li><a href="https://link.juejin.cn/?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fzh-CN%2Fdocs%2FWeb%2FHTTP%2FCORS%23%25E9%25A2%2584%25E6%25A3%2580%25E8%25AF%25B7%25E6%25B1%2582">跨源资源共享（CORS）</a></li>
 </ul>
 <p>文章转载于此，<a target="_blank" rel="noopener" href="https://juejin.cn/post/7269952188927017015">京东一面：post为什么会发送两次请求？</a></p>
 
@@ -1622,7 +1675,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1640,7 +1693,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -1903,6 +1956,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 

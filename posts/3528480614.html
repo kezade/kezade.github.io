@@ -65,7 +65,7 @@
 
 
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/jquery/jquery-3.6.0.min.js"></script>
-    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.2/js/function.js?v7"></script>
+    <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.3/js/function.js?v88"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/imgStatus.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/waterfall.min.js"></script>
     <script src="https://gcore.jsdelivr.net/gh/zyxelva/picgo@v1.3/js/lately.min.js"></script>
@@ -183,7 +183,7 @@
           
           <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
           
-          <span>RocketMQ学习</span>
+          <span>RMQ学习</span>
         </a>
       </li>
       
@@ -259,6 +259,15 @@
         </a>
       </li>
       
+      <li>
+        <a href="/categories/Docker%E5%AD%A6%E4%B9%A0">
+          
+          <i class="fa-solid fa-rocket" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>Docker学习</span>
+        </a>
+      </li>
+      
     </ul>
     
   </li>
@@ -281,6 +290,24 @@
           <i class="fas fa-image" style="margin-top: -20px; zoom: 0.6;"></i>
           
           <span>相册</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/bibi">
+          
+          <i class="fa-fw fa-solid fa-cloud-rain" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>哔哔</span>
+        </a>
+      </li>
+      
+      <li>
+        <a href="/todolist">
+          
+          <i class="fa-fw fa-solid fa-circle-check" style="margin-top: -20px; zoom: 0.6;"></i>
+          
+          <span>清单</span>
         </a>
       </li>
       
@@ -461,7 +488,7 @@
 				  
 				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
 			      
-		          <span>RocketMQ学习</span>
+		          <span>RMQ学习</span>
                   </a>
                 </li>
               
@@ -545,6 +572,16 @@
                   </a>
                 </li>
               
+                <li>
+
+                  <a href="/categories/Docker%E5%AD%A6%E4%B9%A0 " style="margin-left:75px">
+				  
+				   <i class="fa fa-solid fa-rocket" style="position: absolute;left:50px" ></i>
+			      
+		          <span>Docker学习</span>
+                  </a>
+                </li>
+              
             </ul>
           
         </li>
@@ -567,6 +604,26 @@
 				   <i class="fa fas fa-image" style="position: absolute;left:50px" ></i>
 			      
 		          <span>相册</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/bibi " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-cloud-rain" style="position: absolute;left:50px" ></i>
+			      
+		          <span>哔哔</span>
+                  </a>
+                </li>
+              
+                <li>
+
+                  <a href="/todolist " style="margin-left:75px">
+				  
+				   <i class="fa fa-fw fa-solid fa-circle-check" style="position: absolute;left:50px" ></i>
+			      
+		          <span>清单</span>
                   </a>
                 </li>
               
@@ -835,7 +892,8 @@
 <li>不会重发</li>
 <li>主要用于查询-应答的服务：比如<code>要求高速传输、实时性较高的通信或广播通信</code>，<code>NFS</code>，<code>IM</code>，<code>如视频、音频等多媒体通信</code>，<code>限定于LAN 等特定网络中的应用通信</code>，<code>广播通信</code>（广播、多播）。</li>
 </ul>
-<h1 id="3-与TCP的区别"><a href="#3-与TCP的区别" class="headerlink" title="3 与TCP的区别"></a>3 与TCP的区别</h1><table>
+<h1 id="3-与TCP的区别"><a href="#3-与TCP的区别" class="headerlink" title="3 与TCP的区别"></a>3 与TCP的区别</h1><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>-</th>
@@ -843,7 +901,8 @@
 <th>UDP</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>是否连接</td>
 <td>面向连接</td>
 <td>面向非连接</td>
@@ -868,13 +927,11 @@
 <td>大</td>
 <td>小</td>
 </tr>
-</tbody></table>
-<h1 id="4-UDP首部结构"><a href="#4-UDP首部结构" class="headerlink" title="4 UDP首部结构"></a>4 UDP首部结构</h1><p>UDP 首部字段只有 8 个字节，包括<code>源端口</code>、<code>目的端口</code>、<code>长度</code>、<code>检验和</code>。12 字节的<code>伪首部</code>是为了计算<code>检验和</code>临时添加的。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-header.png"><div class="caption"><b class="center-caption">UDP 首部</b></div>
-
-<p>当运输层从<code>IP层</code>收到<code>UDP数据报</code>时，就根据<code>首部</code>中的<code>目的端口</code>，把UDP数据报通过相应的端口，上交最后的终点——<code>应用进程</code>。</p>
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-distributor.png"><div class="caption"><b class="center-caption">UDP 基于端口的分用</b></div>
-
+</tbody>
+</table>
+</div>
+<h1 id="4-UDP首部结构"><a href="#4-UDP首部结构" class="headerlink" title="4 UDP首部结构"></a>4 UDP首部结构</h1><p>UDP 首部字段只有 8 个字节，包括<code>源端口</code>、<code>目的端口</code>、<code>长度</code>、<code>检验和</code>。12 字节的<code>伪首部</code>是为了计算<code>检验和</code>临时添加的。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-header.png"><div class="caption"><b class="center-caption">UDP 首部</b></div></p>
+<p>当运输层从<code>IP层</code>收到<code>UDP数据报</code>时，就根据<code>首部</code>中的<code>目的端口</code>，把UDP数据报通过相应的端口，上交最后的终点——<code>应用进程</code>。<br><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-distributor.png"><div class="caption"><b class="center-caption">UDP 基于端口的分用</b></div></p>
 <p>如果<code>接收方UDP</code>发现收到的报文中的目的端口号不正确（即不存在对应于该端口号的应用进程），就<code>丢弃</code>该报文，并由网际控制报文协议 ICMP 发送<code>端口不可达</code>差错报文给发送方。</p>
 <blockquote>
 <p>请注意，虽然在 UDP 之间的通信要用到其端口号，但由于 UDP 的通信是无连接的，因此不需要使用套接字（TCP 之间的通信必须要在两个套接字之间建立连接）。</p>
@@ -926,7 +983,6 @@
         <span class="token keyword">new</span> <span class="token class-name">UdpQuestionSide</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token class-name">UdpAnswerSide</span><span class="token punctuation">.</span><span class="token constant">ANSWER_PORT</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-2-提问端Handler"><a href="#4-2-提问端Handler" class="headerlink" title="4.2 提问端Handler"></a>4.2 提问端Handler</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelHandlerContext</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">SimpleChannelInboundHandler</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span>socket<span class="token punctuation">.</span></span><span class="token class-name">DatagramPacket</span></span><span class="token punctuation">;</span>
@@ -954,7 +1010,6 @@
         ctx<span class="token punctuation">.</span><span class="token function">close</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-3-应答端"><a href="#4-3-应答端" class="headerlink" title="4.3 应答端"></a>4.3 应答端</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>bootstrap<span class="token punctuation">.</span></span><span class="token class-name">Bootstrap</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelFuture</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">EventLoopGroup</span></span><span class="token punctuation">;</span>
@@ -990,7 +1045,6 @@
         <span class="token keyword">new</span> <span class="token class-name">UdpAnswerSide</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">run</span><span class="token punctuation">(</span><span class="token constant">ANSWER_PORT</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-4-应答端Handler"><a href="#4-4-应答端Handler" class="headerlink" title="4.4 应答端Handler"></a>4.4 应答端Handler</h2><pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>buffer<span class="token punctuation">.</span></span><span class="token class-name">Unpooled</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">ChannelHandlerContext</span></span><span class="token punctuation">;</span>
 <span class="token keyword">import</span> <span class="token import"><span class="token namespace">io<span class="token punctuation">.</span>netty<span class="token punctuation">.</span>channel<span class="token punctuation">.</span></span><span class="token class-name">SimpleChannelInboundHandler</span></span><span class="token punctuation">;</span>
@@ -1039,13 +1093,10 @@
         cause<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">&#125;</span>
 <span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
 <h2 id="4-5-结果"><a href="#4-5-结果" class="headerlink" title="4.5 结果"></a>4.5 结果</h2><p>应答端：应答服务已启动…..<br>接收到请求：告诉我一句古诗</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-answer.png"><div class="caption"><b class="center-caption">应答端结果</b></div>
-
 <p>请求端：古诗来了：洛阳亲友如相问，一片冰心在玉壶。</p>
 <img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/udp-question.png"><div class="caption"><b class="center-caption">请求端结果</b></div>
-
 <p>下一章节，学习下<code>服务器推送技术</code>以及<code>websocket</code>。</p>
 
                 
@@ -1727,7 +1778,7 @@
 </main>
 
 
-<script src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script>
     MathJax.Hub.Config({
         tex2jax: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
@@ -1745,7 +1796,7 @@
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             
-                <span id="year">2019-2024</span>
+                <span id="year">2019-2025</span>
             
             <a href="/about" target="_blank">Kezade</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
@@ -2008,6 +2059,14 @@ $(function () {
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/lightGallery/js/lightgallery-all.min.js"></script>
 <script src="https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/js/matery.js"></script>
 
+
+    <link rel="stylesheet" href='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.css'>
+    <script src='https://gcore.jsdelivr.net/gh/zyxelva/zyxelva.github.io@main/libs/mermaid/mermaid.min.js'></script>
+    <script>
+        if (window.mermaid) {
+            mermaid.initialize({theme: 'forest'});
+        }
+    </script>
 
 
 
