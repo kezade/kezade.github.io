@@ -1,0 +1,106 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【JVM学习】5.HostSpot的细节</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【JVM学习】5.HostSpot的细节 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#JVM</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#三色标记</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#安全点</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#跨代引用</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#写屏障</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>前一章节介绍了常见的对象存活判定算法和垃圾收集算法，里面提到了很多专有名词，这一章节主要就这些专有名词，加上自己的理解进行详细介绍。</p>
+<h1 id="2-三色标记tri-color-marking">2 三色标记(Tri-color Marking)</h1>
+<p>在<code>三色标记法</code>之前有一个算法叫<code>Mark-And-Sweep</code>(标记清除)。这个算法会设置一个<code>标志位</code>来记录对象是否被使用。最开始所有的标志位都是 <code>0</code>，如果发现对象是<code>可达的</code>就会置为 <code>1</code>，一步步下去就会呈现一个类似树状的结果。等标记的步骤完成后，会将未被标记的对象统一清理，再次把所有的标志位设置成 <code>0</code> 方便下次清理。</p>
+<p>这个算法<code>最大的问题</code>是 GC 执行期间需要把整个程序<code>完全暂停</code>，<strong>不能异步进行 GC 操作</strong>。因为在不同阶段标记清除法的标志位 <code>0</code> 和 <code>1</code> 有不同的含义， 那么新增的对象无论标记为什么都<strong>有可能意外删除这个对象</strong>。对实时性要求高的系统来说，这种需要长时间挂起的标记清除法是不可接受的。所以就需要一个算法来解决 GC 运行时程序<code>长时间挂起的问题</code>。</p>
+<p>三色标记<code>最大的好处</code>是可以<code>异步执行</code>，从而可以<code>以中断时间极少的代价</code>或者<code>完全没有中断</code>来进行整个 GC。</p>
+<h2 id="21-三色">2.1 三色</h2>
+<p>将对象按照“是否被访问过”这个条件用三种颜色标记，分别是<code>白色</code>、<code>灰色</code>和<code>黑色</code>。</p>
+<ul>
+<li>黑色：表示<code>对象已经被垃圾收集器访问过，且这个对象的所有引用都已经扫描过</code>。黑色的对象代表已经扫描过，它是安全存活的，如果有其他对象引用指向了黑色对象，无须重新扫描一遍。</li>
+</ul>
+<blockquote>
+<p>黑色对象不可能直接(不经过灰色对象)指向某个白色对象。</p>
+</blockquote>
+<ul>
+<li>灰色：表示<code>对象已经被垃圾收集器访问过</code>，但这个对象上<code>至少存在一个引用</code><strong>还没有被扫描过</strong>。</li>
+<li>白色：表示<code>对象尚未被垃圾收集器访问过</code>。显然在可达性分析刚刚开始的阶段，所有的对象都是白色的，若在分析结束的阶段，仍然是白色的对象，即代表不可达，为<code>垃圾对象</code>。</li>
+</ul>
+<h2 id="22-漏标问题">2.2 漏标问题</h2>
+<p>当且仅当以下两个条件同时满足时，会产生“对象消失”的问题，即原本应该是黑色的对象被<code>误标为白色</code>:</p>
+<ul>
+<li>赋值器<code>插入</code>了一条或多条从黑色对象到白色对象的<code>新引用</code>；</li>
+<li>赋值器<code>删除</code>了全部从灰色对象到该白色对象的<code>直接或间接引用</code>。</li>
+</ul>
+<p>比如<code>GC 并发情况下</code>，两线程漏标发生的过程如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc1.png" alt="线程1已完成所有标记，但线程2还未完成"></p>
+<p>当引用发生以下变化时：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">A.c</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">C;</span></span>
+<span class="line"><span style="color:#E1E4E8">B.c</span><span style="color:#F97583">=</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc2.png" alt="线程1: A.c=C，线程2: B.c=null"></p>
+<p>线程1、2完成所有标记，但C对象是白色，被错误的回收。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Mark-Proc3.png" alt="C对象被错误的回收"></p>
+<p>因此，我们要解决并发扫描时的对象消失问题，只需<code>破坏这两个条件的任意一个</code>即可。由此分别产生了<code>两种解决方案</code>：</p>
+<ul>
+<li><code>增量更新</code>(Incremental Update)</li>
+<li><code>原始快照</code>(Snapshot At The Beginning， SATB ) 。</li>
+</ul>
+<h3 id="221-cms-中的解决方案">2.2.1 CMS 中的解决方案</h3>
+<p>CMS采用了<code>增量更新</code>方案，即</p>
+<blockquote>
+<p>当一个白色对象被一个黑色对象引用，将黑色对象重新标记为灰色，让垃圾收集器重新扫描。</p>
+</blockquote>
+<p>该方案破坏的是<code>第一个条件</code>，当黑色对象<code>插入新的</code>指向白色对象的引用关系时，就将这个新插入的引用<code>记录</code>下来，等并发扫描结束之后，再将这些记录过的引用关系中的<code>黑色对象</code>为<code>根</code>（GC Roots），重新扫描一次。</p>
+<h3 id="222-g1shenandoah-中的解决方案">2.2.2 G1/Shenandoah 中的解决方案</h3>
+<p>G1/Shenandoah则采用<code>原始快照</code>方案，以上面三个图中的对象为例，即</p>
+<blockquote>
+<p>刚开始做一个快照，当 <code>B</code> 和 <code>C</code> 消失的时候要把这个引用推到 GC 的<code>堆栈</code>，保证 <code>C</code> 还能被 GC 扫描到，最重要的是要把这个<code>引用</code>（是灰色对象指向白色对象的引用）推到 GC 的堆栈，如果一旦某一个引用消失掉了，我会把它放到栈(GC 方法运行时数据也是来自栈中)，我其实还是能找到它的，下回直接扫描他就行了，那样白色就不会漏标。</p>
+</blockquote>
+<p>原始快照要破坏的是<code>第二个条件</code>，当灰色对象要删除指向白色对象的引用关系时，就将这个要删除的引用<code>记录</code>下来，在并发扫描结束之后，再将这些记录过的引用关系中的<code>灰色对象</code>为<code>根</code>，重新扫描 一次。</p>
+<p>对应 <code>G1</code> 的垃圾回收过程中的<code>最终标记</code>( Final Marking)，即</p>
+<blockquote>
+<p>对用户线程做另一个短暂地<code>暂停</code>，用于处理并发阶段结后仍遗留下来的最后那少量的 <code>SATB 记录</code>(漏标对象)。</p>
+</blockquote>
+<h3 id="223-对比">2.2.3 对比</h3>
+<p><code>SATB 算法</code>是关注<code>引用的删除</code>。(B->C 的引用)；
+<code>Incremental Update 算法</code>关注<code>引用的增加</code>。(A->C 的引用)</p>
+<p><code>G1</code> 如果使用 <code>Incremental Update 算法</code>，因为变成灰色的成员还要重新扫，重新再来一遍，效率太低了。 所以 G1 在处理并发标记的过程比 CMS 效率要高，这个主要是<code>解决漏标的算法</code>决定的。</p>
+<h2 id="23-写屏障write-barrier">2.3 写屏障(Write Barrier)</h2>
+<p>以上无论是对引用关系记录的插入还是删除，虚拟机的记录操作都是通过<code>写屏障</code>实现的。</p>
+<p><code>写屏障</code>可以看作在虚拟机层面对“引用类型字段赋值”这个动作的<code>AOP切面</code>，在引用对象赋值时会产生一个<code>环形(Around)通知</code>，供程序执行额外的动作，也就是说<code>赋值的前后</code>都在<code>写屏障的覆盖范畴内</code>。在<code>赋值前的部分</code>的写屏障叫作<code>写前屏障</code>(Pre-Write Barrier)，在<code>赋值后</code>的则叫作<code>写后屏障</code>(Post-Write Barrier)。</p>
+<blockquote>
+<p><code>HotSpot虚拟机</code>的许多收集器中都有使用到写屏障，但直至<code>G1收集器</code>出现之前，其他收集器都只用到了<code>写后屏障</code>。</p>
+</blockquote>
+<p>在<code>HotSpot虚拟机</code>里是通过<code>写屏障</code>技术维护这些插入或删除的引用关系记录，而这些记录又是直接和一种叫做<code>卡表</code>存储数据结构进行关联，使得垃圾收集器只需要<code>重新扫描</code>这些已经标记在卡表中的对应指针，而不必扫描比如整个<code>老年代</code>，就可实现避免<code>漏标问题</code>发生。那<code>卡表</code>为何物？</p>
+<h2 id="24-记忆集与卡表">2.4 记忆集与卡表</h2>
+<p><code>记忆集</code>(RSet)是一种用于记录从非收集区域指向收集区域的<code>指针集合</code>的<code>抽象数据结构</code>。用以避免把整个<code>老年代</code>（这里以分代收集为例，事实上所有涉及<code>部分区域收集</code>(Partial GC)行为的垃圾收集器，典型的如G1、ZGC和Shenandoah收集器，都会面临<code>跨代引用</code>的问题）加进<code>GC Roots</code>扫描范围。</p>
+<p>在垃圾收集的场景中，收集器只需要通过<code>记忆集</code>判断出某一块非收集区域是否存在有指向了收集区域的指针就可以了，并不需要了解这些<code>跨代指针</code>的全部细节。</p>
+<p><code>卡表</code>(Card Table)就是<code>记忆集</code>的其中一种实现方式（可以按<code>Java</code>语言中<code>HashMap</code>与<code>Map</code>的关系来类比理解），它将<code>每个记录精确到一块内存区域</code>，该区域内有对象含有跨代指针。</p>
+<p><code>卡表</code>最简单的形式可以只是一个<code>字节数组</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#E1E4E8">CARD_TABLE [this address </span><span style="color:#F97583">>></span><span style="color:#79B8FF"> 9</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>字节数组<code>CARD_TABLE</code>的每一个元素都对应着其标识的内存区域中一块特定大小的内存块，这个内存块被称作“卡页”(Card Page).
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/card-table.png" alt="卡表-卡页对应关系示意图"></p>
+<p>一个<code>卡页</code>的内存中通常包含不止一个对象，只要卡页内有一个(或更多)对象的字段存在着<code>跨代指针</code>，那就将对应卡表的数组元素的值<code>标识为1</code>，称为这个<code>元素变脏</code>(Dirty)，没有则<code>标识为0</code>。在垃圾收集发生时，只要<code>筛选</code>出卡表中变脏的元素，就能轻易得出哪些卡页内存块中包含<code>跨代指针</code>，把它们加入<code>GC Roots</code>中一并扫描。</p>
+<blockquote>
+<p>在<code>G1</code>中是每一个<code>Region</code>都需要一个<code>RSet</code>的内存区域，导致有<code>G1</code>的<code>RSet</code>可能会占据整个堆容量的<code>20%乃至更多</code>。
+但是<code>CMS</code>只需要<code>一份</code>，所以就内存占用来说，<code>G1</code>占用的内存需求更大，虽然<code>G1</code>的优点很多，但是我们不推荐在<code>堆空间比较小</code>的情况下使用<code>G1</code>，尤其<code>小于6个G</code>。</p>
+</blockquote>
+<h1 id="3-安全点与安全区域">3 安全点与安全区域</h1>
+<h2 id="31-安全点">3.1 安全点</h2>
+<p>用户线程暂停，<code>GC线程</code>要开始工作，但是要<strong>确保用户线程暂停的这行字节码指令是不会导致引用关系的变化</strong>。所以 JVM 会在<code>字节码指令</code>中，选一些指令，作为<code>安全点</code>，比如<code>方法调用</code>、<code>循环跳转</code>、<code>异常跳转</code>等，一般是这些指令才会产生安全点。</p>
+<blockquote>
+<p>为什么它叫<code>安全点</code>？
+GC 时要暂停业务线程，<strong>并不是抢占式中断</strong>(立马把业务线程中断)而是<code>主动式中断</code>。
+<code>主动式中断</code>是设置一个<code>标志</code>，这个标志是<code>中断标志</code>，各业务线程在运行过程中会不停的<code>主动去轮询</code>这个标志，一旦发现中断标志为<code>True</code>，就会在自己<strong>最近的</strong><code>安全点</code>上<code>主动中断挂起</code>。</p>
+</blockquote>
+<h2 id="32-安全区域">3.2 安全区域</h2>
+<blockquote>
+<p>为什么需要安全区域？
+要是业务线程都不执行(比如：业务线程处于<code>Sleep</code>或者是<code>Blocked</code>状态)，那么程序就没办法进入<code>安全点</code>，对于这种情况，就必须引入<code>安全区域</code>。</p>
+</blockquote>
+<p><code>安全区域</code>是指能够确保在某一段<code>代码片段</code>之中，<strong>引用关系不会发生变化</strong>，因此，在这个区域中<code>任意地方</code>开始垃圾收集都是<code>安全的</code>。</p>
+<blockquote>
+<p>我们也可以把<code>安全区域</code>看作<strong>被扩展拉伸了的</strong><code>安全点</code>。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Safe-Region.png" alt="安全区域示意图"></p>
+<ul>
+<li>当用户线程执行到<code>安全区域</code>里面的代码时，首先会<code>标识</code>自己已经进入了安全区域，这段时间里JVM要发起GC就不必去管这个线程了。</li>
+<li>当线程要离开安全区域时，它要检查JVM是否已经完成了<code>根节点枚举</code>，或者其他GC中需要暂停用户线程的阶段：
+<ul>
+<li>如果完成了，那线程就当作没事发生过，继续执行。</li>
+<li>否则它就必须一直等待，直到收到可以离开安全区域的信号为止。</li>
+</ul>
+</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Docker学习】3.Dockerfile</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Docker学习】3.Dockerfile </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/26/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Dockerfile</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>前两章，我们大致介绍了Docker的基础操作和常见命令，实际生产开发过程中，企业或组织都有自己的一套产品和应用，类似以前Windows出现过很多定制化的系统，如Ghost xxxx，深度等。那对于Docker构建的镜像，是怎么实现定制化或个性化或一致性环境的镜像呢？本章将给予你答案。</p>
+<h1 id="2-命令">2 命令</h1>
+<p>Dockerfile 由一行行<code>命令语句</code>组成，并且支持以 # 开头的注释行。使用<code>docker build</code>即可执行脚本构建镜像，自动地去做一些事（同类似于<code>travis-ci</code>中的<code>.travis.yml</code>）。</p>
+<h2 id="21-格式">2.1 格式</h2>
+<p>Dockerfile 的格式统一为：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># Comment</span></span>
+<span class="line"><span style="color:#E1E4E8">INSTRUCTION arguments</span></span></code></pre>
+<blockquote>
+<p>注意：必须以<code>FROM BASE_IMAGE</code>开头指定基础镜像！！！除开<code>解析器指令</code>、<code>注释</code>和<code>具有全局作用域的ARG</code>。</p>
+</blockquote>
+<h2 id="22-语法">2.2 语法</h2>
+<p>Dockerfile 基本的语法如下：</p>
+<ul>
+<li>使用 # 来注释</li>
+<li><code>MAINTAINER</code>：镜像作者信息，新版本已废弃。推荐使用<code>LABEL</code>指令；</li>
+<li><code>LABEL</code>：添加镜像的元数据，使用<code>键值对</code>的形式；</li>
+<li><code>FROM</code>：指令告诉 Docker 使用哪个镜像作为基础；</li>
+<li><code>RUN</code>：开头的指令会在创建中运行，比如安装一个软件包，在这里使用 yum 来安装了一些软件；</li>
+<li><code>COPY</code>：从 Docker 宿主机复制文件至创建的新镜像文件；</li>
+<li><code>ADD</code>：类似于 COPY 指令，ADD 支持 tar 文件和 URL 路径；</li>
+<li><code>WORKDIR</code>：用于为 Dockerfile 中所有的 RUN、CMD、ENTRYPOINT、COPY、ADD 指定设定工作目录；</li>
+<li><code>VOLUME</code>：数据卷，用于在 image 中创建挂载点目录，以挂载 Docker host 上的卷或者其他容器上的卷；</li>
+<li><code>EXPOSE</code>：为容器打开指定的监听端口以实现与外部通信；</li>
+<li><code>ENV</code>：用于为镜像定义所需的环境变量，可以被 Dockerfile 文件中其他命令调用(ENV、ADD、COPY、RUN、CMD)；</li>
+<li><code>ARG</code>：定义在构建过程中传递给构建器的变量，可使用<code>docker build</code>命令设置；</li>
+<li><code>CMD</code>：启动容器指定默认要运行的程序或命令，默认”/bin/sh -c”运行；</li>
+<li><code>ENTRYPOINT</code>：类型 CMD 指令的功能，用于为容器指定默认运行程序或命令；</li>
+<li><code>USER</code>：指定当前用户。</li>
+</ul>
+<p>下面介绍几个常用的命令，其他命令的具体用法，可参考官方文档，见文章末尾参考文献。</p>
+<h3 id="221-from">2.2.1 FROM</h3>
+<p>指定基础镜像。</p>
+<h4 id="2211-格式">2.2.1.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> BASE_IMAGE</span></span>
+<span class="line"><span style="color:#6A737D"># 或者</span></span>
+<span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> BASE_IMAGE:Tag</span></span></code></pre>
+<blockquote>
+<p>第一条指令必须为<code>FROM</code>指令（参见2.1节说明）。并且，如果在同一个<code>Dockerfile</code>中创建多个镜像时，可以使用<code>多个 FROM 指令</code>（每个镜像一次）。</p>
+</blockquote>
+<h4 id="2212-举例">2.2.1.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> centos:7</span></span></code></pre>
+<h3 id="222-run">2.2.2 RUN</h3>
+<p>构建镜像时执行的命令。</p>
+<h4 id="2221-格式">2.2.2.1 格式</h4>
+<ul>
+<li>shell 格式：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D">#shell 格式：</span></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> &#x3C;命令行命令></span></span>
+<span class="line"><span style="color:#6A737D"># &#x3C;命令行命令> 等同于，在终端操作的 shell 命令。</span></span>
+<span class="line"><span style="color:#6A737D"># 例如：</span></span>
+<span class="line"><span style="color:#6A737D"># RUN apt-get update</span></span>
+<span class="line"><span style="color:#6A737D"># RUN apt-get install -y curl</span></span></code></pre>
+<ul>
+<li>exec 格式：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"可执行文件"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"参数1"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"参数2"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D"># 例如：</span></span>
+<span class="line"><span style="color:#6A737D"># RUN ["./test.php", "dev", "offline"] 等价于 RUN ./test.php dev offline</span></span></code></pre>
+<blockquote>
+<p><code>shell格式</code>是最常用的，它允许您更轻松地将较长的指令分解为多行，可以使用<code>换行符转义符</code>或使用<code>heredocs</code>，例如：
+RUN &#x3C;&#x3C;EOF
+apt-get update
+apt-get install -y curl
+EOF</p>
+</blockquote>
+<blockquote>
+<p>注意：Dockerfile 的指令每执行一次都会在 docker 上新建一层。所以过多无意义的层，会造成镜像膨胀过大。例如：
+FROM centos
+RUN yum -y install wget
+RUN wget -O redis.tar.gz “<a href="http://download.redis.io/releases/redis-5.0.3.tar.gz">http://download.redis.io/releases/redis-5.0.3.tar.gz</a>”
+RUN tar -xvf redis.tar.gz</p>
+<p>以上执行会创建 3 层镜像。可简化为以下格式：
+FROM centos
+RUN yum -y install wget <br>
+&#x26;&#x26; wget -O redis.tar.gz “<a href="http://download.redis.io/releases/redis-5.0.3.tar.gz">http://download.redis.io/releases/redis-5.0.3.tar.gz</a>” <br>
+&#x26;&#x26; tar -xvf redis.tar.gz
+如上，以 &#x26;&#x26; 符号连接命令，这样执行后，只会创建 1 层镜像。</p>
+</blockquote>
+<h3 id="223-env">2.2.3 ENV</h3>
+<p>设置环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。</p>
+<h4 id="2231-格式">2.2.3.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">ENV</span><span style="color:#E1E4E8"> &#x3C;key> &#x3C;value></span></span>
+<span class="line"><span style="color:#F97583">ENV</span><span style="color:#E1E4E8"> &#x3C;key1>=&#x3C;value1> &#x3C;key2>=&#x3C;value2>...</span></span></code></pre>
+<h4 id="2232-举例">2.2.3.2 举例</h4>
+<p>以下示例设置<code>NODE_VERSION = 7.2.0</code>， 在后续的指令中可以通过<code>$NODE_VERSION</code>引用：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">ENV</span><span style="color:#E1E4E8"> NODE_VERSION 7.2.0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> curl -SLO </span><span style="color:#9ECBFF">"https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"</span><span style="color:#E1E4E8"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">&#x26;&#x26; curl -SLO </span><span style="color:#9ECBFF">"https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc"</span></span></code></pre>
+<h3 id="224-arg">2.2.4 ARG</h3>
+<p>构建参数，与 ENV 作用一致。不过作用域不一样。ARG 设置的环境变量仅对 Dockerfile 内有效，也就是说只有<code>docker build</code>的过程中有效，构建好的镜像内不存在此环境变量。也称为<code>构建时变量</code>。</p>
+<p>构建命令<code>docker build</code>中可以用<code>--build-arg &#x3C;参数名>=&#x3C;值></code>来覆盖。</p>
+<h4 id="2241-格式">2.2.4.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">ARG</span><span style="color:#E1E4E8"> &#x3C;参数名>[=&#x3C;默认值>]</span></span></code></pre>
+<blockquote>
+<p>如果在Dockerfile中期望使用各种ARG变量（无默认值），但在运行build命令时未提供任何变量，则会出现错误消息。
+[Warning] One or more build-args [foo] were not consumed.</p>
+<p>但是，在构建镜像后，可以通过查看镜像<code>docker history</code>来轻松检查ARG值。因此，对于敏感数据而言，它们是一个糟糕的选择。</p>
+</blockquote>
+<h4 id="2242-举例">2.2.4.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">ARG</span><span style="color:#E1E4E8"> some_variable_name</span></span>
+<span class="line"><span style="color:#6A737D"># or with a hard-coded default:</span></span>
+<span class="line"><span style="color:#6A737D">#ARG some_variable_name=default_value</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> echo </span><span style="color:#9ECBFF">"Oh dang look at that $some_variable_name"</span></span>
+<span class="line"><span style="color:#6A737D"># you could also use braces - ${some_variable_name}</span></span></code></pre>
+<p>从命令行构建Docker镜像时，可以使用<code>--build-arg</code>来设置ARG值：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> --build-arg</span><span style="color:#9ECBFF"> some_variable_name=a_value</span></span></code></pre>
+<p>使用上述Dockerfile运行该命令将导致打印以下行（以及其他内容）：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">Oh</span><span style="color:#9ECBFF"> dang</span><span style="color:#9ECBFF"> look</span><span style="color:#9ECBFF"> at</span><span style="color:#9ECBFF"> that</span><span style="color:#9ECBFF"> a_value</span></span></code></pre>
+<p>更多关于ARG的用法和注意事项，参考<a href="https://docs.docker.com/engine/reference/builder/#arg">ARG官方文档</a></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker_environment_build_args.png" alt="ARG与ENV作用范围"></p>
+<p>ARG与ENV可用性与重写样例如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker_environment_build_args_overview.png" alt="ARG与ENV可用性概览和样例"></p>
+<h3 id="225-cmd">2.2.5 CMD</h3>
+<p>构建镜像后调用，也就是在<code>容器启动时</code>才进行调用。</p>
+<blockquote>
+<p>类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:</p>
+<ul>
+<li>CMD 在<code>docker run</code>时运行。</li>
+<li>RUN 是在<code>docker build</code>。</li>
+</ul>
+</blockquote>
+<h4 id="2251-格式">2.2.5.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> &#x3C;shell 命令> </span></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"&#x3C;可执行文件或命令>"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"&#x3C;param1>"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"&#x3C;param2>"</span><span style="color:#E1E4E8">,...] </span></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"&#x3C;param1>"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"&#x3C;param2>"</span><span style="color:#E1E4E8">,...]  # 该写法是为 ENTRYPOINT 指令指定的程序提供默认参数</span></span></code></pre>
+<p>推荐使用<code>第二种格式</code>，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。</p>
+<h4 id="2252-举例">2.2.5.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> echo </span><span style="color:#9ECBFF">"This is a test."</span><span style="color:#E1E4E8"> | wc -l</span></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"/usr/bin/wc"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"--help"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<blockquote>
+<p>注意：如果 Dockerfile 中如果存在多个 CMD 指令，仅最后一个生效。</p>
+</blockquote>
+<h3 id="226-expose">2.2.6 EXPOSE</h3>
+<p>指定于外界交互的<code>端口</code>。</p>
+<h4 id="2261-格式">2.2.6.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 格式：</span></span>
+<span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> &#x3C;port> [&#x3C;port>...]</span></span></code></pre>
+<h4 id="2262-举例">2.2.6.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> 80 443</span></span>
+<span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> 8080    </span></span>
+<span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> 11211/tcp 11214/udp</span></span></code></pre>
+<blockquote>
+<p>注：
+EXPOSE并不会让容器的端口访问到主机。要使其可访问，需要在<code>docker run</code>运行容器时通过<code>-p</code>来发布这些端口，或通过<code>-P</code>参数来发布<code>EXPOSE</code><strong>指定的所有端口</strong>。</p>
+<p>如果没有暴露端口，后期也可以通过<code>-p 8080:80</code>方式映射端口，但是<strong>不能</strong>通过<code>-P</code>形式映射.</p>
+</blockquote>
+<h3 id="227-add">2.2.7 ADD</h3>
+<p>将本地文件添加到容器中，tar类型文件会自动解压(网络压缩资源不会被解压)，可以访问网络资源，类似wget</p>
+<h4 id="2271-格式">2.2.7.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> &#x3C;src>... &#x3C;dest></span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"&#x3C;src>"</span><span style="color:#E1E4E8">,... </span><span style="color:#9ECBFF">"&#x3C;dest>"</span><span style="color:#E1E4E8">] 用于支持包含空格的路径</span></span></code></pre>
+<h4 id="2272-举例">2.2.7.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 添加所有以"hom"开头的文件</span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> hom* /mydir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ? 替代一个单字符,例如："home.txt"</span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> hom?.txt /mydir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 添加 "test" 到 `WORKDIR`/relativeDir/</span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> test relativeDir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 添加 "test" 到 /absoluteDir/</span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> test /absoluteDir/</span></span></code></pre>
+<h3 id="228-copy">2.2.8 COPY</h3>
+<p>类似ADD，但是是不会自动解压文件，也不能访问网络资源。</p>
+<h4 id="2281-格式">2.2.8.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># &#x3C;dest> 是绝对路径，或相对于 WORKDIR 的路径</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> [--chown=&#x3C;user>:&#x3C;group>] [--chmod=&#x3C;perms>] &#x3C;src>... &#x3C;dest></span></span>
+<span class="line"><span style="color:#6A737D"># 这种形式对于包含空格的路径是必需的</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> [--chown=&#x3C;user>:&#x3C;group>] [--chmod=&#x3C;perms>] [</span><span style="color:#9ECBFF">"&#x3C;src>"</span><span style="color:#E1E4E8">,... </span><span style="color:#9ECBFF">"&#x3C;dest>"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<blockquote>
+<p>注意：<code>--chown</code>和<code>--chmod</code>功能仅在用于生成 Linux 容器的Dockerfile上受支持，在 Windows 容器上不起作用。</p>
+</blockquote>
+<h4 id="2282-举例">2.2.8.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 要添加所有以“hom”开头的文件：</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> hom* /mydir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># ?替换为任何单个字符，例如“home.txt”</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> hom?.txt /mydir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 下面的示例使用相对路径，并将“test.txt”添加到 &#x3C;WORKDIR>/relativeDir/ </span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> test.txt relativeDir/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 此示例使用绝对路径，并将“test.txt”添加到 /absoluteDir/</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> test.txt /absoluteDir/</span></span></code></pre>
+<h3 id="229-volume">2.2.9 VOLUME</h3>
+<p>指定持久化目录（指定此目录可以被挂载出去）。数据卷的使用，类似于 Linux 下对目录或文件进行<code>mount</code>。</p>
+<h4 id="2291-格式">2.2.9.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">VOLUME</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"/path/to/to"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<h4 id="2292-举例">2.2.9.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">VOLUME</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"/data"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#F97583">VOLUME</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"/var/www"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/var/log/apache2"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/etc/apache/user"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>注：一个卷可以存在于一个或多个容器的指定目录，该目录可以绕过联合文件系统，并具有以下功能：</p>
+<ul>
+<li>卷可以<code>容器间</code>共享和重用</li>
+<li>容器并不一定要和其它容器共享卷</li>
+<li>修改卷后会立即生效</li>
+<li>对卷的修改<strong>不会</strong>对<code>镜像</code>产生影响</li>
+<li>卷会一直存在，直到没有任何容器在使用它</li>
+</ul>
+<h3 id="2210-workdir">2.2.10 WORKDIR</h3>
+<p>工作目录，类似于cd命令</p>
+<h4 id="22101-格式">2.2.10.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /path/to/workdir</span></span></code></pre>
+<h4 id="22102-举例">2.2.10.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 这时工作目录为/a</span></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /a</span></span>
+<span class="line"><span style="color:#6A737D"># 这时工作目录为/a/b</span></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> b</span></span>
+<span class="line"><span style="color:#6A737D"># 这时工作目录为/a/b/c</span></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> c</span></span></code></pre>
+<p>也就是说，如果有多个<code>WORKDIR</code>，那最终的路径就是从上到下，如：/a/b/c，类似这样。</p>
+<blockquote>
+<p>注：</p>
+<ul>
+<li>通过WORKDIR设置工作目录后，Dockerfile中其后的命令<code>RUN</code>、<code>CMD</code>、<code>ENTRYPOINT</code>、<code>ADD</code>、<code>COPY</code>等命令都会在该目录下执行。</li>
+<li>在使用docker run运行容器时，可以通过<code>-w</code>参数覆盖构建时所设置的工作目录。</li>
+</ul>
+</blockquote>
+<h3 id="2211-entrypoint">2.2.11 ENTRYPOINT</h3>
+<p>配置容器，使其可执行化。</p>
+<h4 id="22111-格式">2.2.11.1 格式</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 可执行文件, 优先</span></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"executable"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"param1"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"param2"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D"># shell内部命令</span></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> command param1 param2</span></span></code></pre>
+<h4 id="22112-举例">2.2.11.2 举例</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> centos:7</span></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"ls"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/usr/local"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"/usr/local/tomcat"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>之后，<code>docker run</code>传递的参数，都会先覆盖<code>cmd</code>，然后由cmd传递给<code>entrypoint</code> ,做到灵活应用。</p>
+<blockquote>
+<p>注：<code>ENTRYPOINT</code>与<code>CMD</code>非常类似，不同的是通过<code>docker run</code>执行的命令<strong>不会覆盖</strong>ENTRYPOINT，而docker run命令中指定的任何参数，都会被当做参数再次传递给<code>CMD</code>。</p>
+<p>Dockerfile中<strong>只允许有一个ENTRYPOINT命令</strong>，多个指定时会覆盖前面的设置，而只执行最后的ENTRYPOINT指令。
+通常情况下，<code>ENTRYPOINT</code>与<code>CMD</code>一起使用，<code>ENTRYPOINT</code>写默认命令，当需要参数时候使用<code>CMD</code>传参。</p>
+</blockquote>
+<h1 id="3-实践">3 实践</h1>
+<h2 id="31-dockerfile编写">3.1 dockerfile编写</h2>
+<p>以我自己开发的聊天软件中的一个项目为例，实质上为一个Spring Cloud Gateway网关。以下为其dockerfile：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#6A737D"># 拉取JDK</span></span>
+<span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> openjdk:8-jdk-alpine</span></span>
+<span class="line"><span style="color:#6A737D"># 挂在/tmp卷下</span></span>
+<span class="line"><span style="color:#F97583">VOLUME</span><span style="color:#E1E4E8"> /tmp</span></span>
+<span class="line"><span style="color:#6A737D"># 将taeyeonim-gateway.jar添加进容器</span></span>
+<span class="line"><span style="color:#F97583">ADD</span><span style="color:#E1E4E8"> taeyeonim-gateway.jar taeyeonim-gateway.jar</span></span>
+<span class="line"><span style="color:#6A737D"># java -jar启动</span></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"java"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"-Djava.security.egd=file:/dev/./urandom"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"-jar"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"/taeyeonim-gateway.jar"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span></code></pre>
+<p>这里ADD的时候，很容易出错，因为一般dockerfile在项目中不会与源文件，如*.jar放在一起，所以容易出现<code>Dockerfile ADD failed : No Source files were specified</code>，比如下面这种错误：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">Deploying</span><span style="color:#9ECBFF"> '&#x3C;unknown> Dockerfile: taeyeonim-gateway/src/main/docker/dockerfile'…</span></span>
+<span class="line"><span style="color:#B392F0">Building</span><span style="color:#9ECBFF"> image…</span></span>
+<span class="line"><span style="color:#B392F0">Preparing</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> context</span><span style="color:#9ECBFF"> archive…</span></span>
+<span class="line"><span style="color:#E1E4E8">[</span><span style="color:#F97583">==================================================></span><span style="color:#E1E4E8">]1/1 files</span></span>
+<span class="line"><span style="color:#B392F0">Done</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Sending</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> context</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> Docker</span><span style="color:#9ECBFF"> daemon…</span></span>
+<span class="line"><span style="color:#E1E4E8">[</span><span style="color:#F97583">==================================================></span><span style="color:#E1E4E8">]  288.0B</span></span>
+<span class="line"><span style="color:#B392F0">Done</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 1/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> FROM</span><span style="color:#9ECBFF"> openjdk:8-jdk-alpine</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">a3562aa0b991</span></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 2/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> VOLUME</span><span style="color:#9ECBFF"> /tmp</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">Using</span><span style="color:#9ECBFF"> cache</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">0b0f08654eb9</span></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 3/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> ADD</span><span style="color:#9ECBFF"> taeyeonim-gateway.jar</span><span style="color:#9ECBFF"> taeyeonim-gateway.jar</span></span>
+<span class="line"><span style="color:#B392F0">Error</span><span style="color:#9ECBFF"> response</span><span style="color:#9ECBFF"> from</span><span style="color:#9ECBFF"> daemon:</span><span style="color:#9ECBFF"> ADD</span><span style="color:#9ECBFF"> failed:</span><span style="color:#9ECBFF"> file</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> found</span><span style="color:#9ECBFF"> in</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> context</span><span style="color:#9ECBFF"> or</span><span style="color:#9ECBFF"> excluded</span><span style="color:#9ECBFF"> by</span><span style="color:#9ECBFF"> .dockerignore:</span><span style="color:#9ECBFF"> stat</span><span style="color:#9ECBFF"> taeyeonim-gateway.jar:</span><span style="color:#9ECBFF"> file</span><span style="color:#9ECBFF"> does</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> exist</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> deploy</span><span style="color:#9ECBFF"> '&#x3C;unknown> Dockerfile: taeyeonim-gateway/src/main/docker/dockerfile':</span><span style="color:#9ECBFF"> Can't retrieve image ID from build stream</span></span>
+<span class="line"></span></code></pre>
+<p>即使配置全路径也不能解决。为啥呢？</p>
+<p>原因呢很简单，ADD 命令用来从<code>context上下文</code>复制新文件、目录或远程文件url，并将它们添加到位于指定路径的映像文件系统中。所以如果dockerfile和源文件在同一个目录下就不会出现上述错误。</p>
+<p>在IDEA中，对于两文件分别在不同目录的情况，可以通过指定<code>context folder</code>，使其指向target解决此问题。如下图所示（IDEA版本：IntelliJ IDEA 2021.3 (Ultimate Edition)）：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-add-failed-config.png" alt="指定 jar 包的路径"></p>
+<h2 id="32-构建镜像">3.2 构建镜像</h2>
+<p>上图中，我们可以看到已经配置了镜像的Tag，则构建镜像的命令行形式如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> dockerfile</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> im-gateway:v2</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<ul>
+<li><code>-t</code>：用于指定镜像的名称为im-gateway:v2；</li>
+<li><code>.</code>：表示使用当前目录下的Dockerfile进行构建。</li>
+</ul>
+<p>名称可以以<code>name:version</code>的形式指定，<code>name</code>和<code>version</code>之间用<code>冒号</code>分隔。如果没有指定版本，则默认为<code>latest</code>。</p>
+<p>构建日志如下所示：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">Deploying</span><span style="color:#9ECBFF"> 'im-gateway:v2 Dockerfile: taeyeonim-gateway/src/main/docker/dockerfile'…</span></span>
+<span class="line"><span style="color:#B392F0">Building</span><span style="color:#9ECBFF"> image…</span></span>
+<span class="line"><span style="color:#B392F0">Preparing</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> context</span><span style="color:#9ECBFF"> archive…</span></span>
+<span class="line"><span style="color:#E1E4E8">[</span><span style="color:#F97583">==================================================></span><span style="color:#E1E4E8">]33/33 files</span></span>
+<span class="line"><span style="color:#B392F0">Done</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Sending</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> context</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> Docker</span><span style="color:#9ECBFF"> daemon…</span></span>
+<span class="line"><span style="color:#E1E4E8">[</span><span style="color:#F97583">==================================================></span><span style="color:#E1E4E8">] 82.20MB</span></span>
+<span class="line"><span style="color:#B392F0">Done</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 1/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> FROM</span><span style="color:#9ECBFF"> openjdk:8-jdk-alpine</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">a3562aa0b991</span></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 2/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> VOLUME</span><span style="color:#9ECBFF"> /tmp</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">Using</span><span style="color:#9ECBFF"> cache</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">3c8fa2e5827c</span></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 3/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> ADD</span><span style="color:#9ECBFF"> taeyeonim-gateway.jar</span><span style="color:#9ECBFF"> taeyeonim-gateway.jar</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">Using</span><span style="color:#9ECBFF"> cache</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">cb2f85399674</span></span>
+<span class="line"><span style="color:#B392F0">Step</span><span style="color:#9ECBFF"> 4/4</span><span style="color:#9ECBFF"> :</span><span style="color:#9ECBFF"> ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"java"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"-Djava.security.egd=file:/dev/./urandom"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"-jar"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"/taeyeonim-gateway.jar"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">Using</span><span style="color:#9ECBFF"> cache</span></span>
+<span class="line"><span style="color:#B392F0"> ---</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">655e3800a65c</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Successfully</span><span style="color:#9ECBFF"> built</span><span style="color:#9ECBFF"> 655e3800a65c</span></span>
+<span class="line"><span style="color:#B392F0">Successfully</span><span style="color:#9ECBFF"> tagged</span><span style="color:#9ECBFF"> im-gateway:v2</span></span>
+<span class="line"><span style="color:#B392F0">'im-gateway:v2 Dockerfile: taeyeonim-gateway/src/main/docker/dockerfile'</span><span style="color:#9ECBFF"> has</span><span style="color:#9ECBFF"> been</span><span style="color:#9ECBFF"> deployed</span><span style="color:#9ECBFF"> successfully.</span></span>
+<span class="line"></span></code></pre>
+<p>通过docker客户端或者IDEA自带的工具都可以看到构建镜像成功后的镜像列表。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-client-image-list.png" alt="docker客户端镜像列表"></p>
+<p>IDEA镜像列表：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-idea-image-list.png" alt="IDEA docker镜像列表"></p>
+<h2 id="33-创建容器">3.3 创建容器</h2>
+<p>两种方式创建容器，一种是通过docker客户端进行创建，一种是通过IDEA创建。</p>
+<h3 id="331-docker-client方式">3.3.1 docker client方式</h3>
+<p>找到image列表中之前构建的Gateway镜像，点击<code>Run</code>按钮，弹出菜单。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-client-container.png" alt="docker客户端方式创建容器"></p>
+<p>填写好容器名称，这里我命名为<code>Im-Gw</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-client-container-config.png" alt="docker客户端方式创建容器-配置"></p>
+<p>点击<code>Run</code>，开始启动容器，成功后可以在容器列表看到。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-client-container-run.png" alt="docker客户端方式创建容器-启动"></p>
+<h3 id="332-idea方式">3.3.2 IDEA方式</h3>
+<p>找到IDEA services窗口，查看image列表，找到之前构建的镜像<code>im-gateway</code>，右键弹出菜单，选中<code>create container</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-idea-container-create.png" alt="IDEA方式创建容器"></p>
+<p>填写容器名称，这里为<code>IM-Gateway</code>. 点击<code>run</code>运行容器。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-idea-container-config.png" alt="IDEA方式创建容器-配置"></p>
+<p>同样可以在docker客户端看到启动成功后的docker，如3.3.1节中的容器列表图，也可以在IDEA中查看，只是没有那么好看。哈哈哈哈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-idea-container-list2.png" alt="IDEA方式创建容器-查看"></p>
+<h1 id="4-参考文献">4 参考文献</h1>
+<ul>
+<li><a href="https://link.juejin.cn/?target=https%3A%2F%2Fdocs.docker.com%2Fengine%2Freference%2Fbuilder%2F%23environment-replacement">Dockerfile reference</a></li>
+<li><a href="https://quickref.me/zh-CN/docs/dockerfile.html">Dockerfile 备忘清单</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/152957068">Docker ARG，ENV和.env-完整指南</a></li>
+<li><a href="https://vsupalov.com/docker-arg-env-variable-guide/">Docker ARG, ENV and .env - a Complete Guide</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】129.求根节点到叶节点数字之和</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】129.求根节点到叶节点数字之和 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/7/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#DFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给你一个二叉树的根节点 <code>root</code> ，树中每个节点都存放有一个 <code>0</code> 到 <code>9</code> 之间的数字。每条从根节点到叶节点的路径都代表一个数字：</p>
+<p>例如，从根节点到叶节点的路径 <code>1 -> 2 -> 3</code> 表示数字 <code>123</code> 。
+计算从根节点到叶节点生成的<code>所有数字之和</code>。</p>
+<blockquote>
+<p><code>叶节点</code> 是指没有子节点的节点。</p>
+</blockquote>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC129-1.jpeg" alt="示例1"></p>
+<blockquote>
+<p>输入：root = [1,2,3]
+输出：25
+解释：</p>
+<ul>
+<li>从根到叶子节点路径 1->2 代表数字 12</li>
+<li>从根到叶子节点路径 1->3 代表数字 13</li>
+<li>因此，数字总和 = 12 + 13 = 25</li>
+</ul>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC129-2.jpeg" alt="示例2"></p>
+<blockquote>
+<p>输入：root = [4,9,0,5,1]
+输出：1026
+解释：</p>
+<ul>
+<li>从根到叶子节点路径 4->9->5 代表数字 495</li>
+<li>从根到叶子节点路径 4->9->1 代表数字 491</li>
+<li>从根到叶子节点路径 4->0 代表数字 40</li>
+<li>因此，数字总和 = 495 + 491 + 40 = 1026</li>
+</ul>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>树中节点的数目在范围 [1, 1000] 内</li>
+<li>0 &#x3C;= Node.val &#x3C;= 9</li>
+<li>树的深度不超过 10</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<h2 id="21-dfs">2.1 DFS</h2>
+<ul>
+<li>对于叶子节点，将父节点的临时节点之和*10，再加上当前节点值，即可得到根节点到该节点的数值；并将其与目前已知的和sum相加，得到新的sum；</li>
+<li>对于左节点不为空的，将当前的临时节点之和*10，再加上当前节点值，递归带入；</li>
+<li>同理，对于右节点一样。</li>
+</ul>
+<h2 id="22-回溯法">2.2 回溯法</h2>
+<p>也属于递归，常用的地方，比如字符串的全排列或组合。
+具体原理和公式，可参见{%post_link ‘【LeetCode】46-全排列’%}.</p>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Definition for a binary tree node.</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *     int val;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode left;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode() {}</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val) { this.val = val; }</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val, TreeNode left, TreeNode right) {</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.val = val;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.left = left;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.right = right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> sum </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /** DFS */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sumNumbers2</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">        addChildren</span><span style="color:#E1E4E8">(root, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addChildren</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">child</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> tempSum</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> child) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //add the current node's value</span></span>
+<span class="line"><span style="color:#E1E4E8">        tempSum </span><span style="color:#F97583">*=</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        tempSum </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> child.val;</span></span>
+<span class="line"><span style="color:#6A737D">        //child is a leaf node</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> child.left </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> child.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            sum </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> tempSum;</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> child.left) {</span></span>
+<span class="line"><span style="color:#B392F0">            addChildren</span><span style="color:#E1E4E8">(child.left, tempSum);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> child.right) {</span></span>
+<span class="line"><span style="color:#B392F0">            addChildren</span><span style="color:#E1E4E8">(child.right, tempSum);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /** backtrack */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sumNumbers</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        LinkedList&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> track </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LinkedList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        track.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.val);</span></span>
+<span class="line"><span style="color:#B392F0">        backtrack</span><span style="color:#E1E4E8">(root, track);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> backtrack</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">, LinkedList&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">track</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root.left </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            sum </span><span style="color:#F97583">+=</span><span style="color:#B392F0"> listToInt</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> LinkedList</span><span style="color:#E1E4E8">(track));</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> root.left) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.left.val);</span></span>
+<span class="line"><span style="color:#B392F0">            backtrack</span><span style="color:#E1E4E8">(root.left, track);</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">removeLast</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> root.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.right.val);</span></span>
+<span class="line"><span style="color:#B392F0">            backtrack</span><span style="color:#E1E4E8">(root.right, track);</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">removeLast</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> listToInt</span><span style="color:#E1E4E8">(LinkedList&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">list</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> sum </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (Integer i </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> list) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            sum </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sum </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 10</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> i;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

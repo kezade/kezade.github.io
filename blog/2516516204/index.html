@@ -1,0 +1,135 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Netty学习】5.Netty中的粘包和拆包</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Netty学习】5.Netty中的粘包和拆包 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/2/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Netty</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#粘包半包问题</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-什么是粘包和半包">1 什么是粘包和半包?</h1>
+<p><code>粘包问题</code>是指数据在传输时，在一条消息中读取到了另一条消息的<code>部分数据</code>，这种现象就叫做<code>粘包</code>。</p>
+<p><code>半包问题</code>是指接收端只收到了部分数据，而非完整的数据的情况就叫做<code>半包</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/nianbao-banbao.png" alt="粘包半包问题"></p>
+<h1 id="2-为什么-tcp-应用中会出现粘包和半包现象">2 为什么 TCP 应用中会出现粘包和半包现象?</h1>
+<h2 id="21-粘包的主要原因">2.1 粘包的主要原因</h2>
+<ul>
+<li>发送方每次写入数据 &#x3C; 套接字缓冲区大小；
+<blockquote>
+<p>由于 TCP 协议本身的机制(面向连接的可靠的协议-三次握手机制)客户端与服务器会维持一个连接(Channel)，数据在连接不断开的情况下，可以持续不断地将多个数据包发往服务器，但是如果发送的网络数据包太小，那么他本身会启用 <code>Nagle 算法</code>对较小的数据包进行合并，然后再发送(超时或者包大小足够)。那么这样的话，服务器在接收到消息(数据流)的时候就无法区分哪些数据包是客户端自己分开发送的，这样产生了粘包。</p>
+</blockquote>
+</li>
+<li>接收方<code>读取</code>套接字缓冲区数据<code>不够及时</code>。
+<blockquote>
+<p>服务器在接收到数据库后，放到缓冲区中，如果消息没有被及时从缓存区取走，下次在取数据的时候可能就会出现一次取出多个数据包的情况，造成粘包现象。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="22-半包的主要原因">2.2 半包的主要原因</h2>
+<ul>
+<li>发送方写入数据 > 套接字缓冲区大小；</li>
+<li>进行 MSS 大小的 TCP 分段。
+<blockquote>
+<p>MSS=TCP 报文段长度-TCP 首部长度</p>
+</blockquote>
+</li>
+<li>发送的数据大于协议的 MTU(Maximum Transmission Unit，最大传输单元)，必须拆包。</li>
+</ul>
+<h2 id="23-换个角度看">2.3 换个角度看</h2>
+<ul>
+<li>收发：一个发送可能被多次接收，多个发送可能被一次接收。</li>
+<li>传输：一个发送可能占用多个传输包，多个发送可能公用一个传输包。</li>
+</ul>
+<h2 id="24-根本原因">2.4 根本原因</h2>
+<blockquote>
+<p>TCP 是流式协议，消息无边界。</p>
+</blockquote>
+<blockquote>
+<p>Tips: UDP本身作为无连接的不可靠的传输协议，<code>不会</code>对数据包进行<code>合并发送</code>(也就没有 Nagle 算法之说了)，它直接是一端发送什么数据，直接就发出去了，既然他不会对数据合并，每一个数据包都是<code>完整的</code>(数据+UDP 头+IP 头等等，即每个数据包均有界)，也就没有粘包一说了。</p>
+</blockquote>
+<h2 id="25-示例">2.5 示例</h2>
+<h3 id="251-服务端">2.5.1 服务端</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * 服务器端（只负责接收消息）</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> ServSocket</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // 字节数组的长度</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> BYTE_LENGTH </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 20</span><span style="color:#E1E4E8">;  </span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#6A737D">        // 创建 Socket 服务器</span></span>
+<span class="line"><span style="color:#E1E4E8">        ServerSocket serverSocket </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ServerSocket</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8888</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 获取客户端连接</span></span>
+<span class="line"><span style="color:#E1E4E8">        Socket clientSocket </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> serverSocket.</span><span style="color:#B392F0">accept</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 得到客户端发送的流对象</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> (InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> clientSocket.</span><span style="color:#B392F0">getInputStream</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 循环获取客户端发送的信息</span></span>
+<span class="line"><span style="color:#F97583">                byte</span><span style="color:#E1E4E8">[] bytes </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">[BYTE_LENGTH];</span></span>
+<span class="line"><span style="color:#6A737D">                // 读取客户端发送的信息</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> inputStream.</span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">(bytes, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, BYTE_LENGTH);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (count </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 成功接收到有效消息并打印</span></span>
+<span class="line"><span style="color:#E1E4E8">                    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"接收到客户端的信息是:"</span><span style="color:#F97583"> +</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> String</span><span style="color:#E1E4E8">(bytes));</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h3 id="252-客户端">2.5.2 客户端</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * 客户端（只负责发送消息）</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">static</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ClientSocket</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#6A737D">        // 创建 Socket 客户端并尝试连接服务器端</span></span>
+<span class="line"><span style="color:#E1E4E8">        Socket socket </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Socket</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"127.0.0.1"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">8888</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 发送的消息内容</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> String message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "Hi,Java."</span><span style="color:#E1E4E8">; </span></span>
+<span class="line"><span style="color:#6A737D">        // 使用输出流发送消息</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> (OutputStream outputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> socket.</span><span style="color:#B392F0">getOutputStream</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 给服务器端发送 10 次消息</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 发送消息</span></span>
+<span class="line"><span style="color:#E1E4E8">                outputStream.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(message.</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h3 id="253-结果">2.5.3 结果</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/nianbao-banbao-sample.png" alt="粘包半包"></p>
+<h1 id="3-解决粘包和半包问题的几种常用方法">3 解决粘包和半包问题的几种常用方法</h1>
+<p>解决问题的根本手段：<strong>找出消息的边界</strong>。</p>
+<h2 id="31-消息定长">3.1 消息定长</h2>
+<p>发送方和接收方固定发送数据的大小，当字符<code>长度不够</code>时用<code>空字符</code>弥补，有了固定大小之后就知道每条消息的具体边界了，这样就没有粘包的问题了。</p>
+<h2 id="32-分隔符">3.2 分隔符</h2>
+<p>以特殊的字符结尾，比如以“\n”结尾，这样我们就知道数据的具体边界了，从而避免了粘包问题。</p>
+<h2 id="33-消息头消息体">3.3 消息头+消息体</h2>
+<p>在 TCP 协议的基础上封装一层<code>自定义数据协议</code>，在自定义数据协议中，包含数据头（存储数据的大小）和 数据的具体内容，这样服务端得到数据之后，通过解析数据头就可以知道数据的具体长度了，也就没有粘包的问题了。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/ways-to-solve-problems.png" alt="解决方案及各自优缺点"></p>
+<h1 id="4-netty-对三种常用封帧方式的支持">4 Netty 对三种常用封帧方式的支持</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>方式</th><th>解码</th><th>编码</th></tr></thead><tbody><tr><td>固定长度</td><td>FixedLengthFrameDecoder</td><td>简单</td></tr><tr><td>分割符</td><td>DelimiterBasedFrameDecoder, LineBasedFrameDecoder(换行符)</td><td>简单</td></tr><tr><td>固定长度字段存个内容的长度信息</td><td>LengthFieldBasedFrameDecoder</td><td>LengthFieldPrepender</td></tr></tbody></table>
+<p>下一章，具体了解下Netty的编解码技术。</p>
+<p>参考文章：
+<a href="https://www.cnblogs.com/vipstone/p/16541606.html">面试突击70：什么是粘包和半包？怎么解决？</a>
+<a href="https://time.geekbang.org/course/detail/100036701-151113">TCP粘包/半包Netty全搞定 - 极客时间</a></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

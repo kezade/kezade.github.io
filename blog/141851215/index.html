@@ -1,0 +1,166 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】109.有序链表转换二叉搜索树</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】109.有序链表转换二叉搜索树 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/4/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#快慢指针</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#递归</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给定一个单链表的头节点 <code>head</code>，其中的元素<strong>按升序排序</strong>，将其转换为<code>高度平衡的二叉搜索树</code>。</p>
+<blockquote>
+<p>本题中，一个<code>高度平衡二叉树</code>是指一个二叉树每个节点的左右两个子树的<code>高度差不超过 1</code>。</p>
+</blockquote>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC109-1.jpeg" alt="示例1"></p>
+<blockquote>
+<p>输入: head = [-10,-3,0,5,9]
+输出: [0,-3,9,-10,null,5]
+解释: 一个可能的答案是[0，-3,9，-10,null,5]，它表示所示的高度平衡的二叉搜索树。</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: head = []
+输出: []</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>head中的节点数在[0, 2 * 104]范围内</li>
+<li>-105&#x3C;= Node.val &#x3C;= 105</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>单链表、二叉树结构：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583"> public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ListNode</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    ListNode next;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    ListNode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    ListNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    ListNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">, ListNode </span><span style="color:#FFAB70">next</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode left;</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode right;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">left</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">right</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.left </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> left;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> right;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>不同于{%post_link ‘【LeetCode】108-将有序数组转换为二叉搜索树’%} ，本题中已知输入为<code>有序链表</code>，但思想还是一样的。</p>
+<h2 id="21-递归--快慢指针">2.1 递归 + 快慢指针</h2>
+<p>数组可以根据下标快速定位左右子树的范围，对于链表，我们同样可以利用指针来划分，原理就是<code>快慢指针</code>。</p>
+<blockquote>
+<p>快指针速度是慢指针的两倍，等到快指针到底链表末尾或者为null，慢指针刚好位于中间节点。</p>
+</blockquote>
+<p>算法过程：</p>
+<ul>
+<li>假定<code>head</code>为链表头结点，<code>slow</code>表示慢指针，<code>fast</code>表示快指针；</li>
+<li>起始状态：<code>slow=head; fast=head.next.next;</code>；</li>
+<li>只要<code>null != fast</code> 且 <code>null != fast.next</code>，则循环执行<code>slow = slow.next; fast = fast.next.next;</code>；</li>
+<li>执行完上一步的循环，此时<code>slow</code>的下一个节点即为链表中点，则以该中点为根节点<code>root</code>，root左子树范围为<code>[head, slow]</code>，其右子树范围为<code>[slow.next.next, 链表结尾]</code>；</li>
+<li>上述结论用已知的构造方法表示为：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">        root.left </span><span style="color:#F97583">=</span><span style="color:#B392F0"> sortedListToBST</span><span style="color:#E1E4E8">(head);</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#B392F0"> sortedListToBST</span><span style="color:#E1E4E8">(slow.next.next);</span></span></code></pre>
+<h2 id="22-递归--中序遍历">2.2 递归 + 中序遍历</h2>
+<p>学习了k神的思想，觉得真是🐂🍺，上述算法存在的问题时，每次递归都需要重新遍历节点找出根节点，左右子树范围，效率略低。k神的算法就是想减少循环遍历，通过一次遍历链表的过程，来构造题目要求的<code>高度平衡二叉搜索树</code>。
+大致流程：</p>
+<ul>
+<li>使用<code>递归</code>模拟<code>中序遍历</code>过程，建立节点的顺序即与链表元素顺序一一对应，<code>bottom-up</code>（自底向上）建立树，最终返回根节点。</li>
+<li>递归前需要统计链表长度<code>n</code>，整体算法复杂度<code>O(N)</code>。</li>
+</ul>
+<h1 id="3-代码">3 代码</h1>
+<h2 id="31-递归--快慢指针">3.1 递归 + 快慢指针</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">sortedListToBST</span><span style="color:#E1E4E8">(ListNode </span><span style="color:#FFAB70">head</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //null</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> head) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //single node</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> head.next) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8">(head.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //严格递增，二分法</span></span>
+<span class="line"><span style="color:#6A737D">        //快慢指针找到中间节点，一分为二</span></span>
+<span class="line"><span style="color:#6A737D">        //给定一个空的头结点，方便</span></span>
+<span class="line"><span style="color:#E1E4E8">        ListNode dummy </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ListNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        dummy.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#E1E4E8">        ListNode slow </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dummy;</span></span>
+<span class="line"><span style="color:#E1E4E8">        ListNode fast </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dummy.next.next;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> fast </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> fast.next) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            slow </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> slow.next;</span></span>
+<span class="line"><span style="color:#E1E4E8">            fast </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fast.next.next;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //此时 slow位于中间节点的上一节点</span></span>
+<span class="line"><span style="color:#6A737D">        //准备拆分</span></span>
+<span class="line"><span style="color:#6A737D">        //中间节点为根节点</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode root </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8">(slow.next.val);</span></span>
+<span class="line"><span style="color:#6A737D">        //中间节点的下一节点为右子树部分</span></span>
+<span class="line"><span style="color:#E1E4E8">        ListNode rightPart </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> slow.next.next;</span></span>
+<span class="line"><span style="color:#6A737D">        //此处截断，左子树范围[head, slow]，剩下的除root外，全是右子树的范围</span></span>
+<span class="line"><span style="color:#E1E4E8">        slow.next </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //left tree</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.left </span><span style="color:#F97583">=</span><span style="color:#B392F0"> sortedListToBST</span><span style="color:#E1E4E8">(dummy.next);</span></span>
+<span class="line"><span style="color:#6A737D">        //right tree</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#B392F0"> sortedListToBST</span><span style="color:#E1E4E8">(rightPart);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="32-递归--中序遍历">3.2 递归 + 中序遍历</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    ListNode newNode;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">sortedListToBST</span><span style="color:#E1E4E8">(ListNode </span><span style="color:#FFAB70">head</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //null</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> head) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //single node</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> head.next) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8">(head.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        newNode </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> head) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            head </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head.next;</span></span>
+<span class="line"><span style="color:#E1E4E8">            n</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> build</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, n </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> left</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> right</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (left </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> right) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //middle</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> mid </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> left </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> (right </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> left) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //inorder traversal</span></span>
+<span class="line"><span style="color:#6A737D">        //left tree</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode leftTree </span><span style="color:#F97583">=</span><span style="color:#B392F0"> build</span><span style="color:#E1E4E8">(left, mid </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        //root，此时，再构造完左子树后，newNode已经是链表的中点节点了</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode root </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8">(newNode.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">        newNode </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> newNode.next;</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.left </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> leftTree;</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#B392F0"> build</span><span style="color:#E1E4E8">(mid </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">, right);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<blockquote>
+<p>注：LC108/LC109构造结果不唯一，比如[-10,-3,0,5,9]，可以构造出以下<code>高度平衡的二叉搜索树</code>：</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC109-2.png" alt="两颗不同的高度平衡二叉搜索树"></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

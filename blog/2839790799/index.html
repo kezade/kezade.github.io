@@ -1,0 +1,110 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Hexo】GitHub Action自动部署Hexo</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Hexo】GitHub Action自动部署Hexo </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/7/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#GitHub Actions</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Hexo博客</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>网上虽然有很多通过 GitHub Actions 自动部署 Hexo 的教程，但都有各种各样的问题。主要问题还是 Workflow 脚本没有写正确，比如插件部分。</p>
+<h1 id="2-步骤">2 步骤</h1>
+<h2 id="21-生成密钥对">2.1 生成密钥对</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">ssh-keygen</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> rsa</span><span style="color:#79B8FF"> -b</span><span style="color:#79B8FF"> 4096</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> ~/.ssh/GitHub-actions-deploy</span></span></code></pre>
+<p>然后会获得一个公钥(<code>GitHub-actions-deploy.pub</code>)和私钥(<code>GitHub-actions-deploy</code>)。</p>
+<h2 id="22-在-github-pages-所在的仓库中添加公钥">2.2 在 GitHub Pages 所在的仓库中添加<code>公钥</code></h2>
+<blockquote>
+<p>注意这里是配置生成的<code>公钥</code>，且是配置在<code>Hexo生成的静态页面所在的git内</code>。</p>
+</blockquote>
+<p>找到仓库的 <code>Settings - Deploy keys - Add deploy key</code></p>
+<ul>
+<li><code>Title</code> 填入：<code>ACTION_DEPLOY_KEY</code></li>
+<li><code>Key</code> 填入：<code>GitHub-actions-deploy.pub的内容</code></li>
+<li>勾上 <code>Allow write access</code></li>
+</ul>
+<h2 id="23-在存放-hexo-源文件的仓库中添加私钥">2.3 在存放 Hexo <code>源文件的仓库</code>中添加<code>私钥</code></h2>
+<blockquote>
+<p>PS: 跟步骤 2 中的仓库可能是同一个，也可能不是同一个。根据自己的选型设置。</p>
+</blockquote>
+<p>我自己的Hexo博客源文件是与生成的静态博客是分开的。</p>
+<p>找到仓库的 <code>Settings - Secrets - Add a new secret</code></p>
+<ul>
+<li><code>Name</code> 填入：<code>ACTION_DEPLOY_KEY</code></li>
+<li><code>Value</code> 填入：<code>GitHub-actions-deploy</code></li>
+</ul>
+<blockquote>
+<p>注意：需要复制<code>GitHub-actions-deploy</code>文件中包括 <code>-----BEGIN OPENSSH PRIVATE KEY-----</code> 和 <code>-----END OPENSSH PRIVATE KEY-----</code> 的整个内容。</p>
+</blockquote>
+<h2 id="24-修改一下-actions-脚本">2.4 修改一下 Actions 脚本</h2>
+<p>下文贴出的 Actions 的 Wordflows 脚本中，其中 3 个地方要改为自己的信息：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> config</span><span style="color:#79B8FF"> --global</span><span style="color:#9ECBFF"> user.name</span><span style="color:#9ECBFF"> "你的github用户名"</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> config</span><span style="color:#79B8FF"> --global</span><span style="color:#9ECBFF"> user.email</span><span style="color:#9ECBFF"> "你的github注册的邮箱"</span></span>
+<span class="line"><span style="color:#B392F0">git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/[你的github用户名]/[你的github用户名].github.io</span><span style="color:#9ECBFF"> .deploy_git</span></span></code></pre>
+<blockquote>
+<p>clone那一行最后的项目，你的名字可能与我的不同，但都指的是你的博客静态页面所在的项目名。</p>
+</blockquote>
+<h2 id="25-其他注意事项">2.5 其他注意事项</h2>
+<p>脚本中插件部分可按自己实际用的插件删改，<code>npm ls --depth 0</code> 可查看自己安装了哪些插件。如果没有用到 <code>hexo douban</code> 插件，部署命令：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> g</span><span style="color:#E1E4E8"> &#x26;&#x26; </span><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> douban</span><span style="color:#E1E4E8"> &#x26;&#x26; </span><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> deploy</span></span></code></pre>
+<p>可改为</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> g</span><span style="color:#79B8FF"> -d</span></span></code></pre>
+<p>另外一个建议是，所使用的 theme 中的 <code>主题目录</code> 用 <code>git subtree</code> 添加为子项目去维护。这样在多环境多终端发布文章时，不会 clone 或 pull 一个空 theme。</p>
+<h2 id="26-git-push">2.6 git push</h2>
+<p>文章写好后，不需要在本地构建，只需要 <code>git push</code> 到 GitHub 仓库即可自动部署。其中部署方式在 Hexo 根目录的 <code>_config.yml</code> 中配置。</p>
+<h1 id="3-脚本配置">3 脚本配置</h1>
+<p>注意修改其中提到的几个地方。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">name:</span><span style="color:#9ECBFF"> 自动部署</span><span style="color:#9ECBFF"> Hexo</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">on:</span></span>
+<span class="line"><span style="color:#B392F0">  push:</span></span>
+<span class="line"><span style="color:#B392F0">    branches:</span></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> matery</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">jobs</span><span style="color:#9ECBFF">:</span></span>
+<span class="line"><span style="color:#B392F0">  build:</span></span>
+<span class="line"><span style="color:#B392F0">    runs-on:</span><span style="color:#9ECBFF"> ubuntu-latest</span></span>
+<span class="line"><span style="color:#B392F0">    strategy:</span></span>
+<span class="line"><span style="color:#B392F0">      matrix:</span></span>
+<span class="line"><span style="color:#B392F0">        node-version:</span><span style="color:#E1E4E8"> [15.x]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    steps:</span></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 开始运行</span></span>
+<span class="line"><span style="color:#B392F0">        uses:</span><span style="color:#9ECBFF"> actions/checkout@v1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 设置</span><span style="color:#9ECBFF"> Node.js</span><span style="color:#E1E4E8"> ${{ matrix.node-version }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">        uses:</span><span style="color:#9ECBFF"> actions/setup-node@v1</span></span>
+<span class="line"><span style="color:#B392F0">        with:</span></span>
+<span class="line"><span style="color:#B392F0">          node-version:</span><span style="color:#E1E4E8"> ${{ matrix.node-version }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 配置</span><span style="color:#9ECBFF"> Git</span><span style="color:#9ECBFF"> 环境</span></span>
+<span class="line"><span style="color:#B392F0">        env:</span></span>
+<span class="line"><span style="color:#B392F0">          GIT_NAME:</span><span style="color:#E1E4E8"> ${{ secrets.GIT_NAME }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">          GIT_EMAIL:</span><span style="color:#E1E4E8"> ${{ secrets.GIT_EMAIL }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">          REPO:</span><span style="color:#E1E4E8"> ${{ secrets.GH_REF }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">          GH_TOKEN:</span><span style="color:#E1E4E8"> ${{ secrets.GH_TOKEN }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">          ACTION_DEPLOY_KEY:</span><span style="color:#E1E4E8"> ${{ secrets.ACTION_DEPLOY_KEY }</span><span style="color:#9ECBFF">}</span></span>
+<span class="line"><span style="color:#B392F0">        run:</span><span style="color:#F97583"> |</span></span>
+<span class="line"><span style="color:#B392F0">          mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> ~/.ssh/</span></span>
+<span class="line"><span style="color:#79B8FF">          echo</span><span style="color:#9ECBFF"> "</span><span style="color:#E1E4E8">$ACTION_DEPLOY_KEY</span><span style="color:#9ECBFF">"</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF"> ~/.ssh/id_rsa</span></span>
+<span class="line"><span style="color:#B392F0">          chmod</span><span style="color:#79B8FF"> 600</span><span style="color:#9ECBFF"> ~/.ssh/id_rsa</span></span>
+<span class="line"><span style="color:#B392F0">          ssh-keyscan</span><span style="color:#9ECBFF"> github.com</span><span style="color:#F97583"> >></span><span style="color:#9ECBFF"> ~/.ssh/known_hosts</span></span>
+<span class="line"><span style="color:#B392F0">          git</span><span style="color:#9ECBFF"> config</span><span style="color:#79B8FF"> --global</span><span style="color:#9ECBFF"> user.name</span><span style="color:#E1E4E8"> $GIT_NAME</span></span>
+<span class="line"><span style="color:#B392F0">          git</span><span style="color:#9ECBFF"> config</span><span style="color:#79B8FF"> --global</span><span style="color:#9ECBFF"> user.email</span><span style="color:#E1E4E8"> $GIT_EMAIL</span></span>
+<span class="line"><span style="color:#B392F0">          git</span><span style="color:#9ECBFF"> config</span><span style="color:#79B8FF"> --global</span><span style="color:#9ECBFF"> init.defaultBranch</span><span style="color:#9ECBFF"> matery</span></span>
+<span class="line"><span style="color:#B392F0">          git</span><span style="color:#9ECBFF"> clone</span><span style="color:#9ECBFF"> https://github.com/zyxelva/zyxelva.github.io</span><span style="color:#9ECBFF"> .deploy_git</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 安装</span><span style="color:#9ECBFF"> Hexo</span><span style="color:#9ECBFF"> CI</span></span>
+<span class="line"><span style="color:#B392F0">        run:</span><span style="color:#F97583"> |</span></span>
+<span class="line"><span style="color:#F97583">          export</span><span style="color:#E1E4E8"> TZ</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'Asia/Shanghai'</span></span>
+<span class="line"><span style="color:#B392F0">          npm</span><span style="color:#9ECBFF"> i</span><span style="color:#79B8FF"> -g</span><span style="color:#9ECBFF"> hexo-cli</span></span>
+<span class="line"><span style="color:#B392F0">          npm</span><span style="color:#9ECBFF"> i</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 安装插件</span></span>
+<span class="line"><span style="color:#E1E4E8">        if: steps.cache-dependencies.outputs.cache-hit </span><span style="color:#F97583">!</span><span style="color:#9ECBFF">=</span><span style="color:#9ECBFF"> 'true'</span></span>
+<span class="line"><span style="color:#B392F0">        run:</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">          npm</span><span style="color:#9ECBFF"> install</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">      -</span><span style="color:#9ECBFF"> name:</span><span style="color:#9ECBFF"> 部署博客</span></span>
+<span class="line"><span style="color:#B392F0">        run:</span><span style="color:#F97583"> |</span></span>
+<span class="line"><span style="color:#B392F0">          rm</span><span style="color:#79B8FF"> -rf</span><span style="color:#9ECBFF"> .deploy_git</span></span>
+<span class="line"><span style="color:#B392F0">          hexo</span><span style="color:#9ECBFF"> clean</span><span style="color:#E1E4E8"> &#x26;&#x26; </span><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> g</span><span style="color:#E1E4E8"> &#x26;&#x26; </span><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> d</span></span>
+<span class="line"><span style="color:#B392F0">          rm</span><span style="color:#9ECBFF"> ~/.ssh/id_rsa</span></span></code></pre>
+<h1 id="4-参考文档">4 参考文档</h1>
+<ul>
+<li><a href="https://eallion.com/github-actions-hexo-ci">GitHub Actions 自动部署 Hexo 脚本</a></li>
+<li><a href="https://juejin.cn/post/6844904067123150855">使用 GitHub Actions 实现 Hexo 博客自动部署</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

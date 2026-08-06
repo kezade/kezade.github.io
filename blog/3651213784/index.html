@@ -1,0 +1,584 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】12.源码之数据同步及异步机制</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】12.源码之数据同步及异步机制 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/11/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#主从同步</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>若Broker按照主从方式部署，则需要对主节点的数据进行备份。在生产上，为了实现消息的高可用，避免Broker发生<code>单点故障</code>引起存储在Broker上的消息无法及时消费， RocketMQ引入Broker<code>主备机制</code>，即：消息消费到达主服务器后需要将消息同步到消息从服务器，如果主服务器Broker宕机后，消息消费者可以从从服务器拉取消息。</p>
+<p>核心类：
+<code>HAService</code>：主从同步核心实现类，包括：高可用主监听从的连接、主从同步通知；
+<code>HAConnection</code>：主服务器高可用连接对象的封装，高可用主节点网络写、高可用主节点网络读；
+<code>HAClient</code>：主要是从节点上起作用，从节点发起连接请求，处理同步内容等。</p>
+<p>整体流程：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flow.jpg" alt="主从同步整体流程"></p>
+<h1 id="2-同步方式">2 同步方式</h1>
+<ul>
+<li>主从同步复制：生产者发送的每一条消息都<code>至少同步复制到一个slave</code> 后才返回告诉生产者成功，即“同步双写”；</li>
+<li>主从异步复制：生产者发送的每一条消息只要写入master 就返回告诉生产者成功，然后再“异步复制”到slave。</li>
+</ul>
+<h1 id="3-同步内容">3 同步内容</h1>
+<p>Slave需要和Master同步的不只是消息本身，一些元数据信息也需要同步，比如<code>TopicConfig信息</code>、<code>ConsumerOffset信息</code>、<code>DelayOffset</code>和<code>SubscriptionGroupConfig信息</code>。</p>
+<p>Broker在启动的时候，判断自己的角色是否是<code>Slave</code>，是的话就启动<code>定时同步任务</code>。</p>
+<h1 id="4-源码">4 源码</h1>
+<h2 id="41-配置">4.1 配置</h2>
+<p>参考RocketMQ(v4.8.0)<code>rocketmq-distribution</code>项目的conf，该目录下有：<code>2主2从异步</code>HA配置（2m-2s-async）、<code>2主2从同步</code>HA配置（2m-2s-sync）。以下<code>1主1从异步</code>HA配置实例如下。</p>
+<h3 id="411-主节点">4.1.1 主节点</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">brokerClusterName</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">DefaultCluster</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerName</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">broker-a</span></span>
+<span class="line"><span style="color:#6A737D">#主节点ID为0</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerId</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0</span></span>
+<span class="line"><span style="color:#E1E4E8">deleteWhen</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">04</span></span>
+<span class="line"><span style="color:#E1E4E8">fileReservedTime</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">48</span></span>
+<span class="line"><span style="color:#6A737D">#主从异步复制</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerRole</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">ASYNC_MASTER</span></span>
+<span class="line"><span style="color:#6A737D">#消息异步刷盘</span></span>
+<span class="line"><span style="color:#E1E4E8">flushDiskType</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">ASYNC_FLUSH</span></span></code></pre>
+<h3 id="412-从节点">4.1.2 从节点</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">brokerClusterName</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">DefaultCluster</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerName</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">broker-a</span></span>
+<span class="line"><span style="color:#6A737D">#从节点ID>0</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerId</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">1</span></span>
+<span class="line"><span style="color:#E1E4E8">deleteWhen</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">04</span></span>
+<span class="line"><span style="color:#E1E4E8">fileReservedTime</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">48</span></span>
+<span class="line"><span style="color:#6A737D">#从节点</span></span>
+<span class="line"><span style="color:#E1E4E8">brokerRole</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">SLAVE</span></span>
+<span class="line"><span style="color:#E1E4E8">flushDiskType</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">ASYNC_FLUSH</span></span></code></pre>
+<h2 id="42-haservice初始化与启动">4.2 HAService初始化与启动</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MessageStore</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageStoreConfig </span><span style="color:#FFAB70">messageStoreConfig</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> BrokerStatsManager </span><span style="color:#FFAB70">brokerStatsManager</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                               final</span><span style="color:#E1E4E8"> MessageArrivingListener </span><span style="color:#FFAB70">messageArrivingListener</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> BrokerConfig </span><span style="color:#FFAB70">brokerConfig</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#6A737D">        // ...省略</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">messageStoreConfig.</span><span style="color:#B392F0">isEnableDLegerCommitLog</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 初始化HAService</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.haService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.haService </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // ...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#6A737D">        // ...省略</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">messageStoreConfig.</span><span style="color:#B392F0">isEnableDLegerCommitLog</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 启动HAService</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.haService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">handleScheduleMessageService</span><span style="color:#E1E4E8">(messageStoreConfig.</span><span style="color:#B392F0">getBrokerRole</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // ...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="421-实例化">4.2.1 实例化</h3>
+<p>点进去<code>HAService</code>，可以看看实例化了哪些东西：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> DefaultMessageStore defaultMessageStore) throws IOException {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMessageStore </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> defaultMessageStore;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.acceptSocketService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AcceptSocketService</span><span style="color:#E1E4E8">(defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getHaListenPort</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.groupTransferService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> GroupTransferService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.haClient </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> HAClient</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>其中，</p>
+<ul>
+<li><code>AcceptSocketService</code>：主Broker接收从Broker的连接事件；</li>
+<li><code>GroupTransferService</code>：负责主Broker向从Broker发送同步数据；</li>
+<li><code>HAClient</code>：从Broker向主Broker发送连接事件；</li>
+</ul>
+<p>这仨都是继承<code>ServiceThread</code>，即都是一个线程类，且都是 <code>HAService</code>的内部类。</p>
+<h3 id="422-启动">4.2.2 启动</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//HAService</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() throws Exception {</span></span>
+<span class="line"><span style="color:#6A737D">        // 主Broker接收从Broker的连接事件，SelectionKey.OP_ACCEPT（连接事件）</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.acceptSocketService.</span><span style="color:#B392F0">beginAccept</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 启动主Broker线程</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.acceptSocketService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 主Broker同步数据线程启动</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.groupTransferService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 启动从Broker发送心跳到主Broker</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.haClient.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>在<code>HAService</code>的构造函数中，创建了<code>AcceptSocketService</code>、<code>GroupTransferService</code>和<code>HAClient</code>，在<code>start()</code>方法中主要做了如下几件事：</p>
+<ul>
+<li>调用<code>AcceptSocketService</code>的<code>beginAccept</code>方法，这一步主要是进行端口绑定，在端口上监听从节点的连接请求（可以看做是运行在<code>主节点</code>的）;</li>
+<li>调用<code>AcceptSocketService</code>的<code>start</code>方法启动服务，这一步主要为了处理<code>从节点</code>的<code>连接请求</code>，与从节点建立连接（可以看做是运行在<code>主节点</code>的）;</li>
+<li>调用<code>GroupTransferService</code>的<code>start</code>方法，主要用于在主从同步的时候，等待数据传输完毕（可以看做是运行在<code>主节点</code>的）;</li>
+<li>调用<code>HAClient</code>的<code>start</code>方法启动，里面与<code>主节点</code>建立连接，向master汇报<code>主从同步进度</code>并<code>存储</code>master发送过来的同步数据（可以看做是运行在<code>从节点</code>的）;</li>
+</ul>
+<h4 id="4221-监听从节点连接请求">4.2.2.1 监听从节点连接请求</h4>
+<p><code>AcceptSocketService</code>的<code>beginAccept()</code>方法里面首先获取了<code>ServerSocketChannel</code>，然后进行<code>端口绑定</code>，并在selector上面注册了<code>OP_ACCEPT事件</code>的监听，监听从节点的连接请求：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> beginAccept</span><span style="color:#E1E4E8">() throws Exception {</span></span>
+<span class="line"><span style="color:#6A737D">    // 创建ServerSocketChannel</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.serverSocketChannel </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServerSocketChannel.</span><span style="color:#B392F0">open</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 获取selector</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.selector </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingUtil.</span><span style="color:#B392F0">openSelector</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // TCP可重复使用</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.serverSocketChannel.</span><span style="color:#B392F0">socket</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">setReuseAddress</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    // 绑定端口</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.serverSocketChannel.</span><span style="color:#B392F0">socket</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">bind</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.socketAddressListen);</span></span>
+<span class="line"><span style="color:#6A737D">    // 设置非阻塞</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.serverSocketChannel.</span><span style="color:#B392F0">configureBlocking</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    // 注册OP_ACCEPT连接事件的监听</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.serverSocketChannel.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.selector, SelectionKey.OP_ACCEPT);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="4222-处理从节点连接请求">4.2.2.2 处理从节点连接请求</h4>
+<p><code>AcceptSocketService</code>的<code>run()</code>方法中，对监听到的<code>连接请求</code>进行了处理，处理逻辑大致如下：</p>
+<ul>
+<li>从selector中获取到监听到的事件；</li>
+<li>如果是<code>OP_ACCEPT</code>连接事件，创建与从节点的连接对象<code>HAConnection</code>，与从节点建立连接，然后调用<code>HAConnection</code>的<code>start()</code>方法进行启动，并创建的<code>HAConnection对象</code>加入到连接集合中，<strong>HAConnection中封装了主节点和从节点的数据同步逻辑</strong>；</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> AcceptSocketService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.selector.</span><span style="color:#B392F0">select</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                    // 获取监听到的事件</span></span>
+<span class="line"><span style="color:#E1E4E8">                    Set&#x3C;</span><span style="color:#F97583">SelectionKey</span><span style="color:#E1E4E8">> selected </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.selector.</span><span style="color:#B392F0">selectedKeys</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (selected </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                        for</span><span style="color:#E1E4E8"> (SelectionKey k </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> selected) {</span></span>
+<span class="line"><span style="color:#6A737D">                            // 如果是连接事件</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> ((k.</span><span style="color:#B392F0">readyOps</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8"> SelectionKey.OP_ACCEPT) </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                SocketChannel sc </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ((ServerSocketChannel) k.</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">accept</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                                if</span><span style="color:#E1E4E8"> (sc </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    HAService.log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"HAService receive new connection, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> sc.</span><span style="color:#B392F0">socket</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getRemoteSocketAddress</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                                    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                                        // 创建HAConnection，建立连接</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        HAConnection conn </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> HAConnection</span><span style="color:#E1E4E8">(HAService.this, sc);</span></span>
+<span class="line"><span style="color:#6A737D">                                        //开启连接</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        conn.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                                        //添加连接</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        HAService.this.</span><span style="color:#B392F0">addConnection</span><span style="color:#E1E4E8">(conn);</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"new HAConnection exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        sc.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unexpected ops in select "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> k.</span><span style="color:#B392F0">readyOps</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                        selected.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service has exception."</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="4223-等待主从复制结束">4.2.2.3 等待主从复制结束</h4>
+<p><code>GroupTransferService</code>的<code>run</code>方法主要是为了<strong>在进行主从数据同步的时候，等待从节点数据同步完毕</strong>。</p>
+<p>在运行时首先会调用<code>waitForRunning</code>进行等待，因为此时可能还<code>没有开始主从同步</code>，所以先进行等待，之后如果有同步请求，会唤醒该线程，然后调用<code>doWaitTransfer</code>方法等待数据同步完成：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> GroupTransferService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">            // 如果服务未停止</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 等待运行，10ms</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">waitForRunning</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                    //  如果被唤醒，调用doWaitTransfer等待主从同步完成</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">doWaitTransfer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service has exception. "</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>那如何判断有数据需要同步的？</p>
+<p>在前面章节{%post_link ‘【RocketMQ学习】9-源码之Store’%}中，消息落地时，主Broker会调用<code>submitReplicaRequest()</code>方法进行消息的同步。</p>
+<p>调用路径为：<code>DefaultMessageStore#asyncPutMessage()</code>、<code>CommitLog#asyncPutMessage()</code>、<code>CommitLog#submitReplicaRequest()</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//CommitLog</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> CompletableFuture</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">PutMessageStatus</span><span style="color:#F97583">></span><span style="color:#B392F0"> submitReplicaRequest</span><span style="color:#E1E4E8">(AppendMessageResult result, MessageExt messageExt) {</span></span>
+<span class="line"><span style="color:#6A737D">        //判断当前Broker的角色是否是SYNC_MASTER</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (BrokerRole.SYNC_MASTER </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBrokerRole</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            HAService service </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getHaService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (messageExt.</span><span style="color:#B392F0">isWaitStoreMsgOK</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (service.</span><span style="color:#B392F0">isSlaveOK</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getWroteBytes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> result.</span><span style="color:#B392F0">getWroteOffset</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#6A737D">                    //构建消息提交请求GroupCommitRequest</span></span>
+<span class="line"><span style="color:#E1E4E8">                    GroupCommitRequest request </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> GroupCommitRequest</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getWroteOffset</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> result.</span><span style="color:#B392F0">getWroteBytes</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getSyncFlushTimeout</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                    //添加进GroupTransferService的主从同步请求列表</span></span>
+<span class="line"><span style="color:#E1E4E8">                    service.</span><span style="color:#B392F0">putRequest</span><span style="color:#E1E4E8">(request);</span></span>
+<span class="line"><span style="color:#6A737D">                    //唤醒GroupTransferService中在等待的线程</span></span>
+<span class="line"><span style="color:#E1E4E8">                    service.</span><span style="color:#B392F0">getWaitNotifyObject</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">wakeupAll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> request.</span><span style="color:#B392F0">future</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(PutMessageStatus.SLAVE_NOT_AVAILABLE);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(PutMessageStatus.PUT_OK);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>所以，总结起来什么时候才会发起数据同步，有如下几个步骤，当消息被写入到CommitLog以后：</p>
+<ul>
+<li>首先判定是否为主节点；</li>
+<li>消息是否是落地了，等待同步中？</li>
+<li>是否有从节点连接上了主节点？并且是否有需要同步的offset？</li>
+<li>构建消息提交请求<code>GroupCommitRequest</code>，调用<code>HAService</code>的<code>putRequest</code>添加到<code>请求集合</code>中，并<code>唤醒GroupTransferService中在等待的线程</code>。</li>
+</ul>
+<p>接下来，才是<code>doWaitTransfer()</code>的事。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//HAService</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> doWaitTransfer</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.requestsRead) {</span></span>
+<span class="line"><span style="color:#6A737D">                //请求主从同步列表不为空</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.requestsRead.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (CommitLog.GroupCommitRequest req </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.requestsRead) {</span></span>
+<span class="line"><span style="color:#6A737D">                        //判断传输到从节点最大偏移量是否超过了请求中设置的偏移量</span></span>
+<span class="line"><span style="color:#F97583">                        boolean</span><span style="color:#E1E4E8"> transferOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.push2SlaveMaxOffset.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> req.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                        //等待截止时间，5秒</span></span>
+<span class="line"><span style="color:#F97583">                        long</span><span style="color:#E1E4E8"> waitUntilWhen </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">                            +</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getSyncFlushTimeout</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">transferOK </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> waitUntilWhen) {</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.notifyTransferObject.</span><span style="color:#B392F0">waitForRunning</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                            //再次判断从节点同步的最大偏移量是否超过了请求中设置的偏移量</span></span>
+<span class="line"><span style="color:#E1E4E8">                            transferOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.push2SlaveMaxOffset.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> req.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">transferOK) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"transfer messsage to slave timeout, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> req.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        //唤醒在等待数据同步完毕的线程</span></span>
+<span class="line"><span style="color:#E1E4E8">                        req.</span><span style="color:#B392F0">wakeupCustomer</span><span style="color:#E1E4E8">(transferOK </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> PutMessageStatus.FLUSH_SLAVE_TIMEOUT);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.requestsRead.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span></code></pre>
+<p>在<code>doWaitTransfer</code>方法中，会判断CommitLog提交请求集合requestsRead是否为空，如果不为空，表示有消息写入了CommitLog，主节点需要等待将数据传输给从节点：</p>
+<ul>
+<li><code>push2SlaveMaxOffset</code>记录了<strong>从节点已经同步的消息偏移量</strong>，判断push2SlaveMaxOffset是否大于本次CommitLog提交的偏移量(也就是请求中设置的偏移量)；</li>
+<li>获取请求中设置的等待截止时间；</li>
+<li>开启循环，判断数据是否还未传输完毕，并且未超过截止时间，如果是则等待<code>1s</code>，然后继续判断传输是否完毕，不断进行，直到超过截止时间或者数据已经传输完毕；</li>
+</ul>
+<blockquote>
+<p>向从节点发送的消息最大偏移量<code>push2SlaveMaxOffset</code>超过了<code>请求中设置的偏移量</code>，表示本次同步数据传输完毕；</p>
+</blockquote>
+<ul>
+<li>唤醒在等待数据同步完毕的线程。</li>
+</ul>
+<h2 id="43-启动haclient">4.3 启动HAClient</h2>
+<p><code>HAClient</code>可以看做是在<code>从节点</code>上运行的，主要进行的处理如下：</p>
+<ul>
+<li>调用<code>connectMaster</code>方法连接主节点，主节点上也会运行，但是<strong>它本身就是Master没有可连的主节点，所以可以忽略</strong>；</li>
+<li>调用<code>isTimeToReportOffset</code>方法判断是否需要向主节点汇报<code>同步偏移量</code>，如果需要则调用<code>reportSlaveMaxOffset方法</code>将当前的消息同步偏移量发送给主节点；</li>
+<li>调用<code>processReadEvent</code>处理网络请求中的可读事件，也就是处理Master发送过来的消息，将消息存入CommitLog；</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> HAClient</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 连接主节点</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">connectMaster</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                        //  是否需要报告消息同步偏移量</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isTimeToReportOffset</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                            //  向主节点发送同步偏移量</span></span>
+<span class="line"><span style="color:#F97583">                            boolean</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">reportSlaveMaxOffset</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.currentReportedOffset);</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">result) {</span></span>
+<span class="line"><span style="color:#79B8FF">                                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">closeMaster</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.selector.</span><span style="color:#B392F0">select</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                        //  处理读事件，也就是主节点发送的数据</span></span>
+<span class="line"><span style="color:#F97583">                        boolean</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">processReadEvent</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">ok) {</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">closeMaster</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">waitForRunning</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 5</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service has exception. "</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">waitForRunning</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 5</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="431-连接主节点">4.3.1 连接主节点</h3>
+<p><code>connectMaster方法</code>中会获取主节点的地址，并转换为<code>SocketAddress对象</code>，然后向主节点请求建立连接，并在selector注册<code>OP_READ</code>可读事件监听.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> HAClient</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        // 当前的主从复制进度</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> currentReportedOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //连接主节点</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> connectMaster</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> ClosedChannelException {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> socketChannel) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                String addr </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.masterAddress.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (addr </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 将地址转为SocketAddress</span></span>
+<span class="line"><span style="color:#E1E4E8">                    SocketAddress socketAddress </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingUtil.</span><span style="color:#B392F0">string2SocketAddress</span><span style="color:#E1E4E8">(addr);</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (socketAddress </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // 连接master</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.socketChannel </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingUtil.</span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">(socketAddress);</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.socketChannel </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                            // 注册OP_READ可读事件监听</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.socketChannel.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.selector, SelectionKey.OP_READ);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                // 获取CommitLog中当前最大的偏移量</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.currentReportedOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getMaxPhyOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // 更新上次写入时间</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.lastWriteTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.socketChannel </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="432-发送主从同步消息拉取偏移量">4.3.2 发送主从同步消息拉取偏移量</h3>
+<p>在<code>isTimeToReportOffset方法</code>中，首先获取<strong>当前时间与上一次进行主从同步的时间间隔interval</strong>，如果<code>时间间隔interval</code><strong>大于</strong>配置的<code>发送心跳时间间隔</code>，表示需要向主节点发送从节点消息同步的偏移量，接下来会调用<code>reportSlaveMaxOffset方法</code>发送同步偏移量，也就是说<code>从节点</code>会<strong>定时</strong>向主节点发送请求，反馈CommitLog中同步消息的偏移量：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> HAClient</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        // 当前从节点已经同步消息的偏移量大小</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> currentReportedOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //是否可以上报offset</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isTimeToReportOffset</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">            // 获取距离上一次主从同步的间隔时间</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> interval </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.lastWriteTimestamp;</span></span>
+<span class="line"><span style="color:#6A737D">            // 判断是否超过了配置的发送心跳包时间间隔</span></span>
+<span class="line"><span style="color:#F97583">            boolean</span><span style="color:#E1E4E8"> needHeart </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> interval </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getHaSendHeartbeatInterval</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> needHeart;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 发送同步偏移量,传入的参数是当前的主从复制偏移量currentReportedOffset</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> reportSlaveMaxOffset</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> maxOffset</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">            // 设置数据传输大小为8个字节</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">limit</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">            // 设置同步偏移量</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(maxOffset);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">limit</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">8</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 3</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">hasRemaining</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 向主节点发送拉取偏移量</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.socketChannel.</span><span style="color:#B392F0">write</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.reportOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "reportSlaveMaxOffset this.socketChannel.write exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 更新发送时间</span></span>
+<span class="line"><span style="color:#E1E4E8">            lastWriteTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAService.this.defaultMessageStore.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.reportOffset.</span><span style="color:#B392F0">hasRemaining</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="433-处理网络可读事件">4.3.3 处理网络可读事件</h3>
+<p><code>processReadEvent</code>方法中处理了<code>可读事件</code>，也就是处理主节点发送的同步数据。</p>
+<p>首先从<code>socketChannel</code>中读取数据到<code>byteBufferRead</code>中，<code>byteBufferRead</code>是<code>读缓冲区</code>，读取数据的方法会返回读取到的字节数，对字节数大小进行判断：</p>
+<ul>
+<li>如果<code>可读字节数大于0</code>，表示有数据需要处理，调用<code>dispatchReadRequest方法</code>进行处理;</li>
+<li>如果<code>可读字节数为0</code>，表示没有可读数据，此时记录读取到空数据的次数，如果<code>连续读到空数据的次数大于3次</code>，将终止本次处理。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> HAClient</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // 读缓冲区，会将从socketChannel读入缓冲区</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> ByteBuffer byteBufferRead </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">allocate</span><span style="color:#E1E4E8">(READ_MAX_BUFFER_SIZE);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> processReadEvent</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> readSizeZeroTimes </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">hasRemaining</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                // 从socketChannel中读取数据到byteBufferRead中，返回读取到的字节数</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> readSize </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.socketChannel.</span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (readSize </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 重置readSizeZeroTimes</span></span>
+<span class="line"><span style="color:#E1E4E8">                    readSizeZeroTimes </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">                    // 处理数据，写入CommitLog</span></span>
+<span class="line"><span style="color:#F97583">                    boolean</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">dispatchReadRequest</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">result) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"HAClient, dispatchReadRequest error"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (readSize </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 记录读取到空数据的次数</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">readSizeZeroTimes </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"HAClient, processReadEvent read socket &#x3C; 0"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"HAClient, processReadEvent read socket exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="44-haconnection">4.4 HAConnection</h2>
+<p><code>HAConnection</code>中封装了主节点与从节点的网络通信处理，分别在<code>ReadSocketService</code>和<code>WriteSocketService</code>中。</p>
+<h3 id="441-readsocketservice">4.4.1 ReadSocketService</h3>
+<p><code>ReadSocketService</code>启动后处理监听到的<code>可读事件</code>，前面知道<code>HAClient</code>中<code>从节点</code>会<strong>定时</strong>向<code>主节点</code>汇报从节点的消息同步偏移量，主节点对汇报请求的处理就在这里，如果从网络中监听到了<code>可读事件</code>，会调用<code>processReadEvent</code>处理读事件：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAConnection</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> ReadSocketService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            HAConnection.log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.selector.</span><span style="color:#B392F0">select</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                    //  处理可读事件</span></span>
+<span class="line"><span style="color:#F97583">                    boolean</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">processReadEvent</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">ok) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        HAConnection.log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"processReadEvent error"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#6A737D">                    // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    HAConnection.log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service has exception."</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">            HAConnection.log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>处理可读事件：
+<code>processReadEvent</code>中从网络中处理读事件的方式与上面HAClient的<code>dispatchReadRequest</code>类似，都是将网络中的数据读取到读缓冲区中，并用一个变量记录已读取数据的位置，<code>processReadEvent</code>方法的处理逻辑如下：</p>
+<ul>
+<li>从<code>socketChannel</code>读取数据到读缓冲区<code>byteBufferRead</code>中，返回读取到的字节数；</li>
+<li>如果读取到的字节数<code>大于0</code>，进入下一步；如果读取到的字节数<code>为0</code>，记录连续读取到<code>空字节数</code>的次数<code>是否超过三次</code>，如果超过终止处理；</li>
+<li>判断剩余可读取的字节数是否<code>大于等于8</code>，前面知道，从节点发送同步消息拉取偏移量的时候设置的字节大小为<code>8</code>，所以字节数大于等于8的时候表示<strong>需要读取从节点发送的偏移量</strong>；</li>
+<li>计算数据在缓冲区中的位置，从缓冲区读取从节点发送的同步偏移量<code>readOffset</code>；</li>
+<li>更新<code>processPosition</code>的值，<code>processPosition</code>表示读缓冲区中<code>已经处理</code>数据的位置；</li>
+<li>更新<code>slaveAckOffset</code>为从节点发送的同步偏移量<code>readOffset</code>的值；</li>
+<li>如果当前主节点记录的从节点的同步偏移量<code>slaveRequestOffset小于0</code>，表示还未进行同步，此时将<code>slaveRequestOffset</code>更新为从节点发送的同步偏移量；</li>
+<li>如果从节点发送的同步偏移量比当前主节点的<code>最大物理偏移量</code>还要大，终止本次处理（v5.0）；</li>
+<li>调用<code>notifyTransferSome</code>，更新主节点记录的向从节点同步消息的偏移量；</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//ReadSocketService</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> processReadEvent</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            int</span><span style="color:#E1E4E8"> readSizeZeroTimes </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">            /*</span></span>
+<span class="line"><span style="color:#6A737D">                byteBufferRead没有剩余空间时，则：position == limit == capacity</span></span>
+<span class="line"><span style="color:#6A737D">                调用flip()方法后，则：position == 0, limit == capacity，加上processPosition = 0，说明从头开始处理</span></span>
+<span class="line"><span style="color:#6A737D">             */</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">hasRemaining</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">flip</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.processPosition </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // ByteBuffer有剩余空间，循环至byteBufferRead没有剩余空间</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">hasRemaining</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 从SocketChannel读数据到缓存中</span></span>
+<span class="line"><span style="color:#F97583">                    int</span><span style="color:#E1E4E8"> readSize </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.socketChannel.</span><span style="color:#B392F0">read</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead);</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (readSize </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // 重置readSizeZeroTimes</span></span>
+<span class="line"><span style="color:#E1E4E8">                        readSizeZeroTimes </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.lastReadTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> HAConnection.this.haService.</span><span style="color:#B392F0">getDefaultMessageStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                        // 读取内容长度 >= 8，说明收到从Broker的拉取请求（内容是offset）</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> ((</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processPosition) </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                            // 获取偏移量内容的结束位置</span></span>
+<span class="line"><span style="color:#F97583">                            int</span><span style="color:#E1E4E8"> pos </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                            // 从结束位置向前读取8个字节得到从点发送的同步偏移量</span></span>
+<span class="line"><span style="color:#F97583">                            long</span><span style="color:#E1E4E8"> readOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.byteBufferRead.</span><span style="color:#B392F0">getLong</span><span style="color:#E1E4E8">(pos </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 8</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                            // 更新处理位置</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.processPosition </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pos;</span></span>
+<span class="line"><span style="color:#6A737D">                            // 从Broker反馈已完成的偏移量，更新slaveAckOffset为从节点发送的同步进度</span></span>
+<span class="line"><span style="color:#E1E4E8">                            HAConnection.this.slaveAckOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> readOffset;</span></span>
+<span class="line"><span style="color:#6A737D">                            // 如果记录的从节点的同步进度小于0，表示还未进行同步</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (HAConnection.this.slaveRequestOffset </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                                // 更新从Broker请求拉取的偏移量</span></span>
+<span class="line"><span style="color:#E1E4E8">                                HAConnection.this.slaveRequestOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> readOffset;</span></span>
+<span class="line"><span style="color:#E1E4E8">                                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"slave["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> HAConnection.this.clientAddr </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] request offset "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> readOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#6A737D">                            // 通知等待同步HA复制结果的发送消息线程</span></span>
+<span class="line"><span style="color:#E1E4E8">                            HAConnection.this.haService.</span><span style="color:#B392F0">notifyTransferSome</span><span style="color:#E1E4E8">(HAConnection.this.slaveAckOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (readSize </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // 判断连续读取到空数据的次数是否超过三次</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">readSizeZeroTimes </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"read socket["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> HAConnection.this.clientAddr </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] &#x3C; 0"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"processReadEvent exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span></code></pre>
+<p>对于</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">HAConnection.this.haService.</span><span style="color:#B392F0">notifyTransferSome</span><span style="color:#E1E4E8">(HAConnection.this.slaveAckOffset);</span></span></code></pre>
+<p>前面在<code>GroupTransferService</code>中可以看到是通过<code>push2SlaveMaxOffset</code>的值判断<strong>本次同步是否完成的</strong>，在<code>notifyTransferSome</code>方法中可以看到当主节点收到从节点反馈的消息拉取偏移量时，对<code>push2SlaveMaxOffset</code>的值进行了更新：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> HAService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // 向从节点推送的消息最大偏移量</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> GroupTransferService groupTransferService;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> notifyTransferSome</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> offset</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 如果传入的偏移大于push2SlaveMaxOffset记录的值，进行更新</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">long</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.push2SlaveMaxOffset.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(); offset </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> value; ) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 更新向从节点推送的消息最大偏移量</span></span>
+<span class="line"><span style="color:#F97583">            boolean</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.push2SlaveMaxOffset.</span><span style="color:#B392F0">compareAndSet</span><span style="color:#E1E4E8">(value, offset);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (ok) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.groupTransferService.</span><span style="color:#B392F0">notifyTransferSome</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                value </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.push2SlaveMaxOffset.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="442-writesocketservice">4.4.2 WriteSocketService</h3>
+<p><code>WriteSocketService</code>用于<code>主节点</code>向<code>从节点</code>发送同步消息，代码很长，这里列举处理逻辑，如下：</p>
+<ul>
+<li>根据从节点发送的主从同步消息拉取偏移量<code>slaveRequestOffset</code>进行判断：
+<ul>
+<li>如果<code>slaveRequestOffset</code>值为<code>-1</code>，表示<strong>还未收到从节点报告的同步偏移量</strong>，此时睡眠一段时间等待从节点发送消息拉取偏移量；</li>
+<li>如果<code>slaveRequestOffset</code>值<code>不为-1</code>，表示<strong>已经开始进行主从同步进行下一步</strong>；</li>
+</ul>
+</li>
+<li>判断<code>nextTransferFromWhere</code>值是否为-1，<code>nextTransferFromWhere</code>记录了下次需要传输的消息在CommitLog中的偏移量，如果值为<code>-1</code>表示<code>初次进行数据同步</code>，此时有两种情况：
+<ul>
+<li>如果从节点发送的拉取偏移量<code>slaveRequestOffset为0</code>，就从当前CommitLog文件最大偏移量开始同步；</li>
+<li>如果<code>slaveRequestOffset不为0</code>，则从<code>slaveRequestOffset</code>位置处进行数据同步；</li>
+</ul>
+</li>
+<li>判断上次写事件是否已经将数据都写入到从节点：
+<ul>
+<li>如果已经写入完毕，判断<code>距离上次写入数据的时间间隔</code>是否超过了设置的<code>心跳时间</code>，如果超过，为了避免连接空闲被关闭，需要发送一个心跳包，此时构建心跳包的请求数据，调用<code>transferData方法</code>传输数据；</li>
+<li>如果上次的数据还未传输完毕，调用<code>transferData</code>方法继续传输；如果还是未完成，则结束此处处理；</li>
+</ul>
+</li>
+<li>根据<code>nextTransferFromWhere</code>从CommitLog中获取消息，如果未获取到消息，等待<code>100ms</code>，如果获取到消息，从CommitLog中获取消息进行传输：
+<ul>
+<li>如果获取到消息的字节数<strong>大于</strong><code>最大传输的大小</code>，设置最最大传输数量，分批进行传输；</li>
+<li>更新下次传输的偏移量地址，也就是<code>nextTransferFromWhere</code>的值；</li>
+<li>根据<code>nextTransferFromWhere</code>偏移量，从CommitLog中获取的消息内容，将读取到的消息数据设置到<code>selectMappedBufferResult</code>中；</li>
+<li>设置消息头信息，包括<code>消息头字节数</code>、<code>拉取消息的偏移量</code>等；</li>
+<li>调用<code>transferData</code>发送数据；</li>
+</ul>
+</li>
+</ul>
+<p>发送数据：
+<code>transferData</code>方法的处理逻辑如下：</p>
+<ul>
+<li>发送消息头数据;</li>
+<li>消息头数据发送完毕之后，发送消息内容，前面知道从CommitLog中读取的消息内容放入到了<code>selectMappedBufferResult</code>，将<code>selectMappedBufferResult</code>的内容发送给从节点。</li>
+</ul>
+<h1 id="5-总结">5 总结</h1>
+<h2 id="51-主从同步流程">5.1 主从同步流程</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flow.jpg" alt="主从同步整体流程"></p>
+<h2 id="52-新消息写入时的同步流程">5.2 新消息写入时的同步流程</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flow2.jpg" alt="新消息写入时的同步流程"></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】10.源码之堆外内存</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】10.源码之堆外内存 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/7/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#堆外内存</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#NIO</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>上一章节，我们大致上了解了消息的存储机制，其中在消息写入时，RocketMQ有两种不同的写入机制：</p>
+<ul>
+<li>常规方式：通过<code>MMAP</code>(Memory Map，内存映射)写<code>内存映射文件</code>(Memory-Mapped File，MMF)，然后通过<code>同步或异步刷盘机制</code>写入文件；</li>
+<li>堆外缓冲区：若<code>开关开启</code>，<code>Broker主节点</code>且配置为<code>异步刷盘</code>，则先写堆外内存池，再<code>MMAP</code>写内存，最后<code>异步刷盘</code>写入文件。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MMAP.png" alt="MMAP零拷贝技术">
+本章，从消息发送角度，详细了解下对于<code>堆外缓冲区</code>方式的流程及原理。</li>
+</ul>
+<h1 id="2-开启条件与限制">2 开启条件与限制</h1>
+<p>要利用堆外内存进行消息的写入，首先，Broker的配置文件需要配置：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">transientStorePoolEnable</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">true</span></span></code></pre>
+<p>因为默认条件下（版本：4.8.0），该参数值为false。</p>
+<p>另外，还需要设置刷盘方式为：异步刷盘。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">flushDiskType</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> ASYNC_FLUSH</span></span></code></pre>
+<p>最后，broker必须为主节点。我们定位到代码，实际看看开启的条件：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-HeapStore-Conditions.png" alt="堆外内存存储开启条件"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//MessageStoreConfig.java</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isTransientStorePoolEnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    //开启堆外内存缓冲区，必须是异步刷盘+主节点</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> transientStorePoolEnable </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> FlushDiskType.ASYNC_FLUSH </span><span style="color:#F97583">==</span><span style="color:#B392F0"> getFlushDiskType</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> BrokerRole.SLAVE </span><span style="color:#F97583">!=</span><span style="color:#B392F0"> getBrokerRole</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="3-transientstorepool概要设计">3 TransientStorePool概要设计</h1>
+<p>在 RocketMQ 中，<code>TransientStorePool</code> 是一种优化磁盘 I/O 性能的机制。它通过预分配内存块，将消息写入预分配的内存块（直接内存），然后使用<code>内存映射</code>将内存块中的数据刷到磁盘，从而提高写入性能。因此，当你需要提高 RocketMQ 的消息写入性能时，可以考虑开启<code>TransientStorePool</code>。</p>
+<p><code>TransientStorePool</code>，从名字上来看，类似线程池的定义。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TransientStorePool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> InternalLogger log </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> InternalLoggerFactory.</span><span style="color:#B392F0">getLogger</span><span style="color:#E1E4E8">(LoggerName.STORE_LOGGER_NAME);</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 缓冲池大小，默认值：5</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> poolSize;</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 每个bytebuffer大小，默认值：1G</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> fileSize;</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * ByteBuffer容器，双端队列</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Deque&#x3C;</span><span style="color:#F97583">ByteBuffer</span><span style="color:#E1E4E8">> availableBuffers;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> MessageStoreConfig storeConfig;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> TransientStorePool</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageStoreConfig </span><span style="color:#FFAB70">storeConfig</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.storeConfig </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> storeConfig;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.poolSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> storeConfig.</span><span style="color:#B392F0">getTransientStorePoolSize</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> storeConfig.</span><span style="color:#B392F0">getMappedFileSizeCommitLog</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.availableBuffers </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentLinkedDeque&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * It's a heavy init method.</span></span>
+<span class="line"><span style="color:#6A737D">     * 初始化</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> poolSize; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            ByteBuffer byteBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">allocateDirect</span><span style="color:#E1E4E8">(fileSize);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> address </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ((DirectBuffer) byteBuffer).</span><span style="color:#B392F0">address</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            Pointer pointer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Pointer</span><span style="color:#E1E4E8">(address);</span></span>
+<span class="line"><span style="color:#E1E4E8">            LibC.INSTANCE.</span><span style="color:#B392F0">mlock</span><span style="color:#E1E4E8">(pointer, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> NativeLong</span><span style="color:#E1E4E8">(fileSize));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            availableBuffers.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(byteBuffer);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //.....................省略</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>当开启条件达成时，会初始化堆外内存，这些内存会一直锁定在内存中，不会被进程将其换至磁盘。另外，由于是堆外内存，这么设计可以避免频繁的GC。</p>
+<p>再看看其调用的地方，通过<code>borrowBuffer()</code>，对外提供。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-HeapStore-Calling.png" alt="调用位置"></p>
+<blockquote>
+<p>既然<code>MMAP</code>可以解决写入性能问题，为什么还会出现<code>TransientStorePool</code>?</p>
+<ol>
+<li>减少 GC 压力： 单独使用 MMAP 确实可以降低 GC 压力，因为 MMAP 使用的是<code>堆外内存</code>。当文件被映射到内存地址空间时，文件的读写操作实际上是在内存中进行的，这部分内存位于堆外，不受 Java 垃圾回收（GC）机制的影响。
+然而，在实际应用中，仅依赖 MMAP 可能无法完全避免 GC 压力。这是因为在某些场景中，如高并发写入时，仍然需要在堆内存中创建临时对象，这些对象会受到 GC 的影响。
+当我们结合使用 TransientStorePool 和 MMAP 时，可以进一步降低 GC 压力。RocketMQ 将消息写入 TransientStorePool 中的 DirectByteBuffer（直接内存缓冲区），DirectByteBuffer 是一种堆外内存，不受 GC 影响。这样，写入操作实际上发生在堆外内存，既减少了堆内存的分配和回收操作，也降低了 GC 压力。</li>
+<li>异步刷盘：使用 TransientStorePool 和 MMAP 结合，可以实现异步刷盘。首先，将消息写入 TransientStorePool 中的内存块，然后，将这些内存块映射到 <code>MMF</code>。最后，通过后台刷盘服务将内存中的数据异步写入磁盘。这样可以降低磁盘 I/O 的延迟，提高响应速度。</li>
+</ol>
+</blockquote>
+<h2 id="31-transientstorepool技术的设计原理">3.1 TransientStorePool技术的设计原理</h2>
+<p>RocketMQ中的TransientStorePool设计是为了提高消息写入磁盘的性能。它的原理主要基于两个技术：<code>内存池</code>和<code>MMAP</code>。</p>
+<ul>
+<li>内存池：TransientStorePool是一个预先分配的固定大小的内存池。它用来暂存消息数据，以减少频繁的系统内存分配和回收，从而提高性能。当生产者发送消息时，消息首先会被写入到这个内存池中，而不是直接写入到磁盘。内存池中的每个内存块大小与RocketMQ中CommitLog文件的一个映射内存块大小相同。</li>
+<li>MMAP：一种将文件或者文件的一部分映射到进程内存地址空间的技术。RocketMQ使用MMAP技术将CommitLog文件映射到内存中，这样就可以通过直接操作内存来读写CommitLog文件，避免了磁盘IO操作的性能开销。</li>
+</ul>
+<h2 id="32-工作流程">3.2 工作流程</h2>
+<p>结合上述的两个技术，RocketMQ的TransientStorePool设计实现了以下工作流程：</p>
+<ul>
+<li>当生产者发送消息时，消息首先被写入到内存池中的一个内存块。</li>
+<li>当内存块被写满时，将整个内存块的数据通过MMAP的方式刷入到CommitLog文件对应的映射内存块中。</li>
+<li>最后，通过调用操作系统的<code>msync</code>方法，将映射内存中的数据刷入磁盘。</li>
+</ul>
+<p>这种设计可以有效地减少磁盘IO操作，提高RocketMQ的消息写入性能。同时，由于内存池和MMAP的使用，RocketMQ可以充分利用操作系统的缓存机制，进一步优化性能。</p>
+<h1 id="4-串联消息发送流程">4 串联消息发送流程</h1>
+<p>有了上面的知识，我们就可以确定，在<code>MappedFile</code>中，如果<code>writeBuffer</code>不为null，要么就<strong>一定开启了堆外内存缓冲</strong>！！！</p>
+<p>再结合消息的发送流程。 数据到了存储层，最终会调用<code>MappedFile</code>的<code>appendMessagesInner()</code>进行消息的存储。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-HeapStore-Using.png" alt="使用位置"></p>
+<p>归结下来，消息的发送就有两个路径，如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Message-Sending-Flow.png" alt="两条发送路径"></p>
+<ul>
+<li>1.走传统的<code>MMAP</code>内存映射，数据写<code>mappedByteBuffer</code>，然后通过<code>flush刷盘</code>；</li>
+<li>2.走堆外内存缓冲区，数据先写<code>writeBuffer</code>，再通过<code>commit</code>提交到<code>FileChannel</code>中，最后再<code>flush</code>刷盘
+以上两种方式，处理的都是基于<code>bytebuffer</code>的实现，所以都通过<code>put方法</code>可以写入内存。</li>
+</ul>
+<p>所以对应前面讲的刷盘，你会发现为什么异步刷盘线程有两个。</p>
+<ul>
+<li>一个是针对的<code>MMAP</code>刷盘；</li>
+<li>一个是针对的<code>堆外内存缓冲</code>的<code>提交</code>刷盘。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Flush-Services.png" alt="刷盘线程"></li>
+</ul>
+<p>同步刷盘线程：<code>GroupCommitService</code>
+异步刷盘线程：<code>CommitLog.CommitRealTimeService</code>、<code>CommitLog.FlushRealTimeService</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Flush-Disk.png" alt="刷盘机制"></p>
+<blockquote>
+<p>刷盘会在<code>CommitLog#asyncPutMessage</code>方法中进行。</p>
+</blockquote>
+<p>所以，堆外内存缓冲区一定是要异步操作。另外，上图【两条发送路径】中，<code>commit</code>的是针对堆外内存缓冲的提交。<code>flush</code>则是针对<code>MMAP</code>的内存映射的处理。</p>
+<h1 id="5-两种写入机制对比">5 两种写入机制对比</h1>
+<ul>
+<li>默认方式，<code>MMAP+PageCache</code>的方式，读写消息都走的是<code>pageCache</code>，这样子读写都在<code>pagecache</code>里面不可避免会有<code>锁的问题</code>。</li>
+<li>堆外缓冲区，<code>DirectByteBuffer</code>(堆外内存)+<code>PageCache</code>的两层架构方式，这样子可以实现<code>读写消息分离</code>，<strong>写入消息</strong>时候写到的是<code>DirectByteBuffer</code>——堆外内存中，<strong>读消息</strong>走的是<code>PageCache</code>(对于<code>DirectByteBuffer</code>是两步刷盘，一步是刷到PageCache，还有一步是刷到磁盘文件中)，带来的好处就是，避免了内存操作的很多容易堵的地方，降低了延时，比如说缺页中断降低，内存加锁，污染页的回写。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Read-and-Write.jpg" alt="读写分离">
+所以使用堆外缓冲区的方式相对来说会比较好，但是肯定的是，需要消耗一定的内存，如果服务器内存吃紧就不推荐这种模式，同时的话，堆外缓冲区的话也需要配合<code>异步刷盘</code>才能使用。</li>
+</ul>
+<h1 id="6-应用场景">6 应用场景</h1>
+<ul>
+<li>高性能场景：对于具有较高消息吞吐量要求的场景，开启 TransientStorePool 可以减少磁盘 I/O，提高写入性能。</li>
+<li>大量写入操作：在大量写入操作的场景下，使用 TransientStorePool 可以减少频繁的系统内存分配和回收操作，从而提高性能。</li>
+<li>集群环境：在集群环境中，开启 TransientStorePool 可以帮助提高整个集群的性能和稳定性，尤其是在集群节点较多时。</li>
+<li>高峰期：在系统高峰期（比如双十一、黑五等）时，消息流量和写入操作可能会急剧增加。开启 TransientStorePool 可以帮助应对这种临时的高负载压力，提高整个系统的处理能力。</li>
+<li>异步刷盘：在异步刷盘的场景下，将消息先写入内存缓冲区可以提高响应速度。开启 TransientStorePool 可以使得消息先被写入直接内存，然后通过后台刷盘服务异步写入磁盘，从而降低延迟。</li>
+<li>低延迟要求：对于对延迟有严格要求的场景，开启 TransientStorePool 可以减少磁盘 I/O 操作，降低消息写入的延迟。</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

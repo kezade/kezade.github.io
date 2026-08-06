@@ -1,0 +1,40 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Hexo】由CDN引发的暴躁场面</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Hexo】由CDN引发的暴躁场面 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/20/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Hexo博客</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Hexo注入器</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-起因">1 起因</h1>
+<p>今儿早，按照惯例打开自己的博客，结果，图特么全都裂开了。F12打开控制台，一看，凡是通过<code>cdn.jsdelivr.net</code>访问的图片全都挂掉。瞬间飙血。</p>
+<h1 id="2-尝试解决">2 尝试解决</h1>
+<p>方案还是有的，查看了下替代<code>cdn.jsdelivr.net</code>的方案：</p>
+<ul>
+<li><code>cdn.jsdelivr.net</code>换成<code>gcore.jsdelivr.net</code></li>
+<li><code>cdn.jsdelivr.net</code>换成<code>gcore.jsdelivr.net</code></li>
+<li>花点钱，换成国内靠谱的图床或OSS（我穷的要死，花钱是不可能的）</li>
+</ul>
+<p>换成fastly呢，发现网速相比gcore，那真是差远了。</p>
+<p>最终，我选择速度尚可的gcore，直接在idea里全量替换，感觉成本还能接受。</p>
+<h1 id="3-另一场飙血">3 另一场飙血</h1>
+<p>毕竟写了不少文章了，现在的习惯就是，凡是要用图的地方，先本地截图保存或制作后保存在本地。发现如果要用某个变量去替换Markdown中的<code>gcore.jsdelivr.net</code>，那以后要是在变更岂不是更方便了。</p>
+<p>之前搞相册，memos页面，也知道通过hexo注入，可将变量替换成你想要的效果，比如：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">hexo.extend.tag.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">    'cdnUrl'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">    function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //获取主题配置</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> config</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> hexo.theme.config;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> `&#x3C;img src="${</span><span style="color:#E1E4E8">config</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">jsDelivr</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">picgo</span><span style="color:#9ECBFF">}/markdown/${</span><span style="color:#E1E4E8">args</span><span style="color:#9ECBFF">[</span><span style="color:#79B8FF">1</span><span style="color:#9ECBFF">]</span><span style="color:#9ECBFF">}">&#x3C;div class="caption">&#x3C;b class="center-caption">${</span><span style="color:#E1E4E8">args</span><span style="color:#9ECBFF">[</span><span style="color:#79B8FF">0</span><span style="color:#9ECBFF">]</span><span style="color:#9ECBFF">}&#x3C;/b>&#x3C;/div>&#x3C;/img>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>通过标签注入，在文章中，通过引入：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="markdown"><code><span class="line"><span style="color:#E1E4E8">![</span><span style="color:#DBEDFF;text-decoration:underline">redo log 格式</span><span style="color:#E1E4E8">](</span><span style="color:#E1E4E8;text-decoration:underline">https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>结果是这样子：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png" alt="redo log 格式"></p>
+<p>但是，我想要的是，</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="markdown"><code><span class="line"><span style="color:#E1E4E8">![redo log 格式](![</span><span style="color:#DBEDFF;text-decoration:underline">redo log 格式</span><span style="color:#E1E4E8">](</span><span style="color:#E1E4E8;text-decoration:underline">https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/redo-log.png</span><span style="color:#E1E4E8">))</span></span></code></pre>
+<p>结果死活不成，看<code>hexo.io</code>官网，一桶冷水直接浇灭我的所思所想。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>标签插件不应该被包裹在 Markdown 语法中，例如：[]({% post_path lorem-ipsum %}) 是`不被支持的`。</span></span></code></pre>
+<p>气煞我也！
+<img src="https://imgsa.baidu.com/forum/pic/item/3bd05c2c11dfa9ec16c5cebc6fd0f703908fc1b2.jpg" alt=""></p>
+<p>但还是要解决问题啊，试了试官方的<code>Image</code>插入方案：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="markdown"><code><span class="line"><span style="color:#E1E4E8">{% img [class names] /path/to/image [</span><span style="color:#DBEDFF;text-decoration:underline">width</span><span style="color:#E1E4E8">] [</span><span style="color:#DBEDFF;text-decoration:underline">height</span><span style="color:#E1E4E8">] '"title text" "alt text"' %}</span></span></code></pre>
+<p>eg:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="markdown"><code><span class="line"><span style="color:#E1E4E8">{% img [img-shadow img-margin] 'https://gcore.jsdelivr.net/gh/zyxelva/picgo@main/markdown/redo-log.png' '"redo log 格式" "redo log 格式"' %}</span></span></code></pre>
+<p>感觉好多东西要填，要是采用这种方案，后续替换的话，手岂不是要废了？</p>
+<h1 id="求救">求救</h1>
+<p>有大神能救救我咩？</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

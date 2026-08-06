@@ -1,0 +1,80 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】107.二叉树的层序遍历II</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】107.二叉树的层序遍历II </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Java</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#BFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给你二叉树的根节点 root ，返回其节点值 自底向上的层序遍历 。 （即按从叶子节点所在层到根节点所在的层，逐层从左向右遍历）
+示例 1：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/956745c1eb8e7500919a008256ec9311.jpeg" alt="&#x22;图1&#x22;"></p>
+<blockquote>
+<p>输入：root = [3,9,20,null,null,15,7]
+输出：[[15,7],[9,20],[3]]</p>
+</blockquote>
+<p>示例 2：</p>
+<blockquote>
+<p>输入：root = [1]
+输出：[[1]]</p>
+</blockquote>
+<p>示例 3：</p>
+<blockquote>
+<p>输入：root = []
+输出：[]</p>
+</blockquote>
+<p><strong>提示</strong>：</p>
+<ul>
+<li>树中节点数目在范围 [0, 2000] 内</li>
+<li>-1000 &#x3C;= Node.val &#x3C;= 1000</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<p>其实与{%post_link ‘二叉树的层序遍历’%}广度优先的思路没啥大的区别，从结果来看，就是结果集逆序输出，只要我们在遍历每层完成后，将临时结果集按照头插法插入结果集即可。可以利用List.add(index,value)的方法完成头插法。</p>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Definition for a binary tree node.</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *     int val;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode left;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode() {}</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val) { this.val = val; }</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val, TreeNode left, TreeNode right) {</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.val = val;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.left = left;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.right = right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> List&#x3C;List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">>> </span><span style="color:#B392F0">levelOrderBottom</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //分层遍历，利用队列思想，头插法</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //结果集</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">>> res</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //每层的结果集</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> tempList</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">> temp</span><span style="color:#F97583">=new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"><span style="color:#6A737D">        //根节点入队</span></span>
+<span class="line"><span style="color:#E1E4E8">        temp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#E1E4E8">        temp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode node;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">temp.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">            node</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">temp.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> node){</span></span>
+<span class="line"><span style="color:#E1E4E8">                tempList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.val);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node.left){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    temp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node.right){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    temp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span></span>
+<span class="line"><span style="color:#6A737D">            //本层已遍历完毕</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">tempList.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#6A737D">                //头插法（与102不同的地方）</span></span>
+<span class="line"><span style="color:#E1E4E8">                res.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, tempList);</span></span>
+<span class="line"><span style="color:#E1E4E8">                tempList</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                temp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

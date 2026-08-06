@@ -1,0 +1,247 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Redis学习】2.持久化</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Redis学习】2.持久化 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/28/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#AOF</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RDB</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>Redis支持<code>RDB</code>和<code>AOF</code>两种持久化机制，<strong>持久化功能有效地避免因进程退出造成的数据丢失问题</strong>，当下次重启时利用之前持久化的文件即可实现数据恢复。理解掌握持久化机制对于Redis运维非常重要。</p>
+<h1 id="2-aof">2 AOF</h1>
+<p>AOF（append only file）持久化：以<code>独立日志</code>的方式记录每次写命令，重启时再重新执行AOF文件中的命令达到恢复数据的目的。</p>
+<p>AOF的主要作用是解决了数据持久化的<code>实时性</code>，目前已经是Redis持久化的主流方式。</p>
+<blockquote>
+<p>注意只会记录<code>写操作</code>命令，<code>读操作</code>命令是<strong>不会被记录的</strong>，因为没意义。</p>
+</blockquote>
+<h2 id="21-配置">2.1 配置</h2>
+<p>默认情况，AOF是关闭的，若要开启，需要配置参数，如下所示：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">appendonly</span><span style="color:#9ECBFF"> yes</span><span style="color:#9ECBFF"> //开启AOF持久化，默认为no，不开启AOF</span></span>
+<span class="line"><span style="color:#B392F0">appendfilename</span><span style="color:#9ECBFF"> appendonly.aof</span><span style="color:#9ECBFF"> //配置AOF持久化文件名，默认为appendonly.aof</span></span></code></pre>
+<p>文件保存路径也可以自定义，默认在Redis服务的主目录<code>./</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># 文件保存路径</span></span>
+<span class="line"><span style="color:#B392F0">dir</span><span style="color:#9ECBFF"> /home/work/app/redis/data/</span></span></code></pre>
+<h2 id="22-流程">2.2 流程</h2>
+<p>Redis是<code>“写后”</code>日志，Redis先执行命令，把数据写入内存，然后才记录日志。日志里记录的是Redis收到的每一条命令，这些命令是以<code>文本</code>形式保存。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow.jpg" alt="先写数据至内存，再写日志至磁盘"></p>
+<p>这种<code>先写数据至内存，再写日志至磁盘</code>的<code>写后日志</code>的方式优点有：</p>
+<ul>
+<li>避免额外的检查开销：若先写日志，Redis并不会对这些命令进行语法检查，保存下来的可能是错误的命令，那在恢复过程中就会出问题</li>
+<li>不会阻塞当前写操作命令的执行</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>如果命令执行完成，写日志之前宕机了，会丢失数据。</li>
+<li>主线程写磁盘压力大，导致写盘慢，阻塞后续操作。</li>
+</ul>
+<blockquote>
+<p>因为将命令写入到日志的这个操作也是在<code>主进程</code>完成的（执行命令也是在主进程），也就是说这两个操作是<code>同步的</code>。</p>
+</blockquote>
+<p>AOF方式涉及的流程包括：命令追加、文件写入与同步、文件重写、重启加载、文件校验。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Flow2.png" alt="AOF流程"></p>
+<h3 id="221-命令追加">2.2.1 命令追加</h3>
+<p>当AOF持久化功能打开了，服务器在执行完一个写命令之后，会以<code>文本协议格式</code>将被执行的写命令<code>追加</code>到服务器的<code>server.aof_buf</code>缓冲区。</p>
+<p>文本协议格式源于Redis制定的<code>RESP</code>（REdis Serialization Protocol，Redis序列化协议）[^1]，其实现了客户端与服务端的正常交互，这种协议简单高效，既能够被机器解析，又容易被人类识别。</p>
+<p>例如客户端发送一条<code>set hello world</code>命令给服务端，按照<code>RESP</code>的标准，客户端需要将其封装为如下格式（每行用<code>\r\n</code>分隔）：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">*</span><span style="color:#E1E4E8">3</span><span style="color:#79B8FF">\r\n</span><span style="color:#FFAB70">$3</span><span style="color:#79B8FF">\r\n</span><span style="color:#E1E4E8">SET</span><span style="color:#79B8FF">\r\n</span><span style="color:#FFAB70">$5</span><span style="color:#79B8FF">\r\n</span><span style="color:#E1E4E8">hello</span><span style="color:#79B8FF">\r\n</span><span style="color:#FFAB70">$5</span><span style="color:#79B8FF">\r\n</span><span style="color:#E1E4E8">world</span><span style="color:#79B8FF">\r\n</span></span></code></pre>
+<p>实际显示效果可以如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">*</span><span style="color:#E1E4E8">3</span></span>
+<span class="line"><span style="color:#FFAB70">$3</span></span>
+<span class="line"><span style="color:#B392F0">SET</span></span>
+<span class="line"><span style="color:#FFAB70">$5</span></span>
+<span class="line"><span style="color:#B392F0">hello</span></span>
+<span class="line"><span style="color:#FFAB70">$5</span></span>
+<span class="line"><span style="color:#B392F0">world</span></span></code></pre>
+<p>各行解释可按系列方式对号入座：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">*&#x3C;</span><span style="color:#E1E4E8">参数数量</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> CRLF</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#E1E4E8">&#x3C;参数1的字节数量> </span><span style="color:#9ECBFF">CRLF</span></span>
+<span class="line"><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">参数</span><span style="color:#F97583">1></span><span style="color:#E1E4E8"> CRLF</span></span>
+<span class="line"><span style="color:#79B8FF">...</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#E1E4E8">&#x3C;参数N的字节数量> </span><span style="color:#9ECBFF">CRLF</span></span>
+<span class="line"><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">参数N</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> CRLF</span></span></code></pre>
+<ul>
+<li><code>*3</code>表示当前命令有<code>三个部分</code>；</li>
+<li><code>$+数字</code>：<code>$</code>分隔每个部分、<code>数字</code>表示每个部分的字节数；</li>
+<li>紧跟着的为具体的<code>命令</code>、<code>键</code>或<code>值</code>，比如SET(命令)、hello(键)、world(值)。</li>
+</ul>
+<blockquote>
+<p>1）AOF为什么直接采用文本协议格式？
+可能的理由如下：</p>
+<ul>
+<li>文本协议具有很好的兼容性。</li>
+<li>开启AOF后，所有写入命令都包含追加操作，直接采用协议格式，避免了二次处理开销。</li>
+<li>文本协议具有可读性，方便直接修改和处理。</li>
+</ul>
+<p>2）AOF为什么把命令追加到aof_buf中？</p>
+<p>Redis使用单线程响应命令，如果每次写AOF文件命令都直接追加到硬盘，那么性能完全取决于当前硬盘负载。先写入缓冲区<code>aof_buf</code>中，还有另一个好处，Redis可以提供多种缓冲区同步硬盘的策略，在性能和安全性方面做出平衡。</p>
+</blockquote>
+<h3 id="222-文件写入与同步">2.2.2 文件写入与同步</h3>
+<p>Redis提供了多种AOF缓冲区同步文件策略，由参数<code>appendfsync</code>控制，不同值的含义如下所示：</p>
+<ul>
+<li><code>Always</code>，同步写回：每个写命令执行完，<code>立马同步</code>地将日志写回磁盘；</li>
+<li><code>Everysec</code>，每秒写回，<code>默认值</code>：每个写命令执行完，只是先把日志写到AOF文件的<code>内核缓冲区</code>，<code>每隔一秒</code>把缓冲区中的内容写入磁盘；</li>
+<li><code>No</code>，操作系统控制的写回：每个写命令执行完，只是先把日志写到AOF文件的<code>内核缓冲区</code>，由操作系统决定何时将缓冲区内容写回磁盘。</li>
+</ul>
+<p>这 3 种写回策略都无法能完美解决<code>主进程阻塞</code>和<code>减少数据丢失</code>的问题，因为两个问题是对立的，偏向于一边的话，就会要牺牲另外一边，原因如下：</p>
+<ul>
+<li><code>Always</code> 策略的话，可以最大程度保证数据不丢失，但是由于它每执行一条写操作命令就同步将 AOF 内容写回硬盘，所以是不可避免会影响主进程的性能；</li>
+<li><code>No</code> 策略的话，是交由操作系统来决定何时将 AOF 日志内容写回硬盘，相比于 <code>Always</code> 策略性能较好，但是操作系统写回硬盘的时机是不可预知的，如果 AOF 日志内容没有写回硬盘，一旦服务器宕机，就会丢失不定数量的数据。</li>
+<li><code>Everysec</code> 策略的话，是折中的一种方式，避免了 <code>Always</code> 策略的性能开销，也比 <code>No</code> 策略更能避免数据丢失，当然如果上一秒的写操作命令日志没有写回到硬盘，发生了宕机，这一秒内的数据自然也会丢失。</li>
+</ul>
+<p>大家根据自己的业务场景进行选择：</p>
+<ul>
+<li>如果要<code>高性能</code>，就选择 <code>No</code> 策略；</li>
+<li>如果要<code>高可靠</code>，就选择 <code>Always</code> 策略；</li>
+<li>如果允许数据丢失一点，但又想性能高，就选择 <code>Everysec</code> 策略。</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Write-Strategy.jpg" alt="写入策略对比"></p>
+<p>关于AOF的同步策略是涉及到操作系统的 <code>write</code> 函数和 <code>fsync</code> 函数的。</p>
+<blockquote>
+<p>为了提高文件的写入效率， 在现代操作系统中， 当用户调用 <code>write</code> 函数， 将一些数据写入到文件的时候， 操作系统通常会将写入数据暂时保存在一个内存缓冲区里面， 等到缓冲区的空间被填满、或者超过了指定的时限之后， 才真正地将缓冲区中的数据写入到磁盘里面。</p>
+<p>这种做法虽然提高了效率， 但也为写入数据带来了安全问题， 因为如果计算机发生停机， 那么保存在内存缓冲区里面的写入数据将会丢失。</p>
+<p>为此，系统提供了 <code>fsync</code> 和 <code>fdatasync</code> 两个同步函数， 它们可以强制让操作系统立即将缓冲区中的数据写入到硬盘里面， 从而确保写入数据的安全性。</p>
+</blockquote>
+<p>AOF写入的过程可总结为如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Write-Flow.jpg" alt="AOF写入过程"></p>
+<h3 id="223-文件重写23">2.2.3 文件重写[^2][^3]</h3>
+<p>随着命令不断写入AOF，文件会越来越大，为了解决这个问题，Redis引入<code>AOF重写机制</code>压缩文件体积。</p>
+<blockquote>
+<p>AOF文件重写是把Redis进程内的数据转化为写命令同步到新AOF文件的过程。</p>
+</blockquote>
+<p>这样做的好处主要有两方面：</p>
+<ul>
+<li>节省存储空间</li>
+<li>更快地加载</li>
+</ul>
+<p>为啥AOF文件大小能够压缩、变小。原因如下：</p>
+<ul>
+<li>超时的数据不必再写入文件</li>
+<li>旧的AOF文件可能还有无效的命令，如del key1、hdel key2、srem keys、set a111、set a222等。重写使用进程内数据直接生成，这样新的AOF文件只保留最终数据的写入命令。</li>
+<li>多条命令可以合并。如<code>lpush list a</code>、<code>lpush list b</code>、<code>lpush list c</code>可以转化为：<code>lpush list a b c</code>。为了防止单条命令过大造成客户端缓冲区溢出，对于<code>list</code>、<code>set</code>、<code>hash</code>、<code>zset</code>等类型操作，以<code>64个</code>元素为界拆分为多条。</li>
+</ul>
+<p>重写过程的简化流程如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Rewrite2.png" alt="Redis重写流程"></p>
+<ul>
+<li>1）执行AOF重写请求，如果当前进程正在执行AOF重写，请求不执行；如果当前进程正在执行<code>bgsave</code>操作，重写命令延迟到<code>bgsave</code>完成之后再执行；</li>
+<li>2）父进程执行<code>fork</code>创建子进程，开销等同于<code>bgsave</code>过程；</li>
+<li>3.1）主进程<code>fork</code>操作完成后，继续响应其他命令。所有<code>修改命令</code>依然写入<code>AOF缓冲区</code>并根据<code>appendfsync策略</code>同步到硬盘，保证原有AOF机制正确性；</li>
+<li>3.2）由于<code>fork</code>操作运用<code>写时复制</code>技术，子进程只能共享<code>fork</code>操作时的内存数据。由于父进程依然响应命令，Redis使用<code>AOF重写缓冲区</code>保存这部分新数据，防止新AOF文件生成期间丢失这部分数据；</li>
+<li>4）子进程根据内存快照，按照命令合并规则写入到<code>新的AOF文件</code>；</li>
+<li>5.1）新AOF文件写入完成后，子进程发送<code>信号</code>给父进程，父进程更新统计信息；</li>
+<li>5.2）父进程把<code>AOF重写缓冲区</code>的数据写入到新的AOF文件；</li>
+<li>5.3）使用新AOF文件<code>替换</code>老文件，完成AOF重写。</li>
+</ul>
+<blockquote>
+<p><code>写时复制</code>(CopyOnWrite)：顾名思义，在发生<code>写操作</code>的时候，操作系统才会去<code>复制</code>物理内存，这样是为了防止 <code>fork</code> 创建子进程时，由于物理内存数据的复制时间过长而导致父进程<code>长时间阻塞</code>的问题。
+<code>信号</code>：是进程间通讯的一种方式，且是<code>异步的</code>。</p>
+</blockquote>
+<blockquote>
+<p>何时触发？</p>
+</blockquote>
+<ul>
+<li>手动触发：直接调用<code>bgrewriteaof</code>命令。</li>
+<li>自动触发：根据<code>auto-aof-rewrite-min-size</code>和<code>auto-aof-rewrite-percentage</code>参数确定自动触发时机。
+<ul>
+<li><code>auto-aof-rewrite-min-size</code>：表示运行AOF重写时文件最小体积，默认为<code>64MB</code>。</li>
+<li><code>auto-aof-rewrite-percentage</code>：代表当前AOF文件空间（<code>aof_current_size</code>）和上一次重写后AOF文件空间（<code>aof_base_size</code>）的比值。
+即，自动触发时机 =<code>aof_current_size</code> > <code>auto-aof-rewrite-min-size</code> &#x26;&#x26;（<code>aof_current_size - aof_base_size</code>）/<code>aof_base_size</code> >= <code>auto-aof-rewrite-percentage</code>。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>哪些地方会导致阻塞父进程?</p>
+</blockquote>
+<ul>
+<li>创建子进程的途中，由于要复制父进程的页表等数据结构，阻塞的时间跟页表的大小有关，页表越大，阻塞的时间也越长；</li>
+<li>创建完子进程后，如果子进程或者父进程<code>修改了共享数据</code>，就会发生<code>写时复制</code>，这期间会拷贝物理内存，如果内存越大，自然阻塞的时间也越长，特别是<code>bigkey</code>；</li>
+<li>信号处理函数执行时。</li>
+</ul>
+<blockquote>
+<p>为什么AOF重写不复用原AOF日志？</p>
+</blockquote>
+<ul>
+<li>父子进程写同一个文件会产生竞争问题，影响父进程的性能。</li>
+<li>如果AOF重写过程中失败了，相当于污染了原本的AOF文件，无法做恢复数据使用。</li>
+</ul>
+<blockquote>
+<p>总结下父进程的工作内容：</p>
+<ul>
+<li>执行客户端发来的命令；</li>
+<li>将执行后的<code>写命令</code><strong>追加</strong>到 <code>AOF 缓冲区</code>；</li>
+<li>将执行后的<code>写命令</code><strong>追加</strong>到 <code>AOF 重写缓冲区</code>；</li>
+</ul>
+</blockquote>
+<h3 id="224-重启加载">2.2.4 重启加载</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-AOF-Reload.png" alt="Redis持久化文件加载流程"></p>
+<h3 id="225-文件校验">2.2.5 文件校验</h3>
+<p>加载<strong>损坏</strong>的AOF文件时会拒绝启动，并打印如下日志：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># Bad file format reading the append only file: make a backup of your AOF file, then use ./redis-check-aof --fix &#x3C;filename></span></span></code></pre>
+<p>两点建议：</p>
+<ul>
+<li>对于<code>错误格式的AOF文件</code>，先进行备份，然后采用<code>redis-check-aof--fix</code>命令进行修复，修复后使用<code>diff -u</code>对比数据的差异，找出丢失的数据，有些可以人工修改补全。</li>
+<li>对于<code>不完整</code>的情况，Redis为我们提供了<code>aof-load-truncated</code>配置来兼容这种情况，<code>默认开启</code>。加载AOF时，当遇到此问题时会忽略并继续启动，同时打印警告日志。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D">#警告日志：</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># !!! Warning: short read while loading the AOF file !!!</span></span>
+<span class="line"><span style="color:#6A737D"># !!! Truncating the AOF at offset 397856725 !!!</span></span>
+<span class="line"><span style="color:#6A737D"># AOF loaded anyway because aof-load-truncated is enabled</span></span></code></pre>
+<h1 id="3-rdb">3 RDB</h1>
+<p>RDB就是<code>Redis DataBase</code>的缩写，中文名为<code>快照/内存快照</code>，RDB持久化是把<code>当前内存中的数据库快照</code>保存到<code>磁盘</code>上的过程。</p>
+<p>由于是某一时刻的快照，那么快照中的值要早于或者等于内存中的值。另外在 Redis <code>恢复数据</code>时， RDB恢复数据的效率会比 AOF 高些，因为直接将 RDB 文件读入内存就可以，不需要像 AOF 那样还需要额外执行操作命令的步骤才能恢复数据。</p>
+<h2 id="31-触发方式">3.1 触发方式</h2>
+<p>分为<code>手动触发</code>和<code>自动触发</code>两种方式。</p>
+<h3 id="311-手动触发">3.1.1 手动触发</h3>
+<ul>
+<li><code>save</code>命令：阻塞当前Redis服务器，直到RDB过程完成为止。</li>
+<li><code>bgsave</code>命令：Redis进程执行<code>fork操作</code>创建子进程，RDB持久化过程由<code>子进程</code>负责，完成后自动结束。<strong>阻塞只发生在fork阶段</strong>，一般时间很短。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-RDB-bgsave.png" alt="bgsave流程"></li>
+</ul>
+<p><code>bgsave</code>具体流程如下：</p>
+<ul>
+<li>redis客户端执行<code>bgsave命令</code>或者<code>自动触发bgsave命令</code>；</li>
+<li>主进程判断当前<code>是否已经存在</code>正在执行的子进程（如RDB/AOF子进程）：
+<ul>
+<li>如果存在，那么主进程直接返回；</li>
+<li>如果不存在正在执行的子进程，那么就<code>fork</code>一个新的子进程进行持久化数据，fork过程是阻塞的，fork操作完成后主进程即可执行其他操作；</li>
+</ul>
+</li>
+<li>子进程先将数据写入到<code>临时的RDB文件</code>中，待快照数据写入完成后再<code>原子替换旧的RDB文件</code>；</li>
+<li>同时发送<code>信号</code>给主进程，通知主进程RDB持久化完成，主进程更新相关的统计信息。</li>
+</ul>
+<h3 id="312-自动触发">3.1.2 自动触发</h3>
+<p>有以下场景：</p>
+<ul>
+<li>使用save相关配置，如<code>“save m n”</code>。表示<code>m秒内</code>数据集存在<code>n次</code>修改时，自动触发<code>bgsave</code>。</li>
+<li>如果<code>从节点</code>执行<code>全量复制</code>操作，主节点自动执行<code>bgsave</code>生成RDB文件并发送给从节点。</li>
+<li>执行<code>debug reload</code>命令重新加载Redis时，也会自动触发<code>save操作</code>。</li>
+<li>默认情况下执行<code>shutdown</code>命令时，如果<strong>没有开启AOF持久化</strong>功能则自动执行<code>bgsave</code>。</li>
+</ul>
+<h2 id="32-rdb优缺点">3.2 RDB优缺点</h2>
+<h3 id="321-优点">3.2.1 优点</h3>
+<ul>
+<li>RDB文件是某个时间节点的快照，默认使用<code>LZF算法</code>进行压缩，压缩后的文件体积远远小于内存大小，适用于<code>备份</code>、<code>全量复制</code>等场景；</li>
+<li>Redis加载RDB文件恢复数据要<code>远远快于</code>AOF方式。</li>
+</ul>
+<h3 id="322-缺点">3.2.2 缺点</h3>
+<ul>
+<li>RDB方式<code>实时性不够</code>，无法做到秒级的持久化；</li>
+<li>每次调用<code>bgsave</code>都需要<code>fork</code>子进程，fork子进程属于<code>重量级操作</code>，频繁执行成本较高；</li>
+<li>RDB文件是<code>二进制</code>的，没有可读性，AOF文件在了解其结构的情况下可以手动修改或者补全；</li>
+<li>版本兼容RDB文件问题。</li>
+</ul>
+<p>针对RDB不适合实时持久化的问题，Redis提供了AOF持久化方式来解决。</p>
+<h2 id="4-混合">4 混合</h2>
+<p>尽管 RDB 比 AOF 的数据恢复速度快，但是快照的频率不好把握：</p>
+<ul>
+<li>如果频率太低，两次快照间一旦服务器发生宕机，就可能会比较多的数据丢失；</li>
+<li>如果频率太高，频繁写入磁盘和创建子进程会带来额外的性能开销。</li>
+</ul>
+<p><code>Redis 4.0</code>提出方法叫<code>混合使用 AOF 日志和内存快照</code>，也叫<code>混合持久化</code>。如果想要开启混合持久化功能，可以在 Redis 配置文件将下面这个配置项设置成<code>yes</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">aof-use-rdb-preamble</span><span style="color:#9ECBFF"> yes</span></span></code></pre>
+<p>混合持久化工作在 <code>AOF 日志重写过程</code>。</p>
+<ul>
+<li>当开启了混合持久化时，在 AOF 重写日志时，fork 出来的<code>重写子进程</code>会先将与主线程共享的内存数据以 <code>RDB 方式</code>写入到 AOF 文件；</li>
+<li>然后主线程处理的操作命令会被记录在<code>重写缓冲区</code>里，重写缓冲区里的<code>增量命令</code>会以 <code>AOF 方式</code>写入到 AOF 文件；</li>
+<li>写入完成后通知主进程将新的含有 <code>RDB 格式</code>和 <code>AOF 格式</code>的 AOF 文件替换<code>旧的AOF 文件</code>。</li>
+</ul>
+<p>也就是说，使用了混合持久化，AOF 文件的前半部分是 RDB 格式的全量数据，后半部分是 AOF 格式的增量数据。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Mix-Persistency.png" alt="混合持久化的AOF文件组成"></p>
+<h1 id="4-参考">4 参考</h1>
+<p>[^1] 张益军（付磊）. 《Redis 开发与运维》4.1节。
+[^2] <a href="https://pdai.tech/md/db/nosql-redis/db-redis-x-rdb-aof.html">Redis进阶 - 持久化：RDB和AOF机制详解</a>
+[^3] <a href="https://www.xiaolincoding.com/redis/storage/aof.html#aof-%E6%97%A5%E5%BF%97">AOF 持久化是怎么实现的？</a></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

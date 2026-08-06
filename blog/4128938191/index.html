@@ -1,0 +1,71 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Docker学习】1.基础入门</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Docker学习】1.基础入门 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/19/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-什么是docker">1 什么是Docker？</h1>
+<p>Docker是一款由Go语言编写，遵从Apache2.0协议开源的应用容器引擎，其容器完全使用沙箱机制，相互之间无任何接口。</p>
+<p>Docker可以让开发者打包他们的应用以及依赖包到一个<code>轻量级</code>、<code>可移植</code>的容器中，然后发布到任何流行的 Linux 机器上，也可以实现<code>虚拟化</code>。</p>
+<h1 id="2-主要组成">2 主要组成</h1>
+<p>先上图，一览下这个牛掰的开源引擎。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Docker-Architecture.jpg" alt="Docker架构示意图"></p>
+<ul>
+<li>Docker 使用<code>客户端-服务器</code>体系结构(C/S)。</li>
+<li><code>Docker Client</code>与<code>Docker Daemon</code>通信，后者负责构建、运行和分发 Docker 容器的繁重工作。</li>
+<li>Docker Client和Docker Daemon可以在同一系统上运行，也可以将 Docker Client连接到远程 Docker Daemon。</li>
+<li>Docker Client和Docker Daemon使用 <code>REST API</code>、<code>UNIX 套接字</code>或<code>网络接口</code>进行通信。</li>
+<li>另一个 Docker Client是 <code>Docker Compose</code>，它允许您使用由一组容器组成的应用程序。</li>
+</ul>
+<h2 id="21-docker-client">2.1 Docker Client</h2>
+<p>Docker Client，即客户端（ docker ），是许多 Docker 用户与 Docker 交互的主要方式。当您使用诸如 <code>docker run</code> 之类的命令时，客户端会将这些命令发送到 <code>dockerd</code> 即Docker Daemon，后者会执行这些命令。该 docker 命令使用 <code>Docker API</code>。</p>
+<p>Docker 客户端可以与多个守护程序进行通信。</p>
+<h2 id="22-docker-daemon">2.2 Docker Daemon</h2>
+<p>Docker Daemon，守护程序（ dockerd ）侦听 Docker API 请求并管理 Docker 对象，例如映像、容器、网络和卷。</p>
+<p>守护程序还可以与其他守护程序通信以管理 Docker 服务。</p>
+<h2 id="23-docker-image">2.3 Docker Image</h2>
+<p>即Docker镜像，相当于是一个 <code>root 文件系统</code>。比如官方镜像 <code>ubuntu:16.04</code> 就包含了完整的一套 Ubuntu16.04 最小系统的 root 文件系统。</p>
+<h2 id="24-docker-container">2.4 Docker Container</h2>
+<p>即容器，是通过镜像来创建。</p>
+<p><code>容器和镜像</code>的关系，可以类比看做面向对象程序设计中的<code>对象和类</code>的关系。镜像是静态的定义，是容器的源代码，而容器是镜像运行时的实体。</p>
+<p>容器可以被创建、启动、停止、删除、暂停等。</p>
+<h2 id="25-docker-registry">2.5 Docker Registry</h2>
+<p>即注册表，也称作“代码仓库”，其保存了各种镜像。分<code>公有</code>和<code>私有</code>。</p>
+<p><code>Docker Hub</code>是任何人都可以使用的公共注册表，默认情况下，Docker 会在 Docker Hub 上查找映像。您甚至可以运行自己的私有注册表。</p>
+<p>使用 <code>docker pull</code>或<code>docker run</code>命令时，Docker 会从配置的注册表中提取所需的映像。使用<code>docker push</code>命令时，Docker 会将映像推送到配置的注册表。</p>
+<h1 id="3-应用场景">3 应用场景</h1>
+<ul>
+<li>Web 应用的自动化打包和发布。</li>
+<li>自动化测试和持续集成、发布。</li>
+<li>在服务型环境中部署和调整数据库或其他的后台应用。</li>
+<li>从头编译或者扩展现有的OpenShift或Cloud Foundry平台来搭建自己的PaaS环境。</li>
+</ul>
+<h1 id="4-优缺点">4 优缺点</h1>
+<h2 id="41-简化程序">4.1 简化程序</h2>
+<p>开发者只需将自己的应用打包至可移植的容器当中，发布出去，其他使用者便可无差别的获取并使用，简化了开发流程。这种虚拟化方式，大大减少了沟通成本，更加方便开发者管理应用。</p>
+<h2 id="42-节省开支">4.2 节省开支</h2>
+<p>传统通过服务器一步一步按照文档部署的历史已经渐渐退出舞台，运维或开发人员无需太多软件、插件安装来完善某个应用的部署环境，简单通过命令或操作台即可完成与开发者同样的应用部署，加上现有的云计算，既合理又充分利用了有限的资源，无需太多考虑其他硬件管理问题，改变了过去高性能必然高价格的思维定势，同时也改变了虚拟化的方式。</p>
+<h2 id="43-一致性">4.3 一致性</h2>
+<p>正如上节所说，使用者可以得到开发者同样的部署过程和应用运行环境，基本不会再出现“我机子上运行没问题，为何你那里就不行？”类似这种灵魂质问的问题。非常契合Docker的理念：一处构建，处处运行，也非常适合CI/CD，简化了开发流程。</p>
+<h2 id="44-隔离性">4.4 隔离性</h2>
+<p>正如本文开头介绍docker所说的，docker容器完全使用沙箱机制，相互之间并无任何接口，所以可以起到隔离作用，比如这个项目需要MySQL5.2，那个项目需要用到MySQL5.7，甚至8.0+的版本，如果按照传统的物理机器部署方式，估计运维要疯了，如果服务器虚拟机不够，真的又要浪费一笔不小的运维开支，增加了企业成本。</p>
+<p>另外，版本隔离也是能够通过docker简单实现且更加便利快捷，特别的，不同环境的应用隔离，使得开发、测试、预生产、生产环境互不影响，且可以实现无差别切换</p>
+<h2 id="45-更轻松的迁移">4.5 更轻松的迁移</h2>
+<p>由于Docker确保了执行环境的一致性，使得应用的迁移更加容易.</p>
+<p>Docker可以在很多平台上运行，无论是物理机、虚拟机、公有云、私有云，甚至是笔记本，其运行结果是一致的。</p>
+<p>因此用户可以很轻易的将在一个平台上运行的应用，迁移到另一个平台上，而不用担心运行环境的变化导致应用无法正常运行的。</p>
+<h2 id="46-镜像问题">4.6 镜像问题</h2>
+<p>目前docker镜像并没有统一的标准，造成很多诸如版本混乱，功能阉割，这里不是批评多样性的问题，主要是指OS，很多工具要么被阉割，要么库包不全。</p>
+<p>例如调试的时候需要 curl,wget,telnet,nslookup 等工具在镜像中没有。甚至 ps, top, free, find, netstat, ifconfig 命令都没有。</p>
+<h2 id="47-安装位置不统一">4.7 安装位置不统一</h2>
+<p>学习过Linux的都知道，文件管理是多么重要，对于docker而言，有的时候如果不看docker file，你很难知道其安装目录究竟在哪里。</p>
+<p>另外引用下之前知乎网友对docker的缺点总结，仅此作为参考，总之，docker还不是完美的，完美的也不会总是存在。看你怎么用？用在什么地方？一句话，合适才是最好的。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Docker并不是全能的，设计之初也不是KVM之类虚拟化手段的替代品，简单总结几点：</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>1）Docker是基于Linux 64bit的，无法在32bit的linux/Windows/unix环境下使用。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>2）LXC是基于Cgroup等Linux kernel功能的，因此Container的Guest系统只能是Linux base的。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>3）隔离性相比KVM之类的虚拟化方案还是有些欠缺，所有container公用一部分的运行库。网络管理相对简单，主要是基于namespace隔离。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>4）cgroup的cpu和cpuset提供的cpu功能相比KVM的等虚拟化方案相比难以度量(所以dotcloud主要是按内存收费)。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>5）docker对disk的管理比较有限。</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>6）container随着用户进程的停止而销毁，container中的log等用户数据不便收集。</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】阿里面试：说说订单超时怎么解决的？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【每日一面】阿里面试：说说订单超时怎么解决的？ </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>1/26/2024</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#消息队列</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#时间轮盘</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#定时任务</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>在电商场景中，有很多订单，有的用户觉得刚下的订单（未支付）相对于其他平台有点贵了，不想支付；有的是点了下单，但又被其他商品吸引过去，忘记付款了。这些场景下必然会有一些支付超时的订单等待后台去处理，如果不处理，又会造成很多废单，且占用一定的实时资源。当然像现在拼夕夕已经发展成为了，只要客户取消订单，立马先退钱，特别是0元支付功能，货还没发都可以实时退款，真是不要太方便了。</p>
+<p>那什么是超时订单？仅仅因为是客户不想支付了吗？当然不是。</p>
+<blockquote>
+<p><code>超时订单</code>是指在规定的时间内未能完成的订单，可能是由于库存不足、物流延迟、支付问题等情况导致。其造成的影响包括：库存管理问题、客户满意度下降、品牌形象受损、资金流转受阻等。对于如今的电商环境真是雪上加霜。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/overtime-order-situation.png" alt="超时场景"></p>
+<p>本文将要给出一些常见的解决方案，用于处理超时订单问题，但不会提供具体样例。如果什么都需要人工服务去处理，那估计老板立马就要拿程序员祭旗了。</p>
+<h1 id="2-常见解决方案">2 常见解决方案</h1>
+<h2 id="21-定时任务">2.1 定时任务</h2>
+<p>首先想到的就是通过定时任务去扫描订单表内的快要超时的订单，然后对这些订单进行相应的处理。常见的调度框架有<code>XXL-JOB</code>、<code>Elastic-Job</code>等。当然也有原始的<code>Quarterz</code>、<code>Timer</code>、<code>ScheduledThreadPoolExecutor</code>。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/overtime-order-cron.jpg" alt="定时任务处理流程"></p>
+<h3 id="211-优点">2.1.1 优点</h3>
+<ul>
+<li><code>自动化处理</code>：通过一定的配置，自动到点执行相应的扫描任务；</li>
+<li><code>可预测</code>：设定固定的执行时间间隔、条件，可预测任务的执行时间，便于监控和调整；</li>
+<li><code>易于实施</code>：类似<code>XXL-JOB</code>这样成熟的调度框架，简单进行相应的配置、开发和部署，即可完成相应的业务处理，并且易于维护，与其他系统解耦；</li>
+<li><code>灵活性高</code>：可根据实际的业务需求适当调整定时任务的频率和执行逻辑；</li>
+<li><code>减少延迟</code>：定时检查订单状态，可减少处理的延迟，及时发现并告警、自动处理超时订单。</li>
+</ul>
+<h3 id="212-缺点">2.1.2 缺点</h3>
+<ul>
+<li><code>时效性限制</code>：配置好、正确的执行间隔是个学问，有可能导致超时订单得不到及时的发现和处理；</li>
+<li><code>实时性低</code>：既然有时间间隔去扫描订单表，则有可能出现订单已经超时，但任务还未扫描，对于需要立即处理的场景不够照顾周到；</li>
+<li><code>资源分配</code>：定时任务一多，对于服务器的资源占用也是一大问题，一般可能需要单独部署；</li>
+<li><code>数据库压力大</code>：对于像阿里这样的大厂，天猫双十一一晚上就能创造几千亿的营业额，订单数量肯定不低，如果有太多订单都需要定时任务去扫描订单表，那对于数据库的压力也是非常之大的。记得不清了，阿里好像也是通过定时任务去扫描订单表的，只是这个订单表是专门用来给定时任务扫描比如超时订单等异常单的。另外，对于采用分库分表的公司来说，这也是个灾难。</li>
+<li><code>复杂性管理</code>：随着定时任务数量的增加，管理和维护的难度也会上升，需要更多的注意力来确保任务的正确执行。</li>
+</ul>
+<p>因此，像阿里这样的大厂通过将超时订单等这些信息放入超时中心和超时库中进行独立处理，名为<code>基于定时任务分布式批处理的超时中心</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/overtime-order-alibaba.jpg" alt="阿里巴巴定时任务处理示意图"></p>
+<h2 id="22-jdk延迟队列">2.2 JDK延迟队列</h2>
+<p>不想借助第三方的东东，又不是分布式架构，只在单机部署的话，也可以考虑利用JDK自带的东西<code>DelayQueue</code>来解决。</p>
+<blockquote>
+<p>DelayQueue是一个无界的BlockingQueue，用于放置实现了Delayed接口的对象，其中的对象只能在其到期时才能从队列中取走。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/overtime-order-delayqueue.jpg" alt="JDK DelayQueue超时订单处理流程图">
+可以这样操作：</p>
+<ul>
+<li>创建订单时，就将订单加入到<code>DelayQueue</code>当中；</li>
+<li>以<code>超时时间</code>作为排序条件，将订单按照超时时间<code>从小到大</code>排序；</li>
+<li>创建一个常驻任务，不断地去队列当中取出那些到了超时时间点的订单，然后对其进行关单处理，最后从队列中删除。</li>
+</ul>
+<p>看看，这样的处理逻辑是不是非常简单，并且没有使用任何其他工具，框架和类库。</p>
+<h3 id="221-优点">2.2.1 优点</h3>
+<ul>
+<li><code>简单</code></li>
+<li><code>轻量</code>：无需其他第三方任何工具。</li>
+</ul>
+<h3 id="222-缺点">2.2.2 缺点</h3>
+<ul>
+<li><code>性能问题</code>：对于大订单量、高并发的场景，如果采用DelayQueue的话，队列对象一旦增多且处理不及时，很容易造成OOM；</li>
+<li><code>内存依赖</code>：所有操作基于内存，一旦应用程序出现单点故障，可能造成延时任务数据丢失；</li>
+<li><code>持久化缺失</code>：DelayQueue本身不具备持久化能力，一旦机器重启，由于DelayQueue是基于JVM内存的，必然导致任务丢失；。</li>
+<li><code>不适合分布式</code>：集群部署还行，但若要编入分布式，编码复杂且需要额外实现。</li>
+</ul>
+<h2 id="23-消息队列">2.3 消息队列</h2>
+<p>相比于Kafka来说，RocketMQ中有一个强大的功能，那就是支持<code>延迟消息</code>。可参见{%post_link ‘【RocketMQ学习】2-玩转各种消息’ ‘第4节 延迟消息’%}一章。</p>
+<p>有了延迟消息，我们就可以在订单创建好之后，发送一个延迟消息，比如20分钟取消订单，那就发一个延迟20分钟的延迟消息，然后在20分钟之后，消息就会被消费者消费，消费者在接收到消息之后，去关单就行了。</p>
+<h3 id="231-优点">2.3.1 优点</h3>
+<ul>
+<li><code>异步</code>：消息队列的作用之一，就是异步，只需要在用户创建订单之后，往消息队列丢一个延迟消息，到点了就会被消费者接受，然后自动处理；</li>
+<li><code>解耦</code>：消息队列的作用之二，可单独对超时订单进行处理，不影响订单等其他业务的正常流程，易于扩展和方便维护；</li>
+<li><code>削峰</code>：消息队列的作用之三，作为流量缓冲，帮助系统应对突发流量；</li>
+<li><code>可靠</code>：持久化加上重试机制，确保即使系统出现故障也不会丢失订单。</li>
+</ul>
+<h3 id="232-缺点">2.3.2 缺点</h3>
+<ul>
+<li><code>系统复杂度增加</code>：由于是中间件，必然需要单独维护和配置、管理，增加了整体的系统复杂程度。比如RabbitMQ，需要额外安装Erlang；</li>
+<li><code>延迟问题</code>：不说中间件本身就有处理延迟，开源版本的RocketMQ延迟时间也不是随便定义的，只有18个等级供你挑选，要想随意使用，买我的ONS，保您满意。</li>
+<li><code>学习成本</code>：若是RocketMQ是JAVA编写的还好，加入采用RabbitMQ，还需要额外去学习研究Erlang，我就不想学这个。哈哈哈。</li>
+<li><code>消息顺序性</code>：虽然现代消息队列如RabbitMQ和Kafka设计上支持顺序消息，但在实际使用中保证全局的消息顺序仍然是一个挑战。</li>
+<li><code>消息积压</code>：在系统繁忙或处理能力不足时，消息队列可能会出现消息积压，需要额外的策略来处理。</li>
+</ul>
+<h2 id="24-时间轮盘">2.4 时间轮盘</h2>
+<p>还有一种方式，和上面我们提到的JDK自带的DelayQueue类似的方式，那就是基于时间轮盘实现。</p>
+<p>为什么要有时间轮盘呢？主要是因为DelayQueue插入和删除操作的平均时间复杂度——<code>O(nlog(n))</code>，虽然已经挺好的了，但是时间轮盘的方案可以将插入和删除操作的时间复杂度都降为<code>O(1)</code>。</p>
+<blockquote>
+<p>时间轮盘可以理解为一种环形结构，像钟表一样被分为多个 slot。每个 slot 代表一个时间段，每个 slot 中可以存放多个任务，使用的是链表结构保存该时间段到期的所有任务。时间轮盘通过一个时针随着时间一个个 slot 转动，并执行 slot 中的所有到期任务。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mianshi-order-overtime--netty-timer.png" alt="基于Netty的HashedWheelTimer模型"></p>
+<blockquote>
+<p>kafka时间轮盘读者可自行查阅。</p>
+</blockquote>
+<h3 id="241-优点">2.4.1 优点</h3>
+<ul>
+<li><code>实现简单</code>；</li>
+<li><code>效率高</code>：相对于DelayQueue来说，效率更高。</li>
+</ul>
+<h3 id="242-缺点">2.4.2 缺点</h3>
+<ul>
+<li><code>依赖内存</code>：基于内存，一旦重启边丢失；</li>
+<li><code>集群扩展麻烦</code>；</li>
+<li><code>只适合单机</code>。</li>
+</ul>
+<h2 id="25-redis">2.5 Redis</h2>
+<p>我们可以借助Redis中的有序集合——<code>zset</code>来实现这个功能。</p>
+<p><code>zset</code>是一个有序集合，每一个元素(member)都关联了一个 <code>score</code>，可以通过<code>score</code>排序来取集合中的值。</p>
+<p>我们将订单超时时间的时间戳（下单时间+超时时长）与订单号分别设置为 <code>score</code> 和 <code>member</code>。这样redis会对<code>zset</code>按照<code>score</code>延时时间进行排序。然后我们再开启redis扫描任务，获取<code>当前时间 > score</code>的延时任务，扫描到之后取出订单号，然后查询到订单进行关单操作即可。</p>
+<h3 id="251-优点">2.5.1 优点</h3>
+<ul>
+<li><code>实时性</code>：Redis可以实时处理订单超时的情况。当订单达到预设的超时时间，相关的处理操作可以立即触发，这样可以大大减少客户等待的时间，并且提升了服务的响应速度。</li>
+<li><code>高性能</code>：作为内存数据库，Redis的数据读写速度非常快，这对于需要频繁访问和更新的订单状态来说是一个巨大的优势。它的高性能特性确保了在处理大量订单时，系统仍能保持流畅的运行。</li>
+<li><code>灵活性</code>：Redis提供了多种数据结构，如有序集合（zset），可以用来实现各种复杂的业务逻辑，如优先级队列等，这为订单超时的处理提供了灵活的解决方案。</li>
+</ul>
+<h3 id="252-缺点">2.5.2 缺点</h3>
+<ul>
+<li><code>内存占用</code>：由于Redis将所有数据存储在内存中，如果超时订单的数量非常多，那么可能会占用大量的内存资源。在订单量较大的情况下，需要考虑内存的扩展和优化策略。</li>
+<li><code>分布式处理限制</code>：虽然Redis支持集群模式，但在处理分布式超时订单时，可能需要在集群中选择一台服务器作为leader来专门处理这些订单，这可能会降低处理效率。</li>
+<li><code>持久性问题</code>：虽然Redis提供了数据持久化的功能，但在系统故障或重启后，数据的恢复可能会影响订单处理的连续性。因此，需要确保合适的数据备份和恢复策略。</li>
+</ul>
+<h2 id="26-redisson">2.6 Redisson</h2>
+<p>上面这种方案看上去还不错，但是需要我们自己基于<code>zset</code>这种数据结构编写代码，那么有没有什么更加友好的方式？</p>
+<p>有的，那就是基于<code>Redisson</code>。</p>
+<p>Redisson是一个在Redis的基础上实现的框架，它不仅提供了一系列的分布式的Java常用对象，还提供了许多分布式服务。</p>
+<p>Redission中定义了分布式延迟队列<code>RDelayedQueue</code>，这是一种基于我们前面介绍过的<code>zset</code>结构实现的延时队列，它允许以指定的延迟时长将元素放到目标队列中。</p>
+<p>其实就是在<code>zset</code>的基础上增加了一个基于内存的延迟队列。当我们要添加一个数据到延迟队列的时候，Redission会把<code>数据+超时时间</code>放到zset中，并且起一个延时任务，当任务到期的时候，再去zset中把数据取出来，返回给客户端使用。</p>
+<p>基于Redisson的实现方式，是可以解决基于zset方案中的并发重复问题的，而且还能实现方式也比较简单，稳定性、性能都比较高。</p>
+<h1 id="3-其他方案">3 其他方案</h1>
+<p>RabbitMQ的延迟插件<code>rabbitmq_delayed_message_exchange</code>、死信队列、kafka时间轮盘、Redis过期监听等。</p>
+<h1 id="4-总结">4 总结</h1>
+<p>不同的方案各自都有优缺点，也各自适用于不同的场景中。那我们尝试着总结一下：</p>
+<ul>
+<li><code>实现的复杂度上</code>（包含用到的框架的依赖及部署）：Redission > RabbitMQ插件 > RabbitMQ死信队列 > RocketMQ延迟消息 ≈ Redis的zset > Redis过期监听 ≈ kafka时间轮盘 > 定时任务 > Netty的时间轮盘 > JDK自带的DelayQueue > 被动关闭；</li>
+<li><code>方案的完整性</code>：Redission ≈ RabbitMQ插件 > kafka时间轮盘 > Redis的zset ≈ RocketMQ延迟消息 ≈ RabbitMQ死信队列 > Redis过期监听 > 定时任务 > Netty的时间轮盘 > JDK自带的DelayQueue > 被动关闭；</li>
+<li><code>不同的场景中也适合不同的方案</code>：
+<ul>
+<li><code>自己玩玩</code>：被动关闭</li>
+<li><code>单体应用</code>，<code>业务量不大</code>：Netty的时间轮盘、JDK自带的DelayQueue、定时任务</li>
+<li><code>分布式应用</code>，<code>业务量不大</code>：Redis过期监听、RabbitMQ死信队列、Redis的zset、定时任务</li>
+<li><code>分布式应用</code>，<code>业务量大</code>、<code>并发高</code>：Redission、RabbitMQ插件、kafka时间轮盘、RocketMQ延迟消息</li>
+</ul>
+</li>
+</ul>
+<p>总体考虑的话，考虑到成本，方案完整性、以及方案的复杂度，还有用到的第三方框架的流行度来说，个人比较建议优先考虑<code>Redission+Redis</code>、<code>RabbitMQ插件</code>、Redis的<code>zset</code>、<code>RocketMQ延迟消息</code>等方案。</p>
+<h1 id="5-参考">5 参考</h1>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/607812977">订单超时怎么处理？我们用这种方案</a></li>
+<li><a href="https://mp.weixin.qq.com/s/lCcy01klUwBqfKmgDQ3GTQ">领导：谁再用 Redis 实现过期订单关闭，立马滚蛋！</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

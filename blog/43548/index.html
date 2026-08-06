@@ -1,0 +1,1164 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Spring源码学习】Spring初始化机制(xml形式)</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Spring源码学习】Spring初始化机制(xml形式) </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="前言">前言</h1>
+<h2 id="spring-容器加载方式">Spring 容器加载方式</h2>
+<ul>
+<li>类路径获取配置文件</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext</span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ClassPathXmlApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"spring.xml"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>文件系统路径获取配置文件[绝对路径]</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FileSystemXmlApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"E:</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">idea</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">springdemo</span><span style="color:#79B8FF">\\</span><span style="color:#9ECBFF">spring.xml"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>无 配 置 文 件 加 载 容 器</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AnnotationConfigApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"com.xx.jack"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>Spring Boot 加载容器</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EmbeddedWebApplicationContext</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<h2 id="spring-初始化核心流程">Spring 初始化核心流程</h2>
+<p><strong>AbstractApplicationContext.refresh()</strong> 方法是 spring 容器启动过程中的核心方法，spring 容器要加载必须执行该方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> refresh</span><span style="color:#E1E4E8">() throws BeansException, IllegalStateException {</span></span>
+<span class="line"><span style="color:#F97583">		synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.startupShutdownMonitor) {</span></span>
+<span class="line"><span style="color:#6A737D">			//为容器初始化做准备，重要程度：0</span></span>
+<span class="line"><span style="color:#6A737D">			// Prepare this context for refreshing.</span></span>
+<span class="line"><span style="color:#B392F0">			prepareRefresh</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">			// 本章主要跟踪的内容</span></span>
+<span class="line"><span style="color:#E1E4E8">			ConfigurableListableBeanFactory beanFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> obtainFreshBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">			/*</span></span>
+<span class="line"><span style="color:#6A737D">			 * 给beanFactory设置一些属性值，可以不看</span></span>
+<span class="line"><span style="color:#6A737D">			 * */</span></span>
+<span class="line"><span style="color:#6A737D">			// Prepare the bean factory for use in this context.</span></span>
+<span class="line"><span style="color:#B392F0">			prepareBeanFactory</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">			try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">				// Allows post-processing of the bean factory in context subclasses.</span></span>
+<span class="line"><span style="color:#B392F0">				postProcessBeanFactory</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				/*</span></span>
+<span class="line"><span style="color:#6A737D">				 * BeanDefinitionRegistryPostProcessor</span></span>
+<span class="line"><span style="color:#6A737D">				 * BeanFactoryPostProcessor</span></span>
+<span class="line"><span style="color:#6A737D">				 * 完成对这两个接口的调用</span></span>
+<span class="line"><span style="color:#6A737D">				 * */</span></span>
+<span class="line"><span style="color:#6A737D">				// Invoke factory processors registered as beans in the context.</span></span>
+<span class="line"><span style="color:#B392F0">				invokeBeanFactoryPostProcessors</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				/*</span></span>
+<span class="line"><span style="color:#6A737D">				 * 把实现了BeanPostProcessor接口的类实例化，并且加入到BeanFactory中</span></span>
+<span class="line"><span style="color:#6A737D">				 * */</span></span>
+<span class="line"><span style="color:#6A737D">				// Register bean processors that intercept bean creation.</span></span>
+<span class="line"><span style="color:#B392F0">				registerBeanPostProcessors</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				/*</span></span>
+<span class="line"><span style="color:#6A737D">				 * 国际化,重要程度2</span></span>
+<span class="line"><span style="color:#6A737D">				 * */</span></span>
+<span class="line"><span style="color:#6A737D">				// Initialize message source for this context.</span></span>
+<span class="line"><span style="color:#B392F0">				initMessageSource</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				//初始化事件管理类</span></span>
+<span class="line"><span style="color:#6A737D">				// Initialize event multicaster for this context.</span></span>
+<span class="line"><span style="color:#B392F0">				initApplicationEventMulticaster</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				//这个方法着重理解模板设计模式，因为在springboot中，这个方法是用来做内嵌tomcat启动的</span></span>
+<span class="line"><span style="color:#6A737D">				// Initialize other special beans in specific context subclasses.</span></span>
+<span class="line"><span style="color:#B392F0">				onRefresh</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				/*</span></span>
+<span class="line"><span style="color:#6A737D">				 * 往事件管理类中注册事件类</span></span>
+<span class="line"><span style="color:#6A737D">				 * */</span></span>
+<span class="line"><span style="color:#6A737D">				// Check for listener beans and register them.</span></span>
+<span class="line"><span style="color:#B392F0">				registerListeners</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				/*</span></span>
+<span class="line"><span style="color:#6A737D">				 * 这个方法是spring中最重要的方法，没有之一</span></span>
+<span class="line"><span style="color:#6A737D">				 * 所以这个方法一定要理解要具体看</span></span>
+<span class="line"><span style="color:#6A737D">				 * 1、bean实例化过程</span></span>
+<span class="line"><span style="color:#6A737D">				 * 2、ioc</span></span>
+<span class="line"><span style="color:#6A737D">				 * 3、注解支持</span></span>
+<span class="line"><span style="color:#6A737D">				 * 4、BeanPostProcessor的执行</span></span>
+<span class="line"><span style="color:#6A737D">				 * 5、Aop的入口</span></span>
+<span class="line"><span style="color:#6A737D">				 * */</span></span>
+<span class="line"><span style="color:#6A737D">				// Instantiate all remaining (non-lazy-init) singletons.</span></span>
+<span class="line"><span style="color:#B392F0">				finishBeanFactoryInitialization</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				// Last step: publish corresponding event.</span></span>
+<span class="line"><span style="color:#B392F0">				finishRefresh</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">			catch</span><span style="color:#E1E4E8"> (BeansException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isWarnEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">					logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Exception encountered during context initialization - "</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">							"cancelling refresh attempt: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				// Destroy already created singletons to avoid dangling resources.</span></span>
+<span class="line"><span style="color:#B392F0">				destroyBeans</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				// Reset 'active' flag.</span></span>
+<span class="line"><span style="color:#B392F0">				cancelRefresh</span><span style="color:#E1E4E8">(ex);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">				// Propagate exception to caller.</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">			finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">				// Reset common introspection caches in Spring's core, since we</span></span>
+<span class="line"><span style="color:#6A737D">				// might not ever need metadata for singleton beans anymore...</span></span>
+<span class="line"><span style="color:#B392F0">				resetCommonCaches</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span></code></pre>
+<p>本节主要跟进spring.xml核心配置类的解析过程，该流程主要包括：</p>
+<ul>
+<li>创建BeanFactory对象</li>
+<li>xml解析</li>
+<li>封装成BeanDefinition对象</li>
+</ul>
+<h1 id="一自定义标签解析">一、自定义标签解析</h1>
+<p>总结一下xml解析的主要流程：</p>
+<ul>
+<li>根据当前解析的标签头信息，找到对应的namespaceUri</li>
+<li>加载Spring所有jar中的META-INF/spring.handlers文件，并建立映射关系</li>
+<li>根据namespaceUri从映射关系中找到对应的实现了NamespaceHandler接口的类</li>
+<li>调用该类的init()方法，注册各种标签包括自定义标签的解析类</li>
+<li>根据namespaceUri找到的对应的解析类，调用parse()方法完成标签的解析</li>
+</ul>
+<h1 id="二spring标签解析流程">二、Spring标签解析流程</h1>
+<p>先给出一个我自己画的时序图
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210409181752149.png" alt="&#x22;图1&#x22;"></p>
+<h1 id="三源码跟踪">三、源码跟踪</h1>
+<p>入口</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ConfigurableListableBeanFactory beanFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> obtainFreshBeanFactory</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<h2 id="1obtainfreshbeanfactory">1.obtainFreshBeanFactory()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> ConfigurableListableBeanFactory </span><span style="color:#B392F0">obtainFreshBeanFactory</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">	//核心方法，必须读，重要程度：5</span></span>
+<span class="line"><span style="color:#6A737D">	//模板模式，子类实现钩子方法</span></span>
+<span class="line"><span style="color:#B392F0">	refreshBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#B392F0"> getBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> refreshBeanFactory</span><span style="color:#E1E4E8">() throws BeansException, IllegalStateException;</span></span></code></pre>
+<h2 id="2refreshbeanfactory">2.refreshBeanFactory()</h2>
+<p>refreshBeanFactory()实现类为AbstractRefreshableApplicationContext</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> final</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> refreshBeanFactory</span><span style="color:#E1E4E8">() throws BeansException {</span></span>
+<span class="line"><span style="color:#6A737D">	//1.如果BeanFactory不为空，则清除BeanFactory和里面的实例</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">hasBeanFactory</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#B392F0">		destroyBeans</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">		closeBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//2.创建BeanFactory实例工厂</span></span>
+<span class="line"><span style="color:#E1E4E8">		DefaultListableBeanFactory beanFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		beanFactory.</span><span style="color:#B392F0">setSerializationId</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">		//3.1设置是否可以循环依赖 allowCircularReferences，默认允许</span></span>
+<span class="line"><span style="color:#6A737D">		//3.2是否允许使用相同名称重新注册不同的bean实现.</span></span>
+<span class="line"><span style="color:#B392F0">		customizeBeanFactory</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"><span style="color:#6A737D">		//4.解析xml，并把xml中的标签封装成BeanDefinition对象</span></span>
+<span class="line"><span style="color:#B392F0">		loadBeanDefinitions</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.beanFactory </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beanFactory;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ApplicationContextException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"I/O error parsing bean definition source for "</span><span style="color:#F97583"> +</span><span style="color:#B392F0"> getDisplayName</span><span style="color:#E1E4E8">(), ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>注意</strong>
+customizeBeanFactory(beanFactory)中关于设置是否循环依赖和是否可以覆盖bean定义名称，可以通过applicationContext上下文来修改，修改后必须要refresh()重新加载。建议不修改，没有意义。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">applicationContext.</span><span style="color:#B392F0">setAllowBeanDefinitionOverriding</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">applicationContext.</span><span style="color:#B392F0">setAllowCircularReferences</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">applicationContext.</span><span style="color:#B392F0">refresh</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>进入loadBeanDefinitions()方法</p>
+<h2 id="3loadbeandefinitions">3.loadBeanDefinitions()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//AbstractXmlApplicationContext</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {</span></span>
+<span class="line"><span style="color:#6A737D">	// Create a new XmlBeanDefinitionReader for the given BeanFactory.</span></span>
+<span class="line"><span style="color:#6A737D">	//创建xml的解析器，这里是一个委托模式</span></span>
+<span class="line"><span style="color:#E1E4E8">	XmlBeanDefinitionReader beanDefinitionReader </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XmlBeanDefinitionReader</span><span style="color:#E1E4E8">(beanFactory);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Configure the bean definition reader with this context's</span></span>
+<span class="line"><span style="color:#6A737D">	// resource loading environment.</span></span>
+<span class="line"><span style="color:#E1E4E8">	beanDefinitionReader.</span><span style="color:#B392F0">setEnvironment</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">	//这里传一个this进去，因为ApplicationContext是实现了ResourceLoader接口的</span></span>
+<span class="line"><span style="color:#E1E4E8">	beanDefinitionReader.</span><span style="color:#B392F0">setResourceLoader</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	beanDefinitionReader.</span><span style="color:#B392F0">setEntityResolver</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> ResourceEntityResolver</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Allow a subclass to provide custom initialization of the reader,</span></span>
+<span class="line"><span style="color:#6A737D">	// then proceed with actually loading the bean definitions.</span></span>
+<span class="line"><span style="color:#B392F0">	initBeanDefinitionReader</span><span style="color:#E1E4E8">(beanDefinitionReader);</span></span>
+<span class="line"><span style="color:#6A737D">	//主要看这个方法  重要程度 5</span></span>
+<span class="line"><span style="color:#B392F0">	loadBeanDefinitions</span><span style="color:#E1E4E8">(beanDefinitionReader);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* 委托给XmlBeanDefinitionReader解析xml文件</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(XmlBeanDefinitionReader reader) throws BeansException, IOException {</span></span>
+<span class="line"><span style="color:#F97583">	Resource</span><span style="color:#E1E4E8">[] configResources </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getConfigResources</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (configResources </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		reader.</span><span style="color:#B392F0">loadBeanDefinitions</span><span style="color:#E1E4E8">(configResources);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//获取需要加载的xml配置文件</span></span>
+<span class="line"><span style="color:#F97583">	String</span><span style="color:#E1E4E8">[] configLocations </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getConfigLocations</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (configLocations </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		reader.</span><span style="color:#B392F0">loadBeanDefinitions</span><span style="color:#E1E4E8">(configLocations);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>进入AbstractBeanDefinitionReader.loadBeanDefinitions的重载方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(String location, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> Set</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Resource</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> actualResources) throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	ResourceLoader resourceLoader </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getResourceLoader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (resourceLoader </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Cannot load bean definitions from location ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> location </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]: no ResourceLoader available"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (resourceLoader </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> ResourcePatternResolver) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Resource pattern matching available.</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//把字符串类型的xml文件路径，形如：classpath*:user/**/*-context.xml,转换成Resource对象类型，其实就是用流</span></span>
+<span class="line"><span style="color:#6A737D">			//的方式加载配置文件，然后封装成Resource对象，不重要，可以不看</span></span>
+<span class="line"><span style="color:#F97583">			Resource</span><span style="color:#E1E4E8">[] resources </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ((ResourcePatternResolver) resourceLoader).</span><span style="color:#B392F0">getResources</span><span style="color:#E1E4E8">(location);</span></span>
+<span class="line"><span style="color:#6A737D">			//主要看这个方法 ** 重要程度 5</span></span>
+<span class="line"><span style="color:#F97583">			int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(resources);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (actualResources </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				Collections.</span><span style="color:#B392F0">addAll</span><span style="color:#E1E4E8">(actualResources, resources);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Loaded "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " bean definitions from location pattern ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> location </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> count;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">					"Could not resolve bean definition resource pattern ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> location </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// Can only load single resources by absolute URL.</span></span>
+<span class="line"><span style="color:#E1E4E8">		Resource resource </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> resourceLoader.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">(location);</span></span>
+<span class="line"><span style="color:#F97583">		int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (actualResources </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			actualResources.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Loaded "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " bean definitions from location ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> location </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> count;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>然后进入</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(Resource... resources) throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(resources, </span><span style="color:#9ECBFF">"Resource array must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> (Resource resource </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> resources) {</span></span>
+<span class="line"><span style="color:#6A737D">		//模板设计模式，调用到子类中的方法</span></span>
+<span class="line"><span style="color:#E1E4E8">		count </span><span style="color:#F97583">+=</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> count;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>调用的是子类XmlBeanDefinitionReader的实现方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(Resource resource) throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#6A737D">	//EncodedResource带编码的对Resource对象的封装</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> EncodedResource</span><span style="color:#E1E4E8">(resource));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> loadBeanDefinitions</span><span style="color:#E1E4E8">(EncodedResource encodedResource) throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(encodedResource, </span><span style="color:#9ECBFF">"EncodedResource must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Loading XML bean definitions from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> encodedResource);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	Set&#x3C;</span><span style="color:#F97583">EncodedResource</span><span style="color:#E1E4E8">> currentResources </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.resourcesCurrentlyBeingLoaded.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">currentResources.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(encodedResource)) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Detected cyclic loading of "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> encodedResource </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " - check your import definitions!"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//获取Resource对象中的xml文件流对象</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> (InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> encodedResource.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getInputStream</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//InputSource是jdk中的sax xml文件解析对象</span></span>
+<span class="line"><span style="color:#E1E4E8">		InputSource inputSource </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> InputSource</span><span style="color:#E1E4E8">(inputStream);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (encodedResource.</span><span style="color:#B392F0">getEncoding</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			inputSource.</span><span style="color:#B392F0">setEncoding</span><span style="color:#E1E4E8">(encodedResource.</span><span style="color:#B392F0">getEncoding</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		//主要看这个方法 **  重要程度 5</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#B392F0"> doLoadBeanDefinitions</span><span style="color:#E1E4E8">(inputSource, encodedResource.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">				"IOException parsing XML document from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> encodedResource.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">(), ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		currentResources.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(encodedResource);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (currentResources.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.resourcesCurrentlyBeingLoaded.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="4doloadbeandefinitions">4.doLoadBeanDefinitions()</h2>
+<p>完成两个动作</p>
+<ul>
+<li>把inputSource封装成Document文件对象</li>
+<li>根据解析出来的document对象，拿到里面的标签元素封装成BeanDefinition</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> doLoadBeanDefinitions</span><span style="color:#E1E4E8">(InputSource inputSource, Resource resource)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanDefinitionStoreException {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//把inputSource 封装成Document文件对象，这是jdk的API</span></span>
+<span class="line"><span style="color:#E1E4E8">		Document doc </span><span style="color:#F97583">=</span><span style="color:#B392F0"> doLoadDocument</span><span style="color:#E1E4E8">(inputSource, resource);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		//主要看这个方法，根据解析出来的document对象，拿到里面的标签元素封装成BeanDefinition</span></span>
+<span class="line"><span style="color:#F97583">		int</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">=</span><span style="color:#B392F0"> registerBeanDefinitions</span><span style="color:#E1E4E8">(doc, resource);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Loaded "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> count </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " bean definitions from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> count;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (BeanDefinitionStoreException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (SAXParseException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XmlBeanDefinitionStoreException</span><span style="color:#E1E4E8">(resource.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Line "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> ex.</span><span style="color:#B392F0">getLineNumber</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " in XML document from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " is invalid"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (SAXException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XmlBeanDefinitionStoreException</span><span style="color:#E1E4E8">(resource.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">				"XML document from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " is invalid"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (ParserConfigurationException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(resource.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Parser configuration exception parsing XML from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(resource.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">				"IOException parsing XML document from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(resource.</span><span style="color:#B392F0">getDescription</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Unexpected exception parsing XML document from "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="5registerbeandefinitions">5.registerBeanDefinitions()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> registerBeanDefinitions</span><span style="color:#E1E4E8">(Document doc, Resource resource) throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#6A737D">	//又来一记委托模式，BeanDefinitionDocumentReader委托这个类进行document的解析</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionDocumentReader documentReader </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBeanDefinitionDocumentReader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	int</span><span style="color:#E1E4E8"> countBefore </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBeanDefinitionCount</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//主要看这个方法，createReaderContext(resource) XmlReaderContext上下文，封装了XmlBeanDefinitionReader对象</span></span>
+<span class="line"><span style="color:#E1E4E8">	documentReader.</span><span style="color:#B392F0">registerBeanDefinitions</span><span style="color:#E1E4E8">(doc, </span><span style="color:#B392F0">createReaderContext</span><span style="color:#E1E4E8">(resource));</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#B392F0"> getRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBeanDefinitionCount</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> countBefore;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>交由DefaultBeanDefinitionDocumentReader.registerBeanDefinitions()处理</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinitions</span><span style="color:#E1E4E8">(Document doc, XmlReaderContext readerContext) {</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.readerContext </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> readerContext;</span></span>
+<span class="line"><span style="color:#6A737D">	//主要看这个方法，把root节点传进去</span></span>
+<span class="line"><span style="color:#B392F0">	doRegisterBeanDefinitions</span><span style="color:#E1E4E8">(doc.</span><span style="color:#B392F0">getDocumentElement</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> doRegisterBeanDefinitions</span><span style="color:#E1E4E8">(Element root) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionParserDelegate parent </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.delegate;</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.delegate </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createDelegate</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">(), root, parent);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.delegate.</span><span style="color:#B392F0">isDefaultNamespace</span><span style="color:#E1E4E8">(root)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String profileSpec </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(PROFILE_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(profileSpec)) {</span></span>
+<span class="line"><span style="color:#F97583">			String</span><span style="color:#E1E4E8">[] specifiedProfiles </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">tokenizeToStringArray</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">					profileSpec, BeanDefinitionParserDelegate.MULTI_VALUE_ATTRIBUTE_DELIMITERS);</span></span>
+<span class="line"><span style="color:#6A737D">			// We cannot use Profiles.of(...) since profile expressions are not supported</span></span>
+<span class="line"><span style="color:#6A737D">			// in XML config. See SPR-12458 for details.</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">acceptsProfiles</span><span style="color:#E1E4E8">(specifiedProfiles)) {</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">					logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Skipped XML bean definition file due to specified profiles ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> profileSpec </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">							"] not matching: "</span><span style="color:#F97583"> +</span><span style="color:#B392F0"> getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#B392F0">	preProcessXml</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#6A737D">	//主要看这个方法，标签具体解析过程</span></span>
+<span class="line"><span style="color:#B392F0">	parseBeanDefinitions</span><span style="color:#E1E4E8">(root, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.delegate);</span></span>
+<span class="line"><span style="color:#B392F0">	postProcessXml</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.delegate </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> parent;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parseBeanDefinitions</span><span style="color:#E1E4E8">(Element root, BeanDefinitionParserDelegate delegate) {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">isDefaultNamespace</span><span style="color:#E1E4E8">(root)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		NodeList nl </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root.</span><span style="color:#B392F0">getChildNodes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> nl.</span><span style="color:#B392F0">getLength</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Node node </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> nl.</span><span style="color:#B392F0">item</span><span style="color:#E1E4E8">(i);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (node </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> Element) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				Element ele </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (Element) node;</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">isDefaultNamespace</span><span style="color:#E1E4E8">(ele)) {</span></span>
+<span class="line"><span style="color:#6A737D">					//默认标签解析</span></span>
+<span class="line"><span style="color:#B392F0">					parseDefaultElement</span><span style="color:#E1E4E8">(ele, delegate);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">					//自定义标签解析</span></span>
+<span class="line"><span style="color:#E1E4E8">					delegate.</span><span style="color:#B392F0">parseCustomElement</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		delegate.</span><span style="color:#B392F0">parseCustomElement</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>可以看出有两种解析的类型：</p>
+<ul>
+<li>Spring默认标签</li>
+<li>自定义标签</li>
+</ul>
+<p>我们先看默认标签是怎么解析的。</p>
+<h2 id="6parsedefaultelement">6.parseDefaultElement()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parseDefaultElement</span><span style="color:#E1E4E8">(Element ele, BeanDefinitionParserDelegate delegate) {</span></span>
+<span class="line"><span style="color:#6A737D">	//import标签解析  重要程度 1 ，可看可不看</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">nodeNameEquals</span><span style="color:#E1E4E8">(ele, IMPORT_ELEMENT)) {</span></span>
+<span class="line"><span style="color:#B392F0">		importBeanDefinitionResource</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//alias标签解析 别名标签  重要程度 1 ，可看可不看</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">nodeNameEquals</span><span style="color:#E1E4E8">(ele, ALIAS_ELEMENT)) {</span></span>
+<span class="line"><span style="color:#B392F0">		processAliasRegistration</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//bean标签，重要程度  5，必须看</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">nodeNameEquals</span><span style="color:#E1E4E8">(ele, BEAN_ELEMENT)) {</span></span>
+<span class="line"><span style="color:#B392F0">		processBeanDefinition</span><span style="color:#E1E4E8">(ele, delegate);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (delegate.</span><span style="color:#B392F0">nodeNameEquals</span><span style="color:#E1E4E8">(ele, NESTED_BEANS_ELEMENT)) {</span></span>
+<span class="line"><span style="color:#6A737D">		// recurse</span></span>
+<span class="line"><span style="color:#B392F0">		doRegisterBeanDefinitions</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>默认标签主要解析</p>
+<ul>
+<li>import</li>
+<li>alias</li>
+<li>bean</li>
+<li>beans</li>
+</ul>
+<p>这里我主要跟踪bean标签的解析过程：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processBeanDefinition</span><span style="color:#E1E4E8">(Element ele, BeanDefinitionParserDelegate delegate) {</span></span>
+<span class="line"><span style="color:#6A737D">	//重点看这个方法，重要程度 5 ，解析document，封装成BeanDefinition</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionHolder bdHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delegate.</span><span style="color:#B392F0">parseBeanDefinitionElement</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (bdHolder </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		//该方法功能不重要，设计模式重点看一下，装饰者设计模式，加上SPI设计思想</span></span>
+<span class="line"><span style="color:#E1E4E8">		bdHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delegate.</span><span style="color:#B392F0">decorateBeanDefinitionIfRequired</span><span style="color:#E1E4E8">(ele, bdHolder);</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//完成document到BeanDefinition对象转换后，对BeanDefinition对象进行缓存注册</span></span>
+<span class="line"><span style="color:#6A737D">			// Register the final decorated instance.</span></span>
+<span class="line"><span style="color:#E1E4E8">			BeanDefinitionReaderUtils.</span><span style="color:#B392F0">registerBeanDefinition</span><span style="color:#E1E4E8">(bdHolder, </span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getRegistry</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeanDefinitionStoreException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">			getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to register bean definition with name '"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">					bdHolder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">, ele, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// Send registration event.</span></span>
+<span class="line"><span style="color:#B392F0">		getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">fireComponentRegistered</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> BeanComponentDefinition</span><span style="color:#E1E4E8">(bdHolder));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>BeanDefinitionHolder这个类有两个很重要的属性：beanDefinition和beanName</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> BeanDefinitionHolder</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> BeanMetadataElement</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> BeanDefinition beanDefinition;</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String beanName;</span></span>
+<span class="line"><span style="color:#6A737D">	//aliases作用：通过aliases找到beanName，根据beanName拿到beanDefinition对象。</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[] aliases;</span></span>
+<span class="line"><span style="color:#E1E4E8">	......</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* BeanDefinitionParserDelegate</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 解析Element并返回 BeanDefinitionHolder</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> BeanDefinitionHolder </span><span style="color:#B392F0">parseBeanDefinitionElement</span><span style="color:#E1E4E8">(Element ele, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> BeanDefinition containingBean) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(ID_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">		String nameAttr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(NAME_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">		List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> aliases </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (StringUtils.</span><span style="color:#B392F0">hasLength</span><span style="color:#E1E4E8">(nameAttr)) {</span></span>
+<span class="line"><span style="color:#F97583">			String</span><span style="color:#E1E4E8">[] nameArr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">tokenizeToStringArray</span><span style="color:#E1E4E8">(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);</span></span>
+<span class="line"><span style="color:#E1E4E8">			aliases.</span><span style="color:#B392F0">addAll</span><span style="color:#E1E4E8">(Arrays.</span><span style="color:#B392F0">asList</span><span style="color:#E1E4E8">(nameArr));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		String beanName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> id;</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(beanName) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">aliases.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			beanName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> aliases.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No XML 'id' specified - using '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"' as bean name and "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> aliases </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " as aliases"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 检查 beanName 是否重复</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (containingBean </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">			checkNameUniqueness</span><span style="color:#E1E4E8">(beanName, aliases, ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 重点，解析BeanDefinitionElement</span></span>
+<span class="line"><span style="color:#E1E4E8">		AbstractBeanDefinition beanDefinition </span><span style="color:#F97583">=</span><span style="color:#B392F0"> parseBeanDefinitionElement</span><span style="color:#E1E4E8">(ele, beanName, containingBean);</span></span>
+<span class="line"><span style="color:#6A737D">		// 此处省略没用的代码</span></span>
+<span class="line"><span style="color:#E1E4E8">		......</span></span>
+<span class="line"><span style="color:#F97583">		String</span><span style="color:#E1E4E8">[] aliasesArray </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">toStringArray</span><span style="color:#E1E4E8">(aliases);</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionHolder</span><span style="color:#E1E4E8">(beanDefinition, beanName, aliasesArray);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>进入BeanDefinitionParserDelegate.parseBeanDefinitionElement()方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> AbstractBeanDefinition </span><span style="color:#B392F0">parseBeanDefinitionElement</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">		Element ele, String beanName, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> BeanDefinition containingBean) {</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.parseState.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> BeanEntry</span><span style="color:#E1E4E8">(beanName));</span></span>
+<span class="line"><span style="color:#E1E4E8">	String className </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(CLASS_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		className </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(CLASS_ATTRIBUTE).</span><span style="color:#B392F0">trim</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	String parent </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(PARENT_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		parent </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(PARENT_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//创建GenericBeanDefinition对象</span></span>
+<span class="line"><span style="color:#E1E4E8">		AbstractBeanDefinition bd </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBeanDefinition</span><span style="color:#E1E4E8">(className, parent);</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean标签的属性，并把解析出来的属性设置到BeanDefinition对象中</span></span>
+<span class="line"><span style="color:#B392F0">		parseBeanDefinitionAttributes</span><span style="color:#E1E4E8">(ele, beanName, containingBean, bd);</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setDescription</span><span style="color:#E1E4E8">(DomUtils.</span><span style="color:#B392F0">getChildElementValueByTagName</span><span style="color:#E1E4E8">(ele, DESCRIPTION_ELEMENT));</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean中的meta标签</span></span>
+<span class="line"><span style="color:#B392F0">		parseMetaElements</span><span style="color:#E1E4E8">(ele, bd);</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean中的lookup-method标签  重要程度：2，可看可不看</span></span>
+<span class="line"><span style="color:#B392F0">		parseLookupOverrideSubElements</span><span style="color:#E1E4E8">(ele, bd.</span><span style="color:#B392F0">getMethodOverrides</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean中的replaced-method标签  重要程度：2，可看可不看</span></span>
+<span class="line"><span style="color:#B392F0">		parseReplacedMethodSubElements</span><span style="color:#E1E4E8">(ele, bd.</span><span style="color:#B392F0">getMethodOverrides</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean中的constructor-arg标签  重要程度：2，可看可不看</span></span>
+<span class="line"><span style="color:#B392F0">		parseConstructorArgElements</span><span style="color:#E1E4E8">(ele, bd);</span></span>
+<span class="line"><span style="color:#6A737D">		//解析bean中的property标签  重要程度：2，可看可不看</span></span>
+<span class="line"><span style="color:#B392F0">		parsePropertyElements</span><span style="color:#E1E4E8">(ele, bd);</span></span>
+<span class="line"><span style="color:#6A737D">		//可以不看，用不到</span></span>
+<span class="line"><span style="color:#B392F0">		parseQualifierElements</span><span style="color:#E1E4E8">(ele, bd);</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setResource</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.readerContext.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setSource</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">extractSource</span><span style="color:#E1E4E8">(ele));</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> bd;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (ClassNotFoundException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Bean class ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> className </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] not found"</span><span style="color:#E1E4E8">, ele, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (NoClassDefFoundError </span><span style="color:#FFAB70">err</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Class that bean class ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> className </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] depends on not found"</span><span style="color:#E1E4E8">, ele, err);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unexpected failure during bean definition parsing"</span><span style="color:#E1E4E8">, ele, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.parseState.</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其中，</p>
+<ul>
+<li>parseBeanDefinitionAttributes：负责解析&#x3C;bean>属性，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.Student"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"student2"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	p:username</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1234"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	factory-bean</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	factory-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	init-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	abstract</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	parent</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	lazy-init</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	primary</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span></span>
+<span class="line"><span style="color:#E1E4E8">/></span></span></code></pre>
+<ul>
+<li>parseMetaElements：负责解析bean标签下的&#x3C;meta>标签，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.Student"</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"student2"</span><span style="color:#B392F0"> p:username</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1234"</span><span style="color:#B392F0"> factory-bean</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#B392F0"> factory-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#B392F0"> init-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#B392F0"> abstract</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#B392F0"> parent</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#B392F0"> lazy-init</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#B392F0"> primary</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">description</span><span style="color:#E1E4E8">>这个是student&#x3C;/</span><span style="color:#85E89D">description</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">meta</span><span style="color:#B392F0"> key</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"name1"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Jack"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">meta</span><span style="color:#B392F0"> key</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"name2"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Dafei"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<ul>
+<li>parseLookupOverrideSubElements：负责解析&#x3C;lookup-method>，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"people"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.ShowSixClass"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">lookup-method</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"getPeople"</span><span style="color:#B392F0"> bean</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"woman"</span><span style="color:#E1E4E8">>&#x3C;/</span><span style="color:#85E89D">lookup-method</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<ul>
+<li>parseReplacedMethodSubElements：负责解析&#x3C;replaced-method>，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"originClass"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.OriginClass"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">replaced-method</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"method"</span><span style="color:#B392F0"> replacer</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"repalceClass"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">arg-type</span><span style="color:#B392F0"> match</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"java.lang.String"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">replaced-method</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<ul>
+<li>parseConstructorArgElements：负责解析&#x3C;constructor-arg>，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.ConstructorArgBean"</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"constructorArgBean"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">constructor-arg</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Jack"</span><span style="color:#B392F0"> index</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"0"</span><span style="color:#B392F0"> type</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"java.lang.String"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">constructor-arg</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"123"</span><span style="color:#B392F0"> index</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1"</span><span style="color:#B392F0"> type</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"java.lang.String"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<ul>
+<li>parsePropertyElements：负责解析&#x3C;property>，形如：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.PropertyBean"</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"propertyBean"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Jack"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"123"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>另外，注意这几点：</p>
+<ul>
+<li>&#x3C;bean>标签解析完成，会统一放到BeanDefinition中。</li>
+<li>&#x3C;lookup-method>、&#x3C;replaced-method>、&#x3C;property>这种子标签会放到MutablePropertyValues 类中。</li>
+<li>&#x3C;constructor-arg>子标签会放到 ConstructorArgumentValues 类中。
+后面两点可以在processBeanDefinition()方法中，在完成bean标签解析完后的装饰方法</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">bdHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delegate.</span><span style="color:#B392F0">decorateBeanDefinitionIfRequired</span><span style="color:#E1E4E8">(ele, bdHolder);</span></span></code></pre>
+<p>可以追溯到。这里不做跟踪。我这里重点看看&#x3C;bean>标签的解析方法parseBeanDefinitionAttributes():</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> AbstractBeanDefinition </span><span style="color:#B392F0">parseBeanDefinitionAttributes</span><span style="color:#E1E4E8">(Element ele, String beanName,</span></span>
+<span class="line"><span style="color:#E1E4E8">		@</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> BeanDefinition containingBean, AbstractBeanDefinition bd) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(SINGLETON_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Old 1.x 'singleton' attribute in use - upgrade to 'scope' declaration"</span><span style="color:#E1E4E8">, ele);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(SCOPE_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setScope</span><span style="color:#E1E4E8">(ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(SCOPE_ATTRIBUTE));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (containingBean </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Take default from containing bean in case of an inner bean definition.</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setScope</span><span style="color:#E1E4E8">(containingBean.</span><span style="color:#B392F0">getScope</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(ABSTRACT_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setAbstract</span><span style="color:#E1E4E8">(TRUE_VALUE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(ABSTRACT_ATTRIBUTE)));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	String lazyInit </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(LAZY_INIT_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isDefaultValue</span><span style="color:#E1E4E8">(lazyInit)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		lazyInit </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getLazyInit</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	bd.</span><span style="color:#B392F0">setLazyInit</span><span style="color:#E1E4E8">(TRUE_VALUE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(lazyInit));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	String autowire </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(AUTOWIRE_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">	bd.</span><span style="color:#B392F0">setAutowireMode</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getAutowireMode</span><span style="color:#E1E4E8">(autowire));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(DEPENDS_ON_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String dependsOn </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(DEPENDS_ON_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setDependsOn</span><span style="color:#E1E4E8">(StringUtils.</span><span style="color:#B392F0">tokenizeToStringArray</span><span style="color:#E1E4E8">(dependsOn, MULTI_VALUE_ATTRIBUTE_DELIMITERS));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	String autowireCandidate </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(AUTOWIRE_CANDIDATE_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isDefaultValue</span><span style="color:#E1E4E8">(autowireCandidate)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String candidatePattern </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getAutowireCandidates</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (candidatePattern </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			String</span><span style="color:#E1E4E8">[] patterns </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">commaDelimitedListToStringArray</span><span style="color:#E1E4E8">(candidatePattern);</span></span>
+<span class="line"><span style="color:#E1E4E8">			bd.</span><span style="color:#B392F0">setAutowireCandidate</span><span style="color:#E1E4E8">(PatternMatchUtils.</span><span style="color:#B392F0">simpleMatch</span><span style="color:#E1E4E8">(patterns, beanName));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setAutowireCandidate</span><span style="color:#E1E4E8">(TRUE_VALUE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(autowireCandidate));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(PRIMARY_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setPrimary</span><span style="color:#E1E4E8">(TRUE_VALUE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(PRIMARY_ATTRIBUTE)));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(INIT_METHOD_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String initMethodName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(INIT_METHOD_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setInitMethodName</span><span style="color:#E1E4E8">(initMethodName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getInitMethod</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setInitMethodName</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getInitMethod</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setEnforceInitMethod</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(DESTROY_METHOD_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String destroyMethodName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(DESTROY_METHOD_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setDestroyMethodName</span><span style="color:#E1E4E8">(destroyMethodName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getDestroyMethod</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setDestroyMethodName</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaults.</span><span style="color:#B392F0">getDestroyMethod</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setEnforceDestroyMethod</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(FACTORY_METHOD_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setFactoryMethodName</span><span style="color:#E1E4E8">(ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(FACTORY_METHOD_ATTRIBUTE));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (ele.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(FACTORY_BEAN_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		bd.</span><span style="color:#B392F0">setFactoryBeanName</span><span style="color:#E1E4E8">(ele.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(FACTORY_BEAN_ATTRIBUTE));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> bd;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>可以对应上xml:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack.bean.Student"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"student2"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	p:username</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1234"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	factory-bean</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	factory-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	init-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	abstract</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	parent</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	lazy-init</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#B392F0">	primary</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span></span>
+<span class="line"><span style="color:#E1E4E8">/></span></span></code></pre>
+<p>&#x3C;bean>标签解析过程的代码跟踪到这里，回到DefaultBeanDefinitionDocumentReader的 processBeanDefinition() 方法继续往下走，第一步已经对BeanDefinition属性解析完成，返回 BeanDefinitionHolder 对象。第二步装饰的过程这里不跟了。接下来跟下注册 registerBeanDefinition的过程（第三步）。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processBeanDefinition</span><span style="color:#E1E4E8">(Element ele, BeanDefinitionParserDelegate delegate) {</span></span>
+<span class="line"><span style="color:#6A737D">	//1.重点看这个方法，重要程度 5 ，解析document，封装成BeanDefinition</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionHolder bdHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delegate.</span><span style="color:#B392F0">parseBeanDefinitionElement</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (bdHolder </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		//2.该方法功能不重要，设计模式重点看一下，装饰者设计模式，加上SPI设计思想</span></span>
+<span class="line"><span style="color:#E1E4E8">		bdHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> delegate.</span><span style="color:#B392F0">decorateBeanDefinitionIfRequired</span><span style="color:#E1E4E8">(ele, bdHolder);</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//3.完成document到BeanDefinition对象转换后，对BeanDefinition对象进行缓存注册</span></span>
+<span class="line"><span style="color:#6A737D">			// Register the final decorated instance.</span></span>
+<span class="line"><span style="color:#E1E4E8">			BeanDefinitionReaderUtils.</span><span style="color:#B392F0">registerBeanDefinition</span><span style="color:#E1E4E8">(bdHolder, </span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getRegistry</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeanDefinitionStoreException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">			getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to register bean definition with name '"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">					bdHolder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">, ele, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 4.Send registration event.</span></span>
+<span class="line"><span style="color:#B392F0">		getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">fireComponentRegistered</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> BeanComponentDefinition</span><span style="color:#E1E4E8">(bdHolder));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>调用的是工具类BeanDefinitionReaderUtils的方法registerBeanDefinition()：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinition</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">		BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#6A737D">	// Register bean definition under primary name.</span></span>
+<span class="line"><span style="color:#E1E4E8">	String beanName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> definitionHolder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">	//完成BeanDefinition的注册，重点看，重要程度 5</span></span>
+<span class="line"><span style="color:#E1E4E8">	registry.</span><span style="color:#B392F0">registerBeanDefinition</span><span style="color:#E1E4E8">(beanName, definitionHolder.</span><span style="color:#B392F0">getBeanDefinition</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">	//建立别名和 id的映射，这样就可以根据别名获取到id</span></span>
+<span class="line"><span style="color:#6A737D">	// Register aliases for bean name, if any.</span></span>
+<span class="line"><span style="color:#F97583">	String</span><span style="color:#E1E4E8">[] aliases </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> definitionHolder.</span><span style="color:#B392F0">getAliases</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (aliases </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (String alias </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aliases) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			registry.</span><span style="color:#B392F0">registerAlias</span><span style="color:#E1E4E8">(beanName, alias);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>DefaultListableBeanFactory.registerBeanDefinition()方法，最终完成默认标签的注册。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinition</span><span style="color:#E1E4E8">(String beanName, BeanDefinition beanDefinition)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(beanName, </span><span style="color:#9ECBFF">"Bean name must not be empty"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(beanDefinition, </span><span style="color:#9ECBFF">"BeanDefinition must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (beanDefinition </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> AbstractBeanDefinition) {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			((AbstractBeanDefinition) beanDefinition).</span><span style="color:#B392F0">validate</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeanDefinitionValidationException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(beanDefinition.</span><span style="color:#B392F0">getResourceDescription</span><span style="color:#E1E4E8">(), beanName,</span></span>
+<span class="line"><span style="color:#9ECBFF">					"Validation of bean definition failed"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//先判断BeanDefinition是否已经注册</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinition existingDefinition </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (existingDefinition </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isAllowBeanDefinitionOverriding</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionOverrideException</span><span style="color:#E1E4E8">(beanName, beanDefinition, existingDefinition);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (existingDefinition.</span><span style="color:#B392F0">getRole</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> beanDefinition.</span><span style="color:#B392F0">getRole</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">			// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isInfoEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Overriding user-defined bean definition for bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"' with a framework-generated bean definition: replacing ["</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">						existingDefinition </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] with ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanDefinition </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">beanDefinition.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(existingDefinition)) {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Overriding bean definition for bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"' with a different definition: replacing ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> existingDefinition </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"] with ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanDefinition </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Overriding bean definition for bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"' with an equivalent definition: replacing ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> existingDefinition </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"] with ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanDefinition </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, beanDefinition);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">hasBeanCreationStarted</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">			// Cannot modify startup-time collection elements anymore (for stable iteration)</span></span>
+<span class="line"><span style="color:#F97583">			synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.beanDefinitionMap) {</span></span>
+<span class="line"><span style="color:#79B8FF">				this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, beanDefinition);</span></span>
+<span class="line"><span style="color:#E1E4E8">				List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> updatedDefinitions </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.beanDefinitionNames.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">				updatedDefinitions.</span><span style="color:#B392F0">addAll</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.beanDefinitionNames);</span></span>
+<span class="line"><span style="color:#E1E4E8">				updatedDefinitions.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#79B8FF">				this</span><span style="color:#E1E4E8">.beanDefinitionNames </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> updatedDefinitions;</span></span>
+<span class="line"><span style="color:#B392F0">				removeManualSingletonName</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//把beanDefinition缓存到map中</span></span>
+<span class="line"><span style="color:#6A737D">			// Still in startup registration phase</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, beanDefinition);</span></span>
+<span class="line"><span style="color:#6A737D">			//把beanName放到beanDefinitionNames list中，这个list着重记住，bean实例化的时候需要用到</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.beanDefinitionNames.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#B392F0">			removeManualSingletonName</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.frozenBeanDefinitionNames </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (existingDefinition </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#B392F0"> containsSingleton</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#B392F0">		resetBeanDefinition</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isConfigurationFrozen</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#B392F0">		clearByTypeCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>总结下DefaultListableBeanFactory.registerBeanDefinition()方法的功能：</p>
+<ul>
+<li>把bean名称和beanDefinition放到 Map&#x3C;String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap&#x3C;>(256)的 容器中</li>
+<li>把bean名称放到List<string> beanDefinitionNames = new ArrayList&#x3C;>(256) 的 list容器中缓存起来</string></li>
+</ul>
+<p>bean的实例化过程中会用到这两个东东。
+到这儿，Spring默认标签解析完成代码追踪了，接下来跟跟自定义标签的解析过程。</p>
+<h2 id="7parsecustomelement">7.parseCustomElement()</h2>
+<p>调用流程还是和目录一中描述的一样。Talk is cheap, show me the code.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* BeanDefinitionParserDelegate</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 自定义标签交给BeanDefinitionParserDelegate 委托类来解析</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> BeanDefinition </span><span style="color:#B392F0">parseCustomElement</span><span style="color:#E1E4E8">(Element ele, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> BeanDefinition containingBd) {</span></span>
+<span class="line"><span style="color:#6A737D">	// 获取命名空间的URI</span></span>
+<span class="line"><span style="color:#E1E4E8">	String namespaceUri </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getNamespaceURI</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (namespaceUri </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// SPI设计，获取/META-INF/spring.handers中URI对应的Hander处理类</span></span>
+<span class="line"><span style="color:#6A737D">	//具体解析内容如下：</span></span>
+<span class="line"><span style="color:#6A737D">	//获取spring中所有jar包里面的META-INF/spring.handlers文件，并且建立映射关系。</span></span>
+<span class="line"><span style="color:#6A737D">	//根据namespaceUri获取到这个命名空间的处理类。</span></span>
+<span class="line"><span style="color:#6A737D">	//调用处理类的init()方法，在init()方法中完成标签元素解析类的注册。</span></span>
+<span class="line"><span style="color:#E1E4E8">	NamespaceHandler handler </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.readerContext.</span><span style="color:#B392F0">getNamespaceHandlerResolver</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(namespaceUri);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (handler </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unable to locate Spring NamespaceHandler for XML schema namespace ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespaceUri </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, ele);</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 执行 实现类NamespaceHandlerSupport 中的parse 方法</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> handler.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(ele, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ParserContext</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.readerContext, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, containingBd));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>先看看resolve方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> NamespaceHandler </span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(String namespaceUri) {</span></span>
+<span class="line"><span style="color:#6A737D">	//获取spring中所有jar包里面的 "META-INF/spring.handlers"文件，并且建立映射关系</span></span>
+<span class="line"><span style="color:#E1E4E8">	Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">> handlerMappings </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getHandlerMappings</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">	//根据namespaceUri：http://www.springframework.org/schema/context，获取到这个命名空间的处理类</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object handlerOrClassName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> handlerMappings.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(namespaceUri);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (handlerOrClassName </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (handlerOrClassName </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> NamespaceHandler) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> (NamespaceHandler) handlerOrClassName;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		String className </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (String) handlerOrClassName;</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> handlerClass </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ClassUtils.</span><span style="color:#B392F0">forName</span><span style="color:#E1E4E8">(className, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.classLoader);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">NamespaceHandler.class.</span><span style="color:#B392F0">isAssignableFrom</span><span style="color:#E1E4E8">(handlerClass)) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FatalBeanException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Class ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> className </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] for namespace ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespaceUri </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"] does not implement the ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> NamespaceHandler.class.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] interface"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">			NamespaceHandler namespaceHandler </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (NamespaceHandler) BeanUtils.</span><span style="color:#B392F0">instantiateClass</span><span style="color:#E1E4E8">(handlerClass);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">			//调用处理类的init方法，在init方法中完成标签元素解析类的注册</span></span>
+<span class="line"><span style="color:#E1E4E8">			namespaceHandler.</span><span style="color:#B392F0">init</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			handlerMappings.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(namespaceUri, namespaceHandler);</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> namespaceHandler;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (ClassNotFoundException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FatalBeanException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find NamespaceHandler class ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> className </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">					"] for namespace ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespaceUri </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (LinkageError </span><span style="color:#FFAB70">err</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FatalBeanException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unresolvable class definition for NamespaceHandler class ["</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">					className </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] for namespace ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespaceUri </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, err);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>这个方法很重要，总结下它的功能：</strong></p>
+<ul>
+<li>获取spring中所有jar包里面的 “META-INF/spring.handlers”文件，并且建立映射关系至handlerMappings</li>
+<li>根据namespaceUri：<a href="http://www.springframework.org/schema/context%EF%BC%8C%E8%8E%B7%E5%8F%96%E5%88%B0%E8%BF%99%E4%B8%AA%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E7%9A%84%E5%A4%84%E7%90%86%E7%B1%BB">http://www.springframework.org/schema/context，获取到这个命名空间的处理类</a></li>
+<li>反射实例化它对应的NamespaceHandler</li>
+<li>调用处理类NamespaceHandler的init方法，在init方法中完成标签元素解析类的注册</li>
+<li>注册这个NamespaceHandler至handlerMappings</li>
+</ul>
+<p>进入parse方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* NamespaceHandlerSupport</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 委托BeanDefinitionParser类解析元素</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> BeanDefinition </span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(Element element, ParserContext parserContext) {</span></span>
+<span class="line"><span style="color:#6A737D">	// 获取自定义组件名 对应的解析方法</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionParser parser </span><span style="color:#F97583">=</span><span style="color:#B392F0"> findParserForElement</span><span style="color:#E1E4E8">(element, parserContext);</span></span>
+<span class="line"><span style="color:#6A737D">	// 调用ComponentScanBeanDefinitionParser实现类中的 parse方法</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> (parser </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> parser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(element, parserContext) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>进入findParserForElement()方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* NamespaceHandlerSupport</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 从map中根据组件名称获取绑定的解析方法</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> BeanDefinitionParser </span><span style="color:#B392F0">findParserForElement</span><span style="color:#E1E4E8">(Element element, ParserContext parserContext) {</span></span>
+<span class="line"><span style="color:#6A737D">	// 获取组件名称</span></span>
+<span class="line"><span style="color:#E1E4E8">	String localName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> parserContext.</span><span style="color:#B392F0">getDelegate</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getLocalName</span><span style="color:#E1E4E8">(element);</span></span>
+<span class="line"><span style="color:#6A737D">	// Map&#x3C;String, BeanDefinitionParser> parsers = new HashMap&#x3C;>()</span></span>
+<span class="line"><span style="color:#6A737D">	//此处this.parsers.get()之所以有值，是因为在/META-INF/spring.handers中URI对应的Hander处理类初始化的时候，通过init()方法中,执行registerBeanDefinitionParser()，来调用this.parsers.set('标签元素','解析类')设置的。</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionParser parser </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.parsers.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(localName);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (parser </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">fatal</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">				"Cannot locate BeanDefinitionParser for element ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> localName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, element);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> parser;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>这里我们以&#x3C;component-scan>标签为例
+先看看它所在的NamespaceHandler配置在哪儿</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">http\://www.springframework.org/schema/context=org.springframework.context.config.ContextNamespaceHandler</span></span></code></pre>
+<p>对应的java文件</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ContextNamespaceHandler</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> NamespaceHandlerSupport</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"property-placeholder"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> PropertyPlaceholderBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"property-override"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> PropertyOverrideBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"annotation-config"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> AnnotationConfigBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"component-scan"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ComponentScanBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"load-time-weaver"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> LoadTimeWeaverBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"spring-configured"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> SpringConfiguredBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"mbean-export"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> MBeanExportBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#B392F0">		registerBeanDefinitionParser</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"mbean-server"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> MBeanServerBeanDefinitionParser</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>完成这些标签解析类的注册后，返回到方法中</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* BeanDefinitionParserDelegate</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 自定义标签交给BeanDefinitionParserDelegate 委托类来解析</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> BeanDefinition </span><span style="color:#B392F0">parseCustomElement</span><span style="color:#E1E4E8">(Element ele, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> BeanDefinition containingBd) {</span></span>
+<span class="line"><span style="color:#6A737D">	// 获取命名空间的URI</span></span>
+<span class="line"><span style="color:#E1E4E8">	String namespaceUri </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getNamespaceURI</span><span style="color:#E1E4E8">(ele);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (namespaceUri </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// SPI设计，获取/META-INF/spring.handers中URI对应的Hander处理类</span></span>
+<span class="line"><span style="color:#6A737D">	//具体解析内容如下：</span></span>
+<span class="line"><span style="color:#6A737D">	//获取spring中所有jar包里面的META-INF/spring.handlers文件，并且建立映射关系。</span></span>
+<span class="line"><span style="color:#6A737D">	//根据namespaceUri获取到这个命名空间的处理类。</span></span>
+<span class="line"><span style="color:#6A737D">	//调用处理类的init()方法，在init()方法中完成标签元素解析类的注册。</span></span>
+<span class="line"><span style="color:#E1E4E8">	NamespaceHandler handler </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.readerContext.</span><span style="color:#B392F0">getNamespaceHandlerResolver</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resolve</span><span style="color:#E1E4E8">(namespaceUri);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (handler </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unable to locate Spring NamespaceHandler for XML schema namespace ["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespaceUri </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "]"</span><span style="color:#E1E4E8">, ele);</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 执行 实现类NamespaceHandlerSupport 中的parse 方法</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> handler.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(ele, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ParserContext</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.readerContext, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, containingBd));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>看看ComponentScanBeanDefinitionParser.parse解析过程</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/** Description: 核心解析</span></span>
+<span class="line"><span style="color:#6A737D"> * 1、扫描路径.class后缀的文件</span></span>
+<span class="line"><span style="color:#6A737D"> * 2、要判断类上是否有注解</span></span>
+<span class="line"><span style="color:#6A737D"> * 3、GenericBeanDefinition genericBeanDefinition = new GenericBeanDefinition();</span></span>
+<span class="line"><span style="color:#6A737D"> *    genericBeanDefinition.setBeanClass(BeanClass.class);</span></span>
+<span class="line"><span style="color:#6A737D"> * 4、完成beanDefinition注册</span></span>
+<span class="line"><span style="color:#6A737D"> * */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> BeanDefinition </span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(Element element, ParserContext parserContext) {</span></span>
+<span class="line"><span style="color:#6A737D">	//获取basePackage属性</span></span>
+<span class="line"><span style="color:#E1E4E8">	String basePackage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> element.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(BASE_PACKAGE_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">	basePackage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resolvePlaceholders</span><span style="color:#E1E4E8">(basePackage);</span></span>
+<span class="line"><span style="color:#6A737D">	//可以用逗号分开</span></span>
+<span class="line"><span style="color:#F97583">	String</span><span style="color:#E1E4E8">[] basePackages </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">tokenizeToStringArray</span><span style="color:#E1E4E8">(basePackage,</span></span>
+<span class="line"><span style="color:#E1E4E8">			ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);</span></span>
+<span class="line"><span style="color:#6A737D">	//创建注解扫描器</span></span>
+<span class="line"><span style="color:#6A737D">	// Actually scan for bean definitions and register them.</span></span>
+<span class="line"><span style="color:#E1E4E8">	ClassPathBeanDefinitionScanner scanner </span><span style="color:#F97583">=</span><span style="color:#B392F0"> configureScanner</span><span style="color:#E1E4E8">(parserContext, element);</span></span>
+<span class="line"><span style="color:#6A737D">	//扫描并把扫描的类封装成beanDefinition对象  核心方法，重要程度 5</span></span>
+<span class="line"><span style="color:#E1E4E8">	Set&#x3C;</span><span style="color:#F97583">BeanDefinitionHolder</span><span style="color:#E1E4E8">> beanDefinitions </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> scanner.</span><span style="color:#B392F0">doScan</span><span style="color:#E1E4E8">(basePackages);</span></span>
+<span class="line"><span style="color:#B392F0">	registerComponents</span><span style="color:#E1E4E8">(parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">(), beanDefinitions, element);</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>获取basePackage这里不做跟踪了，先看看创建扫描器的过程</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//创建注解扫描器</span></span>
+<span class="line"><span style="color:#6A737D">// Actually scan for bean definitions and register them.</span></span>
+<span class="line"><span style="color:#E1E4E8">ClassPathBeanDefinitionScanner scanner </span><span style="color:#F97583">=</span><span style="color:#B392F0"> configureScanner</span><span style="color:#E1E4E8">(parserContext, element);</span></span></code></pre>
+<p>点进去看看</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> ClassPathBeanDefinitionScanner </span><span style="color:#B392F0">configureScanner</span><span style="color:#E1E4E8">(ParserContext parserContext, Element element) {</span></span>
+<span class="line"><span style="color:#6A737D">	//使用默认的过滤器</span></span>
+<span class="line"><span style="color:#F97583">	boolean</span><span style="color:#E1E4E8"> useDefaultFilters </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (element.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(USE_DEFAULT_FILTERS_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		useDefaultFilters </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Boolean.</span><span style="color:#B392F0">parseBoolean</span><span style="color:#E1E4E8">(element.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(USE_DEFAULT_FILTERS_ATTRIBUTE));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//重点看看这里的创建</span></span>
+<span class="line"><span style="color:#6A737D">	// Delegate bean definition registration to scanner class.</span></span>
+<span class="line"><span style="color:#E1E4E8">	ClassPathBeanDefinitionScanner scanner </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createScanner</span><span style="color:#E1E4E8">(parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">(), useDefaultFilters);</span></span>
+<span class="line"><span style="color:#E1E4E8">	scanner.</span><span style="color:#B392F0">setBeanDefinitionDefaults</span><span style="color:#E1E4E8">(parserContext.</span><span style="color:#B392F0">getDelegate</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBeanDefinitionDefaults</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	scanner.</span><span style="color:#B392F0">setAutowireCandidatePatterns</span><span style="color:#E1E4E8">(parserContext.</span><span style="color:#B392F0">getDelegate</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getAutowireCandidatePatterns</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (element.</span><span style="color:#B392F0">hasAttribute</span><span style="color:#E1E4E8">(RESOURCE_PATTERN_ATTRIBUTE)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		scanner.</span><span style="color:#B392F0">setResourcePattern</span><span style="color:#E1E4E8">(element.</span><span style="color:#B392F0">getAttribute</span><span style="color:#E1E4E8">(RESOURCE_PATTERN_ATTRIBUTE));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// 解析子标签，不用看</span></span>
+<span class="line"><span style="color:#B392F0">		parseBeanNameGenerator</span><span style="color:#E1E4E8">(element, scanner);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(ex.</span><span style="color:#B392F0">getMessage</span><span style="color:#E1E4E8">(), parserContext.</span><span style="color:#B392F0">extractSource</span><span style="color:#E1E4E8">(element), ex.</span><span style="color:#B392F0">getCause</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// 解析子标签，不用看</span></span>
+<span class="line"><span style="color:#B392F0">		parseScope</span><span style="color:#E1E4E8">(element, scanner);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		parserContext.</span><span style="color:#B392F0">getReaderContext</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(ex.</span><span style="color:#B392F0">getMessage</span><span style="color:#E1E4E8">(), parserContext.</span><span style="color:#B392F0">extractSource</span><span style="color:#E1E4E8">(element), ex.</span><span style="color:#B392F0">getCause</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 会扫描含有"include-filter"和"exclude-filter"属性进行解析</span></span>
+<span class="line"><span style="color:#B392F0">	parseTypeFilters</span><span style="color:#E1E4E8">(element, scanner, parserContext);</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> scanner;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>再点进去看看createScanner()方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> ClassPathBeanDefinitionScanner </span><span style="color:#B392F0">createScanner</span><span style="color:#E1E4E8">(XmlReaderContext readerContext, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> useDefaultFilters) {</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ClassPathBeanDefinitionScanner</span><span style="color:#E1E4E8">(readerContext.</span><span style="color:#B392F0">getRegistry</span><span style="color:#E1E4E8">(), useDefaultFilters,</span></span>
+<span class="line"><span style="color:#E1E4E8">			readerContext.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">(), readerContext.</span><span style="color:#B392F0">getResourceLoader</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> ClassPathBeanDefinitionScanner</span><span style="color:#E1E4E8">(BeanDefinitionRegistry registry, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> useDefaultFilters,</span></span>
+<span class="line"><span style="color:#E1E4E8">		Environment environment, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> ResourceLoader resourceLoader) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(registry, </span><span style="color:#9ECBFF">"BeanDefinitionRegistry must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.registry </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> registry;</span></span>
+<span class="line"><span style="color:#6A737D">	//使用默认的过滤器，扫描带有@Component注解的类</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (useDefaultFilters) {</span></span>
+<span class="line"><span style="color:#B392F0">		registerDefaultFilters</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#B392F0">	setEnvironment</span><span style="color:#E1E4E8">(environment);</span></span>
+<span class="line"><span style="color:#B392F0">	setResourceLoader</span><span style="color:#E1E4E8">(resourceLoader);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> *  Description: 使用默认过滤规则 处理指定的注解类，然后注册</span></span>
+<span class="line"><span style="color:#6A737D"> * 扫描对象为带有以下注解的类：</span></span>
+<span class="line"><span style="color:#6A737D"> * @Component</span></span>
+<span class="line"><span style="color:#6A737D"> * @Controller</span></span>
+<span class="line"><span style="color:#6A737D"> * @Service</span></span>
+<span class="line"><span style="color:#6A737D"> * @Repository</span></span>
+<span class="line"><span style="color:#6A737D"> * 以及Java EE 6的javax.annotation.ManagedBean,JSR-330的javax.inject.Named的注解</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerDefaultFilters</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">	// 过滤器中添加需要扫描的注解类型</span></span>
+<span class="line"><span style="color:#6A737D">	// 将注解添加到 AnnotationTypeFilter包装类</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.includeFilters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> AnnotationTypeFilter</span><span style="color:#E1E4E8">(Component.class));</span></span>
+<span class="line"><span style="color:#6A737D">	// 确保类注解是 ClassPathScanningCandidateComponentProvider的类加载器</span></span>
+<span class="line"><span style="color:#E1E4E8">	ClassLoader cl </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ClassPathScanningCandidateComponentProvider.class.</span><span style="color:#B392F0">getClassLoader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.includeFilters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> AnnotationTypeFilter</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">				((Class</span><span style="color:#F97583">&#x3C;?</span><span style="color:#E1E4E8"> extends Annotation</span><span style="color:#F97583">></span><span style="color:#E1E4E8">) ClassUtils.</span><span style="color:#B392F0">forName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"javax.annotation.ManagedBean"</span><span style="color:#E1E4E8">, cl)), </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">		logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (ClassNotFoundException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// JSR-250 1.1 API (as included in Java EE 6) not available - simply skip.</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.includeFilters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> AnnotationTypeFilter</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">				((Class</span><span style="color:#F97583">&#x3C;?</span><span style="color:#E1E4E8"> extends Annotation</span><span style="color:#F97583">></span><span style="color:#E1E4E8">) ClassUtils.</span><span style="color:#B392F0">forName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"javax.inject.Named"</span><span style="color:#E1E4E8">, cl)), </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">		logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"JSR-330 'javax.inject.Named' annotation found and supported for component scanning"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (ClassNotFoundException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// JSR-330 API not available - simply skip.</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>将拦截到的注解添加到List&#x3C;TypeFilter> includeFilters = new LinkedList&#x3C;>() 容器中。
+创建注解扫描器完毕，返回到parse()方法中，跟下doScan()过程。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> Set</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">BeanDefinitionHolder</span><span style="color:#F97583">></span><span style="color:#B392F0"> doScan</span><span style="color:#E1E4E8">(String... basePackages) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notEmpty</span><span style="color:#E1E4E8">(basePackages, </span><span style="color:#9ECBFF">"At least one base package must be specified"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	Set&#x3C;</span><span style="color:#F97583">BeanDefinitionHolder</span><span style="color:#E1E4E8">> beanDefinitions </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedHashSet&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> (String basePackage </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> basePackages) {</span></span>
+<span class="line"><span style="color:#6A737D">		//扫描到有注解的类并封装成BeanDefinition对象</span></span>
+<span class="line"><span style="color:#E1E4E8">		Set&#x3C;</span><span style="color:#F97583">BeanDefinition</span><span style="color:#E1E4E8">> candidates </span><span style="color:#F97583">=</span><span style="color:#B392F0"> findCandidateComponents</span><span style="color:#E1E4E8">(basePackage);</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (BeanDefinition candidate </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> candidates) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			ScopeMetadata scopeMetadata </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.scopeMetadataResolver.</span><span style="color:#B392F0">resolveScopeMetadata</span><span style="color:#E1E4E8">(candidate);</span></span>
+<span class="line"><span style="color:#E1E4E8">			candidate.</span><span style="color:#B392F0">setScope</span><span style="color:#E1E4E8">(scopeMetadata.</span><span style="color:#B392F0">getScopeName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">			String beanName </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanNameGenerator.</span><span style="color:#B392F0">generateBeanName</span><span style="color:#E1E4E8">(candidate, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.registry);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (candidate </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> AbstractBeanDefinition) {</span></span>
+<span class="line"><span style="color:#6A737D">				//支持了@Lazy @DependOn注解</span></span>
+<span class="line"><span style="color:#B392F0">				postProcessBeanDefinition</span><span style="color:#E1E4E8">((AbstractBeanDefinition) candidate, beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (candidate </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> AnnotatedBeanDefinition) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				AnnotationConfigUtils.</span><span style="color:#B392F0">processCommonDefinitionAnnotations</span><span style="color:#E1E4E8">((AnnotatedBeanDefinition) candidate);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">checkCandidate</span><span style="color:#E1E4E8">(beanName, candidate)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				BeanDefinitionHolder definitionHolder </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionHolder</span><span style="color:#E1E4E8">(candidate, beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">				definitionHolder </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#E1E4E8">						AnnotationConfigUtils.</span><span style="color:#B392F0">applyScopedProxyMode</span><span style="color:#E1E4E8">(scopeMetadata, definitionHolder, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.registry);</span></span>
+<span class="line"><span style="color:#E1E4E8">				beanDefinitions.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(definitionHolder);</span></span>
+<span class="line"><span style="color:#6A737D">				//BeanDefinition注册</span></span>
+<span class="line"><span style="color:#B392F0">				registerBeanDefinition</span><span style="color:#E1E4E8">(definitionHolder, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.registry);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> beanDefinitions;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>点进去看看registerBeanDefinition()方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinition</span><span style="color:#E1E4E8">(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinitionReaderUtils.</span><span style="color:#B392F0">registerBeanDefinition</span><span style="color:#E1E4E8">(definitionHolder, registry);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* BeanDefinitionReaderUtils</span></span>
+<span class="line"><span style="color:#6A737D">* Description : 向指定的bean工厂注册BeanDefinition</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinition</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">		BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#6A737D">	// Register bean definition under primary name.</span></span>
+<span class="line"><span style="color:#E1E4E8">	String beanName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> definitionHolder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">	//完成BeanDefinition的注册，重点看，重要程度 5</span></span>
+<span class="line"><span style="color:#E1E4E8">	registry.</span><span style="color:#B392F0">registerBeanDefinition</span><span style="color:#E1E4E8">(beanName, definitionHolder.</span><span style="color:#B392F0">getBeanDefinition</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">	//建立别名和 id的映射，这样就可以根据别名获取到id</span></span>
+<span class="line"><span style="color:#6A737D">	// Register aliases for bean name, if any.</span></span>
+<span class="line"><span style="color:#F97583">	String</span><span style="color:#E1E4E8">[] aliases </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> definitionHolder.</span><span style="color:#B392F0">getAliases</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (aliases </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (String alias </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> aliases) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			registry.</span><span style="color:#B392F0">registerAlias</span><span style="color:#E1E4E8">(beanName, alias);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* DefaultListableBeanFactory</span></span>
+<span class="line"><span style="color:#6A737D">* Description: 自定义标签的注册，和默认标签的注册方式一致，两个map</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerBeanDefinition</span><span style="color:#E1E4E8">(String beanName, BeanDefinition beanDefinition)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanDefinitionStoreException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(beanName, </span><span style="color:#9ECBFF">"Bean name must not be empty"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(beanDefinition, </span><span style="color:#9ECBFF">"BeanDefinition must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (beanDefinition </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> AbstractBeanDefinition) {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			((AbstractBeanDefinition) beanDefinition).</span><span style="color:#B392F0">validate</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeanDefinitionValidationException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionStoreException</span><span style="color:#E1E4E8">(beanDefinition.</span><span style="color:#B392F0">getResourceDescription</span><span style="color:#E1E4E8">(), beanName,</span></span>
+<span class="line"><span style="color:#9ECBFF">					"Validation of bean definition failed"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 先判断 BeanDefinition是否已经注册</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanDefinition existingDefinition </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (existingDefinition </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isAllowBeanDefinitionOverriding</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionOverrideException</span><span style="color:#E1E4E8">(beanName, beanDefinition, existingDefinition);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// ...... 省略 ......</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// 把 beanDefinition 缓存到map中</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.beanDefinitionMap.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, beanDefinition);</span></span>
+<span class="line"><span style="color:#6A737D">			//把 beanName放到 beanDefinitionNames list中，bean实例化的时候需要用到</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.beanDefinitionNames.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.manualSingletonNames.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.frozenBeanDefinitionNames </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (existingDefinition </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#B392F0"> containsSingleton</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#B392F0">		resetBeanDefinition</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>至此，自定义标签的解析过程全部完成，也是refresh方法中的obtainFreshBeanFactory()方法执行完成。主要功能总结下：</p>
+<ul>
+<li>创建BeanFactory对象</li>
+<li>解析xml标签，封装成BeanDefinition对象并缓存起来，方便后续bean的实例化调用</li>
+</ul>
+<p>下一章，我将跟下Spring容器bean的实例化过程，敬请期待.^_^</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

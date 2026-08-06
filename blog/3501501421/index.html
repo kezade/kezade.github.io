@@ -1,0 +1,284 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MySQL学习】6.执行原理</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MySQL学习】6.执行原理 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/7/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MySQL</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#性能优化</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-单表访问之索引合并">1 单表访问之索引合并</h1>
+<p>MySQL在一般情况下执行一个查询时<code>最多</code>只会用到单个<code>二级索引</code>，但存在有特殊情况，也可能在一个查询中使用到多个二级索引，MySQL中这种使用到多个索引来完成一次查询的执行方法称之为：<code>索引合并/index merg</code>。e</p>
+<h2 id="11-intersection-合并">1.1 Intersection 合并</h2>
+<p>这里是说某个查询可以使用<code>多个二级索引</code>，将从多个二级索引中查询到的结果取<code>交集</code>，比方说下边这个查询:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> order_no </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'a'</span><span style="color:#F97583"> AND</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'b'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>假设这个查询使用 Intersection 合并的方式执行的话，那这个过程就是这样的:</p>
+<ul>
+<li>从 <code>idx_order_no</code> 二级索引对应的 <code>B+树</code>中取出 <code>order_no= 'a'</code>的相关记录。</li>
+<li>从 <code>idx_expire_time</code> 二级索引对应的 <code>B+树</code>中取出 <code>expire_time= 'b'</code>的相关记录。</li>
+<li>二级索引的记录都是由<code>索引列 + 主键</code>构成的，所以我们可以计算出这两个结果集中 <code>id</code> 值的<code>交集</code>。</li>
+<li>按照上一步生成的 <code>id</code> 值列表进行<code>回表</code>操作，也就是从<code>聚簇索引</code>中把<code>指定 id 值</code>的完整用户记录取出来，返回给用户。</li>
+</ul>
+<blockquote>
+<p>为啥不直接使用 <code>idx_order_no</code> 或者 <code>idx_expire_time</code> 只根据某个搜索条件去读取<code>一个二级索引</code>，然后<code>回表</code>后再<code>过滤</code>另外一个搜索条件呢?</p>
+</blockquote>
+<p>这里要分析一下两种查询执行方式之间需要的<code>成本代价</code>。</p>
+<ul>
+<li>只读取一个二级索引的成本：按照某个搜索条件读取一个二级索引，根据该二级索引得到的主键值进行<code>回表</code>操作，然后再<code>过滤</code>其他的搜索条件</li>
+<li>读取多个二级索引之后取交集成本：按照不同的搜索条件<code>分别读取</code>不同的二级索引，将从多个二级索引得到的<code>主键值</code>取<code>交集</code>，然后进行<code>回表</code>操作。</li>
+</ul>
+<p>虽然读取多个二级索引比读取一个二级索引消耗性能，但是大部分情况下读取二级索引的操作是<code>顺序 I/O</code>，而<code>回表</code>操作是<code>随机 I/O</code>，所以如果只读取一个二级索引时需要回表的记录数特别多，而读取多个二级索引之后取交集的记录数非常少，当节省的因为回表而造成的性能损耗比访问多个二级索引带来的性能损耗更高时，读取多个二级索引后取交集比只读取一个二级索引的<code>成本更低</code>。</p>
+<blockquote>
+<p>MySQL 在某些特定的情况下才可能会使用到 <code>Intersection 索引合并</code>，哪些情况呢?</p>
+</blockquote>
+<ul>
+<li>情况一：<code>等值匹配</code>：二级索引列是等值匹配的情况，对于<code>联合索引</code>来说，在联合索引中的每个列都必须<code>等值匹配</code>，不能出现只匹配部分列的情况。</li>
+<li>情况二：主键列可以是范围匹配。</li>
+</ul>
+<blockquote>
+<p>之所以在二级索引列都是<code>等值匹配</code>的情况下才可能使用 <code>Intersection 索引合并</code>，是因为只有在这种情况下根据二级索引查询出的结果集是<code>按照主键值排序的</code>。Intersection 索引合并会把从多个二级索引中查询出的主键值求交集，如果从各个二级索引中查询的到的结果集本身就是已经按照主键排好序的，那么求交集的过程就很容易。</p>
+</blockquote>
+<h2 id="12-union-合并">1.2 Union 合并</h2>
+<p>Union 是<code>并集</code>的意思，适用于使用不同索引的搜索条件之间使用 <code>OR</code> 连接起来的情况。</p>
+<p>比如：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> order_no </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'a'</span><span style="color:#F97583"> OR</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'b'</span></span></code></pre>
+<p>与 <code>Intersection 索引合并</code>类似，MySQL 在某些特定的情况下才可能会使用到 <code>Union 索引合并</code>:</p>
+<ul>
+<li>情况一：等值匹配分析同 Intersection 合并</li>
+<li>情况二：主键列可以是范围匹配 分析同 Intersection 合并</li>
+<li>情况三：使用 Intersection 索引合并的搜索条件。就是搜索条件的<code>某些部分</code>使用 <code>Intersection 索引合并</code>的方式得到的<strong>主键集合</strong>和<code>其他方式</code>得到的<strong>主键集合</strong>取<code>交集</code>，比方说这个查询:</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> insert_time </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'a'</span><span style="color:#F97583"> AND</span><span style="color:#E1E4E8"> order_status </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'b'</span><span style="color:#F97583"> AND</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'c'</span><span style="color:#F97583"> OR</span><span style="color:#E1E4E8"> (order_no </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'a'</span><span style="color:#F97583"> AND</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'b'</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>优化器<code>可能</code>采用这样的方式来执行这个查询:</p>
+<ul>
+<li>先按照搜索条件 <code>order_no = 'a' AND expire_time = 'b'</code>从索引 <code>idx_order_no</code> 和 <code>idx_expire_time</code> 中使用 <code>Intersection 索引合并</code>的方式得到一个主键集合。</li>
+<li>再按照搜索条件 <code>insert_time = 'a' AND order_status = 'b' AND expire_time = 'c'</code>从联合索引 <code>u_idx_day_status</code> 中得到另一个主键集合。</li>
+<li>采用 <code>Union 索引合并</code>的方式把上述两个主键集合取<code>并集</code>，然后进行<code>回表</code>操作，将结果返回给用户。</li>
+</ul>
+<p>当然，查询条件符合了这些情况也<code>不一定</code>就会采用 Union 索引合并，也得<strong>看优化器的心情</strong>。优化器只有在单独根据搜索条件从某个二级索引中获取的记录数比较少，通过 Union 索引合并后进行访问的<code>代价</code>比全表扫描<code>更小</code>时才会使用 Union 索引合并。</p>
+<h2 id="13-sort_union-合并">1.3 Sort_Union 合并</h2>
+<p>先按照二级索引记录的主键值进行<code>排序</code>，之后按照 <code>Union 索引合并</code>方式执行的方式称之为 <code>Sort-Union 索引合并</code>.</p>
+<h2 id="14-联合索引替代intersection-索引合并">1.4 联合索引替代Intersection 索引合并</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> order_no</span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'a'</span><span style="color:#F97583"> And</span><span style="color:#E1E4E8"> expire_time</span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> 'z'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>这个查询之所以可能使用 Intersection 索引合并的方式执行，还不是因为 <code>idx_order_no</code> 和 <code>idx_expire_time</code> 是两个单独的 B+树索引，要是把这两个列搞一个<code>联合索引</code>，那直接使用这个联合索引就把事情搞定了，何必用啥索引合并呢，就像这样:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">ALTER</span><span style="color:#F97583"> TABLE</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">drop</span><span style="color:#F97583"> index</span><span style="color:#E1E4E8"> idx_order_no, idx_expire_time,</span></span>
+<span class="line"><span style="color:#F97583">add</span><span style="color:#F97583"> index</span><span style="color:#E1E4E8"> idx_order_no_expire_time(order_no, expire_time);</span></span></code></pre>
+<p>这样我们把 idx_order_no, idx_expire_time 都干掉，再添加一个<code>联合索引 idx_order_no_expire_time</code>，使用这个联合索引进行查询简直是又快又好，既不用多读一棵 B+树，也不用合并结果。</p>
+<h1 id="2-连接查询">2 连接查询</h1>
+<blockquote>
+<p>连接的<code>本质</code>就是把各个连接表中的记录都取出来依次匹配的<code>组合</code>加入结果集并返回给用户。</p>
+</blockquote>
+<h1 id="3-mysql-的查询成本">3 MySQL 的查询成本</h1>
+<h2 id="31-成本组成">3.1 成本组成</h2>
+<p>MySQL 执行一个查询可以有不同的执行方案，它会选择其中<code>成本最低</code>，或者说<code>代价最低</code>的那种方案去真正地执行查询。</p>
+<p>在 MySQL 中一条<code>查询语句</code>的<code>执行成本</code>是由下边这<code>两个方面</code>组成的:</p>
+<ul>
+<li>I/O成本：表、索引等数据是存储在磁盘上的，当用户查询表数据时，MySQL需要先把数据或者索引加载到<code>内存</code>中然后再操作。这个从<code>磁盘到内存</code>这个加载的过程<code>损耗的时间</code>称之为 <code>I/O 成本</code>。</li>
+<li>CPU成本：<code>读取以及检测记录是否满足对应的搜索条件</code>、<code>对结果集进行排序</code>等这些操作<code>损耗的时间</code>称之为 <code>CPU 成本</code>。</li>
+<li>成本常数：对于 <code>InnoDB</code> 存储引擎来说，<code>页</code>是<code>磁盘</code>和<code>内存</code>之间交互的<code>基本单位</code>。常用的成本常数有（当然还有其他的成本常数）：
+<ul>
+<li>读取一个页面花费的成本默认是 <code>1.0</code></li>
+<li>读取以及检测一条记录是否符合搜索条件的成本默认是 <code>0.2</code>。</li>
+</ul>
+<blockquote>
+<p>注意，不管读取记录时需不需要检测是否满足搜索条件，其成本都算是 0.2。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="32-单表查询的成本">3.2 单表查询的成本</h2>
+<h3 id="321-基于成本的优化步骤实战">3.2.1 基于成本的优化步骤实战</h3>
+<p>在一条单表查询语句真正执行之前，MySQL 的<code>查询优化器</code>会找出执行该语句<code>所有可能</code>使用的方案，对比之后找出<code>成本最低的方案</code>，这个成本最低的方案就是所谓的<code>执行计划</code>，之后才会调用存储引擎提供的接口真正地执行查询，这个过程总结一下就是这样:</p>
+<ul>
+<li>根据搜索条件，找出所有可能使用的索引</li>
+<li>计算全表扫描的代价</li>
+<li>计算使用不同索引执行查询的代价</li>
+<li>对比各种执行方案的代价，找出成本最低的那一个</li>
+</ul>
+<h3 id="322-举例">3.2.2 举例</h3>
+<p>现有以下表结构</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">CREATE</span><span style="color:#F97583"> TABLE</span><span style="color:#B392F0"> order_exp</span></span>
+<span class="line"><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">    `id`</span><span style="color:#F97583">              bigint</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">22</span><span style="color:#E1E4E8">)   </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> AUTO_INCREMENT COMMENT </span><span style="color:#9ECBFF">'订单的主键'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `order_no`</span><span style="color:#F97583">        varchar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">50</span><span style="color:#E1E4E8">)  </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'订单的编号'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `order_note`</span><span style="color:#F97583">      varchar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'订单说明'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `insert time`</span><span style="color:#F97583">     datetime</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)  </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'插入订单的时间'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `expire_duration`</span><span style="color:#F97583"> bigint</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">22</span><span style="color:#E1E4E8">)   </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'订单的过期时长, 单位秒'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `expire_time`</span><span style="color:#F97583">     datetime</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">)  </span><span style="color:#F97583">NOT NULL</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'订单的过期时间'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">    `order_status`</span><span style="color:#F97583">    smallint</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">6</span><span style="color:#E1E4E8">)  </span><span style="color:#F97583">NOT NULL</span><span style="color:#F97583"> DEFAULT</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> COMMENT </span><span style="color:#9ECBFF">'订单状态：0:未支付，1:已支付，-1: 已过期、关闭'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">    PRIMARY KEY</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">`id`</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">USING</span><span style="color:#E1E4E8"> BTREE,</span></span>
+<span class="line"><span style="color:#F97583">    UNIQUE</span><span style="color:#F97583"> INDEX</span><span style="color:#9ECBFF"> 'idx day status'</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">`insert time`</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">`order_status`</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">USING</span><span style="color:#E1E4E8"> BTREE</span></span>
+<span class="line"><span style="color:#E1E4E8">) ENGINE </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> InnoDB</span></span>
+<span class="line"><span style="color:#E1E4E8">  AUTO_INCREMENT </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 16</span></span>
+<span class="line"><span style="color:#F97583">  CHARACTER</span><span style="color:#F97583"> SET</span><span style="color:#E1E4E8"> utf8mb4</span></span>
+<span class="line"><span style="color:#F97583">  COLLATE</span><span style="color:#E1E4E8"> utf8_general_ci COMMENT </span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'订单表'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>查询语句如下:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span></span>
+<span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> order_exp</span></span>
+<span class="line"><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> order_no </span><span style="color:#F97583">IN</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">'DD00_6S'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'DD00_9S'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'DD00_10S'</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">  AND</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">></span><span style="color:#9ECBFF"> '2021-03-22 18:28:28'</span></span>
+<span class="line"><span style="color:#F97583">  AND</span><span style="color:#E1E4E8"> expire_time </span><span style="color:#F97583">&#x3C;=</span><span style="color:#9ECBFF"> '2021-03-22 18:35:09'</span></span>
+<span class="line"><span style="color:#F97583">  AND</span><span style="color:#E1E4E8"> insert_time </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> expire_time</span></span>
+<span class="line"><span style="color:#F97583">  AND</span><span style="color:#E1E4E8"> order_note </span><span style="color:#F97583">LIKE</span><span style="color:#9ECBFF"> '%hello%'</span></span>
+<span class="line"><span style="color:#F97583">  AND</span><span style="color:#E1E4E8"> order_status </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h4 id="3.2.2.1">3.2.2.1 根据搜索条件，找出所有可能使用的索引</h4>
+<p>我们分析一下上边查询中涉及到的几个搜索条件:</p>
+<ul>
+<li><code>order_no IN ('DD00_6S', 'DD00_9S', 'DD00_10S')</code> ，这个搜索条件可以使用二级索引<code>idx_order_no</code>。</li>
+<li><code>expire_time> '2021-03-22 18:28:28' AND expire_time&#x3C;= '2021-03-22 18:35:09'</code>，这个搜索条件可以使用二级索引<code>idx_expire_time</code>。</li>
+<li><code>insert_time> expire_time</code>，这个搜索条件的索引列由于没有和常数比较，所以并不能使用到索引。</li>
+<li><code>order_note LIKE '%hello%'</code>，<code>order_note</code>即使有索引，但是通过 <code>LIKE</code> 操作符和以<code>通配符开头</code>的字符串做比较，不可以适用索引。</li>
+<li><code>order_status = 0</code>，由于该列上只有联合索引，而且<strong>不符合</strong><code>最左前缀原则</code>，所以不会用到索引。</li>
+</ul>
+<p>综上所述，上边的查询语句可能用到的索引，也就是 <code>possible keys</code> 只有 <code>idx_order_no</code>,<code>idx_expire_time</code>。</p>
+<blockquote>
+<p>Tips：MySQL把一个查询中<code>可能</code>使用到的<code>索引</code>称之为 <code>possible keys</code>。</p>
+</blockquote>
+<h4 id="3222-计算全表扫描的代价">3.2.2.2 计算全表扫描的代价</h4>
+<p>对于<code>InnoDB存储引擎</code>来说，<code>全表扫描</code>的意思就是把<code>聚簇索引</code>中的记录都依次和给定的搜索条件做一下比较，把符合搜索条件的记录加入到<code>结果集</code>，所以需要将聚簇索引对应的页面加载到内存中，然后再检测记录是否符合搜索条件。</p>
+<p>由于<code>查询成本 = I/O 成本 + CPU 成本</code>，所以计算全表扫描的代价需要两个信息:</p>
+<ul>
+<li>聚簇索引占用的页面数</li>
+<li>该表中的记录数</li>
+</ul>
+<p>MySQL给我们提供了 <code>SHOW TABLE STATUS</code> 语句来查看表的统计信息，以上表<code>order_exp</code>为例，查询该表的统计信息语句如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#E1E4E8">SHOW </span><span style="color:#F97583">TABLE</span><span style="color:#F97583"> STATUS</span><span style="color:#F97583"> LIKE</span><span style="color:#9ECBFF"> 'order_exp'</span><span style="color:#E1E4E8"> \G</span></span></code></pre>
+<p>结果如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#E1E4E8">mysql</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> SHOW </span><span style="color:#F97583">TABLE</span><span style="color:#F97583"> STATUS</span><span style="color:#F97583"> LIKE</span><span style="color:#9ECBFF"> 'order_exp'</span><span style="color:#E1E4E8"> \G</span></span>
+<span class="line"><span style="color:#F97583">****************************</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">row***************************</span></span>
+<span class="line"><span style="color:#F97583">Name</span><span style="color:#E1E4E8">: order_exp</span></span>
+<span class="line"><span style="color:#E1E4E8">Engine: InnoDB</span></span>
+<span class="line"><span style="color:#F97583">Version</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">10</span></span>
+<span class="line"><span style="color:#E1E4E8">Row_format: </span><span style="color:#F97583">Dynamic</span></span>
+<span class="line"><span style="color:#F97583">Rows</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">10350</span></span>
+<span class="line"><span style="color:#E1E4E8">Avg_row_length: </span><span style="color:#79B8FF">153</span></span>
+<span class="line"><span style="color:#E1E4E8">Data_length: </span><span style="color:#79B8FF">1589248</span></span>
+<span class="line"><span style="color:#E1E4E8">Max_data_length: </span><span style="color:#79B8FF">0</span></span>
+<span class="line"><span style="color:#E1E4E8">Index_length: </span><span style="color:#79B8FF">1130496</span></span>
+<span class="line"><span style="color:#E1E4E8">Data_free: </span><span style="color:#79B8FF">4194304</span></span>
+<span class="line"><span style="color:#E1E4E8">Auto_increment: </span><span style="color:#79B8FF">10819</span></span>
+<span class="line"><span style="color:#E1E4E8">Create_time: </span><span style="color:#79B8FF">2021</span><span style="color:#F97583">-</span><span style="color:#79B8FF">03</span><span style="color:#F97583">-</span><span style="color:#79B8FF">31</span><span style="color:#79B8FF"> 15</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">39</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">43</span></span>
+<span class="line"><span style="color:#E1E4E8">Update_time: </span><span style="color:#79B8FF">2021</span><span style="color:#F97583">-</span><span style="color:#79B8FF">04</span><span style="color:#F97583">-</span><span style="color:#79B8FF">05</span><span style="color:#79B8FF"> 18</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">43</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">17</span></span>
+<span class="line"><span style="color:#E1E4E8">Check_time: </span><span style="color:#F97583">NULL</span></span>
+<span class="line"><span style="color:#E1E4E8">Collation: utf8_general_ci</span></span>
+<span class="line"><span style="color:#F97583">Checksum</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">NULL</span></span>
+<span class="line"><span style="color:#E1E4E8">Create_options:</span></span>
+<span class="line"><span style="color:#E1E4E8">Comment:</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> row</span><span style="color:#F97583"> in</span><span style="color:#F97583"> set</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">00</span><span style="color:#E1E4E8"> sec)</span></span></code></pre>
+<p>我们只需要关心这两个参数：</p>
+<ul>
+<li>Rows：表示表中的记录条数。对于使用 <code>MyISAM</code> 存储引擎的表来说，该值是<code>准确的</code>，对于使用 <code>InnoDB</code> 存储引擎的表来说，该值是一个<code>估计值</code>。</li>
+<li>Data_length：表示表占用的存储空间字节数。使用 <code>MyISAM</code> 存储引擎的表来说，该值就是<code>数据文件的大小</code>，对于使用 <code>InnoDB</code> 存储引擎的表来说，该值就相当于<code>聚簇索引占用的存储空间大小</code>，也就是说可以这样计算该值的大小:
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Data_length = 聚簇索引的页面数量 * 每个页面的大小</span></span></code></pre>
+这里 <code>order_exp</code> 使用默认 <code>16KB</code> 的页面大小，而上边查询结果显示<code>Data_length</code>的值是<code>1589248</code>，所以我们可以反向来推导出聚簇索引的页面数量:
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>  聚簇索引的页面数量 = 1589248 ÷ 16 ÷ 1024 = 97</span></span></code></pre>
+</li>
+</ul>
+<p>现在已经得到了<code>聚簇索引占用的页面数量</code>以及该表<code>记录数的估计值</code>，所以就可以计算<code>全表扫描成本</code>了。</p>
+<ul>
+<li>I/O 成本：<code>97 * 1.0 + 1.1 = 98.1</code>，<code>97</code>指的是聚簇索引占用的页面数，<code>1.0</code>指的是加载一个页面的成本常数，后边的<code>1.1</code>是一个微调值。
+<blockquote>
+<p>TIPS：MySQL 在真实计算成本时会进行一些微调，这些微调的值是直接硬编码到代码里的，没有注释而且这些微调的值十分的小，并不影响我们分析。</p>
+</blockquote>
+</li>
+<li>CPU 成本：<code>10350 * 0.2 + 1.0 = 2071</code>，<code>10350</code>指的是统计数据中表的记录数，对于InnoDB存储引擎来说是一个估计值，<code>0.2</code>指的是访问一条记录所需的成本常数，后边的<code>1.0</code>是一个微调值。</li>
+<li>总成本：<code>98.1 + 2071 = 2169.1</code></li>
+</ul>
+<p>综上所述，对于 <code>order_exp</code> 的<code>全表扫描</code>所需的<code>总成本</code>就是<code>2169.1</code>。</p>
+<blockquote>
+<p>TIPS：表中的记录其实都存储在<code>聚簇索引</code>对应<code>B+树</code>的<code>叶子节点</code>中，所以只要我们通过根节点获得了最左边的叶子节点，就可以沿着叶子节点组成的<code>双向链表</code>把所有记录都查看一遍。
+也就是说全表扫描这个过程其实有的<code>B+树非叶子节点</code>是不需要访问的，但是<code>MySQL</code>在计算<code>全表扫描成本</code>时直接使用<code>聚簇索引占用的页面数</code>作为计算<code>I/O成本</code>的依据，是<code>不区分</code>非叶子节点和叶子节点的。</p>
+</blockquote>
+<h4 id="3223-计算使用不同索引执行查询的代价">3.2.2.3 计算使用不同索引执行查询的代价</h4>
+<p>MySQL<code>查询优化器</code>先分析使用<code>唯一二级索引</code>的成本，再分析使用<code>普通索引</code>的成本。这里的表<code>order_exp</code>只有两个普通二级索引，先算哪个都可以。</p>
+<p>在<a href="#3.2.2.1">计算全表扫描的代价</a>一节中，可能用到的索引有<code>idx_order_no</code>,<code>idx_expire_time</code>。因而接下来，我们分析这两个索引的查询成本分别是多少。</p>
+<h5 id="32231-使用-idx_expire_time-执行查询的成本分析">3.2.2.3.1 使用 <code>idx_expire_time</code> 执行查询的成本分析</h5>
+<p><code>idx_expire_time</code> 对应的搜索条件是：<code>expire_time> '2021-03-22 18:28:28' AND expire_time&#x3C;= '2021-03-22 18:35:09'</code> ，也就是说对应的范围区间就是: <code>('2021-03-22 18:28:28' , '2021-03-22 18:35:09' )</code>。</p>
+<p>使用 <code>idx_expire_time</code> 搜索会使用用<code>二级索引 + 回表方式</code>的查询，MySQL 计算这种查询的成本依赖<code>两个方面</code>的数据:</p>
+<ul>
+<li>
+<p>范围区间数量：不论某个范围区间的二级索引到底占用了多少页面，查询优化器认为读取<code>索引的一个范围区间</code>的 <code>I/O 成本</code>和读取<code>一个页面</code>是<strong>相同的</strong>。</p>
+<p>本例中使用 <code>idx_expire_time</code> 的范围区间<code>只有一个</code>，所以相当于访问这个范围区间的二级索引付出的 <code>I/O 成本</code>就是：<code>1 * 1.0 = 1.0</code></p>
+</li>
+<li>
+<p>需要回表的记录数：优化器需要计算二级索引的某个范围区间到底包含多少条记录，对于本例来说就是要计算 <code>idx_expire_time</code> 在<code>('2021-03-22 18:28:28' ，'2021-03-22 18:35:09')</code>这个范围区间中包含多少二级索引记录，计算过程是这样的:</p>
+<ul>
+<li>先根据 <code>expire_time> '2021-03-22 18:28:28'</code>这个条件访问一下 <code>idx_expire_time</code> 对应的 B+树索引，找到满足 <code>expire_time> '2021-03-22 18:28:28'</code> 这个条件的<code>第一条记录</code>，我们把这条记录称之为<code>区间最左记录</code>。</li>
+<li>再根据 <code>expire_time&#x3C;= '2021-03-22 18:35:09'</code>这个条件继续从 <code>idx_expire_time</code> 对应的 B+树索引中找出<code>最后一条</code>满足这个条件的记录，我们把这条记录称之为<code>区间最右记录</code>。</li>
+<li>如果<code>区间最左记录</code>和<code>区间最右记录</code>相隔不太远(在 <code>MySQL 5.7</code> 这个版本里，只要相隔<code>不大于 10 个页面</code>即可)，那就可以<code>精确</code>统计出满足 <code>expire_time> '2021-03-22 18:28:28' AND expire_time&#x3C;= '2021-03-22 18:35:09'</code>条件的二级索引<code>记录条数</code>。否则只沿着区间最左记录<code>向右</code>读<code>10个页面</code>，计算平均每个页面中包含多少记录，然后用这个<code>平均值</code>乘以<code>区间最左记录和区间最右记录之间的页面数量</code>就可以了。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>那么问题又来了，怎么估计<code>区间最左记录</code>和<code>区间最右记录</code>之间有多少个页面呢？</p>
+<p>解决这个问题还得回到B+树索引的结构中来。我们假设区间<strong>最左记录</strong>在<code>页b</code>中，区间<strong>最右记录</strong>在<code>页c</code>中，那么我们想计算区间最左记录和区间最右记录之间的页面数量，就相当于计算页b和页c之间有多少页面，而它们<code>父节点</code>中记录的每一条目录项记录都对应一个数据页，所以计算页b和页c之间有多少页面就相当于计算它们<code>父节点</code>(也就是页a)中对应的目录项记录之间隔着几条记录。在一个页面中统计两条记录之间有几条记录的成本就很小了。</p>
+<p>不过还有问题，如果页 b 和页 c 之间的页面实在太多，以至于页 b 和页 c 对应的目录项记录都不在一个父页面中怎么办？</p>
+<p>既然是树，那就继续<code>递归</code>，一个B+树有<code>4层</code>高已经很不得了了，所以这个统计过程也不是很耗费性能。</p>
+</blockquote>
+<p>回到正题，现在计算<code>idx_expire_time</code>所花费的<code>CPU成本</code>。</p>
+<p>MySQL根据上述算法测得 <code>idx_expire_time</code> 在区间<code>('2021-03-22 18:28:28' ， '2021-03-22 18:35:09')</code>之间大约有 <code>39</code> 条记录。可执行以下语句得到记录数Row：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#E1E4E8">explain </span><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> expire_time</span><span style="color:#F97583">></span><span style="color:#9ECBFF"> '2021-03-22 18:28:28'</span><span style="color:#F97583"> AND</span><span style="color:#E1E4E8"> expire_time</span><span style="color:#F97583">&#x3C;=</span><span style="color:#9ECBFF"> '2021-03-22 18:35:09'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>读取这 39 条二级索引记录需要付出的 <code>CPU 成本</code>就是:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>39 x 0.2 + 0.01 = 7.81</span></span></code></pre>
+<p>其中 <code>39</code> 是需要读取的二级索引<code>记录条数</code>，<code>0.2</code>是读取一条记录成本常数，<code>0.01</code>是微调。</p>
+<p>再计算<code>I/O成本</code>。</p>
+<p>在通过二级索引获取到记录之后，还需要干<code>两件事儿</code>:
+1）根据这些记录里的主键值到聚簇索引中做<code>回表</code>操作
+MySQL评估<code>回表操作</code>的<code>I/O成本</code>依旧很简单粗暴，其认为每次回表操作都相当于<code>访问一个页面</code>，也就是说二级索引范围区间有多少记录，就需要进行多少次回表操作，也就是需要进行多少次页面 <code>I/O</code>。</p>
+<p>上面得到了39条记录，需要进行39次的回表，因而得出<code>I/O成本</code>为：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>39 * 1.0 = 39 .0</span></span></code></pre>
+<p>其中 <code>39</code> 是预计的二级索引<code>记录数</code>，<code>1.0</code>是一个页面的 <code>I/O 成本常数</code>。</p>
+<p>2）回表操作后得到的完整用户记录，然后再检测其他搜索条件是否成立
+<code>回表操作</code>的<code>本质</code>就是通过二级索引记录的主键值到聚簇索引中找到完整的用户记录，然后再检测除 <code>expire_time> '2021-03-22 18:28:28' AND expire_time&#x3C; '2021-03-22 18:35:09'</code>这个搜索条件以外的搜索条件<code>是否成立</code>。</p>
+<p>因为我们通过范围区间获取到二级索引记录共 <code>39 条</code>，也就对应着聚簇索引中 39 条完整的用户记录，读取并检测这些完整的用户记录是否符合其余的搜索条件的 <code>CPU 成本</code>如下:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>39 * 0.2 =7.8</span></span></code></pre>
+<p>其中 <code>39</code> 是待检测记录的条数，<code>0.2</code> 是检测一条记录是否符合给定的搜索条件的成本常数。</p>
+<p>所以本例中使用 <code>idx_expire_time</code> 执行查询的成本就如下所示：</p>
+<ul>
+<li>I/O 成本：<code>1.0 + 39 * 1.0 = 40 .0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
+<li>CPU 成本：<code>39 * 0.2 + 0.01 + 39 * 0.2 = 15.61</code> (读取二级索引记录的成本 + 读取并检测回表后聚簇索引记录的成本)</li>
+</ul>
+<p>综上所述，使用 <code>idx_expire_time</code> 执行查询的总成本就是: <code>40 .0 + 15.61 = 55.61</code></p>
+<h5 id="32232-使用-idx_order_no-执行查询的成本分析">3.2.2.3.2 使用 <code>idx_order_no</code> 执行查询的成本分析</h5>
+<p><code>idx_order_no</code> 对应的搜索条件是：<code>order_no IN ('DD00_6S', 'DD00_9S', 'DD00_10S')</code>，也就是说相当于 <code>3 个单点区间</code>。</p>
+<p>与使用 <code>idx_expire_time</code> 的情况类似，我们也需要计算使用 <code>idx_order_no</code> 时需要访问的<code>范围区间数量</code>以及<code>需要回表的记录数</code>，计算过程与上面类似，我们不详列所有计算步骤和说明了。</p>
+<ul>
+<li>范围区间数量
+使用 <code>idx_order_no</code> 执行查询时很显然有 <code>3 个单点区间</code>，所以访问这 3 个范围区间的二级索引付出的 <code>I/O 成本</code>就是：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>3 * 1.0 = 3.0</span></span></code></pre>
+<ul>
+<li>需要回表的记录数
+由于使用 <code>idx_expire_time</code> 时有 3 个单点区间，所以每个单点区间都需要查找一遍对应的二级索引记录数，三个单点区间总共需要回表的记录数是<code>58</code>。语句如下：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#E1E4E8">explain </span><span style="color:#F97583">SELECT</span><span style="color:#F97583"> *</span><span style="color:#F97583"> FROM</span><span style="color:#E1E4E8"> order_exp </span><span style="color:#F97583">WHERE</span><span style="color:#E1E4E8"> order_no </span><span style="color:#F97583">IN</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">'DD00_6S'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'DD00_9S'</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">'DD00_10S'</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>读取这些二级索引记录的 <code>CPU 成本</code>就是：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>58 * 0.2 + 0.01 = 11.61</span></span></code></pre>
+<p>再计算<code>I/O成本</code>。</p>
+<p>根据这些记录里的主键值到聚簇索引中做回表操作，所需的 <code>I/O 成本</code>就是:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>58 * 1.0 = 58.0</span></span></code></pre>
+<p>回表操作后得到的完整用户记录，然后再比较其他搜索条件是否成立。此步骤对应的 <code>CPU 成本</code>就是:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>58 * 0.2 = 11.6</span></span></code></pre>
+<p>综上，使用 <code>idx_order_no</code> 执行查询的成本就如下所示:</p>
+<ul>
+<li>I/O 成本：<code>3.0 + 58 x 1.0 = 61.0</code> (范围区间的数量 + 预估的二级索引记录条数)</li>
+<li>CPU 成本：<code>58 x 0.2 + 58 x 0.2 + 0.01 = 23.21</code> (读取二级索引记录的成本 + 读取并检测回表后聚簇索引记录的成本)</li>
+</ul>
+<p>综上所述，使用 <code>idx_order_no</code> 执行查询的<code>总成本</code>就是: <code>61.0 + 23.21 = 84.21</code></p>
+<h5 id="32233-是否有可能使用索引合并index-merge">3.2.2.3.3 是否有可能使用索引合并(Index Merge)</h5>
+<p>本例中有关 <code>order_no</code> 和 <code>expire_time</code> 的搜索条件是使用 <code>AND</code> 连接起来的，而对于 <code>idx_order_no</code> 和 <code>idx_expire_time</code> 都是<code>范围查询</code>，也就是说查找到的二级索引记录并不是按照<code>主键值</code>进行排序的，并<code>不满足</code>使用 <code>Intersection 索引合并</code>的条件，所以并不会使用索引合并。而且 MySQL 查询优化器计算<code>索引合并成本</code>的算法也比较麻烦，所以我们也不会细说。</p>
+<h3 id="323-对比各种方案找出成本最低的那一个">3.2.3 对比各种方案，找出成本最低的那一个</h3>
+<p>下边把执行本例中的查询的各种可执行方案以及它们对应的成本列出来:</p>
+<ul>
+<li>全表扫描的成本：<code>2148.7</code></li>
+<li>使用 <code>idx_expire_time</code> 的成本：<code>55.61</code></li>
+<li>使用 <code>idx_order_no</code> 的成本：<code>84.21</code></li>
+</ul>
+<p>很显然，使用 <code>idx_expire_time</code> 的成本最低，所以当然选择 <code>idx_expire_time</code> 来执行查询。</p>
+<blockquote>
+<p>Warning:</p>
+<ul>
+<li>MySQL 的源码中对成本的计算实际要更复杂，但是基本思想和算法是没错的。</li>
+<li>在 MySQL 的实际计算中，在和全文扫描比较成本时，使用索引的成本会<strong>去除</strong><code>读取并检测回表后聚簇索引记录的成本</code>，也就是说，我们通过 MySQL 看到的成本将会是：
+<ul>
+<li><code>idx_expire_time</code> 为<code> 47.81</code>(55.61-7.8)，</li>
+<li><code>idx_order_no</code> 为 <code>72.61</code>(84.21-11.6)。</li>
+</ul>
+但是 MySQL 比较完成本后，会再计算一次使用索引的成本，此时就会<strong>加上</strong><code>读取并检测回表后聚簇索引记录的成本</code>，也就是我们计算出来的值。</li>
+</ul>
+</blockquote>
+<h1 id="4-innodb-中的统计数据">4 InnoDB 中的统计数据</h1>
+<h1 id="5-mysql-的查询重写规则">5 MySQL 的查询重写规则</h1>
+<h1 id="6-再深入查询优化">6 再深入查询优化</h1> </div> </article>  <!-- </div>
+    </main> --> </body></html>

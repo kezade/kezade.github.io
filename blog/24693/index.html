@@ -1,0 +1,187 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】初始化阶段</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】初始化阶段 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一核心配置类">一、核心配置类</h1>
+<p>XMLConfigBuilder： 主要负责解析mybatis-config.xml；
+XMLMapperBuilder： 主要负责解析映射配置Mapper.xml 文件；
+XMLStatementBuilder： 主要负责解析映射配置文件中的SQL 节点
+三者之间的关系，如下图
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311160137766.png" alt="&#x22;核心配置类三剑客关系图&#x22;"></p>
+<h2 id="1xmlconfigbuilder">1.XMLConfigBuilder</h2>
+<p>主要负责解析mybatis关键配置文件mybatis-config.xml，重点关注91行，全局唯一初始化的大配置类。<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161114699.png" alt="&#x22;图1&#x22;">
+面试题经常会问，为啥mybatis的配置类Configuration是单例的？首先我们在BaseBuilder中发现它是final类型的，其次91行是全局唯一初始化它的地方。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311161415639.png" alt="&#x22;图2&#x22;"></p>
+<h2 id="2xmlmapperbuilder">2.XMLMapperBuilder</h2>
+<p>负责解析<em>mapper.xml和</em>mapper.java文件，关键代码
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116211879.png" alt="&#x22;图3&#x22;">
+重点关注下configurationElement方法
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311162203404.png" alt="&#x22;图4&#x22;"></p>
+<h2 id="3xmlstatementbuilder">3.XMLStatementBuilder</h2>
+<p>主要负责解析*mapper.xml中的select、insert、update、delete标签语句。重点关注下这个方法
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031116252489.png" alt="&#x22;图5&#x22;"></p>
+<h2 id="4configuration">4.Configuration</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210311162859567.png" alt="&#x22;图6&#x22;"></p>
+<h1 id="二源码追踪初始化流程">二、源码追踪初始化流程</h1>
+<h2 id="1准备工作">1.准备工作</h2>
+<p>编写测试类</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MybatisDemo</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> SqlSessionFactory sqlSessionFactory;</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Before</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#6A737D">		//--------------------第一阶段---------------------------</span></span>
+<span class="line"><span style="color:#6A737D">	    // 1.1 读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">		String resource </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "mybatis-config.xml"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">		InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">getResourceAsStream</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#6A737D">		// 1.2 读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">		sqlSessionFactory </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SqlSessionFactoryBuilder</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(inputStream);</span></span>
+<span class="line"><span style="color:#E1E4E8">		inputStream.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="2源码分析">2.源码分析</h2>
+<h3 id="21第一阶段">2.1.第一阶段</h3>
+<h4 id="211生成sqlsessionfactory">2.1.1.生成SqlSessionFactory</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// 1.1 读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">String resource </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "mybatis-config.xml"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">getResourceAsStream</span><span style="color:#E1E4E8">(resource);</span></span></code></pre>
+<p>读取Mybaits的主配置配置文件，并返回该文件的输入流，我们知道Mybatis所有的SQL语句都写在XML配置文件里面,所以第一步就需要读取这些XML配置文件，这个不难理解，关键是读取文件后怎么存。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// 1.2 读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">sqlSessionFactory </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SqlSessionFactoryBuilder</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(inputStream);</span></span></code></pre>
+<p>读取配置文件流并将这些配置信息存放到Configuration类中.</p>
+<h4 id="212解析配置生成configuration对象">2.1.2.解析配置，生成configuration对象</h4>
+<p>重点关注下SqlSessionFactoryBuilder的build方法，主要分为两类：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//字符流</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(Reader reader);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(Reader reader, String environment);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(Reader reader, Properties properties);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(Reader reader, String environment, Properties properties);</span></span>
+<span class="line"><span style="color:#6A737D">//字节流</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(InputStream inputStream);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(InputStream inputStream, String environment);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(InputStream inputStream, Properties properties);</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(InputStream inputStream, String environment, Properties properties);</span></span></code></pre>
+<p>我们只看InputStream对应的build方法即可，顺带一提的是，其实我们可以通过</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">Reader reader</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> InputStreamReader</span><span style="color:#E1E4E8">(inputStream);</span></span></code></pre>
+<p>来将Inputstream转换为Reader对象。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 通过字节流创建 SqlSessionFactory</span></span>
+<span class="line"><span style="color:#6A737D">  *</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> inputStream</span><span style="color:#6A737D"> mybatis配置文件对应的字节流（可以通过Reader reader=new InputStreamReader(inputStream);来将Inputstream转换为Reader对象）</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> environment</span><span style="color:#6A737D"> 指定当前使用的环境标志</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> properties</span><span style="color:#6A737D">  用户自定义的属性对象</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> SqlSessionFactory</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> public</span><span style="color:#E1E4E8"> SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(InputStream inputStream, String environment, Properties properties) {</span></span>
+<span class="line"><span style="color:#F97583">     try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">         XMLConfigBuilder parser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLConfigBuilder</span><span style="color:#E1E4E8">(inputStream, environment, properties);</span></span>
+<span class="line"><span style="color:#F97583">         return</span><span style="color:#B392F0"> build</span><span style="color:#E1E4E8">(parser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">     } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">         throw</span><span style="color:#E1E4E8"> ExceptionFactory.</span><span style="color:#B392F0">wrapException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error building SqlSession."</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">     } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">         ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">         try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">             inputStream.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">         } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">             // Intentionally ignore. Prefer previous error.</span></span>
+<span class="line"><span style="color:#E1E4E8">         }</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>点进去XMLConfigBuilder的构造方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#B392F0"> XMLConfigBuilder</span><span style="color:#E1E4E8">(XPathParser parser, String environment, Properties props) {</span></span>
+<span class="line"><span style="color:#6A737D">	//重点地方，全局唯一构造Configuration对象的地方</span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Configuration</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SQL Mapper Configuration"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.configuration.</span><span style="color:#B392F0">setVariables</span><span style="color:#E1E4E8">(props);</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.parsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.environment </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> environment;</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.parser </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> parser;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<p>再去瞧瞧XMLConfigBuilder的parse方法，重点关注parseConfiguration方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Configuration </span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (parsed) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Each XMLConfigBuilder can only be used once."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  parsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">  parseConfiguration</span><span style="color:#E1E4E8">(parser.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/configuration"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> configuration;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parseConfiguration</span><span style="color:#E1E4E8">(XNode root) {</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //issue #117 read properties first</span></span>
+<span class="line"><span style="color:#6A737D">   //解析&#x3C;properties>节点</span></span>
+<span class="line"><span style="color:#B392F0">    propertiesElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"properties"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;settings>节点</span></span>
+<span class="line"><span style="color:#E1E4E8">    Properties settings </span><span style="color:#F97583">=</span><span style="color:#B392F0"> settingsAsProperties</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"settings"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#B392F0">    loadCustomVfs</span><span style="color:#E1E4E8">(settings);</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;typeAliases>节点</span></span>
+<span class="line"><span style="color:#B392F0">    typeAliasesElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"typeAliases"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;plugins>节点</span></span>
+<span class="line"><span style="color:#B392F0">    pluginElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"plugins"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;objectFactory>节点</span></span>
+<span class="line"><span style="color:#B392F0">    objectFactoryElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"objectFactory"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;objectWrapperFactory>节点</span></span>
+<span class="line"><span style="color:#B392F0">    objectWrapperFactoryElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"objectWrapperFactory"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;reflectorFactory>节点</span></span>
+<span class="line"><span style="color:#B392F0">    reflectorFactoryElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"reflectorFactory"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //将settings填充到configuration</span></span>
+<span class="line"><span style="color:#B392F0">    settingsElement</span><span style="color:#E1E4E8">(settings);</span></span>
+<span class="line"><span style="color:#6A737D">    // read it after objectFactory and objectWrapperFactory issue #631</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;environments>节点</span></span>
+<span class="line"><span style="color:#B392F0">    environmentsElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"environments"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;databaseIdProvider>节点</span></span>
+<span class="line"><span style="color:#B392F0">    databaseIdProviderElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"databaseIdProvider"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;typeHandlers>节点</span></span>
+<span class="line"><span style="color:#B392F0">    typeHandlerElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"typeHandlers"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">    //解析&#x3C;mappers>节点</span></span>
+<span class="line"><span style="color:#B392F0">    mapperElement</span><span style="color:#E1E4E8">(root.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"mappers"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error parsing SQL Mapper Configuration. Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>以上是分析</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">XMLConfigBuilder parser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLConfigBuilder</span><span style="color:#E1E4E8">(inputStream, environment, properties);</span></span>
+<span class="line"><span style="color:#6A737D">//解析配置文件得到configuration对象，并返回SqlSessionFactory</span></span>
+<span class="line"><span style="color:#F97583">return</span><span style="color:#B392F0"> build</span><span style="color:#E1E4E8">(parser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">()); </span></span></code></pre>
+<p>parser.parse()的部分，下面看看build()部分：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> SqlSessionFactory </span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(Configuration config) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultSqlSessionFactory</span><span style="color:#E1E4E8">(config);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>很简单，就是把读取配置文件后的Configuration对象赋给DefaultSqlSessionFactory，返回一个构建好的sqlSessionFactory，而DefaultSqlSessionFactory是SqlSessionFactory的默认实现.</p>
+<h3 id="22第二阶段">2.2.第二阶段</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// 2.获取sqlSession	</span></span>
+<span class="line"><span style="color:#E1E4E8">SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>通过调用DefaultSqlSessionFactory的openSession方法返回一个SqlSession实例,我们看一下具体是怎么得到一个SqlSession实例的。首先调用openSessionFromDataSource方法。
+摸进去看看openSessionFromDataSource():</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D"> /**</span></span>
+<span class="line"><span style="color:#6A737D">   * 从数据源获取数据库连接</span></span>
+<span class="line"><span style="color:#6A737D">   *</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> execType</span><span style="color:#6A737D">   执行类型，ExecutorType主要有三种类型：SIMPLE, REUSE, BATCH，默认是SIMPLE，都在枚举类ExecutorType里面</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> level</span><span style="color:#6A737D">      事务隔离级别，都在枚举类TransactionIsolationLevel中定义</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> autoCommit</span><span style="color:#6A737D"> 是否自动提交，主要是事务提交的设置</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> SqlSession DefaultSqlSession是SqlSession的实现类，该类主要提供操作数据库的方法给开发人员使用</span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#E1E4E8"> SqlSession </span><span style="color:#B392F0">openSessionFromDataSource</span><span style="color:#E1E4E8">(ExecutorType execType, TransactionIsolationLevel level, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> autoCommit) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Transaction tx </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    	//获取mybatis配置文件中的environment对象,包括使用哪种数据库，连接数据库的信息，事务</span></span>
+<span class="line"><span style="color:#F97583">      final</span><span style="color:#E1E4E8"> Environment environment </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">      //从environment获取transactionFactory对象</span></span>
+<span class="line"><span style="color:#F97583">      final</span><span style="color:#E1E4E8"> TransactionFactory transactionFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getTransactionFactoryFromEnvironment</span><span style="color:#E1E4E8">(environment);</span></span>
+<span class="line"><span style="color:#6A737D">      //创建事务对象</span></span>
+<span class="line"><span style="color:#E1E4E8">      tx </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionFactory.</span><span style="color:#B392F0">newTransaction</span><span style="color:#E1E4E8">(environment.</span><span style="color:#B392F0">getDataSource</span><span style="color:#E1E4E8">(), level, autoCommit);</span></span>
+<span class="line"><span style="color:#6A737D">      //根据配置创建executor</span></span>
+<span class="line"><span style="color:#F97583">      final</span><span style="color:#E1E4E8"> Executor executor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">newExecutor</span><span style="color:#E1E4E8">(tx, execType);</span></span>
+<span class="line"><span style="color:#6A737D">      //创建DefaultSqlSession</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultSqlSession</span><span style="color:#E1E4E8">(configuration, executor, autoCommit);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">      // may have fetched a connection so lets call close()</span></span>
+<span class="line"><span style="color:#B392F0">      closeTransaction</span><span style="color:#E1E4E8">(tx);</span></span>
+<span class="line"><span style="color:#F97583">      throw</span><span style="color:#E1E4E8"> ExceptionFactory.</span><span style="color:#B392F0">wrapException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error opening session.  Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<h1 id="三总结">三、总结</h1>
+<p>步骤一：读取Mybatis的主配置文件，并将文件读成文件流形式(InputStream)。</p>
+<p>步骤二：从主配置文件流中读取文件的各个节点信息并存放到Configuration对象中。读取mappers节点的引用文件，并将这些文件的各个节点信息存放到Configuration对象。</p>
+<p>步骤三：根据Configuration对象的信息获取数据库连接，并设置连接的事务隔离级别等信息，将经过包装数据库连接对象SqlSession接口返回，DefaultSqlSession是SqlSession的实现类，所以这里返回的是DefaultSqlSession，SqlSession接口里面就是对外提供的各种数据库操作。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

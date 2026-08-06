@@ -1,0 +1,166 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Redis学习】7.缓存设计</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Redis学习】7.缓存设计 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>9/7/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#缓存穿透</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#缓存雪崩</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#缓存击穿</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-收益与成本">1 收益与成本</h1>
+<h2 id="11-收益">1.1 收益</h2>
+<ul>
+<li>加速读写，优化用户体验；</li>
+<li>降低后端负载。</li>
+</ul>
+<h2 id="12-成本">1.2 成本</h2>
+<ul>
+<li>数据不一致性：缓存层和存储层的数据存在着一定时间窗口的不一致性，时间窗口跟更新策略有关。</li>
+<li>代码维护成本：加入缓存后，需要同时处理缓存层和存储层的逻辑，增大了开发者维护代码的成本。</li>
+<li>运维成本。</li>
+</ul>
+<h1 id="2-更新策略">2 更新策略</h1>
+<h2 id="21-lrulfufifo算法剔除">2.1 LRU/LFU/FIFO算法剔除</h2>
+<h3 id="211-使用场景">2.1.1 使用场景</h3>
+<p><code>剔除算法</code>通常用于缓存使用量<strong>超过</strong>了预设的最大值时候，如何对现有的数据进行剔除。例如Redis使用<code>maxmemory-policy</code>这个配置作为内存最大值后对于数据的剔除策略。</p>
+<h3 id="212-一致性">2.1.2 一致性</h3>
+<p>要清理哪些数据是由具体算法决定，开发人员只能决定使用哪种算法，所以数据的一致性是<code>最差的</code>。</p>
+<h3 id="213-维护成本">2.1.3 维护成本</h3>
+<p>算法不需要开发人员自己来实现，通常只需要配置最大<code>maxmemory</code>和对应的<code>策略</code>即可。开发人员只需要知道每种算法的含义，选择适合自己的算法即可。</p>
+<h2 id="22-超时剔除">2.2 超时剔除</h2>
+<h3 id="221-使用场景">2.2.1 使用场景</h3>
+<p>一般用于能够容忍一段时间不一致的场景。通过对数据进行有限时间的缓存，等到过期了，再通过一定的策略进行更新，达到快速响应的目的。而对于一些交易类的场景，此种更新策略就显得不合适。</p>
+<h3 id="222-一致性">2.2.2 一致性</h3>
+<p>如上所述，存在一定时间的不一致性。</p>
+<h3 id="223-维护成本">2.2.3 维护成本</h3>
+<p>维护成本不是很高，只需设置<code>expire</code>过期时间即可，当然前提是应用方允许这段时间可能发生的数据不一致。</p>
+<h2 id="23-主动更新">2.3 主动更新</h2>
+<h3 id="231-使用场景">2.3.1 使用场景</h3>
+<p>一致性要求比较高的场景。一般通过消息系统或者canal方式更新缓存。</p>
+<h3 id="232-一致性">2.3.2 一致性</h3>
+<p>一致性最高，但如果主动更新发生了问题，那么这条数据很可能很长时间不会更新，所以建议结合<code>超时剔除</code>一起使用效果会更好。</p>
+<h3 id="233-维护成本">2.3.3 维护成本</h3>
+<p>维护成本会比较高，开发者需要自己来完成更新，并保证更新操作的正确性。</p>
+<h2 id="24-三种常见更新策略的对比">2.4 三种常见更新策略的对比</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>策略</th><th>一致性</th><th>维护成本</th></tr></thead><tbody><tr><td>LRU/LFU/FIFO算法剔除</td><td>最差</td><td>低</td></tr><tr><td>超时剔除</td><td>较差</td><td>较低</td></tr><tr><td>主动更新</td><td>强</td><td>高</td></tr></tbody></table>
+<h2 id="25-最佳实践">2.5 最佳实践</h2>
+<ul>
+<li>低一致性业务建议配置最大内存和淘汰策略的方式使用;</li>
+<li>高一致性业务可以结合使用超时剔除和主动更新.</li>
+</ul>
+<h1 id="3-粒度控制">3 粒度控制</h1>
+<p>缓存全部数据和部分数据对比：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>数据类型</th><th>通用性</th><th>空间占用(内存占用+网络带宽)</th><th>代码维护</th></tr></thead><tbody><tr><td>全部数据</td><td>高</td><td>大</td><td>简单</td></tr><tr><td>部分数据</td><td>低</td><td>小</td><td>较为复杂</td></tr></tbody></table>
+<blockquote>
+<p>缓存粒度问题是一个容易被忽视的问题，如果使用不当，可能会造成很多无用空间的浪费，网络带宽的浪费，代码通用性较差等情况，需要综合数据<code>通用性</code>、<code>空间占用比</code>、<code>代码维护性</code>三点进行取舍。</p>
+</blockquote>
+<h1 id="4-穿透优化">4 穿透优化</h1>
+<h2 id="41-定义">4.1 定义</h2>
+<p><code>缓存穿透</code>是指查询一个根本不存在的数据，结果将压力全部给到关系数据库当中，当存在大量这种数据时，导致后端压力倍增，甚至宕机。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Through.png" alt="缓存穿透示意图"></p>
+<h2 id="42-解决方案">4.2 解决方案</h2>
+<h3 id="421-缓存空对象">4.2.1 缓存空对象</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-Null.png" alt="缓存空对象示意图"></p>
+<h3 id="422-布隆过滤器">4.2.2 布隆过滤器</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-BloomFilter.png" alt="布隆过滤器示意图"></p>
+<blockquote>
+<p>查询布隆过滤器说数据<code>存在</code>，并<code>不一定</code>证明数据库中<code>存在</code>这个数据，但是查询到数据<code>不存在</code>，数据库中<code>一定就不存在</code>这个数据</p>
+</blockquote>
+<h3 id="423-方案对比">4.2.3 方案对比</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>方案</th><th>适用场景</th><th>维护成本</th></tr></thead><tbody><tr><td>缓存空对象</td><td>数据命中不高；数据频率变化实时性高</td><td>代码维护简单；需要过多的缓存空间；数据不一致</td></tr><tr><td>布隆过滤器</td><td>数据命中不高；数据相对固定实时性低</td><td>代码维护复杂；缓存空间占用少</td></tr></tbody></table>
+<h1 id="5-击穿优化">5 击穿优化</h1>
+<h2 id="51-定义">5.1 定义</h2>
+<p>指对于热key，如果在某个时间缓存失效，导致这个时间段访问突然增高，导致全部压力集中至后端存储层，甚至宕机。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-JiChuan.png" alt="缓存击穿示意图"></p>
+<h2 id="52-解决方案">5.2 解决方案</h2>
+<h3 id="521-永不过期">5.2.1 永不过期</h3>
+<p>将不变的少量数据设置永不过期，就不会出现击穿的风险。但是实际生产中，热key都是变化的，只是时间长短而已。因而一般处理步骤是：</p>
+<ul>
+<li><code>提前预热</code>：根据业务部门和营销部门的统计数据，将非常热点的数据提前装入缓存，并适当延长过期时间；</li>
+<li><code>定时更新</code>：实时监控哪些数据热门，实时调整key过期时间。</li>
+</ul>
+<h3 id="522-分布式锁">5.2.2 分布式锁</h3>
+<p>当要对热key进行更新时，同一时间，只能允许一个线程做出更改。其他线程需等待构建完成后，才能读取数据。但是存在一定的隐患，如果构建缓存过程出现问题或者时间较长，可能会存在<code>死锁</code>和<code>线程池阻塞</code>的风险，但是这种方法能够较好地降低后端存储负载，并在一致性上做得比较好。</p>
+<h1 id="6-雪崩优化">6 雪崩优化</h1>
+<h2 id="61-定义">6.1 定义</h2>
+<p>指<code>大量key</code>设置<code>同一过期时间</code>，这个时间点大量请求过来，可能就会把redis打崩，也可能造成后端宕机。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Cache-xuebeng.png" alt="缓存雪崩示意图"></p>
+<h2 id="62-解决方案">6.2 解决方案</h2>
+<h3 id="621-过期时间随机值">6.2.1 过期时间+随机值</h3>
+<p>对缓存的数据过期时间采用：<code>固定值+随机值</code>。</p>
+<h3 id="622-双缓存">6.2.2 双缓存</h3>
+<p>对缓存的数据做<code>双缓存</code>，A缓存时间短一些，B缓存的长一些。更新时采用队列或者canal方式或者加锁机制进行。</p>
+<h3 id="623-互斥锁">6.2.3 互斥锁</h3>
+<p>当业务线程在处理用户请求时，如果发现访问的数据不在 Redis 里，就加个<code>互斥锁</code>，<strong>保证同一时间内只有一个请求来构建缓存</strong>（从数据库读取数据，再将数据更新到 Redis 里），当缓存构建完成后，再释放锁。未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值。</p>
+<p>实现互斥锁的时候，最好设置<code>超时时间</code>，不然第一个请求拿到了锁，然后这个请求发生了某种意外而一直阻塞，一直不释放锁，这时其他请求也一直拿不到锁，整个系统就会出现无响应的现象。</p>
+<h3 id="624-数据库分库分表">6.2.4 数据库分库分表</h3>
+<p>提高数据库的容灾能力，可以使用<code>分库分表</code>，<code>读写分离</code>的策略。</p>
+<h3 id="625-redis集群">6.2.5 Redis集群</h3>
+<p>为了防止Redis宕机导致缓存雪崩的问题，可以搭建<code>Redis集群</code>，提高<code>Redis的容灾性</code>。</p>
+<h2 id="63-redis宕机解决方案">6.3 Redis宕机解决方案</h2>
+<p>针对 Redis 故障宕机而引发的缓存雪崩问题，常见的应对方法有下面这几种：</p>
+<ul>
+<li>服务熔断或请求限流机制；</li>
+<li>构建 Redis 缓存高可靠集群；</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

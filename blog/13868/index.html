@@ -1,0 +1,86 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Spring源码学习】简介</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Spring源码学习】简介 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一为什么要学习spring源码">一、为什么要学习Spring源码</h1>
+<ul>
+<li>学习大神优秀的思想和代码风格</li>
+<li>面试专业吹牛逼的法宝</li>
+<li>写出更加优秀的代码</li>
+</ul>
+<h1 id="二怎样学习源码">二、怎样学习源码</h1>
+<ul>
+<li>java基础需要过硬</li>
+<li>跟着demo跟代码</li>
+<li>记录每个知识点，方便以后查阅和修正</li>
+<li>注释关键点代码</li>
+<li>有规律的复习</li>
+<li>反复Do Exercise(不断练习)->Learning(由浅到深，由窄到宽)->Trying(尝试自己去实现)->Teaching(把自己理解的讲给别人听，查漏补缺，互相进步)</li>
+</ul>
+<h1 id="三搭建spring-demo项目">三、搭建Spring-Demo项目</h1>
+<h2 id="1前期准备">1.前期准备</h2>
+<ul>
+<li>JDK8</li>
+<li>Spring5.2.8Release</li>
+<li>Idea</li>
+<li>Maven</li>
+</ul>
+<h2 id="2pom依赖导入">2.pom依赖导入</h2>
+<p>最最核心的spring依赖</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-context&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>当然还需要其他的辅助，比如测试、日志</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-test&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>ch.qos.logback&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>logback-classic&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>1.1.2&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span></code></pre>
+<h2 id="3springxml">3.spring.xml</h2>
+<p>Spring核心配置文件</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">beans</span><span style="color:#B392F0"> xmlns</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.springframework.org/schema/beans"</span></span>
+<span class="line"><span style="color:#B392F0">       xmlns:xsi</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.w3.org/2001/XMLSchema-instance"</span></span>
+<span class="line"><span style="color:#B392F0">       xmlns:context</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.springframework.org/schema/context"</span></span>
+<span class="line"><span style="color:#B392F0">       xmlns:aop</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.springframework.org/schema/aop"</span></span>
+<span class="line"><span style="color:#B392F0">       xmlns:p</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.springframework.org/schema/p"</span></span>
+<span class="line"><span style="color:#B392F0">       xmlns:c</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"http://www.springframework.org/schema/c"</span></span>
+<span class="line"><span style="color:#B392F0">       xsi:schemaLocation</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#9ECBFF">	http://www.springframework.org/schema/beans</span></span>
+<span class="line"><span style="color:#9ECBFF">	http://www.springframework.org/schema/beans/spring-beans.xsd</span></span>
+<span class="line"><span style="color:#9ECBFF">    http://www.springframework.org/schema/context</span></span>
+<span class="line"><span style="color:#9ECBFF">    http://www.springframework.org/schema/context/spring-context.xsd</span></span>
+<span class="line"><span style="color:#9ECBFF">    http://www.springframework.org/schema/aop</span></span>
+<span class="line"><span style="color:#9ECBFF">	http://www.springframework.org/schema/aop/spring-aop-3.2.xsd"</span></span>
+<span class="line"><span style="color:#B392F0">    default-lazy-init</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!--自定义标签--></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">context:component-scan</span><span style="color:#B392F0"> base-package</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoy.jack"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">context:property-placeholder</span><span style="color:#B392F0"> location</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"classpath:application.properties"</span><span style="color:#E1E4E8">/></span></span></code></pre>
+<p>其中最重要namespace为</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">xmlns:context="http://www.springframework.org/schema/context"</span></span>
+<span class="line"><span style="color:#E1E4E8">http://www.springframework.org/schema/context</span></span>
+<span class="line"><span style="color:#E1E4E8">http://www.springframework.org/schema/context/spring-context.xsd</span></span></code></pre>
+<h1 id="四spring容器加载方式">四、Spring容器加载方式</h1>
+<ul>
+<li>类路径获取配置文件</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext</span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ClassPathXmlApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"spring.xml"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>文件系统路径获取配置文件【绝对路径】</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FileSystemXmlApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"E:</span><span style="color:#79B8FF">\c</span><span style="color:#9ECBFF">om</span><span style="color:#79B8FF">\p</span><span style="color:#9ECBFF">ublic</span><span style="color:#79B8FF">\s</span><span style="color:#9ECBFF">pringdemo</span><span style="color:#79B8FF">\s</span><span style="color:#9ECBFF">rc</span><span style="color:#79B8FF">\m</span><span style="color:#9ECBFF">ain</span><span style="color:#79B8FF">\r</span><span style="color:#9ECBFF">esources</span><span style="color:#79B8FF">\s</span><span style="color:#9ECBFF">pring.xml"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>无配置文件加载容器</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AnnotationConfigApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"com.xx.jack"</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<ul>
+<li>Springboot加载容器</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">ApplicationContext applicationContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EmbeddedWebApplicationContext</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>后续Spring源码跟进，我主要以ClassPathXmlApplicationContext的方式。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

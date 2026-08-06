@@ -1,0 +1,339 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Spring源码学习】Spring Bean的销毁</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Spring源码学习】Spring Bean的销毁 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>上一章节中，我们跟完了bean的创建流程，而在创建完成以后，bean还会注册销毁相关的类，以便于像tomcat等容器关闭时相关的调用，本章我就聊这个。</p>
+<h1 id="一注册bean销毁的类">一、注册bean销毁的类</h1>
+<p>先定位到类AbstractAutowireCapableBeanFactory的doCreateBean()方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// Register bean as disposable.</span></span>
+<span class="line"><span style="color:#F97583">try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	//注册bean销毁时的类DisposableBeanAdapter</span></span>
+<span class="line"><span style="color:#B392F0">	registerDisposableBeanIfNecessary</span><span style="color:#E1E4E8">(beanName, bean, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (BeanDefinitionValidationException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">	throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">			mbd.</span><span style="color:#B392F0">getResourceDescription</span><span style="color:#E1E4E8">(), beanName, </span><span style="color:#9ECBFF">"Invalid destruction signature"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="1registerdisposablebeanifnecessary">1.registerDisposableBeanIfNecessary()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> registerDisposableBeanIfNecessary</span><span style="color:#E1E4E8">(String beanName, Object bean, RootBeanDefinition mbd) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	AccessControlContext acc </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (System.</span><span style="color:#B392F0">getSecurityManager</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#B392F0"> getAccessControlContext</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">	//非多例作用域并且要么有配置destroy-method或者要么有可用的DestructionAwareBeanPostProcessors后置处理器才会注册</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">mbd.</span><span style="color:#B392F0">isPrototype</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#B392F0"> requiresDestruction</span><span style="color:#E1E4E8">(bean, mbd)) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">			// Register a DisposableBean implementation that performs all destruction</span></span>
+<span class="line"><span style="color:#6A737D">			// work for the given bean: DestructionAwareBeanPostProcessors,</span></span>
+<span class="line"><span style="color:#6A737D">			// DisposableBean interface, custom destroy method.</span></span>
+<span class="line"><span style="color:#6A737D">			//DisposableBeanAdapter 对象就是负责bean 销毁的类。</span></span>
+<span class="line"><span style="color:#6A737D">			// 这个类中收集bean 是否实现了DisposableBean 接口</span></span>
+<span class="line"><span style="color:#B392F0">			registerDisposableBean</span><span style="color:#E1E4E8">(beanName,</span></span>
+<span class="line"><span style="color:#F97583">					new</span><span style="color:#B392F0"> DisposableBeanAdapter</span><span style="color:#E1E4E8">(bean, beanName, mbd, </span><span style="color:#B392F0">getBeanPostProcessors</span><span style="color:#E1E4E8">(), acc));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// A bean with a custom scope...</span></span>
+<span class="line"><span style="color:#E1E4E8">			Scope scope </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.scopes.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(mbd.</span><span style="color:#B392F0">getScope</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (scope </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalStateException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No Scope registered for scope name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mbd.</span><span style="color:#B392F0">getScope</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">			scope.</span><span style="color:#B392F0">registerDestructionCallback</span><span style="color:#E1E4E8">(beanName,</span></span>
+<span class="line"><span style="color:#F97583">					new</span><span style="color:#B392F0"> DisposableBeanAdapter</span><span style="color:#E1E4E8">(bean, beanName, mbd, </span><span style="color:#B392F0">getBeanPostProcessors</span><span style="color:#E1E4E8">(), acc));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="2disposablebeanadapter">2.DisposableBeanAdapter</h2>
+<p>该类就是负责销毁bean的类，看下它的构造方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> DisposableBeanAdapter</span><span style="color:#E1E4E8">(Object bean, String beanName, RootBeanDefinition beanDefinition,</span></span>
+<span class="line"><span style="color:#E1E4E8">		List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">BeanPostProcessor</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> postProcessors, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> AccessControlContext acc) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(bean, </span><span style="color:#9ECBFF">"Disposable bean must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.bean </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> bean;</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.beanName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beanName;</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.invokeDisposableBean </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#E1E4E8">			(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.bean </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> DisposableBean </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">beanDefinition.</span><span style="color:#B392F0">isExternallyManagedDestroyMethod</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"destroy"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.nonPublicAccessAllowed </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beanDefinition.</span><span style="color:#B392F0">isNonPublicAccessAllowed</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.acc </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> acc;</span></span>
+<span class="line"><span style="color:#E1E4E8">	String destroyMethodName </span><span style="color:#F97583">=</span><span style="color:#B392F0"> inferDestroyMethodIfNecessary</span><span style="color:#E1E4E8">(bean, beanDefinition);</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (destroyMethodName </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.invokeDisposableBean </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#9ECBFF"> "destroy"</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(destroyMethodName)) </span><span style="color:#F97583">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#F97583">			!</span><span style="color:#E1E4E8">beanDefinition.</span><span style="color:#B392F0">isExternallyManagedDestroyMethod</span><span style="color:#E1E4E8">(destroyMethodName)) {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.destroyMethodName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> destroyMethodName;</span></span>
+<span class="line"><span style="color:#E1E4E8">		Method destroyMethod </span><span style="color:#F97583">=</span><span style="color:#B392F0"> determineDestroyMethod</span><span style="color:#E1E4E8">(destroyMethodName);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (destroyMethod </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (beanDefinition.</span><span style="color:#B392F0">isEnforceDestroyMethod</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionValidationException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find a destroy method named '"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">						destroyMethodName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' on bean with name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">>[] paramTypes </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> destroyMethod.</span><span style="color:#B392F0">getParameterTypes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (paramTypes.length </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionValidationException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Method '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> destroyMethodName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' of bean '"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">						beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' has more than one parameter - not supported as destroy method"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (paramTypes.length </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> boolean.class </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> paramTypes[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanDefinitionValidationException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Method '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> destroyMethodName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' of bean '"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#E1E4E8">						beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' has a non-boolean parameter - not supported as destroy method"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">			destroyMethod </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ClassUtils.</span><span style="color:#B392F0">getInterfaceMethodIfPossible</span><span style="color:#E1E4E8">(destroyMethod);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.destroyMethod </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> destroyMethod;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//过滤了DestructionAwareBeanPostProcessor 类型的接口</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.beanPostProcessors </span><span style="color:#F97583">=</span><span style="color:#B392F0"> filterPostProcessors</span><span style="color:#E1E4E8">(postProcessors, bean);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>最主要干的事儿就是最后一步，收集DestructionAwareBeanPostProcessor 类型，放入列表当中</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">DestructionAwareBeanPostProcessor</span><span style="color:#F97583">></span><span style="color:#B392F0"> filterPostProcessors</span><span style="color:#E1E4E8">(List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">BeanPostProcessor</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> processors, Object bean) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	List&#x3C;</span><span style="color:#F97583">DestructionAwareBeanPostProcessor</span><span style="color:#E1E4E8">> filteredPostProcessors </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">CollectionUtils.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(processors)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		filteredPostProcessors </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>(processors.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (BeanPostProcessor processor </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> processors) {</span></span>
+<span class="line"><span style="color:#6A737D">			//过滤了DestructionAwareBeanPostProcessor 类型的接口</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (processor </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> DestructionAwareBeanPostProcessor) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				DestructionAwareBeanPostProcessor dabpp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (DestructionAwareBeanPostProcessor) processor;</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (dabpp.</span><span style="color:#B392F0">requiresDestruction</span><span style="color:#E1E4E8">(bean)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">					filteredPostProcessors.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(dabpp);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> filteredPostProcessors;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="二调用过程">二、调用过程</h1>
+<p>目前主流服务端运行的java程序均为Servlet，并且通常都是在tomcat中，那bean的销毁通常与tomcat的关闭有关。我们知道servlet的生命周期有三大步骤：</p>
+<ul>
+<li>init(): 初始化阶段</li>
+<li>service(): 处理客户端请求阶段</li>
+<li>destroy(): 终止阶段</li>
+</ul>
+<p>destroy()阶段，相关监听监测到销毁事件，然后发起析构。定位到ContextLoaderListener类中的contextDestroyed()方法，看看是怎么一个过程。</p>
+<h2 id="1contextdestroyed">1.contextDestroyed()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> contextDestroyed</span><span style="color:#E1E4E8">(ServletContextEvent event) {</span></span>
+<span class="line"><span style="color:#6A737D">	//开始准备关闭WebApplicationContext</span></span>
+<span class="line"><span style="color:#B392F0">	closeWebApplicationContext</span><span style="color:#E1E4E8">(event.</span><span style="color:#B392F0">getServletContext</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	ContextCleanupListener.</span><span style="color:#B392F0">cleanupAttributes</span><span style="color:#E1E4E8">(event.</span><span style="color:#B392F0">getServletContext</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="2closewebapplicationcontext">2.closeWebApplicationContext()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//ContextLoader</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> closeWebApplicationContext</span><span style="color:#E1E4E8">(ServletContext servletContext) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	servletContext.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Closing Spring root WebApplicationContext"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.context </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> ConfigurableWebApplicationContext) {</span></span>
+<span class="line"><span style="color:#6A737D">			//开始准备关闭WebApplicationContext</span></span>
+<span class="line"><span style="color:#E1E4E8">			((ConfigurableWebApplicationContext) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.context).</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		ClassLoader ccl </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Thread.</span><span style="color:#B392F0">currentThread</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getContextClassLoader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (ccl </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> ContextLoader.class.</span><span style="color:#B392F0">getClassLoader</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			currentContext </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (ccl </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			currentContextPerThread.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(ccl);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		servletContext.</span><span style="color:#B392F0">removeAttribute</span><span style="color:#E1E4E8">(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>点进去看看close()方法，调用的是AbstractApplicationContext的close()方法。</p>
+<h2 id="3close-doclose">3.close(), doClose()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> close</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.startupShutdownMonitor) {</span></span>
+<span class="line"><span style="color:#B392F0">		doClose</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">		// If we registered a JVM shutdown hook, we don't need it anymore now:</span></span>
+<span class="line"><span style="color:#6A737D">		// We've already explicitly closed the context.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.shutdownHook </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				Runtime.</span><span style="color:#B392F0">getRuntime</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">removeShutdownHook</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.shutdownHook);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			catch</span><span style="color:#E1E4E8"> (IllegalStateException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">				// ignore - VM is already shutting down</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> doClose</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">	// Check whether an actual close attempt is necessary...</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.active.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.closed.</span><span style="color:#B392F0">compareAndSet</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Closing "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">		LiveBeansView.</span><span style="color:#B392F0">unregisterApplicationContext</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// Publish shutdown event.</span></span>
+<span class="line"><span style="color:#B392F0">			publishEvent</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> ContextClosedEvent</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Exception thrown from ApplicationListener handling ContextClosedEvent"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Stop all Lifecycle beans, to avoid delays during individual destruction.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.lifecycleProcessor </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">				this</span><span style="color:#E1E4E8">.lifecycleProcessor.</span><span style="color:#B392F0">onClose</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Exception thrown from LifecycleProcessor on context close"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Destroy all cached singletons in the context's BeanFactory.</span></span>
+<span class="line"><span style="color:#6A737D">		//开始发起调用销毁流程了</span></span>
+<span class="line"><span style="color:#B392F0">		destroyBeans</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Close the state of this context itself.</span></span>
+<span class="line"><span style="color:#B392F0">		closeBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Let subclasses do some final clean-up if they wish...</span></span>
+<span class="line"><span style="color:#B392F0">		onClose</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Reset local application listeners to pre-refresh state.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.earlyApplicationListeners </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.applicationListeners.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.applicationListeners.</span><span style="color:#B392F0">addAll</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.earlyApplicationListeners);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		// Switch to inactive.</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.active.</span><span style="color:#B392F0">set</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> destroyBeans</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#B392F0">	getBeanFactory</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">destroySingletons</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>而destroySingletons()实现类为DefaultSingletonBeanRegistry，点进去看看</p>
+<h2 id="4destroysingletons">4.destroySingletons()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> destroySingletons</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Destroying singletons in "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.singletonObjects) {</span></span>
+<span class="line"><span style="color:#79B8FF">		this</span><span style="color:#E1E4E8">.singletonsCurrentlyInDestruction </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	String</span><span style="color:#E1E4E8">[] disposableBeanNames;</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.disposableBeans) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		disposableBeanNames </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">toStringArray</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.disposableBeans.</span><span style="color:#B392F0">keySet</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> disposableBeanNames.length </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		//就是这里了</span></span>
+<span class="line"><span style="color:#B392F0">		destroySingleton</span><span style="color:#E1E4E8">(disposableBeanNames[i]);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.containedBeanMap.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.dependentBeanMap.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.dependenciesForBeanMap.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">	clearSingletonCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> destroySingleton</span><span style="color:#E1E4E8">(String beanName) {</span></span>
+<span class="line"><span style="color:#6A737D">	// Remove a registered singleton of the given name, if any.</span></span>
+<span class="line"><span style="color:#B392F0">	removeSingleton</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Destroy the corresponding DisposableBean instance.</span></span>
+<span class="line"><span style="color:#E1E4E8">	DisposableBean disposableBean;</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.disposableBeans) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		disposableBean </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (DisposableBean) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.disposableBeans.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#B392F0">	destroyBean</span><span style="color:#E1E4E8">(beanName, disposableBean);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h2 id="5destroybean">5.destroyBean()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> destroyBean</span><span style="color:#E1E4E8">(String beanName, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> DisposableBean bean) {</span></span>
+<span class="line"><span style="color:#6A737D">	// Trigger destruction of dependent beans first...</span></span>
+<span class="line"><span style="color:#E1E4E8">	Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> dependencies;</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.dependentBeanMap) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Within full synchronization in order to guarantee a disconnected Set</span></span>
+<span class="line"><span style="color:#E1E4E8">		dependencies </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.dependentBeanMap.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (dependencies </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Retrieved dependent beans for bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "': "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> dependencies);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (String dependentBeanName </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> dependencies) {</span></span>
+<span class="line"><span style="color:#B392F0">			destroySingleton</span><span style="color:#E1E4E8">(dependentBeanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Actually destroy the bean now...</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (bean </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//真正销毁的地方，会调用到DisposableBeanAdapter中的destroy()方法</span></span>
+<span class="line"><span style="color:#E1E4E8">			bean.</span><span style="color:#B392F0">destroy</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isWarnEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Destruction of bean with name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' threw an exception"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Trigger destruction of contained beans...</span></span>
+<span class="line"><span style="color:#E1E4E8">	Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> containedBeans;</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.containedBeanMap) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Within full synchronization in order to guarantee a disconnected Set</span></span>
+<span class="line"><span style="color:#E1E4E8">		containedBeans </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.containedBeanMap.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (containedBeans </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (String containedBeanName </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> containedBeans) {</span></span>
+<span class="line"><span style="color:#B392F0">			destroySingleton</span><span style="color:#E1E4E8">(containedBeanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Remove destroyed bean from other beans' dependencies.</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.dependentBeanMap) {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (Iterator&#x3C;</span><span style="color:#F97583">Map</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">Entry</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>>> it </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.dependentBeanMap.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">iterator</span><span style="color:#E1E4E8">(); it.</span><span style="color:#B392F0">hasNext</span><span style="color:#E1E4E8">();) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>> entry </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> it.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> dependenciesToClean </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			dependenciesToClean.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (dependenciesToClean.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				it.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Remove destroyed bean's prepared dependency information.</span></span>
+<span class="line"><span style="color:#79B8FF">	this</span><span style="color:#E1E4E8">.dependenciesForBeanMap.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="6destroy">6.destroy()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> destroy</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">CollectionUtils.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.beanPostProcessors)) {</span></span>
+<span class="line"><span style="color:#F97583">		for</span><span style="color:#E1E4E8"> (DestructionAwareBeanPostProcessor processor </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanPostProcessors) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			processor.</span><span style="color:#B392F0">postProcessBeforeDestruction</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.bean, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.invokeDisposableBean) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Invoking destroy() on bean with name '"</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (System.</span><span style="color:#B392F0">getSecurityManager</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				AccessController.</span><span style="color:#B392F0">doPrivileged</span><span style="color:#E1E4E8">((PrivilegedExceptionAction</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Object</span><span style="color:#F97583">></span><span style="color:#E1E4E8">) () </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">					((DisposableBean) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.bean).</span><span style="color:#B392F0">destroy</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">					return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">				}, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.acc);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">				//开始销毁了</span></span>
+<span class="line"><span style="color:#E1E4E8">				((DisposableBean) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.bean).</span><span style="color:#B392F0">destroy</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			String msg </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "Invocation of destroy method failed on bean with name '"</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(msg, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(msg </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ": "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.destroyMethod </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">		invokeCustomDestroyMethod</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.destroyMethod);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.destroyMethodName </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		Method methodToInvoke </span><span style="color:#F97583">=</span><span style="color:#B392F0"> determineDestroyMethod</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.destroyMethodName);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (methodToInvoke </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">			invokeCustomDestroyMethod</span><span style="color:#E1E4E8">(ClassUtils.</span><span style="color:#B392F0">getInterfaceMethodIfPossible</span><span style="color:#E1E4E8">(methodToInvoke));</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

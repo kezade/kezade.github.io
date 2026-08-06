@@ -1,0 +1,83 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】13.罗马数字转整数</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】13.罗马数字转整数 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/10/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>罗马数字包含以下七种字符： <code>I</code>， <code>V</code>， <code>X</code>， <code>L</code>，<code>C</code>，<code>D</code> 和 <code>M</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>字符          数值</span></span>
+<span class="line"><span>I             1</span></span>
+<span class="line"><span>V             5</span></span>
+<span class="line"><span>X             10</span></span>
+<span class="line"><span>L             50</span></span>
+<span class="line"><span>C             100</span></span>
+<span class="line"><span>D             500</span></span>
+<span class="line"><span>M             1000</span></span></code></pre>
+<p>例如， 数字 <code>2</code> 写做 <code>II</code> ，即为两个并列的 1。<code>12</code> 写做 <code>XII</code> ，即为 <code>X + II </code>。 <code>27</code> 写做  <code>XXVII</code>, 即为 <code>XX + V + II</code> 。</p>
+<p>通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如 <code>4</code> 不写做 <code>IIII</code>，而是 <code>IV</code>。数字 1 在数字 5 的左边，所表示的数等于大数 5 减小数 1 得到的数值 4 。同样地，数字 <code>9</code> 表示为 <code>IX</code>。这个特殊的规则只适用于以下六种情况：</p>
+<ul>
+<li>I 可以放在 V (5) 和 X (10) 的左边，来表示 4 和 9。</li>
+<li>X 可以放在 L (50) 和 C (100) 的左边，来表示 40 和 90。</li>
+<li>C 可以放在 D (500) 和 M (1000) 的左边，来表示 400 和 900。</li>
+</ul>
+<p>给定一个罗马数字，将其转换成整数。</p>
+<h2 id="示例-1">示例 1</h2>
+<blockquote>
+<p>输入: s = “III”
+输出: 3</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: s = “IV”
+输出: 4</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入: s = “IX”
+输出: 9</p>
+</blockquote>
+<h2 id="示例-4">示例 4</h2>
+<blockquote>
+<p>输入: s = “LVIII”
+输出: 58
+解释: L = 50, V= 5, III = 3.</p>
+</blockquote>
+<h2 id="示例-5">示例 5</h2>
+<blockquote>
+<p>输入: s = “MCMXCIV”
+输出: 1994
+解释: M = 1000, CM = 900, XC = 90, IV = 4.</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>1 &#x3C;= s.length &#x3C;= 15</li>
+<li>s 仅含字符 (‘I’, ‘V’, ‘X’, ‘L’, ‘C’, ‘D’, ‘M’)</li>
+<li>题目数据保证 s 是一个有效的罗马数字，且表示整数在范围 [1, 3999] 内</li>
+<li>题目所给测试用例皆符合罗马数字书写规则，不会出现跨位等情况。</li>
+<li>IL 和 IM 这样的例子并不符合题目要求，49 应该写作 XLIX，999 应该写作 CMXCIX 。</li>
+<li>关于罗马数字的详尽书写规则，可以参考 <a href="https://b2b.partcommunity.com/community/knowledge/zh_CN/detail/10753/%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97#knowledge_article">罗马数字 - Mathematics</a> 。</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>可以考虑从高位依次转换，对于低位字符对应阿拉伯数字小于高位的情况，则低位的数字要做减法，比如<code>MCM</code>，当取到<code>C</code>时，由于最右边的<code>M</code>对应阿拉伯数字为<code>1000</code>，大于<code>C</code>对应的100，所以<code>CM</code>是一起的，表示900。所以运算过程中，先加了1000，还要减去100.</p>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> romanToInt</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">s</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Map&#x3C;</span><span style="color:#F97583">Character</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> map </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> HashMap&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'I'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'V'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'X'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'L'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">50</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'C'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'D'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'M'</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        //last char of s</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> map.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> s.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            //if the char of higher bit is bigger than the lower one, then, this char belongs to the highest bit</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (map.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i)) </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> map.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">))) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                result </span><span style="color:#F97583">-=</span><span style="color:#E1E4E8"> map.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                result </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> map.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(s.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

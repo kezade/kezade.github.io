@@ -1,0 +1,139 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】199.二叉树的右视图</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】199.二叉树的右视图 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Java</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#BFS</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#DFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给定一个二叉树的 根节点 root，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。</p>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/6d1b1555754a31a4f682823c3d811e34.jpeg" alt="示例"></p>
+<blockquote>
+<p>输入: [1,2,3,null,5,null,4]
+输出: [1,3,4]</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: [1,null,3]
+输出: [1,3]</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入: []
+输出: []</p>
+</blockquote>
+<p><strong>提示</strong>:</p>
+<ul>
+<li>二叉树的节点个数的范围是 [0,100]</li>
+<li>-100 &#x3C;= Node.val &#x3C;= 100</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<p>经历过前面几篇关于二叉树的层序遍历算法之后（参见{%post_link ‘二叉树的层序遍历’%}，非常容易的就可以通过这种算法解答此题，基本思想就是围绕队列性质，广度优先算法解决。当然，深度优先算法也是可以解决的。</p>
+<h2 id="21-广度优先bfs">2.1 广度优先（BFS）</h2>
+<p>利用队列，遍历每层节点，并记录每层最后一个元素，直到遍历完最后一层，即可得到结果。访问顺序如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/25767cc8f2ce74adb672fd79bf3ddf17.png" alt="BFS">
+红色结点自上而下组成答案，边缘以<strong>访问顺序</strong>标号。
+<strong>复杂度</strong>：</p>
+<ul>
+<li>时间复杂度： O(N)，每个节点都入队出队了 1 次。</li>
+<li>空间复杂度： O(N)，使用了额外的队列空间。</li>
+</ul>
+<h2 id="22-深度优先dfs">2.2 深度优先（DFS）</h2>
+<p>1）优先访问右子树，即访问顺序为：根-右-左；
+2）如果当前节点所在深度还没有出现在res里（因为一层就一个节点），说明在该深度下当前节点是第一个被访问的节点，因此将当前节点加入res中。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>if len(res) &#x3C; depth:</span></span>
+<span class="line"><span>    res.append(root.val)</span></span>
+<span class="line"><span># 遍历右子树</span></span>
+<span class="line"><span>if root.right:</span></span>
+<span class="line"><span>    dfs(root.right, depth + 1, res)</span></span>
+<span class="line"><span># 遍历左子树</span></span>
+<span class="line"><span>if root.left:</span></span>
+<span class="line"><span>    dfs(root.left, depth + 1, res)</span></span></code></pre>
+<p><strong>复杂度</strong>：</p>
+<ul>
+<li>时间复杂度： O(N)，每个节点都访问了 1 次。</li>
+<li>空间复杂度： O(N)，因为这不是一棵平衡二叉树，二叉树的深度最少是 logN, 最坏的情况下会退化成一条链表，深度就是N，因此递归时使用的栈空间是 O(N) 的。</li>
+</ul>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Definition for a binary tree node.</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *     int val;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode left;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode() {}</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val) { this.val = val; }</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val, TreeNode left, TreeNode right) {</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.val = val;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.left = left;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.right = right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">    	广度优先</span></span>
+<span class="line"><span style="color:#6A737D">        1.利用层序遍历思想，统计每层最后一个元素，即为答案</span></span>
+<span class="line"><span style="color:#6A737D">        2.分层标识</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">rightSideView2</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //空节点</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">root){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> res</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //每层的遍历结果集</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> tmp</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode node;</span></span>
+<span class="line"><span style="color:#6A737D">        //队列</span></span>
+<span class="line"><span style="color:#E1E4E8">        Queue&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">> q</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> LinkedList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //入队</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#6A737D">        //分层标识</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">            node</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node){</span></span>
+<span class="line"><span style="color:#E1E4E8">                tmp.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.val);</span></span>
+<span class="line"><span style="color:#6A737D">                //左右子树入队</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node.left){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node.right){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(node.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //否层，该层遍历完毕</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">tmp.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#6A737D">                    //收集每层最后一个元素</span></span>
+<span class="line"><span style="color:#E1E4E8">                    res.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(tmp.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(tmp.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">                    tmp</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //深度优先，递归</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">rightSideView</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //判空</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">root){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> res</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">        dfs</span><span style="color:#E1E4E8">(root, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, res);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> dfs</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> depth</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">res</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(res.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">depth){</span></span>
+<span class="line"><span style="color:#E1E4E8">            res.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //左右子树，先遍历右子树，然后左子树</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">root.right){</span></span>
+<span class="line"><span style="color:#B392F0">            dfs</span><span style="color:#E1E4E8">(root.right, depth</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, res);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">root.left){</span></span>
+<span class="line"><span style="color:#B392F0">            dfs</span><span style="color:#E1E4E8">(root.left, depth</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, res);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,1178 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】13.源码之消息过滤与重试</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】13.源码之消息过滤与重试 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/11/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#TAG过滤</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#SQL过滤</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#消息重试</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>RocketMQ支持消息过滤和重试。对于消息过滤，其支持两种方式：</p>
+<ul>
+<li>TAG过滤：相当于子topic，对同一topic的消息再次进行过滤，分发至相应的消费者。</li>
+<li>SQL过滤：支持SQL92标准形式，对于producer传递的属性值进行过滤。SQL中可以使用的参数有默认的<code>TAGS</code>和一个在生产者中加入的<code>a属性</code>。语法形式参见{%post_link ‘【RocketMQ学习】1-基础知识’ ‘基础知识3.1.2节’%}。</li>
+</ul>
+<p>消费端如果发生消息失败，没有提交成功，消息默认情况下会进入<code>重试队列</code>中。 重试队列的名字其实是跟<code>消费群组</code>有关，不是主题，因为一个主题可以有多个群组消费。</p>
+<p>本章将从这两方面对其原理，源码进行更细致地学习。</p>
+<p>这里先加点本地调试环境的部署过程，因为自己踩坑了，所以要记录一下。网上很多所谓的教程，不堪大用，参考即可。</p>
+<h2 id="11-源码获取">1.1 源码获取</h2>
+<p><a href="https://archive.apache.org/dist/rocketmq/">这里下载各种版本</a>。我下的RocketMQ版本为：4.8.0。</p>
+<h2 id="12-环境变量">1.2 环境变量</h2>
+<p>因为如果不是源码调试，若在本地启动打包好的东西也是需要配置<code>ROCKETMQ_HOME</code>的。所以我这里就采用了环境变量方式，当然也可以在<code>NameServer</code>和<code>Broker</code>启动项里配置。如下图:
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Variable-Config.png" alt="环境变量ROCKETMQ_HOME配置"></p>
+<h2 id="13-必要目录">1.3 必要目录</h2>
+<p>在RocketMQ运行主目录中，即环境变量<code>ROCKETMQ_HOME</code>配置的目录下，创建<code>conf</code>、<code>logs</code>、<code>store</code>三个文件夹。</p>
+<p>我这里配置的环境变量值为：<code>/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release</code>。不要以为版本冲突，只是个目录名称。</p>
+<h2 id="14-配置文件">1.4 配置文件</h2>
+<p>从<code>RocketMQ distribution</code>部署目录中将<code>broker.conf</code>、<code>logback_broker.xml</code>、<code>logback_namesrv.xml</code>文件复制到<code>conf</code>目录中。</p>
+<h2 id="15-配置修改">1.5 配置修改</h2>
+<p>将<code>logback_namesrv.xml</code>、<code>logback_broker.xml</code>文件中的<code>{user.home}</code>全部修改为环境变量配置的目录。注意，是<strong>全部替换掉</strong>。</p>
+<p>然后，修改<code>broker.conf</code>配置，如下，主要是文件目录配置，当然还有开启SQL过滤：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">brokerClusterName</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> DefaultCluster</span></span>
+<span class="line"><span style="color:#B392F0">brokerName</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> broker-zyxelva</span></span>
+<span class="line"><span style="color:#B392F0">brokerId</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#B392F0">deleteWhen</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 04</span></span>
+<span class="line"><span style="color:#B392F0">fileReservedTime</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 48</span></span>
+<span class="line"><span style="color:#B392F0">brokerRole</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> ASYNC_MASTER</span></span>
+<span class="line"><span style="color:#B392F0">flushDiskType</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> ASYNC_FLUSH</span></span>
+<span class="line"><span style="color:#6A737D"># nameServer地址，分号分隔</span></span>
+<span class="line"><span style="color:#E1E4E8">namesrvAddr</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">172.104.126.76:9876</span></span>
+<span class="line"><span style="color:#6A737D">#SQL过滤</span></span>
+<span class="line"><span style="color:#E1E4E8">enablePropertyFilter</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">true</span></span>
+<span class="line"><span style="color:#6A737D"># 存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">storePathRootDir</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store</span></span>
+<span class="line"><span style="color:#6A737D"># commitLog 存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">storePathCommitLog</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store/commitlog</span></span>
+<span class="line"><span style="color:#6A737D"># 消费队列存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">storePathConsumeQueue</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store/consumequeue</span></span>
+<span class="line"><span style="color:#6A737D"># 消息索引存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">storePathIndex</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store/index</span></span>
+<span class="line"><span style="color:#6A737D"># checkpoint 文件存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">storeCheckpoint</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store/checkpoint</span></span>
+<span class="line"><span style="color:#6A737D"># abort 文件存储路径</span></span>
+<span class="line"><span style="color:#E1E4E8">abortFile</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.5.0-bin-release/store/abort</span></span></code></pre>
+<h2 id="16-启动nameserver和broker">1.6 启动NameServer和Broker</h2>
+<p>NameServer直接点击启动<code>main()</code>即可，但对于Broker，一定要配置<code>-c</code>，指定<code>broker.conf</code>的路径。不然，就像我一样掉坑里了，始终是默认配置启动的。如1.2节图所示。</p>
+<p>在IDEA启动日志下看到如下日志，代表NameServer启动成功：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Connected to the target VM, address: '127.0.0.1:55891', transport: 'socket'</span></span>
+<span class="line"><span>The Name Server boot success. serializeType=JSON</span></span></code></pre>
+<p>同样，对于Broker启动成功后，会有如下日志输出，特别是有NameServer地址输出，代表大概率启动成功，没有的话，就要看<code>logs</code>下的<code>broker.log</code>日志了：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Connected to the target VM, address: '127.0.0.1:53061', transport: 'socket'</span></span>
+<span class="line"><span>The broker[broker-zyxelva, 172.104.126.76:10911] boot success. serializeType=JSON and name server is 172.104.126.76:9876</span></span>
+<span class="line"><span></span></span></code></pre>
+<h1 id="2-消息过滤">2 消息过滤</h1>
+<p>RocketMQ支持上述两种类型的消息过滤，在源码包中，也有对应的样例。下面，将从这些样例开始，对源码进行追踪。</p>
+<p>另外，关于消息过滤，producer就只是把它当作<code>普通消息</code>发送出去，并没有做什么额外的操作。</p>
+<h2 id="21-tag过滤">2.1 TAG过滤</h2>
+<h3 id="211-producer">2.1.1 Producer</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * TAG过滤-生产者</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TagFilterProducer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQProducer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TagFilterProducer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 指定Namesrv地址信息.</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"106.55.246.66:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        String</span><span style="color:#E1E4E8">[] tags </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[]{</span><span style="color:#9ECBFF">"TagA"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagB"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagC"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 60</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Message msg </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Message</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TagFilterTest"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    tags[i </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> tags.length],</span></span>
+<span class="line"><span style="color:#9ECBFF">                    "Hello world"</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(RemotingHelper.DEFAULT_CHARSET));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, sendResult);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="212-consumer">2.1.2 Consumer</h3>
+<p>以下消费者，根据<code>consumer.subscribe("TagFilterTest", "TagA || TAGB || TAGC");</code>可知，其订阅了主题为<code>TagFilterTest</code>，TAG为<code>TagA</code>或<code>TAGB</code>或<code>TAGC</code>的消息。实际生产上，RocketMQ的最佳实践中就建议，使用RocketMQ时，一个应用可以就用<code>一个Topic</code>，而应用中的<code>不同业务</code>就用<code>TAG</code>来区分。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * TAG过滤-消费者</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TagFilterConsumer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException, MQClientException, IOException {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQPushConsumer consumer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQPushConsumer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TagFilterComsumer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 指定Namesrv地址信息.</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"106.55.246.66:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置要过滤的TAG，多个使用 || 分开</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">subscribe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TagFilterTest"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagA || TAGB || TAGC"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">setConsumeFromWhere</span><span style="color:#E1E4E8">(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">registerMessageListener</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> MessageListenerConcurrently</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus </span><span style="color:#B392F0">consumeMessage</span><span style="color:#E1E4E8">(List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">msgs</span><span style="color:#E1E4E8">, ConsumeConcurrentlyContext </span><span style="color:#FFAB70">context</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (MessageExt msg </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> msgs) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        String topic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        String msgBody </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> String</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">(), </span><span style="color:#9ECBFF">"utf-8"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        String msgPro </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getProperty</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"a"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                        String tags </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"收到消息："</span><span style="color:#F97583"> +</span><span style="color:#9ECBFF"> " topic :"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> topic </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,tags : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> tags </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,a : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgPro </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,msg : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgBody);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus.RECONSUME_LATER;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Consumer Started.%n"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="22-sql过滤">2.2 SQL过滤</h2>
+<blockquote>
+<p>若要使用SQL过滤，需要在broker配置中配置<code>enablePropertyFilter=true</code>，重启才会生效。
+另外，属性值的命名也不要与内置的参数冲突。参见<code>MessageConst.STRING_HASH_SET</code>静态代码块部分。</p>
+</blockquote>
+<h3 id="221-producer">2.2.1 Producer</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * SQL过滤 -消息生产者（加入消息属性)</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SqlFilterProducer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQProducer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterProducer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 指定Namesrv地址信息.</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"106.55.246.66:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        String</span><span style="color:#E1E4E8">[] tags </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[]{</span><span style="color:#9ECBFF">"TagA"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagB"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagC"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Message msg </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Message</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterTest"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    tags[i </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> tags.length],</span></span>
+<span class="line"><span style="color:#E1E4E8">                    (</span><span style="color:#9ECBFF">"Hello RocketMQ "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> i).</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(RemotingHelper.DEFAULT_CHARSET)</span></span>
+<span class="line"><span style="color:#E1E4E8">            );</span></span>
+<span class="line"><span style="color:#6A737D">            // 设置一些属性</span></span>
+<span class="line"><span style="color:#6A737D">            //不仅设置了消息的tag，同时还通过msg.putUserProperty("a", String.valueOf(i));设置了自定义消息参数</span></span>
+<span class="line"><span style="color:#E1E4E8">            msg.</span><span style="color:#B392F0">putUserProperty</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"a"</span><span style="color:#E1E4E8">, String.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, sendResult);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="222-consumer">2.2.2 Consumer</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * SQL过滤-消费者</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SqlFilterConsumer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQPushConsumer consumer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQPushConsumer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterConsumer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 指定Namesrv地址信息.</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"106.55.246.66:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // Don't forget to set enablePropertyFilter=true in broker</span></span>
+<span class="line"><span style="color:#6A737D">        //SQL过滤</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">subscribe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterTest"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                MessageSelector.</span><span style="color:#B392F0">bySql</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"(TAGS is not null and TAGS in ('TagA', 'TagB'))"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">                        "and (a is not null and a between 0 and 3)"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">registerMessageListener</span><span style="color:#E1E4E8">((MessageListenerConcurrently) (msgs, context) </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (MessageExt msg </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> msgs) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    String topic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    String msgBody </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> String</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">(), </span><span style="color:#9ECBFF">"utf-8"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    String msgPro </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getProperty</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"a"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                    String tags </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"收到消息："</span><span style="color:#F97583"> +</span><span style="color:#9ECBFF"> " topic :"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> topic </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,tags : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> tags </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,a : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgPro </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " ,msg : "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgBody);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus.RECONSUME_LATER;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Consumer Started.%n"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>从以上代码来看，consumer会指定过滤规则，告诉broker自己能接收哪些消息，broker从而返回对应的消息。</p>
+<h2 id="23-源码追踪">2.3 源码追踪</h2>
+<p>生产者怎么发送消息的流程，这里不再赘述，详情可参见{%post_link ‘【RocketMQ学习】7-源码之Producer’%}一文。</p>
+<p>这里主要看消费端和服务端Broker是怎么处理的。</p>
+<h3 id="231-consumer">2.3.1 Consumer</h3>
+<h4 id="2311-订阅">2.3.1.1 订阅</h4>
+<p>Consumer会有两个地方向Broker发起订阅关系上报：</p>
+<ul>
+<li><code>consumer.subscribe()</code>：路径为<code>DefaultMQPushConsumer#subscribe()</code>、<code>DefaultMQPushConsumerImpl#subscribe()</code>、<code>MQClientInstance#sendHeartbeatToAllBroker()</code>。</li>
+<li><code>consumer.start()</code>心跳定时任务：路径为<code>DefaultMQPushConsumer#start()</code>、<code>DefaultMQPushConsumerImpl#start()</code>、<code>MQClientInstance#start()</code>、<code>MQClientInstance#startScheduledTask()</code>。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//MQClientInstance</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> startScheduledTask</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">//定时任务二：定时向broker发送心跳，间隔30s</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    MQClientInstance.this.</span><span style="color:#B392F0">cleanOfflineBroker</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                    //发送心跳</span></span>
+<span class="line"><span style="color:#E1E4E8">                    MQClientInstance.this.</span><span style="color:#B392F0">sendHeartbeatToAllBrokerWithLock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"ScheduledTask sendHeartbeatToAllBroker exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.clientConfig.</span><span style="color:#B392F0">getHeartbeatBrokerInterval</span><span style="color:#E1E4E8">(), TimeUnit.MILLISECONDS);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>本质上，都是通过发送心跳给broker进行的。方法为<code>MQClientInstance#sendHeartbeatToAllBroker()</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//MQClientInstance</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> sendHeartbeatToAllBrokerWithLock</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.lockHeartbeat.</span><span style="color:#B392F0">tryLock</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                //发送心跳</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">sendHeartbeatToAllBroker</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //已废弃</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">uploadFilterClassSource</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sendHeartbeatToAllBroker exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.lockHeartbeat.</span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"lock heartBeat, but failed. [{}]"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.clientId);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>心跳流程如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consumer-Heartbeat.png" alt="消费者发送心跳至Broker流程"></p>
+<h4 id="2312-拉取">2.3.1.2 拉取</h4>
+<p>在{%post_link ‘【RocketMQ学习】8-源码之Consumer’ ‘源码之Consumer2.1节 拉取’%}中，了解了<code>pullMessageService</code>的作用就是拉取broker端的消息的线程服务。</p>
+<p>这里，先不详聊，先看看Broker是怎样处理消息的。等这个跟完，再来继续消费端的消息过滤流程。</p>
+<h3 id="232-broker">2.3.2 Broker</h3>
+<h4 id="2321-消息接收与存储">2.3.2.1 消息接收与存储</h4>
+<p>直接定位到消息发送的接口处，<code>DefaultMQProducerImpl#sendKernelImpl()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQProducerImpl</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> SendResult </span><span style="color:#B392F0">sendKernelImpl</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Message msg,</span></span>
+<span class="line"><span style="color:#F97583">                                  final</span><span style="color:#E1E4E8"> MessageQueue mq,</span></span>
+<span class="line"><span style="color:#F97583">                                  final</span><span style="color:#E1E4E8"> CommunicationMode communicationMode,</span></span>
+<span class="line"><span style="color:#F97583">                                  final</span><span style="color:#E1E4E8"> SendCallback sendCallback,</span></span>
+<span class="line"><span style="color:#F97583">                                  final</span><span style="color:#E1E4E8"> TopicPublishInfo topicPublishInfo,</span></span>
+<span class="line"><span style="color:#F97583">                                  final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> timeout) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {</span></span>
+<span class="line"><span style="color:#F97583">    long</span><span style="color:#E1E4E8"> beginStartTime </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    String brokerAddr </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">findBrokerAddressInPublish</span><span style="color:#E1E4E8">(mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    SendMessageContext context </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (brokerAddr </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        brokerAddr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MixAll.</span><span style="color:#B392F0">brokerVIPChannel</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">isSendMessageWithVIPChannel</span><span style="color:#E1E4E8">(), brokerAddr);</span></span>
+<span class="line"><span style="color:#F97583">        byte</span><span style="color:#E1E4E8">[] prevBody </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //省略...</span></span>
+<span class="line"><span style="color:#6A737D">            //组装请求头，包含消息过滤的属性</span></span>
+<span class="line"><span style="color:#E1E4E8">            SendMessageRequestHeader requestHeader </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SendMessageRequestHeader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setProducerGroup</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setDefaultTopic</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getCreateTopicKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setDefaultTopicQueueNums</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getDefaultTopicQueueNums</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setQueueId</span><span style="color:#E1E4E8">(mq.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setFlag</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">            //设置属性信息(tag也在里边)</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setProperties</span><span style="color:#E1E4E8">(MessageDecoder.</span><span style="color:#B392F0">messageProperties2String</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getProperties</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">            SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            switch</span><span style="color:#E1E4E8"> (communicationMode) {</span></span>
+<span class="line"><span style="color:#6A737D">                //省略...</span></span>
+<span class="line"><span style="color:#F97583">                case</span><span style="color:#E1E4E8"> SYNC</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                    long</span><span style="color:#E1E4E8"> costTimeSync </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginStartTime;</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (timeout </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> costTimeSync) {</span></span>
+<span class="line"><span style="color:#F97583">                        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RemotingTooMuchRequestException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sendKernelImpl call timeout"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sendMessage</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                        brokerAddr,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msg,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        requestHeader,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        timeout </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> costTimeSync,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        communicationMode,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        context,</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                default:</span></span>
+<span class="line"><span style="color:#F97583">                    assert</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> sendResult;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            msg.</span><span style="color:#B392F0">setBody</span><span style="color:#E1E4E8">(prevBody);</span></span>
+<span class="line"><span style="color:#E1E4E8">            msg.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(NamespaceUtil.</span><span style="color:#B392F0">withoutNamespace</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getNamespace</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The broker["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] not exist"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>怎么发送的，这里不详细罗列了。最终，通过<code>NettyRemotingClient</code>发送出去，Broker接收，请求代号：<code>SEND_MESSAGE</code>。Broker端处理器为<code>SendMessageProcessor</code>。接下来就是消息存储，包括Commitlog，ConsumeQueue，IndexFile相关的了，可参考{%post_link ‘【RocketMQ学习】9-源码之Store’ %}一文。</p>
+<h4 id="2322-消息订阅关系维护">2.3.2.2 消息订阅关系维护</h4>
+<p>这里，直接通过请求代号为心跳的码跟进下，broker处理Consumer的心跳逻辑。请求代号：<code>HEART_BEAT</code>.</p>
+<p>定位到<code>BrokerController#registerProcessor()</code>。得到处理心跳的处理器为<code>ClientManageProcessor</code>，顺便也把Broker处理消息的处理器列出，方便后续消息过滤处理流程的跟进，处理器为<code>PullMessageProcessor</code>，请求代号：<code>PULL_MESSAGE</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * ClientManageProcessor</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#E1E4E8">ClientManageProcessor clientProcessor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ClientManageProcessor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.remotingServer.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">(RequestCode.HEART_BEAT, clientProcessor, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.heartbeatExecutor);</span></span>
+<span class="line"><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.remotingServer.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">(RequestCode.UNREGISTER_CLIENT, clientProcessor, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.clientManageExecutor);</span></span>
+<span class="line"><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.remotingServer.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">(RequestCode.CHECK_CLIENT_CONFIG, clientProcessor, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.clientManageExecutor);</span></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * PullMessageProcessor</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.remotingServer.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">(RequestCode.PULL_MESSAGE, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.pullMessageProcessor, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.pullMessageExecutor);</span></span></code></pre>
+<p>这里注册了<code>ClientManageProcessor</code>，Consumer发送心跳时会经由其<code>processRequest</code>处理：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ClientManageProcessor</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> AsyncNettyRequestProcessor</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> NettyRequestProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#B392F0">processRequest</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> RemotingCommandException {</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (request.</span><span style="color:#B392F0">getCode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.HEART_BEAT</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">heartBeat</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.UNREGISTER_CLIENT</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">unregisterClient</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.CHECK_CLIENT_CONFIG</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkClientConfig</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>最终会调用<code>ConsumerFilterManager</code>的<code>register</code>将订阅信息存储起来，这里只会保存SQL过滤的相关信息：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//ConsumerFilterManager</span></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">     * 将非TAG过滤的信息缓存</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> topic</span><span style="color:#6A737D"> 主题</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> consumerGroup</span><span style="color:#6A737D"> 消费者组名</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> expression</span><span style="color:#6A737D"> SQL表达式</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> type</span><span style="color:#6A737D"> 过滤类型 TAG or SQL</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> clientVersion</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> success？</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> register</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String topic, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String consumerGroup, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String expression,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> String type, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> clientVersion) {</span></span>
+<span class="line"><span style="color:#6A737D">        //TAG过滤，则不用注册消息过滤，这里主要针对SQL过滤的</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (ExpressionType.</span><span style="color:#B392F0">isTagType</span><span style="color:#E1E4E8">(type)) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (expression </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> expression.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        FilterDataMapByTopic filterDataMapByTopic </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.filterDataByTopic.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (filterDataMapByTopic </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            FilterDataMapByTopic temp </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FilterDataMapByTopic</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#E1E4E8">            FilterDataMapByTopic prev </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.filterDataByTopic.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(topic, temp);</span></span>
+<span class="line"><span style="color:#E1E4E8">            filterDataMapByTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prev </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> prev </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> temp;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        BloomFilterData bloomFilterData </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> bloomFilter.</span><span style="color:#B392F0">generate</span><span style="color:#E1E4E8">(consumerGroup </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "#"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> topic);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> filterDataMapByTopic.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(consumerGroup, expression, type, bloomFilterData, clientVersion);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>broker接收心跳并存储订阅信息流程如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Broker-Heartbeat.png" alt="Broker处理心跳并保存订阅信息流程"></p>
+<h4 id="2323-broker消息过滤">2.3.2.3 Broker消息过滤</h4>
+<p>Consumer通过<code>pullMessageService</code>向Broker发起拉取消息的请求。<code>PullMessageService</code>在讲Consumer的时候提到过，它继承自<code>ServiceThread</code>，会执行消息的拉取任务。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> PullMessageService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                PullRequest pullRequest </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.pullRequestQueue.</span><span style="color:#B392F0">take</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">pullMessage</span><span style="color:#E1E4E8">(pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (InterruptedException </span><span style="color:#FFAB70">ignored</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Pull Message Service Run Method exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> pullMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> PullRequest </span><span style="color:#FFAB70">pullRequest</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //根据消费者组名，选择一个消费者</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> MQConsumerInner consumer </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">selectConsumer</span><span style="color:#E1E4E8">(pullRequest.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (consumer </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            DefaultMQPushConsumerImpl impl </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (DefaultMQPushConsumerImpl) consumer;</span></span>
+<span class="line"><span style="color:#6A737D">            //执行拉取请求：立即执行、延迟执行</span></span>
+<span class="line"><span style="color:#E1E4E8">            impl.</span><span style="color:#B392F0">pullMessage</span><span style="color:#E1E4E8">(pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No matched consumer for the PullRequest {}, drop it"</span><span style="color:#E1E4E8">, pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>接着调用<code>DefaultMQPushConsumerImpl#pullMessage</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQPushConsumerImpl</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> pullMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> PullRequest pullRequest) {</span></span>
+<span class="line"><span style="color:#6A737D">	//省略...</span></span>
+<span class="line"><span style="color:#6A737D">        // 回调逻辑</span></span>
+<span class="line"><span style="color:#E1E4E8">    PullCallback pullCallback </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PullCallback</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onSuccess</span><span style="color:#E1E4E8">(PullResult </span><span style="color:#FFAB70">pullResult</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (pullResult </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                pullResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> DefaultMQPushConsumerImpl.this.pullAPIWrapper.</span><span style="color:#B392F0">processPullResult</span><span style="color:#E1E4E8">(pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(), pullResult,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    subscriptionData);</span></span>
+<span class="line"><span style="color:#F97583">                switch</span><span style="color:#E1E4E8"> (pullResult.</span><span style="color:#B392F0">getPullStatus</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    case</span><span style="color:#E1E4E8"> FOUND</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            DefaultMQPushConsumerImpl.this.</span><span style="color:#B392F0">executePullRequestImmediately</span><span style="color:#E1E4E8">(pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                            boolean</span><span style="color:#E1E4E8"> dispatchToConsume </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> processQueue.</span><span style="color:#B392F0">putMessage</span><span style="color:#E1E4E8">(pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                            DefaultMQPushConsumerImpl.this.consumeMessageService.</span><span style="color:#B392F0">submitConsumeRequest</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                                pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                processQueue,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                dispatchToConsume);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">                    //省略</span></span>
+<span class="line"><span style="color:#F97583">                    default:</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"><span style="color:#E1E4E8">    String subExpression </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    SubscriptionData sd </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.rebalanceImpl.</span><span style="color:#B392F0">getSubscriptionInner</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.pullAPIWrapper.</span><span style="color:#B392F0">pullKernelImpl</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">            pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">            subExpression,</span></span>
+<span class="line"><span style="color:#E1E4E8">            subscriptionData.</span><span style="color:#B392F0">getExpressionType</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">            subscriptionData.</span><span style="color:#B392F0">getSubVersion</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">            pullRequest.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getPullBatchSize</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">            sysFlag,</span></span>
+<span class="line"><span style="color:#E1E4E8">            commitOffsetValue,</span></span>
+<span class="line"><span style="color:#E1E4E8">            BROKER_SUSPEND_MAX_TIME_MILLIS,</span></span>
+<span class="line"><span style="color:#E1E4E8">            CONSUMER_TIMEOUT_MILLIS_WHEN_SUSPEND,</span></span>
+<span class="line"><span style="color:#E1E4E8">            CommunicationMode.ASYNC,</span></span>
+<span class="line"><span style="color:#E1E4E8">            pullCallback</span></span>
+<span class="line"><span style="color:#E1E4E8">        );</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>大致流程为：</p>
+<ul>
+<li>先定义了从broker拉到消息<code>回调逻辑</code>；</li>
+<li>然后调用<code>PullAPIWrapper#pullKernelImpl</code>拉取消息并触发<code>回调逻辑</code>；</li>
+<li>将远程拉到的消息放入本地队列提供消费，<code>consumeMessageService.submitConsumeRequest</code>会触发本地消费逻辑，最终会调用到我们定义的<code>MessageListener</code>。</li>
+</ul>
+<p>上面是Consumer发起拉取消息的请求过程，接下来就该Broker收到这个请求后的处理了。</p>
+<p>拉取消息发送的请求代号是<code>PULL_MESSAGE</code>，上面我们也提到了<code>PULL_MESSAGE</code>对应的处理器是<code>PullMessageProcessor</code>。</p>
+<p>Broker处理<code>拉取消息请求</code>时会调用<code>PullMessageProcessor#processRequest</code>方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//PullMessageProcessor</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#B392F0">processRequest</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Channel channel, RemotingCommand request, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> brokerAllowSuspend)</span></span>
+<span class="line"><span style="color:#E1E4E8">    throws RemotingCommandException {</span></span>
+<span class="line"><span style="color:#6A737D">    //省略...</span></span>
+<span class="line"><span style="color:#E1E4E8">    MessageFilter messageFilter;</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getBrokerConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isFilterSupportRetry</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageFilter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ExpressionForRetryMessageFilter</span><span style="color:#E1E4E8">(subscriptionData, consumerFilterData,</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getConsumerFilterManager</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageFilter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ExpressionMessageFilter</span><span style="color:#E1E4E8">(subscriptionData, consumerFilterData,</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getConsumerFilterManager</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> GetMessageResult getMessageResult </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getMessageStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getMessage</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">(), requestHeader.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">(), requestHeader.</span><span style="color:#B392F0">getQueueOffset</span><span style="color:#E1E4E8">(), requestHeader.</span><span style="color:#B392F0">getMaxMsgNums</span><span style="color:#E1E4E8">(), messageFilter);</span></span>
+<span class="line"><span style="color:#6A737D">    //省略...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>构造消息过滤器并获取消息，调用的是<code>DefaultMessageStore#getMessage()</code>，这里过滤过程分为两步：</p>
+<ul>
+<li><code>ConsumeQueue中的TAG过滤</code>：根据offset获取对应的<code>consumerQueue</code>，为啥？想想<code>consumerQueue</code>条目的结构：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-item-view.png" alt="消息条目示意图">
+过滤时会调用传入的<code>ExpressionMessageFilter</code>的<code>isMatchedByConsumeQueue</code>方法，该方法就是根据<code>tagCode</code>过滤消息的（不止这个功能，还有<code>位图过滤</code>）：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//ExpressionMessageFilter</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isMatchedByConsumeQueue</span><span style="color:#E1E4E8">(Long tagsCode, ConsumeQueueExt.CqExtUnit cqExtUnit) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> subscriptionData) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (subscriptionData.</span><span style="color:#B392F0">isClassFilterMode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // by tags code.</span></span>
+<span class="line"><span style="color:#6A737D">        //tag过滤，这里只判断tag的hashCode是否相等，但不同tag的hashCode可能相等，真正的tag过滤是在consumer中进行的。</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (ExpressionType.</span><span style="color:#B392F0">isTagType</span><span style="color:#E1E4E8">(subscriptionData.</span><span style="color:#B392F0">getExpressionType</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (tagsCode </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (subscriptionData.</span><span style="color:#B392F0">getSubString</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(SubscriptionData.SUB_ALL)) {</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> subscriptionData.</span><span style="color:#B392F0">getCodeSet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(tagsCode.</span><span style="color:#B392F0">intValue</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //省略</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Tag-Filter-in-Broker.png" alt="Broker端TAG过滤"></p>
+<ul>
+<li><code>SQL过滤</code>
+而后，调用<code>ExpressionMessageFilter#isMatchedByCommitLog()</code>进行<code>SQL过滤</code>：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//ExpressionMessageFilter</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isMatchedByCommitLog</span><span style="color:#E1E4E8">(ByteBuffer msgBuffer, Map</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">String, String</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> properties) {</span></span>
+<span class="line"><span style="color:#6A737D">    // 省略一些内容</span></span>
+<span class="line"><span style="color:#E1E4E8">    ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    Object ret </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageEvaluationContext context </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MessageEvaluationContext</span><span style="color:#E1E4E8">(tempProperties);</span></span>
+<span class="line"><span style="color:#6A737D">        // 处理值，即执行SQL</span></span>
+<span class="line"><span style="color:#E1E4E8">        ret </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> realFilterData.</span><span style="color:#B392F0">getCompiledExpression</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">evaluate</span><span style="color:#E1E4E8">(context);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Message Filter error, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> realFilterData </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ", "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> tempProperties, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    log.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Pull eval result: {}, {}, {}"</span><span style="color:#E1E4E8">, ret, realFilterData, tempProperties);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (ret </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">(ret </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> Boolean)) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> (Boolean) ret;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>realFilterData</code>就包含Consumer样例中的SQL：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>(TAGS is not null and TAGS in ('TagA', 'TagB')) and (a is not null and a between 0 and 3)</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SQL-Filter.png" alt="SQL过滤debug"></p>
+<h4 id="2324-consumer消息过滤">2.3.2.4 Consumer消息过滤</h4>
+<p>接下来就是Consumer处理消息过滤了，就是上节发起前定义的消息回调方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQPushConsumerImpl</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> pullMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> PullRequest pullRequest) {</span></span>
+<span class="line"><span style="color:#6A737D">       //...省略</span></span>
+<span class="line"><span style="color:#6A737D">       // 消息拉取的回调函数，在拉取到消息后会进入这个方法处理</span></span>
+<span class="line"><span style="color:#E1E4E8">        PullCallback pullCallback </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PullCallback</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onSuccess</span><span style="color:#E1E4E8">(PullResult </span><span style="color:#FFAB70">pullResult</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (pullResult </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 处理消息，将二制消息解码为java对象，也会对消息进行tag过滤</span></span>
+<span class="line"><span style="color:#E1E4E8">                    pullResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> DefaultMQPushConsumerImpl.this.pullAPIWrapper.</span><span style="color:#B392F0">processPullResult</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(), pullResult, subscriptionData);</span></span>
+<span class="line"><span style="color:#6A737D">        //...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">        //...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">        //...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span></code></pre>
+<p>跟进<code>PullAPIWrapper#processPullResult</code>方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//PullAPIWrapper</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> PullResult </span><span style="color:#B392F0">processPullResult</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageQueue mq, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> PullResult pullResult, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> SubscriptionData subscriptionData) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    PullResultExt pullResultExt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (PullResultExt) pullResult;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">updatePullFromWhichNode</span><span style="color:#E1E4E8">(mq, pullResultExt.</span><span style="color:#B392F0">getSuggestWhichBrokerId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (PullStatus.FOUND </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> pullResult.</span><span style="color:#B392F0">getPullStatus</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 将二进制数据解码为对象</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteBuffer byteBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">wrap</span><span style="color:#E1E4E8">(pullResultExt.</span><span style="color:#B392F0">getMessageBinary</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> msgList </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageDecoder.</span><span style="color:#B392F0">decodes</span><span style="color:#E1E4E8">(byteBuffer);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> msgListFilterAgain </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgList;</span></span>
+<span class="line"><span style="color:#6A737D">        // 按 TAG 过滤</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">subscriptionData.</span><span style="color:#B392F0">getTagsSet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">subscriptionData.</span><span style="color:#B392F0">isClassFilterMode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            msgListFilterAgain </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">>(msgList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (MessageExt msg </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> msgList) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 根据tag过滤消息</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (subscriptionData.</span><span style="color:#B392F0">getTagsSet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msgListFilterAgain.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">        //...省略</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>从代码来看，方法中会根据TAG是否在<code>TagsSet</code>中来决定该消息是否需要加入<code>msgListFilterAgain</code>，而<code>msgListFilterAgain</code>就是过滤的消息列表了。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Tag-Filter-in-Consumer.png" alt="Consumer端TAG过滤"></p>
+<h2 id="24-总结">2.4 总结</h2>
+<p>RocketMq消息过滤支持<code>TAG</code>与<code>SQL</code>两种方式，</p>
+<h3 id="241-tag-方式">2.4.1 TAG 方式</h3>
+<p>在broker获取消息时，根据TAG的<code>hashCode</code>过滤一波消息，但这样得到的消息可能并不只是指定TAG的，因此需要在consumer上做进一步的过滤。</p>
+<p>举例来说，consumer订阅了TAG为tag1的消息，tag1与tag11两者的hashCode都是100，因此在broker上过滤时，根据TAG的hashCode，这两者对应的消息都会发往consumer，因此consumer需要再进比较TAG的值，过滤出真正需要的消息。</p>
+<h3 id="242-sql-方式">2.4.2 SQL 方式</h3>
+<p>SQL方式的过滤方式，只在<code>Broker</code>中进行。</p>
+<h1 id="3-消息重试">3 消息重试</h1>
+<h2 id="31-producer重试">3.1 Producer重试</h2>
+<p>Producer对于one-way发送的消息不会有重试或重投的动作。对于同步消息、异步消息发送，Producer有几个参数配置：</p>
+<ul>
+<li><code>retryTimesWhenSendFailed</code>：<code>同步发送失败重投次数</code>，默认为<code>2</code>，因此生产者会最多尝试发送<code>retryTimesWhenSendFailed + 1</code>次。不会选择上次失败的broker，尝试向其他broker发送，最大程度保证消息不丢。超过重投次数，抛出异常，由客户端保证消息不丢。当出现<code>RemotingException</code>、<code>MQClientException</code>和部分<code>MQBrokerException</code>时会重投。</li>
+<li><code>retryTimesWhenSendAsyncFailed</code>：<code>异步发送失败重试次数</code>，异步重试<strong>不会</strong>选择其他broker，仅在同一个broker上做重试，<code>不保证消息不丢</code>。</li>
+<li><code>retryAnotherBrokerWhenNotStoreOK</code>：消息刷盘（主或备）超时或slave不可用（返回状态非SEND_OK），是否尝试发送到其他broker，默认<code>false</code>。十分重要消息可以开启。</li>
+</ul>
+<p>可以在创建Producer实例后，进行配置：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">DefaultMQProducer defaultMQProducer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQProducer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">defaultMQProducer.</span><span style="color:#B392F0">setRetryTimesWhenSendFailed</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">defaultMQProducer.</span><span style="color:#B392F0">setRetryTimesWhenSendAsyncFailed</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<h2 id="32-consumer重试">3.2 Consumer重试</h2>
+<p>Apache RocketMQ 有两种消费模式：<code>集群消费模式</code>和<code>广播消费模式</code>。</p>
+<ul>
+<li><strong>消息重试只针对集群消费模式生效</strong>；</li>
+<li>广播消费模式<code>不提供失败重试</code>特性，即消费失败后，失败消息不再重试，只会以<code>警告日志</code>的形式记录消费失败的消息，继续消费新的消息。</li>
+</ul>
+<p>同时RocketMQ Push消费提供了两种消费方式：<code>并发消费</code>和<code>顺序消费</code>。</p>
+<p>顺序消费和并发消费的<code>重试机制并不相同</code>：</p>
+<ul>
+<li>顺序消费消费失败后会先在客户端<strong>本地重试</strong>直到最大重试次数，这样可以避免消费失败的消息被跳过，消费下一条消息而打乱顺序消费的顺序，</li>
+<li>而并发消费消费失败后会将消费失败的消息<strong>重新投递回服务端</strong>，再等待服务端重新投递回来，在这期间会正常消费队列后面的消息。</li>
+</ul>
+<blockquote>
+<p>并发消费失败后并不是投递回原Topic，而是投递到一个特殊Topic，其命名为<code>%RETRY%ConsumerGroupName</code>，集群模式下并发消费每一个<code>ConsumerGroup</code>会对应一个特殊Topic，并会订阅该Topic。</p>
+</blockquote>
+<p>在哪儿订阅的？<code>DefaultMQPushConsumerImpl#start()</code>启动时，会调用<code>copySubscription()</code>，该方法的作用有：</p>
+<ul>
+<li>将DefaultMQPushConsumer的订阅信息copy到<code>RebalanceService</code>中；</li>
+<li>如果是cluster模式，订阅了topic，则自动订阅 <code>%RETRY%+ConsumerGroupName</code>的topic。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQPushConsumerImpl</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 拷贝订阅信息至RebalanceService中，包括重试的</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@throws</span><span style="color:#B392F0"> MQClientException</span><span style="color:#6A737D"> 异常</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> copySubscription</span><span style="color:#E1E4E8">() throws MQClientException {</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> sub </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getSubscription</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //1.将DefaultMQPushConsumer的订阅信息copy到RebalanceService中</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (sub </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> entry </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> sub.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    final</span><span style="color:#E1E4E8"> String topic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    final</span><span style="color:#E1E4E8"> String subString </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    SubscriptionData subscriptionData </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> FilterAPI.</span><span style="color:#B392F0">buildSubscriptionData</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">(), topic, subString);</span></span>
+<span class="line"><span style="color:#6A737D">                    //2.订阅信息保存至RebalanceService中</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.rebalanceImpl.</span><span style="color:#B392F0">getSubscriptionInner</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(topic, subscriptionData);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageListenerInner) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.messageListenerInner </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getMessageListener</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            switch</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getMessageModel</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                case</span><span style="color:#E1E4E8"> BROADCASTING</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                case</span><span style="color:#E1E4E8"> CLUSTERING</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#6A737D">                    //3.Push模式集群消费下，每个消费者组都会自动订阅一个用于重试的topic：%RETRY%+ConsumerGroupName</span></span>
+<span class="line"><span style="color:#F97583">                    final</span><span style="color:#E1E4E8"> String retryTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MixAll.</span><span style="color:#B392F0">getRetryTopic</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    SubscriptionData subscriptionData </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> FilterAPI.</span><span style="color:#B392F0">buildSubscriptionData</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">(), retryTopic, SubscriptionData.SUB_ALL);</span></span>
+<span class="line"><span style="color:#6A737D">                    //4.重试topic相关的订阅信息保存至RebalanceService中</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.rebalanceImpl.</span><span style="color:#B392F0">getSubscriptionInner</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(retryTopic, subscriptionData);</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                default:</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"subscription exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>两者参数差别如下：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>消费类型</th><th>重试间隔</th><th>最大重试次数</th></tr></thead><tbody><tr><td>顺序消费</td><td>间隔时间可通过自定义设置，<code>SuspendCurrentQueueTimeMillis</code></td><td>最大重试次数可通过自定义参数<code>MaxReconsumeTimes</code>取值进行配置。该参数取值无最大限制。若未设置参数值，默认最大重试次数为<code>Integer.MAX</code></td></tr><tr><td>并发消费</td><td>间隔时间根据重试次数阶梯变化，取值范围：<code>10秒～2小时</code>。不支持自定义配置</td><td>最大重试次数可通过自定义参数<code>MaxReconsumeTimes</code>取值进行配置。默认值为<code>16</code>次，该参数取值无最大限制，建议使用默认值</td></tr></tbody></table>
+<p>TCP协议并发消费（无序消息）重试间隔[^1]如下：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>第几次重试</th><th>与上次重试的间隔时间</th><th>第几次重试</th><th>与上次重试的间隔时间</th></tr></thead><tbody><tr><td>1</td><td>10秒</td><td>9</td><td>7分钟</td></tr><tr><td>2</td><td>30秒</td><td>10</td><td>8分钟</td></tr><tr><td>3</td><td>1分钟</td><td>11</td><td>9分钟</td></tr><tr><td>4</td><td>2分钟</td><td>12</td><td>10分钟</td></tr><tr><td>5</td><td>3分钟</td><td>13</td><td>20分钟</td></tr><tr><td>6</td><td>4分钟</td><td>14</td><td>30分钟</td></tr><tr><td>7</td><td>5分钟</td><td>15</td><td>1小时</td></tr><tr><td>8</td><td>6分钟</td><td>16</td><td>2小时</td></tr></tbody></table>
+<ul>
+<li>若最大重试次数<code>小于等于16次</code>，则每次重试的间隔时间会阶梯变化，具体时间，请参见上表<code>TCP协议无序消息重试间隔</code>。</li>
+<li>若最大重试次数<code>大于16次</code>，则超过16次的间隔时间均为<code>2小时</code>。</li>
+</ul>
+<p>我们通过顺序消费和并发消费的状态，也可看出RocketMQ对于消息重试的处理方式：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//顺序消费，监听器的返回状态码</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> enum</span><span style="color:#B392F0"> ConsumeOrderlyStatus</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Success consumption</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#79B8FF">    SUCCESS</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Rollback consumption(only for binlog consumption)</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#79B8FF">Deprecated</span></span>
+<span class="line"><span style="color:#E1E4E8">    ROLLBACK,</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Commit offset(only for binlog consumption)</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#79B8FF">Deprecated</span></span>
+<span class="line"><span style="color:#E1E4E8">    COMMIT,</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Suspend current queue a moment</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#79B8FF">    SUSPEND_CURRENT_QUEUE_A_MOMENT</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//并发消费，监听器的返回状态码</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> enum</span><span style="color:#B392F0"> ConsumeConcurrentlyStatus</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Success consumption</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#79B8FF">    CONSUME_SUCCESS</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * Failure consumption,later try to consume</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#79B8FF">    RECONSUME_LATER</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="321-并发消费失败重试">3.2.1 并发消费失败重试</h3>
+<p>我们从消费者监听往回看，Consumer从哪里处理这种失败的逻辑。以2.1.2节的Consumer为例。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Listener-Call.png" alt="监听调用者"></p>
+<p>从图中可以看出，调用监听处理消息消费结果的地方有两处：</p>
+<ul>
+<li><code>consumeMessageDirectly</code>：这个是被<code>DefaultMQAdminExtImpl</code>调用的，从名字我猜是给监控平台调用的，比如Console。读者有知道的可以告知留言。</li>
+<li><code>ConsumeRequest#run()</code>：<code>ConsumeMessageConcurrentlyService</code>内部线程类，专用于处理消息结果，最终要发回Broker。</li>
+</ul>
+<p>跟踪下<code>ConsumeRequest</code>怎么处理消息结果的，当然向后肯定是给Broker发信息处理，这里先看看是哪里调用的。</p>
+<p>既然<code>ConsumeRequest</code>是个线程类，那就要看是哪里提交了线程任务，要么是定时处理，要么是提交任务队列。RocketMQ是通过提交线程队列处理的。</p>
+<p>还记得之前的消费者回调吗？对的，就是2.3.2.3节的那个<code>PullCallback</code>。这个方法老长了。我们截图把重要的消费保留下来：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consume-Callback.png" alt="消费回调"></p>
+<p>消费回调是在消费者拉取到消息之后，对结果的一种处理。我们可以追踪下，<code>PullCallback</code>真正调用的地方，其传递路径为：
+<code>PullAPIWrapper#pullKernelImpl()</code>、<code>MQClientAPIImpl#pullMessage()</code>、<code>MQClientAPIImpl#pullMessageAsync()</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consume-Callback2.png" alt="消费回调调用处"></p>
+<p>回到提交线程队列的话题，最终<code>ConsumeRequest</code>是提交到一个任务队列中，这里当然要成功拉取到消息。对于拉取不成功的情况，RocketMQ会进行重新拉取。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consume-pullRetry.png" alt="拉取失败重新发起拉取消息请求"></p>
+<p>对于拉取成功的消息，进行消费、结果反馈。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consume-Submit.png" alt="提交消费结果"></p>
+<p><code>ConsumeRequest</code>既然是个线程类，那就看看其<code>run()</code>方法咯：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> ConsumeRequest</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //...........省略</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue not be able to consume, because it's dropped. group={} {}"</span><span style="color:#E1E4E8">, ConsumeMessageConcurrentlyService.this.consumerGroup, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //获取消费者定义的监听器</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageListenerConcurrently listener </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeMessageConcurrentlyService.this.messageListener;</span></span>
+<span class="line"><span style="color:#E1E4E8">        ConsumeConcurrentlyContext context </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ConsumeConcurrentlyContext</span><span style="color:#E1E4E8">(messageQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">        ConsumeConcurrentlyStatus status </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        defaultMQPushConsumerImpl.</span><span style="color:#B392F0">resetRetryAndNamespace</span><span style="color:#E1E4E8">(msgs, defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        ConsumeMessageContext consumeMessageContext </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //钩子</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">hasHook</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ConsumeMessageContext</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setNamespace</span><span style="color:#E1E4E8">(defaultMQPushConsumer.</span><span style="color:#B392F0">getNamespace</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setConsumerGroup</span><span style="color:#E1E4E8">(defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setProps</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>());</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setMq</span><span style="color:#E1E4E8">(messageQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setMsgList</span><span style="color:#E1E4E8">(msgs);</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setSuccess</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">executeHookBefore</span><span style="color:#E1E4E8">(consumeMessageContext);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> beginTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> hasException </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        ConsumeReturnType returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.SUCCESS;</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (msgs </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">msgs.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (MessageExt msg </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> msgs) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    MessageAccessor.</span><span style="color:#B392F0">setConsumeStartTimeStamp</span><span style="color:#E1E4E8">(msg, String.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //消费，这里会返回消费结果码，ConsumeConcurrentlyStatus</span></span>
+<span class="line"><span style="color:#E1E4E8">            status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> listener.</span><span style="color:#B392F0">consumeMessage</span><span style="color:#E1E4E8">(Collections.</span><span style="color:#B392F0">unmodifiableList</span><span style="color:#E1E4E8">(msgs), context);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"consumeMessage exception: {} Group: {} Msgs: {} MQ: {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    RemotingHelper.</span><span style="color:#B392F0">exceptionSimpleDesc</span><span style="color:#E1E4E8">(e),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ConsumeMessageConcurrentlyService.this.consumerGroup,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    msgs,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    messageQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">            hasException </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> consumeRT </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTimestamp;</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> status) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (hasException) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.EXCEPTION;</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.RETURNNULL;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (consumeRT </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumeTimeout</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 60</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.TIME_OUT;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (ConsumeConcurrentlyStatus.RECONSUME_LATER </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> status) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.FAILED;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (ConsumeConcurrentlyStatus.CONSUME_SUCCESS </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> status) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            returnType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeReturnType.SUCCESS;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">hasHook</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">getProps</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(MixAll.CONSUME_CONTEXT_TYPE, returnType.</span><span style="color:#B392F0">name</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> status) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"consumeMessage return null, Group: {} Msgs: {} MQ: {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ConsumeMessageConcurrentlyService.this.consumerGroup,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    msgs,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    messageQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">            status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus.RECONSUME_LATER;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">hasHook</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setStatus</span><span style="color:#E1E4E8">(status.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            consumeMessageContext.</span><span style="color:#B392F0">setSuccess</span><span style="color:#E1E4E8">(ConsumeConcurrentlyStatus.CONSUME_SUCCESS </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> status);</span></span>
+<span class="line"><span style="color:#E1E4E8">            ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">executeHookAfter</span><span style="color:#E1E4E8">(consumeMessageContext);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        ConsumeMessageConcurrentlyService.this.</span><span style="color:#B392F0">getConsumerStatsManager</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">                .</span><span style="color:#B392F0">incConsumeRT</span><span style="color:#E1E4E8">(ConsumeMessageConcurrentlyService.this.consumerGroup, messageQueue.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), consumeRT);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //向Broker反馈消费结果</span></span>
+<span class="line"><span style="color:#E1E4E8">            ConsumeMessageConcurrentlyService.this.</span><span style="color:#B392F0">processConsumeResult</span><span style="color:#E1E4E8">(status, context, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"processQueue is dropped without process consume result. messageQueue={}, msgs={}"</span><span style="color:#E1E4E8">, messageQueue, msgs);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //.........省略</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>首先就是获取消费者定义的监听器，就是2.1.2节的Consumer注册的那个监听。然后执行完消费，就是把重要的<code>消费结果status</code>返回。这个<code>消费结果status</code>会给到Broker。这个方法就是<code>processConsumeResult</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//向Broker反馈消费结果</span></span>
+<span class="line"><span style="color:#E1E4E8">ConsumeMessageConcurrentlyService.this.</span><span style="color:#B392F0">processConsumeResult</span><span style="color:#E1E4E8">(status, context, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processConsumeResult</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> ConsumeConcurrentlyStatus status,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> ConsumeConcurrentlyContext context,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> ConsumeRequest consumeRequest</span></span>
+<span class="line"><span style="color:#E1E4E8">    ) {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> ackIndex </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getAckIndex</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (status) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 1、消费成功，注意这个ackIndex，对于是否重试至关重要，其实还是消费结果status引起的</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> CONSUME_SUCCESS</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (ackIndex </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ackIndex </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ackIndex </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> failed </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> ok;</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getConsumerStatsManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">incConsumeOKTPS</span><span style="color:#E1E4E8">(consumerGroup, consumeRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), ok);</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getConsumerStatsManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">incConsumeFailedTPS</span><span style="color:#E1E4E8">(consumerGroup, consumeRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), failed);</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">            //2.消费重试，ackIndex = -1</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RECONSUME_LATER</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                ackIndex </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getConsumerStatsManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">incConsumeFailedTPS</span><span style="color:#E1E4E8">(consumerGroup, consumeRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getMessageModel</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //3.broadcast模式，处理失败，不做处理，只会打印日志</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> BROADCASTING</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#6A737D">                //4.广播模式：如果消费结果是 ackIndex=-1就会执行循环，可以看到只是打印日志，没有其它多余的操作</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ackIndex </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    MessageExt msg </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"BROADCASTING, the message consume failed, drop it, {}"</span><span style="color:#E1E4E8">, msg.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> CLUSTERING</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> msgBackFailed </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">>(consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                //5.集群消费模式：RECONSUME_LATER 时，消费失败，ackIndex = -1，下面的循环才会执行，因为CONSUME_SUCCESS的结果中，ackIndex = consumeRequest.getMsgs().size() - 1</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ackIndex </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    MessageExt msg </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i);</span></span>
+<span class="line"><span style="color:#6A737D">                    //6.Cluster模式，将消息发回broker重新发送(重试)</span></span>
+<span class="line"><span style="color:#6A737D">                    //能到这里说明是 RECONSUME_LATER 状态：回退Msg到Broker，也就是ACK(重试)</span></span>
+<span class="line"><span style="color:#F97583">                    boolean</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">sendMessageBack</span><span style="color:#E1E4E8">(msg, context);</span></span>
+<span class="line"><span style="color:#6A737D">                    //7.ACK 可能会失败，需要记录失败的ACK</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">result) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msg.</span><span style="color:#B392F0">setReconsumeTimes</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getReconsumeTimes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msgBackFailed.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //8.存在ACK 失败的消息，将消息丢到线程池延迟 5s 重新消费</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">msgBackFailed.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">removeAll</span><span style="color:#E1E4E8">(msgBackFailed);</span></span>
+<span class="line"><span style="color:#6A737D">                    //9.发回broker失败，则再次尝试本地消费</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">submitConsumeRequestLater</span><span style="color:#E1E4E8">(msgBackFailed, consumeRequest.</span><span style="color:#B392F0">getProcessQueue</span><span style="color:#E1E4E8">(), consumeRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //将消费前缓存的消息清除</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> offset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> consumeRequest.</span><span style="color:#B392F0">getProcessQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">removeMessage</span><span style="color:#E1E4E8">(consumeRequest.</span><span style="color:#B392F0">getMsgs</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 10.更新消费的偏移量：注意这里 CONSUME_SUCCESS 和 RECONSUME_LATER 都会更新</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (offset </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">consumeRequest.</span><span style="color:#B392F0">getProcessQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">getOffsetStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">updateOffset</span><span style="color:#E1E4E8">(consumeRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(), offset, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>根据上面源码我们可以得出以下结论：</p>
+<ul>
+<li>由第4步我们可知：<code>广播模式</code>就算消费者消费失败，也不会进行重试，只是打印<code>警告日志</code>；</li>
+<li>只有<code>消费失败</code>（没有返回 CONSUME_SUCCESS 都成为失败）的消息才需要发送ACK重试；</li>
+<li>如果<code>ACK失败</code>，（《RocketMQ技术内幕》中称为<code>ACK失败</code>），即重试失败，就会继续被<code>延迟5s</code>重新消费（又会回调到Consumer中的回调方法）；</li>
+<li>消息被消费成功、失败，都会更新Consumer 的<code>偏移量</code>；</li>
+<li><code>ConsumeMessageConcurrentlyService.sendMessageBack</code>：准备将结果发回Broker。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> sendMessageBack</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExt msg, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ConsumeConcurrentlyContext context) {</span></span>
+<span class="line"><span style="color:#6A737D">        //延迟级别，默认为0</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> delayLevel </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getDelayLevelWhenNextConsume</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Wrap topic with namespace before sending back message.</span></span>
+<span class="line"><span style="color:#E1E4E8">        msg.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">withNamespace</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //先发CONSUMER_SEND_MSG_BACK命令，让broker重发；失败，则通过topic为%RETRY%+consumerGroup的消息发给broker处理</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"=======delayLevel: {}"</span><span style="color:#E1E4E8">, delayLevel);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">sendMessageBack</span><span style="color:#E1E4E8">(msg, delayLevel, context.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sendMessageBack exception, group: "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.consumerGroup </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " msg: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">(), e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span></code></pre>
+<p><code>sendMessageBack</code>会有两个动作：</p>
+<ul>
+<li>先向Broker发送请求代号为<code>CONSUMER_SEND_MSG_BACK</code>的请求，让Broker去处理，后面会详细说明具体干了啥事。</li>
+<li>如果这个请求发送异常，则将消息重新组装，向topic为<code>%RETRY%ConsumerGroupName</code>发送消息，让Broker延迟处理重试。</li>
+</ul>
+<p>这里就是3.2节开头说的：</p>
+<blockquote>
+<p>并发消费失败后并不是投递回原Topic，而是投递到一个特殊Topic，其命名为<code>%RETRY%ConsumerGroupName</code>，集群模式下并发消费每一个<code>ConsumerGroup</code>会对应一个特殊Topic，并会订阅该Topic。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Submit-Retry.png" alt="提交Broker重试"></p>
+<h3 id="322-顺序消费失败重试">3.2.2 顺序消费失败重试</h3>
+<p>对于顺序消息消费失败，需要返回的状态是<code>SUSPEND_CURRENT_QUEUE_A_MOMENT</code>，意思就是暂停一下，等会儿再试。</p>
+<p>与并发消费下的消息处理不同主要在于<code>ConsumeRequest</code>的处理。这里不列出源码了。读者自己可以去跟一跟。</p>
+<h2 id="33-broker重试处理">3.3 Broker重试处理</h2>
+<p>以并发消费，即无序消息处理为例。broker在收到消费者发出的请求代号为<code>CONSUMER_SEND_MSG_BACK</code>后，着手处理消息重试逻辑。</p>
+<p>处理这个请求的处理器为<code>SendMessageProcessor</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> CompletableFuture</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">RemotingCommand</span><span style="color:#F97583">></span><span style="color:#B392F0"> asyncProcessRequest</span><span style="color:#E1E4E8">(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> SendMessageContext mqtraceContext;</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (request.</span><span style="color:#B392F0">getCode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //处理客户端对于失败的消息进行重发</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.CONSUMER_SEND_MSG_BACK</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">asyncConsumerSendMsgBack</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#E1E4E8">                SendMessageRequestHeader requestHeader </span><span style="color:#F97583">=</span><span style="color:#B392F0"> parseRequestHeader</span><span style="color:#E1E4E8">(request);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (requestHeader </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                mqtraceContext </span><span style="color:#F97583">=</span><span style="color:#B392F0"> buildMsgContext</span><span style="color:#E1E4E8">(ctx, requestHeader);</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">executeSendMessageHookBefore</span><span style="color:#E1E4E8">(ctx, request, mqtraceContext);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (requestHeader.</span><span style="color:#B392F0">isBatch</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">asyncSendBatchMessage</span><span style="color:#E1E4E8">(ctx, request, mqtraceContext, requestHeader);</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">asyncSendMessage</span><span style="color:#E1E4E8">(ctx, request, mqtraceContext, requestHeader);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p><code>SendMessageProcessor#asyncConsumerSendMsgBack()</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SendMessageProcessor</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> AbstractSendMessageProcessor</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> NettyRequestProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> CompletableFuture&#x3C;</span><span style="color:#F97583">RemotingCommand</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">asyncConsumerSendMsgBack</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                                                        RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> RemotingCommandException {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> RemotingCommand response </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingCommand.</span><span style="color:#B392F0">createResponseCommand</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        //........省略</span></span>
+<span class="line"><span style="color:#6A737D">        //1.新topic：%RETRY%+consumerGroupName</span></span>
+<span class="line"><span style="color:#E1E4E8">        String newTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MixAll.</span><span style="color:#B392F0">getRetryTopic</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 2.重试队列：1</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> queueIdInt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">abs</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.random.</span><span style="color:#B392F0">nextInt</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 99999999</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> subscriptionGroupConfig.</span><span style="color:#B392F0">getRetryQueueNums</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> topicSysFlag </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (requestHeader.</span><span style="color:#B392F0">isUnitMode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            topicSysFlag </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> TopicSysFlag.</span><span style="color:#B392F0">buildSysFlag</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //........省略</span></span>
+<span class="line"><span style="color:#E1E4E8">        TopicConfig topicConfig </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getTopicConfigManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">createTopicInSendMessageBackMethod</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                newTopic,</span></span>
+<span class="line"><span style="color:#E1E4E8">                subscriptionGroupConfig.</span><span style="color:#B392F0">getRetryQueueNums</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                PermName.PERM_WRITE </span><span style="color:#F97583">|</span><span style="color:#E1E4E8"> PermName.PERM_READ, topicSysFlag);</span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageExt msgExt </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getMessageStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lookMessageByOffset</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> msgExt) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SYSTEM_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"look message by offset failed, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> requestHeader.</span><span style="color:#B392F0">getOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(response);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> String retryTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgExt.</span><span style="color:#B392F0">getProperty</span><span style="color:#E1E4E8">(MessageConst.PROPERTY_RETRY_TOPIC);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> retryTopic) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msgExt, MessageConst.PROPERTY_RETRY_TOPIC, msgExt.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgExt.</span><span style="color:#B392F0">setWaitStoreMsgOK</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        //3.延迟级别，初始为0</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> delayLevel </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> requestHeader.</span><span style="color:#B392F0">getDelayLevel</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //4.最大重试次数，最大值 16次</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> maxReconsumeTimes </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> subscriptionGroupConfig.</span><span style="color:#B392F0">getRetryMaxTimes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (request.</span><span style="color:#B392F0">getVersion</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> MQVersion.Version.V3_4_9.</span><span style="color:#B392F0">ordinal</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            maxReconsumeTimes </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> requestHeader.</span><span style="color:#B392F0">getMaxReconsumeTimes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //5.超过重试次数，死信队列</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msgExt.</span><span style="color:#B392F0">getReconsumeTimes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> maxReconsumeTimes </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> delayLevel </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            //死信队列topic：%DLQ%+consumerGroupName</span></span>
+<span class="line"><span style="color:#E1E4E8">            newTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MixAll.</span><span style="color:#B392F0">getDLQTopic</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            queueIdInt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">abs</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.random.</span><span style="color:#B392F0">nextInt</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 99999999</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> DLQ_NUMS_PER_GROUP;</span></span>
+<span class="line"><span style="color:#E1E4E8">            topicConfig </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getTopicConfigManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">createTopicInSendMessageBackMethod</span><span style="color:#E1E4E8">(newTopic,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    DLQ_NUMS_PER_GROUP,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    PermName.PERM_WRITE, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> topicConfig) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SYSTEM_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">                response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"topic["</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> newTopic </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] not exist"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(response);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">0</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> delayLevel) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                delayLevel </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 3</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgExt.</span><span style="color:#B392F0">getReconsumeTimes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            msgExt.</span><span style="color:#B392F0">setDelayTimeLevel</span><span style="color:#E1E4E8">(delayLevel);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        MessageExtBrokerInner msgInner </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MessageExtBrokerInner</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(newTopic);</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setBody</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setFlag</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">setProperties</span><span style="color:#E1E4E8">(msgInner, msgExt.</span><span style="color:#B392F0">getProperties</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setPropertiesString</span><span style="color:#E1E4E8">(MessageDecoder.</span><span style="color:#B392F0">messageProperties2String</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getProperties</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setTagsCode</span><span style="color:#E1E4E8">(MessageExtBrokerInner.</span><span style="color:#B392F0">tagsString2tagsCode</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, msgExt.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setQueueId</span><span style="color:#E1E4E8">(queueIdInt);</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setSysFlag</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setBornTimestamp</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getBornTimestamp</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setBornHost</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getBornHost</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setStoreHost</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getStoreHost</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //重试次数+1。新消息被消费者消费时就会传上来，到第5步进行比较</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setReconsumeTimes</span><span style="color:#E1E4E8">(msgExt.</span><span style="color:#B392F0">getReconsumeTimes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        String originMsgId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageAccessor.</span><span style="color:#B392F0">getOriginMessageId</span><span style="color:#E1E4E8">(msgExt);</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">setOriginMessageId</span><span style="color:#E1E4E8">(msgInner, UtilAll.</span><span style="color:#B392F0">isBlank</span><span style="color:#E1E4E8">(originMsgId) </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> msgExt.</span><span style="color:#B392F0">getMsgId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> originMsgId);</span></span>
+<span class="line"><span style="color:#6A737D">        //6.作为新消息存到CommitLog中，originMsgId会落地的</span></span>
+<span class="line"><span style="color:#E1E4E8">        CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageResult</span><span style="color:#E1E4E8">> putMessageResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getMessageStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">asyncPutMessage</span><span style="color:#E1E4E8">(msgInner);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> putMessageResult.</span><span style="color:#B392F0">thenApply</span><span style="color:#E1E4E8">((r) </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (r </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                switch</span><span style="color:#E1E4E8"> (r.</span><span style="color:#B392F0">getPutMessageStatus</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    case</span><span style="color:#E1E4E8"> PUT_OK</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                        String backTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgExt.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        String correctTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgExt.</span><span style="color:#B392F0">getProperty</span><span style="color:#E1E4E8">(MessageConst.PROPERTY_RETRY_TOPIC);</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (correctTopic </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            backTopic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> correctTopic;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getBrokerStatsManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">incSendBackNums</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getGroup</span><span style="color:#E1E4E8">(), backTopic);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SUCCESS);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                        return</span><span style="color:#E1E4E8"> response;</span></span>
+<span class="line"><span style="color:#F97583">                    default:</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SYSTEM_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">                response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(r.</span><span style="color:#B392F0">getPutMessageStatus</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">name</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> response;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SYSTEM_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"putMessageResult is null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> response;</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>主要做了以下几个事：</p>
+<ul>
+<li>更消息的 Topic 为 <code>"%RETRY%"+ ConsumerGroupName</code>，计算queueId（重试队列，队列数为1）;</li>
+<li>如果消息重试 >= 16次(默认)。继续更改消息的Topic 为死信队列的Topic：<code>"%DLQ%" + ConsumerGroupName</code>，消费队列为1（死信队列只有一个消费队列）;</li>
+<li>如果没有变成死信，计算消息的延迟级别；</li>
+<li>复制原来Msg，重新生成一个Msg，将新Msg丢给BrokerController中，然后存到CommitLog中进行存储，这里原始的消息ID（originMsgId）也会落地。</li>
+</ul>
+<h2 id="34-死信队列">3.4 死信队列</h2>
+<p>当一条消息初次消费失败，RocketMQ会自动进行消息重试，达到最大重试次数后，若消费依然失败，则表明消费者在正常情况下无法正确地消费该消息。</p>
+<p>此时，该消息不会立刻被丢弃，而是将其发送到该消费者对应的特殊队列中，这类消息称为<code>死信消息</code>（Dead-Letter Message），存储死信消息的特殊队列称为<code>死信队列</code>（Dead-Letter Queue），<strong>死信队列是死信Topic下分区数唯一的单独队列</strong>。如果产生了死信消息，那对应的ConsumerGroup的死信Topic名称为<code>%DLQ%+ConsumerGroupName</code>，<strong>死信队列的消息将不会再被消费</strong>。可以利用RocketMQ Admin工具或者RocketMQ Dashboard上查询到对应死信消息的信息。</p>
+<p>总结就是：</p>
+<ul>
+<li>Broker中单独的一个队列(DLQ)，该队列存储了Consumer端<code>重试16次</code>后都<strong>没成功消费</strong>的消息；</li>
+<li>DLQ队列：<strong>只有写权限，没有读权限</strong>。所以是不能被Consumer重新消费的，只能进行<code>人工干预</code>，重新投递（Rocket-MQ-Console 中可以操作）；</li>
+<li>DLQ队列中，该消息的TOPIC重新被命名为： <code>"%DLQ%" + ConsumerGroupName</code>；</li>
+<li>DLQ队列其实就是（consumequeue文件夹的<code>"%DLQ%" + ConsumerGroupName</code> 命名的Topic文件夹下的队列）。</li>
+</ul>
+<h1 id="4-注意事项">4 注意事项</h1>
+<ul>
+<li>一条消息无论重试多少次，这些重试消息的<code>Message ID</code>都不会改变。</li>
+<li><code>消息重试</code>只针对<code>集群消费模式</code>生效；广播消费模式不提供失败重试特性，即消费失败后，失败消息不再重试，继续消费新的消息。</li>
+<li>死信消息不能被Consumer重新消费，只能进行<code>人工干预</code>，重新投递。</li>
+</ul>
+<h1 id="5-参考">5 参考</h1>
+<p>[^1] <a href="https://help.aliyun.com/zh/apsaramq-for-rocketmq/cloud-message-queue-rocketmq-4-x-series/developer-reference/message-retry?spm=a2c4g.11186623.0.0.7b153f772Xxl4s">消息重试间隔</a> 。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

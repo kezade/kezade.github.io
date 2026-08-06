@@ -1,0 +1,255 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】6.源码之Remoting</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】6.源码之Remoting </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/25/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Netty</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="0-前言">0 前言</h1>
+<p>RocketMQ消息队列集群主要包括<code>NameServer</code>、<code>Broker</code>(Master/Slave)、<code>Producer</code>、<code>Consumer</code>4个角色。在{%post_link ‘【RocketMQ学习】1-基础知识’%}一文中，我们了解了其物理架构，本章将深入了解其各个组件的通信机制及其对于Netty的整合。</p>
+<h1 id="1-通信过程">1 通信过程</h1>
+<p>先来了解下上述4个组件的通信过程：</p>
+<ul>
+<li>(1) <code>Broker</code>启动后需要完成一次将自己<strong>注册</strong>至<code>NameServer</code>的操作；随后<code>每隔30s</code>时间定时向NameServer上报<code>Topic路由信息</code>。</li>
+<li>(2) 消息生产者<code>Producer</code>作为客户端发送消息时候，需要根据消息的<code>Topic</code>从本地缓存的<code>TopicPublishInfoTable</code>获取路由信息。如果没有则更新路由信息会从<code>NameServer</code>上重新拉取，同时Producer会默认<code>每隔30s</code>向NameServer拉取一次路由信息。</li>
+<li>(3) 消息生产者<code>Producer</code>根据<code>(2)</code>中获取的路由信息选择一个队列（MessageQueue）进行消息发送；<code>Broker</code>作为消息的接收者<code>接收消息</code>并<code>落盘存储</code>。</li>
+<li>(4) 消息消费者<code>Consumer</code>根据<code>(2)</code>中获取的路由信息，并再完成客户端的负载均衡后，选择其中的某一个或者某几个消息队列来<code>拉取消息</code>并进行<code>消费</code>。</li>
+</ul>
+<p>从上面(1)~(3)中可以看出在消息生产者<code>Producer</code>, <code>Broker</code>和<code>NameServer</code>之间都会发生通信（这里只说了MQ的部分通信），因此如何设计一个良好的网络通信模块在MQ中至关重要，它将决定RocketMQ集群整体的消息传输能力与最终的性能。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Components.png" alt="RocketMQ核心组件通信概览"></p>
+<p><code>rocketmq-remoting</code>模块是RocketMQ消息队列中负责网络通信的模块，它几乎被其他所有需要网络通信的模块（诸如rocketmq-client、rocketmq-broker、rocketmq-namesrv）所依赖和引用。为了实现客户端与服务器之间高效的数据请求与接收，RocketMQ消息队列自定义了通信协议并在<code>Netty</code>的基础之上扩展了通信模块。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Remoting-UML.png" alt="Remoting通信类结构"></p>
+<p>其中<code>RemotingService</code>提供了公共接口，<code>RemotingClient</code>、<code>RemotingServer</code>接口封装了一些功能接口，包括<code>注册每种消息类型的处理器及对应的线程池</code>、消息发送的三种实现方式<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>：<code>同步</code>(sync)、<code>异步</code>(async)、<code>单向</code>(oneway)，<code>NettyRemotingClient</code>、<code>NettyRemotingServer</code>则分别为其各自的具体实现类。</p>
+<h1 id="2-协议设计与编解码">2 协议设计与编解码</h1>
+<p>前面学习Netty时，我们已经知道，要使得组件之间能够通信，能够识别发送过来的消息，需要进行一种消息的约定，这种约定规定了消息的结构，编解码方式，才能使得消息被正确接收和解读。</p>
+<p>在RocketMQ中，<code>RemotingCommand</code>这个类在消息传输过程中对所有数据内容的封装，不但包含了<code>所有的数据结构</code>，还包含了<code>编码解码操作</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Structure.png" alt="消息的组成"></p>
+<p>下表为Header部分字段说明：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Header字段</th><th>类型</th><th>Request说明</th><th>Response说明</th></tr></thead><tbody><tr><td>code</td><td>int</td><td>请求操作码，应答方根据不同的请求码进行不同的业务处理</td><td>应答响应码。0表示成功，非0则表示各种错误</td></tr><tr><td>language</td><td>LanguageCode</td><td>请求方实现的语言</td><td>应答方实现的语言</td></tr><tr><td>version</td><td>int</td><td>请求方程序的版本</td><td>应答方程序的版本</td></tr><tr><td>opaque</td><td>int</td><td>相当于requestId，在同一个连接上的不同请求标识码，与响应消息中的相对应</td><td>应答不做修改直接返回</td></tr><tr><td>flag</td><td>int</td><td>区分是普通RPC还是onewayRPC得标志</td><td>区分是普通RPC还是onewayRPC得标志</td></tr><tr><td>remark</td><td>String</td><td>传输自定义文本信息</td><td>传输自定义文本信息</td></tr><tr><td>extFields</td><td>HashMap&#x3C;String, String></td><td>请求自定义扩展信息</td><td>响应自定义扩展信息</td></tr></tbody></table>
+<p>传输内容主要可以分为以下4部分：</p>
+<ul>
+<li>(1) 消息长度：<code>总长度</code>，<code>四个字节</code>存储，占用一个int类型；</li>
+<li>(2) 序列化类型&#x26;消息头长度：同样占用一个int类型，<code>第一个字节</code>表示<code>序列化类型</code>，<code>后面三个字节</code>表示<code>消息头长度</code>；</li>
+<li>(3) 消息头数据：经过<code>序列化</code>后的消息头数据；</li>
+<li>(4) 消息主体数据：消息主体的<code>二进制字节数据内容</code>；</li>
+</ul>
+<p>编解码器分为两大部分：一部分是对整个消息的编解码，一个是对消息头数据的编解码，以下为消息主体的编码实现：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> ByteBuffer </span><span style="color:#B392F0">encode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        // 1> 消息长度占4字节</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> length </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 2> 消息头数据长度</span></span>
+<span class="line"><span style="color:#F97583">        byte</span><span style="color:#E1E4E8">[] headerData </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">headerEncode</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        length </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> headerData.length;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 3> 消息主体数据长度</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.body </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            length </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> body.length;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        ByteBuffer result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">allocate</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">4</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> length);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 消息总长</span></span>
+<span class="line"><span style="color:#E1E4E8">        result.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(length);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 消息头总长+序列化类型</span></span>
+<span class="line"><span style="color:#E1E4E8">        result.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">markProtocolType</span><span style="color:#E1E4E8">(headerData.length, serializeTypeCurrentRPC));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 序列化后的消息头数据</span></span>
+<span class="line"><span style="color:#E1E4E8">        result.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(headerData);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 序列化后的消息主体数据</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.body </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            result.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.body);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        result.</span><span style="color:#B392F0">flip</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h1 id="3-nettyremotingserver">3 NettyRemotingServer</h1>
+<h2 id="31-启动">3.1 启动</h2>
+<p>回顾下{%post_link ‘【Netty学习】4-Netty的一个例子’%}中，NettyServer启动过程。</p>
+<p>首先需要一个<code>ServerBootstrap</code>、其次是两个<code>EventLoopGroup</code>、然后是通信模式（NIO or BIO or IO Multiplexing）、最后是绑定端口、注册Handler。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NettyRemotingServer</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> NettyRemotingAbstract</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> RemotingServer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //NettyRemotingServer#start()</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //........省略一万字</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        ServerBootstrap childHandler </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#6A737D">                //两个EventLoopGroup</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.serverBootstrap.</span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.eventLoopGroupBoss, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.eventLoopGroupSelector)</span></span>
+<span class="line"><span style="color:#6A737D">                        //通信模式</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">useEpoll</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> EpollServerSocketChannel.class </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> NioServerSocketChannel.class)</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">option</span><span style="color:#E1E4E8">(ChannelOption.SO_BACKLOG, </span><span style="color:#79B8FF">1024</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">option</span><span style="color:#E1E4E8">(ChannelOption.SO_REUSEADDR, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">option</span><span style="color:#E1E4E8">(ChannelOption.SO_KEEPALIVE, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">childOption</span><span style="color:#E1E4E8">(ChannelOption.TCP_NODELAY, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">childOption</span><span style="color:#E1E4E8">(ChannelOption.SO_SNDBUF, nettyServerConfig.</span><span style="color:#B392F0">getServerSocketSndBufSize</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">childOption</span><span style="color:#E1E4E8">(ChannelOption.SO_RCVBUF, nettyServerConfig.</span><span style="color:#B392F0">getServerSocketRcvBufSize</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#6A737D">                        //绑定端口</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">localAddress</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> InetSocketAddress</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.nettyServerConfig.</span><span style="color:#B392F0">getListenPort</span><span style="color:#E1E4E8">()))</span></span>
+<span class="line"><span style="color:#6A737D">                        //注册Handler</span></span>
+<span class="line"><span style="color:#E1E4E8">                        .</span><span style="color:#B392F0">childHandler</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ChannelInitializer&#x3C;</span><span style="color:#F97583">SocketChannel</span><span style="color:#E1E4E8">>() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> initChannel</span><span style="color:#E1E4E8">(SocketChannel </span><span style="color:#FFAB70">ch</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                ch.</span><span style="color:#B392F0">pipeline</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        .</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(defaultEventExecutorGroup, HANDSHAKE_HANDLER_NAME, handshakeHandler)</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        .</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(defaultEventExecutorGroup,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                                encoder,</span></span>
+<span class="line"><span style="color:#F97583">                                                new</span><span style="color:#B392F0"> NettyDecoder</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#F97583">                                                new</span><span style="color:#B392F0"> IdleStateHandler</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, nettyServerConfig.</span><span style="color:#B392F0">getServerChannelMaxIdleTimeSeconds</span><span style="color:#E1E4E8">()),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                                connectionManageHandler,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                                serverHandler</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        );</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                        });</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (nettyServerConfig.</span><span style="color:#B392F0">isServerPooledByteBufAllocatorEnable</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            childHandler.</span><span style="color:#B392F0">childOption</span><span style="color:#E1E4E8">(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //异步绑定到服务器，sync()会阻塞到完成</span></span>
+<span class="line"><span style="color:#E1E4E8">            ChannelFuture sync </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.serverBootstrap.</span><span style="color:#B392F0">bind</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            InetSocketAddress addr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (InetSocketAddress) sync.</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">localAddress</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.port </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> addr.</span><span style="color:#B392F0">getPort</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (InterruptedException </span><span style="color:#FFAB70">e1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RuntimeException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"this.serverBootstrap.bind().sync() InterruptedException"</span><span style="color:#E1E4E8">, e1);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#6A737D">        //....................</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="32-发送方式">3.2 发送方式</h2>
+<p><code>NettyRemotingServer</code>不光是一个<code>NettyServer</code>，还提供了RocketMQ消息发送方式的具体实现，先来看看其直接父级接口：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> interface</span><span style="color:#B392F0"> RemotingServer</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> RemotingService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //注册每种消息类型的处理器及对应的线程池</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> registerProcessor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> requestCode</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> NettyRequestProcessor </span><span style="color:#FFAB70">processor</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                           final</span><span style="color:#E1E4E8"> ExecutorService </span><span style="color:#FFAB70">executor</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //注册默认消息类型的处理器及对应的线程池</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> registerDefaultProcessor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> NettyRequestProcessor </span><span style="color:#FFAB70">processor</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ExecutorService </span><span style="color:#FFAB70">executor</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#B392F0"> localListenPort</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    Pair&#x3C;</span><span style="color:#F97583">NettyRequestProcessor</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ExecutorService</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">getProcessorPair</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> requestCode</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //同步发送</span></span>
+<span class="line"><span style="color:#E1E4E8">    RemotingCommand </span><span style="color:#B392F0">invokeSync</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Channel </span><span style="color:#FFAB70">channel</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                               final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException, RemotingSendRequestException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingTimeoutException;</span></span>
+<span class="line"><span style="color:#6A737D">    //异步发送</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> invokeAsync</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Channel </span><span style="color:#FFAB70">channel</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                     final</span><span style="color:#E1E4E8"> InvokeCallback </span><span style="color:#FFAB70">invokeCallback</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;</span></span>
+<span class="line"><span style="color:#6A737D">    //单向发送</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> invokeOneway</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Channel </span><span style="color:#FFAB70">channel</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">            throws</span><span style="color:#E1E4E8"> InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingSendRequestException;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>三种方式具体调用仍然是抽象父类<code>NettyRemotingAbstract</code>的实现。下图为<code>消息发送之异步发送</code>的流程：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-async.png" alt="异步发送流程"></p>
+<h2 id="33-消息类型及其处理器线程池注册">3.3 消息类型及其处理器、线程池注册</h2>
+<p>同上。</p>
+<h1 id="4-nettyremotingclient">4 NettyRemotingClient</h1>
+<p>类似<code>NettyRemotingServer</code>，其直接父级接口如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> interface</span><span style="color:#B392F0"> RemotingClient</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> RemotingService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //更新服务端地址列表</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> updateNameServerAddressList</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">addrs</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //获取服务端地址列表</span></span>
+<span class="line"><span style="color:#E1E4E8">    List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">getNameServerAddressList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //同步发送</span></span>
+<span class="line"><span style="color:#E1E4E8">    RemotingCommand </span><span style="color:#B392F0">invokeSync</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">addr</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                               final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException, RemotingConnectException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingSendRequestException, RemotingTimeoutException;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //异步发送</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> invokeAsync</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">addr</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                     final</span><span style="color:#E1E4E8"> InvokeCallback </span><span style="color:#FFAB70">invokeCallback</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException, RemotingConnectException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //单向发送</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> invokeOneway</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">addr</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeoutMillis</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">            throws</span><span style="color:#E1E4E8"> InterruptedException, RemotingConnectException, RemotingTooMuchRequestException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            RemotingTimeoutException, RemotingSendRequestException;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //注册每种消息类型的处理器及对应的线程池</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> registerProcessor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> requestCode</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> NettyRequestProcessor </span><span style="color:#FFAB70">processor</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                           final</span><span style="color:#E1E4E8"> ExecutorService </span><span style="color:#FFAB70">executor</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#B392F0"> setCallbackExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ExecutorService </span><span style="color:#FFAB70">callbackExecutor</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    ExecutorService </span><span style="color:#B392F0">getCallbackExecutor</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#B392F0"> isChannelWritable</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">addr</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="5-rocketmq中的reactor">5 RocketMQ中的Reactor</h1>
+<p>RocketMQ的RPC通信采用Netty组件作为底层通信库，同样也遵循了Reactor多线程模型，同时又在这之上做了一些扩展和优化。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-reactor.png" alt="RocketMQ中的Reactor"></p>
+<p>上面的框图中可以大致了解RocketMQ中<code>NettyRemotingServer</code>的<code>Reactor多线程模型</code>。
+以下是官方解释流程：</p>
+<ul>
+<li>一个 <code>Reactor</code>主线程（eventLoopGroupBoss，即为上面的1）负责监听 TCP网络连接请求，建立好连接，创建<code>SocketChannel</code>，并注册到selector上。</li>
+<li>RocketMQ的源码中会自动根据OS的类型选择<code>NIO</code>和<code>Epoll</code>，也可以通过参数配置）,然后监听真正的网络数据。</li>
+<li>拿到网络数据后，再丢给Worker线程池（eventLoopGroupSelector，即为上面的“N”，源码中默认设置为3），在真正执行业务逻辑之前需要进行<code>SSL验证</code>、<code>编解码</code>、<code>空闲检查</code>、<code>网络连接管理</code>，这些工作交给<code>defaultEventExecutorGroup</code>（即为上面的“M1”，源码中默认设置为8）去做。</li>
+<li>而处理业务操作放在业务线程池中执行，根据<code>RemotingCommand</code>的业务请求码code去<code>processorTable</code>这个本地缓存变量中找到对应的<code>processor</code>，然后封装成task任务后，提交给对应的业务processor处理线程池来执行（sendMessageExecutor，以发送消息为例，即为上面的 “M2”）。</li>
+<li>从入口到业务逻辑的几个步骤中线程池一直再增加，这跟每一步逻辑复杂性相关，越复杂，需要的并发通道越宽。</li>
+</ul>
+<p>参阅：</p>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p>{%post_link ‘【RocketMQ学习】2-玩转各种消息’ ‘2.1 普通消息发送方式’%} <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div> </article>  <!-- </div>
+    </main> --> </body></html>

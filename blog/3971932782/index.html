@@ -1,0 +1,673 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Redis学习】1.常用的数据结构</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Redis学习】1.常用的数据结构 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/24/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>Redis提供了丰富的数据类型，常见的有<code>五种</code>：<code>String</code>（字符串），<code>Hash</code>（哈希），<code>List</code>（列表），<code>Set</code>（集合）、<code>Zset</code>（有序集合）。</p>
+<p>随着Redis版本的更新，后面又支持了<code>四种</code>数据类型：<code>BitMap</code>（2.2版新增）、<code>HyperLogLog</code>（2.8版新增）、<code>GEO</code>（3.2版新增）、<code>Stream</code>（5.0版新增）。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Data-Structure.png" alt="Redis数据结构一览"></p>
+<h1 id="2-数据结构">2 数据结构</h1>
+<p>Redis中所有的<code>值对象</code>内部定义都是<code>redisObject</code>结构体。结构如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Object-Structure.png" alt="RedisObject结构体示意图"></p>
+<p>源码结构体：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#6A737D">//server.h</span></span>
+<span class="line"><span style="color:#F97583">typedef</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> redisObject {</span></span>
+<span class="line"><span style="color:#F97583">　　unsigned</span><span style="color:#E1E4E8"> type:</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">　　unsigned</span><span style="color:#E1E4E8"> encoding:</span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">　　unsigned</span><span style="color:#E1E4E8"> lru:REDIS_LRU_BITS;</span><span style="color:#6A737D"> /* lru time (relative to server.lruclock) */</span></span>
+<span class="line"><span style="color:#F97583">　　int</span><span style="color:#E1E4E8"> refcount;</span></span>
+<span class="line"><span style="color:#F97583">　　void</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">ptr;</span></span>
+<span class="line"><span style="color:#E1E4E8">} robj;</span></span></code></pre>
+<p>各字段说明如下表：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>字段名</th><th>说明</th></tr></thead><tbody><tr><td>type</td><td>存储对象的类型，Redis中有5中数据类型：<code>String</code>，<code>List</code>，<code>Hash</code>，<code>Set</code>，<code>Zset</code>，可以通过 <code>type {key}</code>命令查看对象的类型，返回的是值对象类型，所有的key对象都是<code>String类型</code></td></tr><tr><td>encoding</td><td>数据存储的Redis中后采用的是那种内部编码格式，这个后边会细讲一下</td></tr><tr><td>lru</td><td>记录的是对象被最后一次访问的时间，当配置了<code>maxmemory</code>之后，配合<code>LRU算法</code>对相关的key值进行删除，可以通过<code>object idletime {key}</code>查看key最近一次被访问的时间。也可以通过<code>scan + object idletime</code>命令批量查询那些键长时间没有被使用，从而可以删除长时间没有被使用的键值，减少内存的占用。</td></tr><tr><td>refcount</td><td>记录当前对象被引用的次数。根据当前字段来判断该对象时候可回收，当<code>refcount</code>为0时，可安全进行对象的回收，可以使用<code>object refcount {key}</code>查看当前对象引用。</td></tr><tr><td>*ptr</td><td>与对象的数据内容有关。如果是整数，则直接存储数据（这个地方可以了解下共享对象池，当对象为<code>整数</code>且范围在<code>【0-9999】</code>，会直接存储到共享对象池中），其他类型的数据次字段则代表的是<code>指针</code>。</td></tr></tbody></table>
+<h2 id="21-string">2.1 String</h2>
+<h3 id="211-介绍">2.1.1 介绍</h3>
+<p><code>String</code>是redis中最基本的数据类型，一个<code>key</code>对应一个<code>value</code>。value可以是<code>String</code>、<code>List</code>、<code>Set</code>、<code>Sorted Set</code>、<code>hash</code>、<code>数字</code>、<code>二进制</code>（图片、音频、视频）等，最大不能超过<code>512M</code>。</p>
+<h3 id="212-redis简单动态字符串sds">2.1.2 Redis简单动态字符串(SDS)</h3>
+<p>Redis没有直接使用<code>C语言</code>传统的字符串表示（以空字符结尾的字符数组，以下简称<code>C字符串</code>），而是自己构建了一种名为<code>简单动态字符串</code>（simple dynamic string，SDS）的抽象类型，并将<code>SDS</code>用作Redis的<code>默认字符串</code>表示。</p>
+<p>每个<code>sds.h/sdshdr</code>结构表示一个SDS值：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> sdshdr {</span></span>
+<span class="line"><span style="color:#6A737D">    // 记录 buf 数组中已使用字节的数量</span></span>
+<span class="line"><span style="color:#6A737D">    // 等于 SDS 所保存字符串的长度</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> len;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 记录 buf 数组中未使用字节的数量</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> free;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 字节数组，用于保存字符串</span></span>
+<span class="line"><span style="color:#F97583">    char</span><span style="color:#E1E4E8"> buf</span><span style="color:#F97583">[]</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span></code></pre>
+<p><code>SDS</code>遵循<code>C字符串</code>以<code>空字符</code>结尾的惯例，保存空字符的<code>1字节</code>空间不计算在SDS的<code>len</code>属性里面，并且为<code>空字符</code>分配额外的<code>1字节</code>空间，以及添加空字符到字符串末尾等操作都是由<code>SDS函数</code>自动完成的，所以这个空字符对于SDS的使用者来说是<code>完全透明的</code>。</p>
+<h3 id="213-内部编码">2.1.3 内部编码</h3>
+<p>字符串对象的<code>内部编码</code>（encoding）有3种：<code>int</code>、<code>raw</code>和<code>embstr</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-String-InnerStructure.jpg" alt="字符串类型的内部编码"></p>
+<p>可通过下面的命令查看当前String类型的内部编码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">redis</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">SET</span><span style="color:#9ECBFF"> number</span><span style="color:#79B8FF"> 10086</span></span>
+<span class="line"><span style="color:#B392F0">OK</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">redis</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">OBJECT</span><span style="color:#9ECBFF"> ENCODING</span><span style="color:#9ECBFF"> number</span></span>
+<span class="line"><span style="color:#B392F0">"int"</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-SDS-Example.png" alt="SDS样例">
++<code>free</code>属性的值为<code>0</code>，表示这个SDS没有分配任何未使用空间。
++<code>len</code>属性的值为<code>5</code>，表示这个SDS保存了一个<code>五字节</code>长的字符串。
++<code>buf</code>属性是一个<code>char类型</code>的数组，数组的前五个字节分别保存了’R’、‘e’、‘d’、‘i’、‘s’五个字符，而最后一个字节则保存了空字符’\0’。</p>
+<p>另一个实例，主要说明<code>free</code>属性的作用：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-SDS-Example3.png" alt="SDS样例2"></p>
+<ul>
+<li>这个SDS和之前展示的SDS一样，都保存了字符串值<code>"Redis"</code>。</li>
+<li>这个SDS和之前展示的SDS的区别在于，这个SDS为<code>buf数组</code>分配了<code>五字节</code><strong>未使用空间</strong>，所以它的<code>free</code>属性的值为<code>5</code>（图中使用五个空格来表示五字节的未使用空间）。</li>
+</ul>
+<ul>
+<li>
+<p>如果一个字符串对象保存的是<code>整数值</code>，并且这个整数值可以用<code>long类型</code>来表示，那么字符串对象会将整数值保存在字符串对象结构的<code>ptr</code>属性里面（将void*转换成long），并将字符串对象的编码设置为<code>int</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-String-INT.png" alt="编码类型为int"></p>
+</li>
+<li>
+<p>如果字符串对象保存的是一个<code>字符串</code>，并且这个字符申的长度<code>小于等于32字节</code>（redis 2.+版本），那么字符串对象将使用一个<code>简单动态字符串</code>来保存这个字符串，并将对象的编码设置为<code>embstr</code>，embstr编码是专门用于保存短字符串的一种优化编码方式：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-String-embstr.png" alt="编码类型为embstr"></p>
+</li>
+<li>
+<p>如果字符串对象保存的是一个<code>字符串</code>，并且这个字符串的长度<code>大于32字节</code>（redis 2.+版本），那么字符串对象将使用一个<code>简单动态字符串</code>来保存这个字符串，并将对象的编码设置为<code>raw</code>：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-String-raw.png" alt="编码类型为raw"></p>
+</li>
+</ul>
+<p>至于<code>embstr</code>和<code>raw</code>，读者可能有疑问，为啥<code>RedisObject</code>与<code>sdshdr</code>一个挨着，一个分开？</p>
+<blockquote>
+<p><code>embstr编码</code>是专门用于保存<code>短字符串</code>的一种优化编码方式，这种编码和<code>raw编码</code>一样，都使用<code>redisObject</code>结构和<code>sdshdr</code>结构来表示字符串对象，但<code>raw编码</code>会调用<strong>两次内存分配函数</strong>来分别创建<code>redisObject结构</code>和<code>sdshdr结构</code>，而<code>embstr编码</code>则通过调用<strong>一次内存分配函数</strong>来分配一块连续的空间，空间中依次包含<code>redisObject</code>和<code>sdshdr</code>两个结构.</p>
+</blockquote>
+<p><code>embstr编码</code>的字符串对象在执行命令时，产生的效果和<code>raw编码</code>的字符串对象执行命令时产生的效果是相同的，但使用embstr编码的字符串对象来保存短字符串值有以下好处：</p>
+<ul>
+<li>embstr编码将创建字符串对象所需的内存分配次数从raw编码的<code>两次降低为一次</code>。</li>
+<li>释放embstr编码的字符串对象只需要调用<strong>一次内存释放函数</strong>，而释放raw编码的字符串对象需要调用两次内存释放函数。</li>
+<li>因为embstr编码的字符串对象的所有数据都保存在一块连续的内存里面，所以这种编码的字符串对象比起raw编码的字符串对象能够更好地利用缓存带来的优势。</li>
+</ul>
+<blockquote>
+<p>注意，<code>embstr编码</code>和<code>raw编码</code>的<strong>边界</strong>在redis不同版本中是不一样的：</p>
+<ul>
+<li>redis 2.+是32字节</li>
+<li>redis 3.0-4.0是39字节</li>
+<li>redis 5.0是44字节</li>
+</ul>
+</blockquote>
+<p>但是<code>embstr</code>也有缺点的：</p>
+<blockquote>
+<p>如果字符串的长度增加需要重新分配内存时，整个<code>redisObject</code>和<code>sdshdr</code>都需要重新分配空间，所以<code>embstr编码</code>的字符串对象实际上是只读的，redis没有为embstr编码的字符串对象编写任何相应的修改程序。当我们对embstr编码的字符串对象执行<code>任何修改命令</code>（例如append）时，程序会先将对象的编码<code>从embstr转换成raw</code>，然后再执行修改命令。</p>
+</blockquote>
+<h3 id="214-常用命令">2.1.4 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th><code>int</code>编码的实现方法</th><th><code>embstr</code>编码的实现方法</th><th><code>raw</code>编码的实现方法</th></tr></thead><tbody><tr><td>SET</td><td>使用<code>int</code>编码保存值。</td><td>使用<code>embstr</code>编码保存值。</td><td>使用<code>raw</code>编码保存值。</td></tr><tr><td>GET</td><td>拷贝对象所保存的整数值，将这个拷贝转换成字符串值，然后向客户端返回这个字符串值。</td><td>直接向客户端返回字符串值。</td><td>直接向客户端返回字符串值。</td></tr><tr><td>APPEND</td><td>将对象转换成<code>raw</code>编码，然后按<code>raw</code>编码的方式执行此操作。</td><td>将对象转换成<code>raw</code>编码，然后按<code>raw</code>编码的方式执行此操作。</td><td>调用<code>sdscatlen</code>函数，将给定字符串追加到现有字符串的末尾。</td></tr><tr><td>INCRBYFLOAT</td><td>取出整数值并将其转换成<code>longdouble</code>类型的浮点数，对这个浮点数进行加法计算，然后将得出的浮点数结果保存起来。</td><td>取出字符串值并尝试将其转换成<code>longdouble</code>类型的浮点数，对这个浮点数进行加法计算，然后将得出的浮点数结果保存起来。如果字符串值不能被转换成浮点数，那么向客户端返回一个错误。</td><td>取出字符串值并尝试将其转换成<code>longdouble</code>类型的浮点数，对这个浮点数进行加法计算，然后将得出的浮点数结果保存起来。如果字符串值不能被转换成浮点数，那么向客户端返回一个错误。</td></tr><tr><td>INCRBY</td><td>对整数值进行加法计算，得出的计算结果会作为整数被保存起来。</td><td><code>embstr</code>编码不能执行此命令，向客户端返回一个错误。</td><td><code>raw</code>编码不能执行此命令，向客户端返回一个错误。</td></tr><tr><td>DECRBY</td><td>对整数值进行减法计算，得出的计算结果会作为整数被保存起来。</td><td><code>embstr</code>编码不能执行此命令，向客户端返回一个错误。</td><td><code>raw</code>编码不能执行此命令，向客户端返回一个错误。</td></tr><tr><td>STRLEN</td><td>拷贝对象所保存的整数值，将这个拷贝转换成字符串值，计算并返回这个字符串值的长度。</td><td>调用<code>sdslen</code>函数，返回字符串的长度。</td><td>调用<code>sdslen</code>函数，返回字符串的长度。</td></tr><tr><td>SETRANGE</td><td>将对象转换成<code>raw</code>编码，然后按<code>raw</code>编码的方式执行此命令。</td><td>将对象转换成<code>raw</code>编码，然后按<code>raw</code>编码的方式执行此命令。</td><td>将字符串特定索引上的值设置为给定的字符。</td></tr><tr><td>GETRANGE</td><td>拷贝对象所保存的整数值，将这个拷贝转换成字符串值，然后取出并返回字符串指定索引上的字符。</td><td>直接取出并返回字符串指定索引上的字符。</td><td>直接取出并返回字符串指定索引上的字符。</td></tr></tbody></table>
+<h3 id="215-应用场景">2.1.5 应用场景</h3>
+<p>缓存，计数，共享session，限速</p>
+<h2 id="22-hash">2.2 Hash</h2>
+<h3 id="221-介绍">2.2.1 介绍</h3>
+<p><code>Hash</code>是一个键值对（key - value）集合，其中 <code>value</code> 的形式如：<code>value=[{field1，value1}，...{fieldN，valueN}]</code>。Hash 特别适合用于<code>存储对象</code>。</p>
+<p><code>Hash</code> 与 <code>String</code> 对象的区别如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-String-and-Hash-Diff.png" alt="Hash和String存储区别"></p>
+<h3 id="222-内部编码">2.2.2 内部编码</h3>
+<p>Hash 类型的底层数据结构是由<code>压缩列表</code>(ziplist)或<code>哈希表</code>(hashtable)实现的：</p>
+<ul>
+<li>如果哈希类型<strong>元素个数</strong><code>小于 512 个</code>（默认值，可由 <code>hash-max-ziplist-entries</code> 配置），且所有值<code>小于 64 字节</code>（默认值，可由 <code>hash-max-ziplist-value</code> 配置）的话，Redis 会使用<code>压缩列表</code>作为 Hash 类型的底层数据结构；</li>
+<li>如果哈希类型元素不满足上面条件，Redis 会使用<code>哈希表</code>作为 Hash 类型的底层数据结构。</li>
+</ul>
+<blockquote>
+<p>在 <code>Redis 7.0</code> 中，压缩列表数据结构已经废弃了，交由 <code>listpack</code> 数据结构来实现了。</p>
+</blockquote>
+<h3 id="223-ziplist">2.2.3 ziplist</h3>
+<p><code>ziplist</code>是为了提高存储效率而设计的一种特殊编码的<code>双向链表</code>。它可以存储<code>字符串</code>或者<code>整数</code>，存储整数时是采用整数的<code>二进制</code>而不是字符串形式存储。它能在<code>O(1)</code>的时间复杂度下完成list两端的<code>push</code>和<code>pop</code>操作。但是因为每次操作都需要<code>重新分配ziplist的内存</code>，所以实际复杂度和ziplist的内存使用量相关。
+其结构[^1]大致如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Ziplist-Structure.png" alt="ziplist组成结构一览"></p>
+<p>压缩列表各个组成部分的详细说明</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>属性</th><th>类型</th><th>长度</th><th>用途</th></tr></thead><tbody><tr><td>zlbytes</td><td>uint32_t</td><td>4 字节</td><td>记录整个压缩列表占用的内存字节数：在对压缩列表进行内存重分配， 或者计算 zlend 的位置时使用。</td></tr><tr><td>zltail</td><td>uint32_t</td><td>4 字节</td><td>记录压缩列表表尾节点距离压缩列表的起始地址有多少字节： 通过这个偏移量，程序无须遍历整个压缩列表就可以确定表尾节点的地址。</td></tr><tr><td>zllen</td><td>uint16_t</td><td>2 字节</td><td>记录了压缩列表包含的节点数量： 当这个属性的值小于 UINT16_MAX （65535）时， 这个属性的值就是压缩列表包含节点的数量； 当这个值等于 UINT16_MAX 时， 节点的真实数量需要遍历整个压缩列表才能计算得出。</td></tr><tr><td>entryX[^2]</td><td>列表节点</td><td>不定</td><td>压缩列表包含的各个节点，节点的长度由节点保存的内容决定。</td></tr><tr><td>zlend</td><td>uint8_t</td><td>1 字节</td><td>特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。</td></tr></tbody></table>
+<p>压缩列表节点(<code>entry</code>)包含三部分内容：</p>
+<ul>
+<li><code>prevlen</code>，记录了「前一个节点」的长度，目的是为了实现<code>从后向前遍历</code>；</li>
+<li><code>encoding</code>，记录了当前节点实际数据的「类型和长度」，类型主要有两种：<code>字符串</code>和<code>整数</code>。</li>
+<li><code>data</code>，记录了当前节点的实际数据，类型和长度都由 encoding 决定；</li>
+</ul>
+<ul>
+<li>
+<p>优点：节省内存
+当我们往压缩列表中插入数据时，压缩列表就会根据<code>数据类型是字符串还是整数</code>，以及<code>数据的大小</code>，会使用不同空间大小的 <code>prevlen</code> 和 <code>encoding</code> 这两个元素里保存的信息，这种根据数据大小和类型进行不同的空间大小分配的设计思想，正是 Redis 为了节省内存而采用的。</p>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>查找复杂度高</li>
+<li>连锁更新：压缩列表新增某个元素或修改某个元素时，如果空间不不够，压缩列表占用的内存空间就需要重新分配。而当新插入的元素较大时，可能会导致后续元素的 prevlen 占用空间都发生变化，从而引起「连锁更新」问题，导致每个元素的空间都要重新分配，造成访问压缩列表性能的下降。[^3]</li>
+</ul>
+</li>
+</ul>
+<h3 id="224-hashtable">2.2.4 hashtable</h3>
+<p>Redis 的哈希表结构如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">typedef</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> dictht {</span></span>
+<span class="line"><span style="color:#6A737D">    //哈希表数组</span></span>
+<span class="line"><span style="color:#E1E4E8">    dictEntry </span><span style="color:#F97583">**</span><span style="color:#E1E4E8">table;</span></span>
+<span class="line"><span style="color:#6A737D">    //哈希表大小</span></span>
+<span class="line"><span style="color:#F97583">    unsigned</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> size;  </span></span>
+<span class="line"><span style="color:#6A737D">    //哈希表大小掩码，用于计算索引值</span></span>
+<span class="line"><span style="color:#F97583">    unsigned</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> sizemask;</span></span>
+<span class="line"><span style="color:#6A737D">    //该哈希表已有的节点数量</span></span>
+<span class="line"><span style="color:#F97583">    unsigned</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> used;</span></span>
+<span class="line"><span style="color:#E1E4E8">} dictht;</span></span></code></pre>
+<p>可以看到，哈希表是一个数组（<code>dictEntry **table</code>），数组的每个元素是一个指向「哈希表节点（<code>dictEntry</code>）」的指针。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Hashtable-dictht.jpg" alt="hashtable结构一览"></p>
+<p>dictEntry 结构定义如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">typedef</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> dictEntry{</span></span>
+<span class="line"><span style="color:#6A737D">    //键</span></span>
+<span class="line"><span style="color:#F97583">    void</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">key;</span></span>
+<span class="line"><span style="color:#6A737D">    //值</span></span>
+<span class="line"><span style="color:#F97583">    union</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#F97583">        void</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8">val;</span></span>
+<span class="line"><span style="color:#E1E4E8">        uint64_tu64;</span></span>
+<span class="line"><span style="color:#E1E4E8">        int64_ts64;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }v;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //指向下一个哈希表节点，形成链表</span></span>
+<span class="line"><span style="color:#F97583">    struct</span><span style="color:#E1E4E8"> dictEntry </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">next;</span></span>
+<span class="line"><span style="color:#E1E4E8">}dictEntry</span></span></code></pre>
+<p><code>dictEntry</code>结构里不仅包含指向键和值的指针，还包含了指向下一个哈希表节点的指针，这个指针可以将多个哈希值相同的键值对链接起来，以此来解决哈希冲突的问题，这就是<code>链式哈希</code>。</p>
+<p>另外，<code>dictEntry</code>结构里键值对中的<code>值</code>是一个<code>联合体 v</code>定义的，因此，键值对中的值可以是一个指向实际值的指针，或者是一个<code>无符号的 64 位整数</code>或<code>有符号的 64 位整数</code>或<code>double 类的值</code>。这么做的好处是可以节省内存空间，因为当「值」是整数或浮点数时，就可以将值的数据内嵌在 dictEntry 结构里，无需再用一个指针指向实际的值，从而节省了内存空间。</p>
+<h3 id="225-常用命令">2.2.5 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>HSET</td><td>添加键值对</td><td><code>HSET hash-key sub-key1 value1</code></td></tr><tr><td>HGET</td><td>获取指定散列键的值</td><td><code>HGET hash-key key1</code></td></tr><tr><td>HGETALL</td><td>获取散列中包含的所有键值对</td><td><code>HGETALL hash-key</code></td></tr><tr><td>HDEL</td><td>如果给定键存在于散列中，那么就移除这个键</td><td><code>HDEL hash-key sub-key1</code></td></tr></tbody></table>
+<h3 id="226-应用场景">2.2.6 应用场景</h3>
+<p>缓存对象、购物车</p>
+<h2 id="23-list">2.3 list</h2>
+<h3 id="231-介绍">2.3.1 介绍</h3>
+<p><code>List列表</code>是简单的字符串列表，按照插入顺序排序，列表元素可重复，最多<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>32</mn></msup></mrow><annotation encoding="application/x-tex">2^{32}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span></span></span></span>-1个元素。可以从<code>头部</code>或<code>尾部</code>向 List 列表添加元素。</p>
+<h3 id="232-内部编码">2.3.2 内部编码</h3>
+<p>List 类型的底层数据结构是由<code>双向链表</code>(linkedlist)或<code>压缩列表</code>(ziplist)实现的：</p>
+<ul>
+<li>如果列表的<strong>元素个数</strong><code>小于 512 个</code>（默认值，可由 <code>list-max-ziplist-entries</code>配置），且列表每个元素的<code>值</code>都<code>小于 64 字节</code>（默认值，可由<code>list-max-ziplist-value</code>配置），Redis 会使用<code>压缩列表</code>作为 List 类型的底层数据结构；</li>
+<li>如果列表的元素不满足上面的条件，Redis 会使用<code>双向链表</code>作为 List 类型的底层数据结构；
+但是在 <code>Redis 3.2</code>版本之后，List 数据类型底层数据结构就只由 <code>quicklist</code>[^4]实现了，替代了双向链表和压缩列表。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Quicklist.jpg" alt="QuickList"></li>
+</ul>
+<h3 id="233-常用命令">2.3.3 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>RPUSH</td><td>将给定值推入到列表右端</td><td>RPUSH key value</td></tr><tr><td>LPUSH</td><td>将给定值推入到列表左端</td><td>LPUSH key value</td></tr><tr><td>RPOP</td><td>从列表的右端弹出一个值，并返回被弹出的值</td><td>RPOP key</td></tr><tr><td>LPOP</td><td>从列表的左端弹出一个值，并返回被弹出的值</td><td>LPOP key</td></tr><tr><td>LRANGE</td><td>获取列表在给定范围上的所有值</td><td>LRANGE key 0 -1</td></tr><tr><td>LINDEX</td><td>通过索引获取列表中的元素。也可以使用<code>负数</code>下标，以<code>-1</code>表示列表的最后一个元素，<code>-2</code>表示列表的倒数第二个元素，以此类推。</td><td>LINDEX key index</td></tr></tbody></table>
+<blockquote>
+<p>使用列表的技巧</p>
+<ul>
+<li>lpush+lpop=Stack（栈）</li>
+<li>lpush+rpop=Queue（队列）</li>
+<li>lpush+ltrim=Capped Collection（有限集合）</li>
+<li>lpush+brpop=Message Queue（消息队列）</li>
+</ul>
+</blockquote>
+<h3 id="234-应用场景">2.3.4 应用场景</h3>
+<p>消息队列、微博TimeLine。</p>
+<h2 id="24-set">2.4 set</h2>
+<h3 id="241-介绍">2.4.1 介绍</h3>
+<p>与list最大不同，set集合内元素唯一且无序。一个集合最多可以存储 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>32</mn></msup></mrow><annotation encoding="application/x-tex">2^{32}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">32</span></span></span></span></span></span></span></span></span></span></span></span>-1 个元素。概念和数学中个的<code>集合</code>基本类似，可以<code>交集</code>，<code>并集</code>，<code>差集</code>等等，所以 Set 类型除了支持集合内的增删改查，同时还支持多个集合取交集、并集、差集。</p>
+<blockquote>
+<p>潜在的风险。Set 的差集、并集和交集的计算复杂度较高，在<code>数据量较大</code>的情况下，如果直接执行这些计算，会导致 Redis 实例<code>阻塞</code>。</p>
+</blockquote>
+<h3 id="242-内部编码">2.4.2 内部编码</h3>
+<p>Set 类型的底层数据结构是由<code>哈希表</code>或<code>整数集合</code>[^5]实现的：</p>
+<ul>
+<li>如果集合中的元素都是<code>整数</code>且<code>元素个数小于 512</code> （默认值，<code>set-maxintset-entries</code>配置）个，Redis 会使用<code>整数集合</code>作为 Set 类型的底层数据结构；</li>
+<li>如果集合中的元素不满足上面条件，则 Redis 使用<code>哈希表</code>作为 Set 类型的底层数据结构。</li>
+</ul>
+<h3 id="243-常用命令">2.4.3 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>SADD</td><td>向集合添加一个或多个成员</td><td>SADD key value</td></tr><tr><td>SCARD</td><td>获取集合的成员数</td><td>SCARD key</td></tr><tr><td>SMEMBERS</td><td>返回集合中的所有成员</td><td>SMEMBERS key member</td></tr><tr><td>SISMEMBER</td><td>判断 member 元素是否是集合 key 的成员</td><td>SISMEMBER key member</td></tr></tbody></table>
+<h3 id="244-应用场景">2.4.4 应用场景</h3>
+<p>点赞、标签、共同关注、抽奖活动。</p>
+<h2 id="25-zset">2.5 zset</h2>
+<h3 id="251-介绍">2.5.1 介绍</h3>
+<p>Redis<code>有序集合</code>(Zset)和集合(set)一样也是 string 类型元素的集合，且<code>不允许重复</code>的成员。不同的是每个元素都会关联一个 <code>double</code>类型的<code>分数</code>。redis 正是通过<code>分数</code>来为集合中的成员进行从小到大的<code>排序</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-SortedSet.jpg" alt="zset存储结构"></p>
+<h3 id="252-内部编码">2.5.2 内部编码</h3>
+<p><code>Zset</code>类型的底层数据结构是由<code>压缩列表</code>或<code>跳表</code>实现的：</p>
+<ul>
+<li>如果有序集合的元素个数<code>小于 128 个</code>，并且每个元素的<code>值</code>均<code>小于 64 字节</code>时，Redis 会使用<code>压缩列表</code>作为 Zset 类型的底层数据结构；</li>
+<li>如果有序集合的元素不满足上面的条件，Redis 会使用<code>跳表</code>[^6]作为 Zset 类型的底层数据结构；</li>
+</ul>
+<blockquote>
+<p>在 Redis 7.0 中，压缩列表数据结构已经废弃了，交由 <code>listpack</code> 数据结构来实现了.
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Skiplist.jpg" alt="跳表结构示意图"></p>
+</blockquote>
+<h3 id="253-常用命令">2.5.3 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>ZADD</td><td>将一个带有给定分值的成员添加到有序集合里面</td><td>ZADD zset-key 178 member1</td></tr><tr><td>ZRANGE</td><td>根据元素在有序集合中所处的位置，从有序集合中获取多个元素</td><td>ZRANGE zset-key 0-1 withccores</td></tr><tr><td>ZREM</td><td>如果给定元素成员存在于有序集合中，那么就移除这个元素</td><td>ZREM zset-key member1</td></tr></tbody></table>
+<h3 id="254-应用场景">2.5.4 应用场景</h3>
+<ul>
+<li>排行榜：有序集合经典使用场景。例如小说视频等网站需要对用户上传的小说视频做排行榜，榜单可以按照用户关注数，更新时间，字数等打分，做排行。</li>
+</ul>
+<h2 id="26-位图">2.6 位图</h2>
+<h3 id="261-介绍">2.6.1 介绍</h3>
+<p><code>Bitmap</code>，即位图数据结构，都是操作二进制位来进行记录，只有<code>0</code>和<code>1</code>两个状态。</p>
+<p>BitMap通过最小的单位<code>bit</code>来进行<code>0|1</code>的设置，表示某个元素的值或者状态，时间复杂度为<code>O(1)</code>。</p>
+<h3 id="262-内部实现">2.6.2 内部实现</h3>
+<p>Bitmap 本身是用 <code>String 类型</code>作为底层数据结构实现的一种<code>统计二值状态</code>的数据类型。</p>
+<p>String 类型是会保存为<code>二进制</code>的<code>字节数组</code>，所以，Redis 就把字节数组的每个 <code>bit</code> 位利用起来，用来表示一个元素的二值状态，你可以把 Bitmap 看作是一个 <code>bit 数组</code>。</p>
+<h3 id="263-常用命令">2.6.3 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>SETBIT</td><td>设定key对应value，其中value为0或1，不能为其他值</td><td>SETBIT key offset value</td></tr><tr><td>GETBIT</td><td>获取key对应的value</td><td>GETBIT key offset</td></tr><tr><td>BITCOUNT</td><td>获取指定范围内值为 1 的个数，start 和 end 以字节为单位</td><td>BITCOUNT key start end</td></tr><tr><td>BITPOS</td><td>返回指定key中第一次出现指定value(0/1)的位置</td><td>BITPOS [key] [value]</td></tr></tbody></table>
+<h3 id="264-应用场景">2.6.4 应用场景</h3>
+<p>签到、打卡、判断用户登陆态、连续签到用户总数</p>
+<h2 id="27-geo">2.7 GEO</h2>
+<h3 id="271-介绍">2.7.1 介绍</h3>
+<p>Redis 的 GEO 在 <code>Redis 3.2</code> 版本就推出了! 这个功能可以推算地理位置的信息: <strong>两地之间的距离, 方圆几里的人</strong>.</p>
+<h3 id="272-内部实现">2.7.2 内部实现</h3>
+<p>GEO 本身并没有设计新的底层数据结构，而是直接使用了<code>Sorted Set</code>集合类型。</p>
+<p>GEO 类型使用 <code>GeoHash 编码</code>方法实现了<code>经纬度</code>到<code>Sorted Set</code>中元素权重分数的转换，这其中的两个关键机制就是<code>「对二维地图做区间划分」</code>和<code>「对区间进行编码」</code>。一组经纬度落在某个区间后，就用区间的编码值来表示，并把编码值作为<code>Sorted Set</code>元素的权重分数。</p>
+<p>这样一来，我们就可以把经纬度保存到<code>Sorted Set</code>中，利用<code>Sorted Set</code>提供的<code>“按权重进行有序范围查找”</code>的特性，实现 LBS 服务中频繁使用的<code>“搜索附近”</code>的需求。</p>
+<h3 id="273-常用命令">2.7.3 常用命令</h3>
+<p>参见<a href="https://pdai.tech/md/db/nosql-redis/db-redis-data-type-special.html#geospatial-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE">geospatial (地理位置)</a></p>
+<h3 id="274-应用场景">2.7.4 应用场景</h3>
+<p>滴滴叫车.</p>
+<h2 id="28-hyperloglog">2.8 HyperLogLog</h2>
+<h3 id="281-介绍">2.8.1 介绍</h3>
+<p>Redis <code>HyperLogLog</code>是 <code>Redis 2.8.9</code> 版本新增的数据类型，是一种用于<code>「统计基数」</code>的数据集合类型，基数统计就是指统计一个集合中<code>不重复</code>的元素个数。但要注意，HyperLogLog 是统计规则是基于<code>概率</code>完成的，不是非常准确，标准误算率是 <code>0.81%</code>。</p>
+<blockquote>
+<p>基数统计，举个例子，<code>A = {1, 2, 3, 4, 5}</code>， <code>B = {3, 5, 6, 7, 9}</code>；那么基数（不重复的元素）= <code>1, 2, 4, 6, 7, 9</code>； （允许容错，即可以接受一定误差）。
+所以，简单来说 HyperLogLog 提供<code>不精确的去重计数</code>。</p>
+</blockquote>
+<ul>
+<li>优点是，在输入元素的数量或者体积非常非常大时，计算基数所需的内存空间总是固定的、并且是很小的。</li>
+</ul>
+<blockquote>
+<p>一个大型的网站，每天 IP 比如有<code>100万</code>，粗算一个 IP 消耗<code>15 字节</code>，那么<code>100万</code>个 IP 就是<code>15M</code>。而 HyperLogLog 在 Redis 中每个键占用的内容都是<code>12K</code>，理论存储近似接近 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>64</mn></msup></mrow><annotation encoding="application/x-tex">2^{64}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">64</span></span></span></span></span></span></span></span></span></span></span></span> 个值，不管存储的内容是什么，它一个基于基数估算的算法，只能比较准确的估算出基数，可以使用少量固定的内存去存储并识别集合中的唯一元素。而且这个估算的基数并不一定准确，是一个带有 <code>0.81%</code> 标准错误的<code>近似值</code>（对于可以接受一定容错的业务场景，比如IP数统计，UV等，是可以忽略不计的）。</p>
+</blockquote>
+<h3 id="282-内部实现">2.8.2 内部实现</h3>
+<p>参见<a href="https://en.wikipedia.org/wiki/HyperLogLog">HyperLogLog内部原理</a>.</p>
+<h3 id="283-常用命令">2.8.3 常用命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>PFADD</td><td>添加指定元素到 HyperLogLog 中</td><td>PFADD key element [element …]</td></tr><tr><td>PFCOUNT</td><td>返回给定 HyperLogLog 的基数估算值。</td><td>PFCOUNT key [key …]</td></tr><tr><td>PFMERGE</td><td>将多个 HyperLogLog 合并为一个 HyperLogLog</td><td>PFMERGE destkey sourcekey [sourcekey …]</td></tr></tbody></table>
+<h3 id="284-应用场景">2.8.4 应用场景</h3>
+<p>百万级网页 UV 计数。</p>
+<h2 id="29-stream">2.9 Stream</h2>
+<h3 id="291-介绍">2.9.1 介绍</h3>
+<p>Redis <code>Stream</code>是<code>Redis 5.0</code>版本新增加的数据类型，Redis 专门为<code>消息队列</code>设计的数据类型。</p>
+<p>基于Redis的<code>消息队列</code>实现有很多种，例如：</p>
+<ul>
+<li><code>PUB/SUB</code>，发布/订阅模式，但是发布订阅模式是<code>无法持久化</code>的，如果出现网络断开、Redis 宕机等，消息就会被丢弃；并且对于离线重连的客户端不能读取历史消息的缺陷；</li>
+<li>基于List <code>LPUSH + BRPOP</code> 或者基于<code>Sorted-Set</code>的实现，支持了持久化，但是<code>不支持多播，分组消费</code>等。</li>
+</ul>
+<p>基于以上问题，<code>Redis 5.0</code>便推出了<code>Stream</code>类型也是此版本最重要的功能，用于完美地实现<code>消息队列</code>，它支持消息的<code>持久化</code>、支持自动生成<code>全局唯一 ID</code>、支持<code>ack 确认消息</code>的模式、支持<code>消费组模式</code>等，让消息队列更加的稳定和可靠。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Stream-Structure.jpg" alt="Stream结构"></p>
+<h3 id="292-常见命令">2.9.2 常见命令</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>简述</th><th>使用</th></tr></thead><tbody><tr><td>XADD</td><td>插入消息（尾插），保证有序，可以自动生成全局唯一 ID；</td><td>xadd codehole * key value key value</td></tr><tr><td>XLEN</td><td>查询消息长度；</td><td>xlen codehole</td></tr><tr><td>XREAD</td><td>用于读取消息，可以按 ID 读取数据；</td><td>XREAD STREAMS mymq 1654254953807-0</td></tr><tr><td>XDEL</td><td>根据消息 ID 删除消息；</td><td>xdel codehole 1527849609889-0</td></tr><tr><td>DEL</td><td>删除整个 Stream；</td><td>del codehole  # 删除整个Stream</td></tr><tr><td>XGROUP</td><td>创建消费者组</td><td>创建一个名为 <code>group1</code> 的消费组，<code>0-0</code>表示从<code>第一条</code>消息开始读取。XGROUP CREATE mymq group1 0-0</td></tr><tr><td>XRANGE</td><td>读取区间消息</td><td></td></tr><tr><td>XREADGROUP</td><td>按消费组形式读取消息；</td><td></td></tr><tr><td>XPENDING</td><td>命令可以用来查询每个消费组内所有消费者「已读取、但尚未确认」的消息；</td><td>XPENDING mymq group2</td></tr><tr><td>XACK</td><td>命令用于向消息队列确认消息处理已完成；</td><td>XACK mymq group2 1654256265584-0</td></tr></tbody></table>
+<blockquote>
+<p>注：<code>xadd</code>中，*号表示服务器<code>自动生成ID</code>，后面顺序跟着一堆<code>key/value</code>；
+<code>XREAD</code>从这个消息 ID 的<code>下一条消息</code>开始进行读取（注意是输入消息 ID 的下一条信息开始读取，不是查询输入ID的消息）；</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Stream-Flow.jpg" alt="Stream流程"></p>
+<p>更多命令参考<a href="https://pdai.tech/md/db/nosql-redis/db-redis-data-type-stream.html#%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5">pdai</a>、<a href="https://www.xiaolincoding.com/redis/data_struct/command.html#%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4-2">小林coding</a>.</p>
+<h3 id="293-应用场景">2.9.3 应用场景</h3>
+<p>消息队列</p>
+<h1 id="3-参考文献">3 参考文献</h1>
+<p>[^1] <a href="https://www.w3cschool.cn/hdclil/avdu2ozt.html">ziplist结构</a>
+[^2] <a href="https://pdai.tech/md/db/nosql-redis/db-redis-x-redis-ds.html">entry结构</a>
+[^3] <a href="https://www.xiaolincoding.com/redis/data_struct/data_struct.html#%E8%BF%9E%E9%94%81%E6%9B%B4%E6%96%B0">连锁更新</a>
+[^4] <a href="https://www.xiaolincoding.com/redis/data_struct/data_struct.html#quicklist-%E7%BB%93%E6%9E%84%E8%AE%BE%E8%AE%A1">QuickList</a>
+[^5] <a href="https://www.xiaolincoding.com/redis/data_struct/data_struct.html#%E6%95%B4%E6%95%B0%E9%9B%86%E5%90%88">整数集合</a>
+[^6] <a href="https://www.xiaolincoding.com/redis/data_struct/data_struct.html#%E8%B7%B3%E8%A1%A8">跳表</a></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

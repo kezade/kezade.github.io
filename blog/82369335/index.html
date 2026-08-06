@@ -1,0 +1,122 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MySQL学习】4.高性能索引</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MySQL学习】4.高性能索引 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MySQL</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#索引</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-索引的本质">1 索引的本质</h1>
+<p>帮助MySQL高效获取数据的<code>数据结构</code>。</p>
+<h1 id="2-索引分类">2 索引分类</h1>
+<ul>
+<li>数据结构维度：B+树索引，Hash索引，全文索引(Full Text)，R树索引。</li>
+<li>物理存储维度：聚集索引，非聚集索引。</li>
+<li>逻辑维度：空间索引(Spatial Index)，唯一索引(Unique)，联合索引，普通索引(Normal)，主键索引(Primary Key)。</li>
+</ul>
+<h2 id="21-b树索引">2.1 B+树索引</h2>
+<h3 id="211-二叉树">2.1.1 二叉树</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2e1724d19c6520ecce7f331873f7bee9.jpeg" alt="二叉树"></p>
+<p>每个节点<code>至多</code>只有二棵子树，<code>左子树</code>和<code>右子树</code>，<code>次序不能颠倒</code>。</p>
+<p>逻辑上二叉树有<code>五种基本形态</code>：<code>空二叉树</code>、<code>只有一个根结点的二叉树</code>、<code>只有左子树</code>、<code>只有右子树</code>、<code>完全二叉树</code>(特例为满二叉树)。</p>
+<p><code>遍历</code>是对树的一种最基本的运算，所谓遍历二叉树，就是按<code>一定的规则和顺序</code>走遍二叉树的<code>所有结点</code>，使每一个结点都被访问一次，而且<code>只被访问一次</code>，有<code>前序</code>、<code>中序</code>、<code>后序</code>遍历。</p>
+<h3 id="212-二叉查找搜索树">2.1.2 二叉查找（搜索）树</h3>
+<p><code>二叉查找树</code>首先肯定是颗二叉树，除此之外还规定，在二叉查找树中，左子树的节点值总是小于根的节点值，右子树的节点值总是大于根的节点值，也就是：</p>
+<blockquote>
+<p>左子树节点值 &#x3C; 根的节点值 &#x3C; 右子树节点值。</p>
+</blockquote>
+<p>它的查找时间复杂度和二分查找一样，<code>O(logN)</code>。</p>
+<p>但是二叉查找树，如果设计不良，完全可以变成一颗极<code>不平衡</code>的二叉查找树：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/B-Tree-Unbalanced-to-LinkList.png" alt="不平衡的二叉查找树可蜕变成链表"></p>
+<p>查找效率和顺序查找基本没差别了。因此若想最大性能地构造一棵二叉查找树，需要这棵二叉查找树是<code>平衡的</code>，从而引出了新的定义——<code>平衡二叉树</code>，或称为<code>AVL树</code>。</p>
+<h3 id="213-平衡二叉树avl树">2.1.3 平衡二叉树(AVL树)</h3>
+<p>首先符合二叉查找树的定义，其次必须满足任何节点的<code>两个子树的高度最大差为 1</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/alg-tree-avl-1.jpeg" alt="AVL树"></p>
+<p>平衡二叉树对一个数据库来说，有什么问题?</p>
+<blockquote>
+<p>因为二叉树每个节点<code>最多只有两个</code>直属子节点，所以当节点数比较多时，二叉树的<code>高度</code>增长很快，比如 1000 个节点时，树的高度差不多有 9 到 10 层。我们知道数据库是持久化的，数据是要从<code>磁盘上</code>读取的，一般的机械磁盘每秒至少可以做 100 次 IO，一次 IO 的时间基本上在 0.01 秒，1000 个节点在查找时就需要 0.1 秒，如果是 10000 个节点，100000 个节点呢?
+所以对数据库来说，为了<code>减少树的高度</code>，提出了<code>B+树</code>的数据结构。</p>
+</blockquote>
+<h3 id="214-b树">2.1.4 B+树</h3>
+<p>一棵 <code>m 阶</code>的 B+树定义如下:</p>
+<ul>
+<li>每个节点<code>最多</code>可以有 <code>m</code> 个元素;</li>
+<li>除了根节点外，每个节点最少有 <code>(m/2)</code> 个元素;</li>
+<li>如果根节点不是叶节点，那么它<code>最少</code>有 <code>2</code> 个孩子节点;</li>
+<li>所有的叶子节点都在<code>同一层</code>;</li>
+<li>一个有 <code>k</code> 个孩子节点的<code>非叶子节点</code>有 <code>(k-1)</code> 个元素，按<code>升序</code>排列;</li>
+<li>某个元素的左子树中的元素都比它小，右子树的元素都大于或等于它;</li>
+<li><code>非叶子节点</code>只存放<code>关键字</code>和指向下一个孩子节点的<code>索引</code>，记录只存放在叶子节点中;</li>
+<li>相邻的叶子节点之间用<code>指针</code>相连。</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/BTree-1.jpg" alt="3阶B+树"></p>
+<p><code>B+树索引</code>是大多数 MySQL 存储引擎的默认索引类型。因为<strong>不再需要进行全表扫描</strong>，只需要对树进行搜索即可，因此查找速度快很多。</p>
+<p>除了用于<code>查找</code>，还可以用于<code>排序</code>和<code>分组</code>。可以指定多个列作为索引列，多个索引列共同组成键。</p>
+<p>适用于<code>全键值</code>、<code>键值范围</code>和<code>键前缀</code>查找，其中键前缀查找只适用于<code>最左前缀查找</code>。如果不是按照索引列的顺序进行查找，则无法使用索引。</p>
+<p>InnoDB 的 B+树索引分为<code>主键索引</code>（聚集索引）和<code>辅助索引</code>（非聚集索引、二级索引）。</p>
+<h2 id="22-hash索引">2.2 Hash索引</h2>
+<p>适合等值查询，检索效率高，一次到位。</p>
+<ul>
+<li>局限
+<ul>
+<li>hash 表只能匹配是否相等，不能实现范围查找；</li>
+<li>当需要按照索引进行order by 时，hash 值没办法支持排序；</li>
+<li>组合索引（composite index）可以支持部分索引查询，如(a,b,c)的组合索引，查询中只用到了a和b 也可以查询的，如果使用hash 表，组合索引会将几个字段合并hash，<code>没办法支持部分索引</code>；</li>
+<li>当数据量很大时，<code>hash 冲突</code>（hash collision）的概率也会非常大.</li>
+</ul>
+</li>
+</ul>
+<h3 id="221-自适应-hash-索引">2.2.1 自适应 Hash 索引</h3>
+<p>InnoDB 存储引擎内部自己去监控索引表，如果监控到某个索引经常用，那么就认为是<code>热数据</code>，然后内部自己创建一个hash 索引；</p>
+<p>我们并不能对其进行干预。通过命令 <code>show engine innodb status\G</code> 可以看到当前自适应哈希索引的使用状况.</p>
+<h2 id="23-全文索引full-text">2.3 全文索引(Full Text)</h2>
+<p><code>MyISAM</code>和<code>InnoDB</code>中都支持使用<code>全文索引</code>，一般在文本类型<code>char</code>,<code>text</code>,<code>varchar</code>类型上创建。</p>
+<blockquote>
+<p>全文索引一般使用倒排索引实现，它记录着关键词到其所在文档的映射。</p>
+<p>InnoDB 存储引擎在 <code>MySQL v5.6.4</code> 版本中也开始支持全文索引。</p>
+</blockquote>
+<h2 id="24-r树索引">2.4 R树索引</h2>
+<p>用来对<code>GIS</code>数据类型创建<code>SPATIAL索引</code>。</p>
+<h1 id="3-索引在查询中的使用">3 索引在查询中的使用</h1>
+<p>一个索引就是一个<code>B+树</code>，索引让我们的查询可以快速定位和扫描到我们需要的数据记录上，加快查询的速度。</p>
+<p>一个select 查询语句在执行过程中一般<code>最多</code>能使用<code>一个二级索引</code>，即使在where 条件中用了多个二级索引。</p>
+<h1 id="4-索引的代价">4 索引的代价</h1>
+<h2 id="41-空间上的代价">4.1 空间上的代价</h2>
+<p>每建立<code>一个索引</code>都要为它建立<code>一棵B+树</code>，每一棵B+树的每一个节点都是一个<code>数据页</code>，一个页默认会占用<code>16KB</code> 的存储空间，一棵很大的B+树由许多数据页组成会占据很多的存储空间。</p>
+<h2 id="42-时间上的代价">4.2 时间上的代价</h2>
+<p>每次对表中的数据进行<code>增、删、改</code>操作时，都需要去<code>修改</code>各个B+树索引。</p>
+<h1 id="5-高性能的索引创建策略">5 高性能的索引创建策略</h1>
+<h2 id="51-索引列的类型尽量小">5.1 索引列的类型尽量小</h2>
+<ul>
+<li>数据类型越小，在查询时进行的<code>比较操作越快</code>(CPU 层次)</li>
+<li>数据类型越小，索引占用的<code>存储空间</code>就越少，在一个数据页内就可以放下更多的记录，从而减少<code>磁盘I/O</code>带来的性能损耗，也就意味着可以把<code>更多的</code>数据页缓存在内存中，从而<code>加快</code>读写效率。</li>
+</ul>
+<h2 id="52-索引选择性和前缀索引">5.2 索引选择性和前缀索引</h2>
+<ul>
+<li>创建索引应该选择选择性/离散性高的列.</li>
+<li>前缀索引</li>
+</ul>
+<h2 id="53-只为用于搜索排序或分组的列创建索引">5.3 只为用于<code>搜索</code>、<code>排序</code>或<code>分组</code>的列创建索引</h2>
+<ul>
+<li>只为出现在<code>WHERE 子句</code>中的列、<code>连接子句</code>中的连接列创建索引；</li>
+<li>覆盖索引</li>
+<li>为出现在<code>ORDER BY</code> 或<code>GROUP BY</code> 子句中的列创建索引：<code>ORDER BY</code> 、<code>group by</code>的子句后边的列的顺序也必须按照<code>索引列的顺序</code>给出。</li>
+</ul>
+<h2 id="54-多列索引">5.4 多列索引</h2>
+<ul>
+<li>将<code>选择性最高</code>的列放到索引最前列；</li>
+<li>最左匹配；</li>
+<li>索引下推 Index Condition Pushdown(ICP)。</li>
+</ul>
+<blockquote>
+<p>索引下推：只需要通过索引中的列就能够评估行是否符合WHERE中的一部分条件，MySQL将这部分WHERE条件<code>下推</code>到<code>存储引擎</code>中，然后存储引擎评估使用索引条目来评估下推的索引条件，并只从表中读取符合条件的行。</p>
+</blockquote>
+<h2 id="55-设计三星索引">5.5 设计三星索引</h2>
+<ul>
+<li>一星（范围星）27% ：索引将相关的记录放到一起；</li>
+<li>二星（排序星）23%：索引中的数据顺序和查找中的排列顺序一致；</li>
+<li>三星（宽索引星）50%：索引中的列包含了查询中需要的全部列。</li>
+</ul>
+<h2 id="56-主键是很少改变的列">5.6 主键是很少改变的列</h2>
+<p><code>行</code>是按照<strong>聚集索引物理排序</strong>的，如果主键频繁改变(update)，物理顺序会改变，MySQL 要不断调整B+树，并且中间可能会产生页面的分裂和合并等等，会导致性能会急剧降低。</p>
+<h2 id="57-冗余和重复索引">5.7 冗余和重复索引</h2>
+<p>MySQL 允许在相同列上创建多个索引，无论是有意的还是无意的。MySQL需要单独维护重复的索引，并且优化器在优化查询的时候也需要逐个地进行考虑，这会影响性能。</p>
+<blockquote>
+<p><code>重复索引</code>是指在相同的列上按照相同的顺序创建的相同类型的索引。应该避免这样创建重复索引，发现以后也应该立即移除。</p>
+</blockquote>
+<h2 id="58-删除未使用的索引">5.8 删除未使用的索引</h2>
+<p>除了冗余索引和重复索引，可能还会有一些服务器永远不用的索引。这样的索引完全很累赘，建议考虑删除。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

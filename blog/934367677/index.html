@@ -1,0 +1,214 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Docker学习】5.集群部署RocketMQ</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Docker学习】5.集群部署RocketMQ </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/23/2024</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker Compose</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一相关配置目录及文件映射">一、相关配置目录及文件映射</h1>
+<h2 id="11-映射目录">1.1 映射目录</h2>
+<h3 id="111-name-server">1.1.1 name server</h3>
+<p>主要是给docker映射外部的日志及存储目录，即<code>logs</code>、<code>store</code>. 这里有两个nameserver组成集群，分别是<code>namesrv-a</code>和<code>namesrv-b</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/namesrv-a/logs</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/namesrv-b/logs</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/namesrv-a/store</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/namesrv-b/store</span></span></code></pre>
+<h3 id="112-broker">1.1.2 broker</h3>
+<p>同name server，只是多了配置broker的文件夹。两个broker均为master。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># broker-a</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-a/logs</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-a/store</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-a/conf</span></span>
+<span class="line"><span style="color:#6A737D"># broker-b</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-b/logs</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-b/store</span></span>
+<span class="line"><span style="color:#B392F0">mkdir</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> /Users/zyxelva/docker-data/rocketMQ/data/broker-b/conf</span></span>
+<span class="line"></span></code></pre>
+<h2 id="12-映射配置文件">1.2 映射配置文件</h2>
+<p>这里主要为broker的配置文件。</p>
+<h3 id="121-broker-a配置文件">1.2.1 broker-a配置文件</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="properties"><code><span class="line"><span style="color:#6A737D"># broker-a</span></span>
+<span class="line"><span style="color:#6A737D"># # 所属集群名字</span></span>
+<span class="line"><span style="color:#F97583">brokerClusterName</span><span style="color:#E1E4E8">=rocketmq-cluster</span></span>
+<span class="line"><span style="color:#6A737D"># broker 名字，注意此处不同的配置文件填写的不一样，</span></span>
+<span class="line"><span style="color:#6A737D"># - 如果在 broker-a.properties 使用: broker-a,</span></span>
+<span class="line"><span style="color:#6A737D"># - 在 broker-b.properties 使用: broker-b</span></span>
+<span class="line"><span style="color:#F97583">brokerName</span><span style="color:#E1E4E8">=broker-a</span></span>
+<span class="line"><span style="color:#F97583">brokerId</span><span style="color:#E1E4E8">=0</span></span>
+<span class="line"><span style="color:#6A737D"># 启动IP,如果 docker 报 com.alibaba.rocketmq.remoting.exception.RemotingConnectException: connect to &#x3C;192.168.0.120:10909> failed</span></span>
+<span class="line"><span style="color:#6A737D"># 解决方式1 加上一句 producer.setVipChannelEnabled(false);</span></span>
+<span class="line"><span style="color:#6A737D"># 解决方式2 brokerIP1 设置宿主机IP，不要使用docker 内部IP (建议直接设置)</span></span>
+<span class="line"><span style="color:#6A737D">#如果是正式环境 这里一定要填写内网地址（安全）</span></span>
+<span class="line"><span style="color:#6A737D">#如果是用于测试或者本地这里建议要填外网地址，因为你的本地代码是无法连接到阿里云内网，只能连接外网。</span></span>
+<span class="line"><span style="color:#F97583">brokerIP1</span><span style="color:#E1E4E8">=192.168.50.205</span></span>
+<span class="line"><span style="color:#6A737D"># 删除文件时间点，默认凌晨4点</span></span>
+<span class="line"><span style="color:#F97583">deleteWhen</span><span style="color:#E1E4E8">=04</span></span>
+<span class="line"><span style="color:#6A737D"># 文件保留时间，默认48小时</span></span>
+<span class="line"><span style="color:#F97583">fileReservedTime</span><span style="color:#E1E4E8">=48</span></span>
+<span class="line"><span style="color:#6A737D"># 注册到NameServer的地址，多个用分号分割</span></span>
+<span class="line"><span style="color:#6A737D"># 内网的(阿里云有内网IP和外网IP)</span></span>
+<span class="line"><span style="color:#F97583">namesrvAddr</span><span style="color:#E1E4E8">=192.168.50.205:9876</span><span style="color:#6A737D">;192.168.50.205:9877</span></span>
+<span class="line"><span style="color:#6A737D"># 是否允许 Broker 自动创建 Topic，建议线下开启，线上关闭 ！！！这里仔细看是 false，false，false</span></span>
+<span class="line"><span style="color:#F97583">autoCreateTopicEnable</span><span style="color:#E1E4E8">=true</span></span>
+<span class="line"><span style="color:#6A737D">#Broker 对外服务的监听端口,</span></span>
+<span class="line"><span style="color:#F97583">listenPort</span><span style="color:#E1E4E8">=10911</span></span>
+<span class="line"><span style="color:#6A737D">#Broker角色</span></span>
+<span class="line"><span style="color:#6A737D">#- ASYNC_MASTER 异步复制Master</span></span>
+<span class="line"><span style="color:#6A737D">#- SYNC_MASTER 同步双写Master</span></span>
+<span class="line"><span style="color:#6A737D">#- SLAVE</span></span>
+<span class="line"><span style="color:#F97583">brokerRole</span><span style="color:#E1E4E8">=ASYNC_MASTER</span></span>
+<span class="line"><span style="color:#6A737D">#刷盘方式</span></span>
+<span class="line"><span style="color:#6A737D">#- ASYNC_FLUSH 异步刷盘</span></span>
+<span class="line"><span style="color:#6A737D">#- SYNC_FLUSH 同步刷盘</span></span>
+<span class="line"><span style="color:#F97583">flushDiskType</span><span style="color:#E1E4E8">=ASYNC_FLUSH</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># 发消息线程池数量</span></span>
+<span class="line"><span style="color:#6A737D"># sendMessageThreadPoolNums=128</span></span>
+<span class="line"><span style="color:#6A737D"># 拉消息线程池数量</span></span>
+<span class="line"><span style="color:#6A737D"># pullMessageThreadPoolNums=128</span></span></code></pre>
+<blockquote>
+<p>Tips:
+更多配置信息，可参看 {% post_link ‘【RocketMQ学习】13-源码之消息过滤与重试’ ‘【RocketMQ学习】13-源码之消息过滤与重试1.5节’ %} 内容</p>
+</blockquote>
+<h3 id="122-broker-b配置文件">1.2.2 broker-b配置文件</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="properties"><code><span class="line"><span style="color:#F97583">brokerClusterName</span><span style="color:#E1E4E8"> = rocketmq-cluster</span></span>
+<span class="line"><span style="color:#F97583">brokerName</span><span style="color:#E1E4E8"> = broker-b</span></span>
+<span class="line"><span style="color:#F97583">brokerId</span><span style="color:#E1E4E8"> = 0</span></span>
+<span class="line"><span style="color:#F97583">brokerIP1</span><span style="color:#E1E4E8"> = 192.168.50.205</span></span>
+<span class="line"><span style="color:#F97583">deleteWhen</span><span style="color:#E1E4E8"> = 04</span></span>
+<span class="line"><span style="color:#F97583">fileReservedTime</span><span style="color:#E1E4E8"> = 48</span></span>
+<span class="line"><span style="color:#6A737D"># 内网的(阿里云有内网IP和外网IP)</span></span>
+<span class="line"><span style="color:#F97583">namesrvAddr</span><span style="color:#E1E4E8">=192.168.50.205:9876</span><span style="color:#6A737D">;192.168.50.205:9877</span></span>
+<span class="line"><span style="color:#F97583">autoCreateTopicEnable</span><span style="color:#E1E4E8">=true</span></span>
+<span class="line"><span style="color:#6A737D">#Broker 对外服务的监听端口,</span></span>
+<span class="line"><span style="color:#F97583">listenPort</span><span style="color:#E1E4E8"> = 10909</span></span>
+<span class="line"><span style="color:#6A737D">#Broker角色</span></span>
+<span class="line"><span style="color:#6A737D">#- ASYNC_MASTER 异步复制Master</span></span>
+<span class="line"><span style="color:#6A737D">#- SYNC_MASTER 同步双写Master</span></span>
+<span class="line"><span style="color:#6A737D">#- SLAVE</span></span>
+<span class="line"><span style="color:#F97583">brokerRole</span><span style="color:#E1E4E8">=ASYNC_MASTER</span></span>
+<span class="line"><span style="color:#6A737D">#刷盘方式</span></span>
+<span class="line"><span style="color:#6A737D">#- ASYNC_FLUSH 异步刷盘</span></span>
+<span class="line"><span style="color:#6A737D">#- SYNC_FLUSH 同步刷盘</span></span>
+<span class="line"><span style="color:#F97583">flushDiskType</span><span style="color:#E1E4E8">=ASYNC_FLUSH</span></span></code></pre>
+<h2 id="13-docker-compose文件">1.3 docker-compose文件</h2>
+<p>这里利用<code>docker-compose</code>进行服务编排，一次性按序启动所有需要的服务，包括<code>nameserver</code>、<code>broker</code>、<code>console</code>。</p>
+<p>我们可以简单把<code>docker-compose.yml</code>理解成一个类似Shell的脚本，这个脚本定义了运行多容器应用程序的信息。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'3.5'</span></span>
+<span class="line"><span style="color:#85E89D">services</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  rmqnamesrv-a</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">foxiswho/rocketmq:4.7.0</span></span>
+<span class="line"><span style="color:#85E89D">    container_name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmqnamesrv-a</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">9876:9876</span></span>
+<span class="line"><span style="color:#85E89D">    volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/namesrv-a/logs:/opt/logs</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/namesrv-a/store:/opt/store</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sh mqnamesrv</span></span>
+<span class="line"><span style="color:#85E89D">    networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        aliases</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          - </span><span style="color:#9ECBFF">rmqnamesrv-a</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">  rmqnamesrv-b</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">foxiswho/rocketmq:4.7.0</span></span>
+<span class="line"><span style="color:#85E89D">    container_name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmqnamesrv-b</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">9877:9877</span></span>
+<span class="line"><span style="color:#85E89D">    volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/namesrv-b/logs:/opt/logs</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/namesrv-b/store:/opt/store</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sh mqnamesrv</span></span>
+<span class="line"><span style="color:#85E89D">    networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        aliases</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          - </span><span style="color:#9ECBFF">rmqnamesrv-b</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">  rmqbroker-a</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">foxiswho/rocketmq:4.7.0</span></span>
+<span class="line"><span style="color:#85E89D">    container_name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmqbroker-a</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">10911:10911</span></span>
+<span class="line"><span style="color:#85E89D">    volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-a/logs:/opt/logs</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-a/store:/opt/store</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-a/conf/broker-a.conf:/opt/rocketmq-4.7.0/conf/broker.conf</span></span>
+<span class="line"><span style="color:#85E89D">    environment</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      TZ</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Asia/Shanghai</span></span>
+<span class="line"><span style="color:#85E89D">      NAMESRV_ADDR</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"rmqnamesrv-a:9876"</span></span>
+<span class="line"><span style="color:#85E89D">      JAVA_OPTS</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">" -Duser.home=/opt"</span></span>
+<span class="line"><span style="color:#85E89D">      JAVA_OPT_EXT</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"-server -Xms256m -Xmx256m -Xmn256m"</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sh mqbroker -c /opt/rocketmq-4.7.0/conf/broker.conf autoCreateTopicEnable=true &#x26;</span></span>
+<span class="line"><span style="color:#85E89D">    links</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">rmqnamesrv-a:rmqnamesrv-a</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">rmqnamesrv-b:rmqnamesrv-b</span></span>
+<span class="line"><span style="color:#85E89D">    networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        aliases</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          - </span><span style="color:#9ECBFF">rmqbroker-a</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">  rmqbroker-b</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">foxiswho/rocketmq:4.7.0</span></span>
+<span class="line"><span style="color:#85E89D">    container_name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmqbroker-b</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">10909:10909</span></span>
+<span class="line"><span style="color:#85E89D">    volumes</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-b/logs:/opt/logs</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-b/store:/opt/store</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">/Users/zyxelva/docker-data/rocketMQ/data/broker-b/conf/broker-b.conf:/opt/rocketmq-4.7.0/conf/broker.conf</span></span>
+<span class="line"><span style="color:#85E89D">    environment</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      TZ</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">Asia/Shanghai</span></span>
+<span class="line"><span style="color:#85E89D">      NAMESRV_ADDR</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"rmqnamesrv-b:9876"</span></span>
+<span class="line"><span style="color:#85E89D">      JAVA_OPTS</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">" -Duser.home=/opt"</span></span>
+<span class="line"><span style="color:#85E89D">      JAVA_OPT_EXT</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"-server -Xms256m -Xmx256m -Xmn256m"</span></span>
+<span class="line"><span style="color:#85E89D">    command</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">sh mqbroker -c /opt/rocketmq-4.7.0/conf/broker.conf autoCreateTopicEnable=true &#x26;</span></span>
+<span class="line"><span style="color:#85E89D">    links</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">rmqnamesrv-a:rmqnamesrv-a</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">rmqnamesrv-b:rmqnamesrv-b</span></span>
+<span class="line"><span style="color:#85E89D">    networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        aliases</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          - </span><span style="color:#9ECBFF">rmqbroker-b</span></span>
+<span class="line"><span style="color:#85E89D">  rmqconsole</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    image</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">styletang/rocketmq-console-ng</span></span>
+<span class="line"><span style="color:#85E89D">    container_name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmqconsole</span></span>
+<span class="line"><span style="color:#85E89D">    ports</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      - </span><span style="color:#9ECBFF">9001:8080</span></span>
+<span class="line"><span style="color:#85E89D">    environment</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      JAVA_OPTS</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">-Drocketmq.config.namesrvAddr=rmqnamesrv-a:9876;rmqnamesrv-b:9877 -Drocketmq.config.isVIPChannel=false</span></span>
+<span class="line"><span style="color:#85E89D">    networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        aliases</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">          - </span><span style="color:#9ECBFF">rmqconsole</span></span>
+<span class="line"><span style="color:#85E89D">networks</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  rmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">rmq</span></span>
+<span class="line"><span style="color:#85E89D">    driver</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">bridge</span></span>
+<span class="line"></span></code></pre>
+<p>上述文件中，我们可以得出以下有用的信息：</p>
+<ul>
+<li>rocketmq镜像，我们采用的是<code>foxiswho/rocketmq:4.7.0</code>;</li>
+<li>总共有5个镜像需要拉取：<code>rmqnamesrv-a</code>、<code>rmqnamesrv-b</code>、<code>rmqbroker-a</code>、<code>rmqbroker-b</code>、<code>rmqconsole</code>；</li>
+<li><code>rocketmq-console-ng</code>是一个第三方的可视化工具，可以通过网页查看rocketmq组织信息，状态信息，消息等；</li>
+<li>broker相关配置文件已经通过上面的配置文件进行了映射，后续需要更改，直接更改这些文件再重启broker即可。</li>
+</ul>
+<h1 id="二环境部署">二、环境部署</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>1. 建议使用64位操作系统，Linux / Unix / Mac;</span></span>
+<span class="line"><span>2. 64位JDK 1.8+;</span></span>
+<span class="line"><span>3. Maven 3.2.x;</span></span>
+<span class="line"><span>4. Git;</span></span>
+<span class="line"><span>5. 4g +免费磁盘用于Broker服务器</span></span>
+<span class="line"><span></span></span></code></pre>
+<p>本机操作系统为<code>MacOS Catalina 10.15</code>，已安装<code>docker desktop</code>，因而已自带<code>docker-compose</code>，如果需要通过docker-compose启动，还需安装它。具体步骤可参考 <a href="https://github.com/docker/compose">官方说明</a> 。</p>
+<h1 id="三执行">三、执行</h1>
+<p>假设上述步骤已然全部完成，执行下面命令</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker-compose</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> docker-compose.yml</span><span style="color:#9ECBFF"> up</span><span style="color:#79B8FF"> -d</span></span>
+<span class="line"></span></code></pre>
+<p>看到如下结果，证明你已经全部安装成功了！</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@192 11:40:32 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">/docker-data/rocketMQ]$ docker-compose -f docker-compose.yml up -d</span></span>
+<span class="line"><span style="color:#E1E4E8">[+] Running 5/5</span></span>
+<span class="line"><span style="color:#B392F0"> ⠿</span><span style="color:#9ECBFF"> Container</span><span style="color:#9ECBFF"> rmqnamesrv-b</span><span style="color:#9ECBFF">  Running</span><span style="color:#9ECBFF">                                                                                          0.0s</span></span>
+<span class="line"><span style="color:#B392F0"> ⠿</span><span style="color:#9ECBFF"> Container</span><span style="color:#9ECBFF"> rmqnamesrv-a</span><span style="color:#9ECBFF">  Running</span><span style="color:#9ECBFF">                                                                                          0.0s</span></span>
+<span class="line"><span style="color:#B392F0"> ⠿</span><span style="color:#9ECBFF"> Container</span><span style="color:#9ECBFF"> rmqbroker-b</span><span style="color:#9ECBFF">   Running</span><span style="color:#9ECBFF">                                                                                          0.0s</span></span>
+<span class="line"><span style="color:#B392F0"> ⠿</span><span style="color:#9ECBFF"> Container</span><span style="color:#9ECBFF"> rmqbroker-a</span><span style="color:#9ECBFF">   Running</span><span style="color:#9ECBFF">                                                                                          0.0s</span></span>
+<span class="line"><span style="color:#B392F0"> ⠿</span><span style="color:#9ECBFF"> Container</span><span style="color:#9ECBFF"> rmqconsole</span><span style="color:#9ECBFF">    Started</span><span style="color:#9ECBFF">                                                                                          0.8s</span></span></code></pre>
+<p>通过docker-desktop查看启动情况。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-desktop-view.png" alt="docker-desktop服务启动概览"></p>
+<p>通过访问 <code>http://localhost:9001</code>可以看到可视化界面下的rocketmq相关监控信息。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-rocketmq-console-view.png" alt="name server监控概览">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-rocketmq-console-broker-view.png" alt="broker监控概览"></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】235. 二叉搜索树的最近公共祖先</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】235. 二叉搜索树的最近公共祖先 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/13/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Java</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#DFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1. 问题</h1>
+<p>给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。</p>
+<p>百度百科中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”</p>
+<p>例如，给定如下二叉搜索树:  root = [6,2,8,0,4,7,9,null,null,3,5]</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/a49aa758be9b4857af28475131075783.png" alt="&#x22;&#x22;"></p>
+<h2 id="示例-1">示例 1</h2>
+<blockquote>
+<p>输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+输出: 6<br>
+解释: 节点 2 和节点 8 的最近公共祖先是 6。</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4
+输出: 2
+解释: 节点 2 和节点 4 的最近公共祖先是 2, 因为根据定义最近公共祖先节点可以为节点本身。</p>
+</blockquote>
+<p><strong>说明</strong>:</p>
+<ul>
+<li>所有节点的值都是唯一的。</li>
+<li>p、q 为不同节点且均存在于给定的二叉搜索树中。</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<p>本章与<a href="https://blog.csdn.net/kezade/article/details/130430120">二叉树的最近公共祖先</a> 类似，可以采用它的算法，但二叉搜索树具有很明显的排序功能。对于二叉搜索树中的节点p,q，只会存在两种分布情况：</p>
+<ul>
+<li>p、q位于root的同侧，则只要递归查找root的左或右子树即可</li>
+<li>p、q位于root的两侧，直接返回root</li>
+</ul>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Definition for a binary tree node.</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *     int val;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode left;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int x) { val = x; }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">* 节点p和节点q只有两种关系:父子关系 兄弟关系</span></span>
+<span class="line"><span style="color:#6A737D">* 父子关系: </span></span>
+<span class="line"><span style="color:#6A737D">*       1.节点p是节点q的子孙节点,即节点p出现在节点q的左或右子树中;返回q即可;</span></span>
+<span class="line"><span style="color:#6A737D">*       2.节点q是节点p的子孙节点,即节点q出现在节点p的左或右子树中;返回p即可;</span></span>
+<span class="line"><span style="color:#6A737D">* 兄弟关系:</span></span>
+<span class="line"><span style="color:#6A737D">*       节点p,q分别出现在某节点的左子树或右子树中;返回该节点即可;</span></span>
+<span class="line"><span style="color:#6A737D">*</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //普通二叉树解法</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">lowestCommonAncestor2</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">p</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">q</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //根节点</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> p </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> root </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> q </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> root){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode leftNode</span><span style="color:#F97583">=</span><span style="color:#B392F0">lowestCommonAncestor</span><span style="color:#E1E4E8">(root.left, p ,q);</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode rightNode</span><span style="color:#F97583">=</span><span style="color:#B392F0">lowestCommonAncestor</span><span style="color:#E1E4E8">(root.right, p, q);</span></span>
+<span class="line"><span style="color:#6A737D">        //若p,q分别在root的左右子树中，返回根节点</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> leftNode </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> rightNode){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //否则，返回不为空的那个子树节点</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">leftNode</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">rightNode</span><span style="color:#F97583">:</span><span style="color:#E1E4E8">leftNode;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">lowestCommonAncestor</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">p</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">q</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //根节点</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> p </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> root </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> q </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> root){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //p，q在同一边</span></span>
+<span class="line"><span style="color:#6A737D">        //同在左子树</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(root.val</span><span style="color:#F97583">>=</span><span style="color:#E1E4E8">p.val </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> root.val</span><span style="color:#F97583">>=</span><span style="color:#E1E4E8">q.val){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#B392F0"> lowestCommonAncestor</span><span style="color:#E1E4E8">(root.left, p, q);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //同在右子树</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(root.val</span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8">p.val </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> root.val</span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8">q.val){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#B392F0"> lowestCommonAncestor</span><span style="color:#E1E4E8">(root.right, p, q);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //不在同一边</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

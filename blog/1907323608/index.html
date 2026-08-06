@@ -1,0 +1,499 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】7-源码之Producer</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】7-源码之Producer </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/27/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Producer生产者</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-producer样例">1 Producer样例</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TestProducer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> MQClientException, InterruptedException {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQProducer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"ProducerGroupName"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    Message msg </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Message</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TopicTest1"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagA"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"key113"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"Hello world"</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(RemotingHelper.DEFAULT_CHARSET));</span></span>
+<span class="line"><span style="color:#E1E4E8">                    SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, sendResult);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                    QueryResult queryMessage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">queryMessage</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TopicTest1"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"key113"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (MessageExt m </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> queryMessage.</span><span style="color:#B392F0">getMessageList</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, m);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h1 id="2-启动流程">2 启动流程</h1>
+<p>启动开始从<code>producer.start()</code>开始。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQProducer#start</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() throws MQClientException {</span></span>
+<span class="line"><span style="color:#6A737D">        //注入生产者组</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">setProducerGroup</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">withNamespace</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.producerGroup));</span></span>
+<span class="line"><span style="color:#6A737D">        //采用默认的DefaultMQProducerImpl启动</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMQProducerImpl.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> traceDispatcher) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                traceDispatcher.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getNamesrvAddr</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getAccessChannel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (MQClientException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"trace dispatcher start failed "</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p><code>DefaultMQProducerImpl</code>中的<code>start()</code>方法是生产者启动的<code>核心方法</code>，包括<code>检查</code>、<code>获取MQ ClientInstance实例</code>、<code>启动</code>三个步骤。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMQProducerImpl</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MQProducerInner</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> startFactory</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> MQClientException {</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.serviceState) {</span></span>
+<span class="line"><span style="color:#6A737D">            //1.第一次一定走这里，因为serviceState默认就是CREATE_JUST状态</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> CREATE_JUST</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.serviceState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceState.START_FAILED;</span></span>
+<span class="line"><span style="color:#6A737D">                //2.检查生产者组是否满足要求</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(MixAll.CLIENT_INNER_PRODUCER_GROUP)) {</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">changeInstanceNameToPID</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //3.获取或创建MQClientInstance</span></span>
+<span class="line"><span style="color:#6A737D">                //单例MQClientManager</span></span>
+<span class="line"><span style="color:#6A737D">                //同一个clientId对应同一个MQClientInstance</span></span>
+<span class="line"><span style="color:#6A737D">                //MQClientInstance 封装了RocketMQ网络处理的API，是消息生产者与消费者同NameServer、Broker打交道的唯一途径</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.mQClientFactory </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MQClientManager.</span><span style="color:#B392F0">getInstance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getOrCreateMQClientInstance</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer, rpcHook);</span></span>
+<span class="line"><span style="color:#6A737D">                //4.注册当前生产者至MQClientInstance管理之中</span></span>
+<span class="line"><span style="color:#F97583">                boolean</span><span style="color:#E1E4E8"> registerOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mQClientFactory.</span><span style="color:#B392F0">registerProducer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">registerOK) {</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.serviceState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceState.CREATE_JUST;</span></span>
+<span class="line"><span style="color:#F97583">                    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The producer group["</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">                            +</span><span style="color:#9ECBFF"> "] has been created before, specify another name please."</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> FAQUrl.</span><span style="color:#B392F0">suggestTodo</span><span style="color:#E1E4E8">(FAQUrl.GROUP_NAME_DUPLICATE_URL),</span></span>
+<span class="line"><span style="color:#79B8FF">                            null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.topicPublishInfoTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getCreateTopicKey</span><span style="color:#E1E4E8">(), </span><span style="color:#F97583">new</span><span style="color:#B392F0"> TopicPublishInfo</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                //启动</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (startFactory) {</span></span>
+<span class="line"><span style="color:#6A737D">                    //调用MQClientInstance的API</span></span>
+<span class="line"><span style="color:#E1E4E8">                    mQClientFactory.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the producer [{}] start OK. sendMessageWithVIPChannel={}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">isSendMessageWithVIPChannel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.serviceState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceState.RUNNING;</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RUNNING</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> START_FAILED</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> SHUTDOWN_ALREADY</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The producer service state not OK, maybe started once, "</span></span>
+<span class="line"><span style="color:#F97583">                        +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.serviceState</span></span>
+<span class="line"><span style="color:#F97583">                        +</span><span style="color:#E1E4E8"> FAQUrl.</span><span style="color:#B392F0">suggestTodo</span><span style="color:#E1E4E8">(FAQUrl.CLIENT_SERVICE_NOT_OK),</span></span>
+<span class="line"><span style="color:#79B8FF">                        null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">sendHeartbeatToAllBrokerWithLock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.timer.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> TimerTask</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    RequestFutureTable.</span><span style="color:#B392F0">scanExpiredRequest</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"scan RequestFutureTable exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="21-检查">2.1 检查</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> checkConfig</span><span style="color:#E1E4E8">() throws MQClientException {</span></span>
+<span class="line"><span style="color:#6A737D">        //1.ProducerGroup名称是否为空、是否超过255、是否包含了除%，字母，数字，横线，下划线，空串以外的字符</span></span>
+<span class="line"><span style="color:#E1E4E8">        Validators.</span><span style="color:#B392F0">checkGroup</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //2.是否为空，这里重复判断了，bug</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"producerGroup is null"</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //3.是否等于默认名称</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(MixAll.DEFAULT_PRODUCER_GROUP)){</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"producerGroup can not equal "</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">MixAll.DEFAULT_PRODUCER_GROUP</span><span style="color:#F97583">+</span><span style="color:#9ECBFF">", please specify another one."</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="22-获取mq-clientinstance实例">2.2 获取MQ ClientInstance实例</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> MQClientInstance </span><span style="color:#B392F0">getOrCreateMQClientInstance</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ClientConfig clientConfig, RPCHook rpcHook) {</span></span>
+<span class="line"><span style="color:#6A737D">    //1.创建clientId</span></span>
+<span class="line"><span style="color:#E1E4E8">    String clientId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> clientConfig.</span><span style="color:#B392F0">buildMQClientId</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //2.若已创建过实例，则直接取，否则，重新创建。key为clientID</span></span>
+<span class="line"><span style="color:#E1E4E8">    MQClientInstance instance </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.factoryTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(clientId);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> instance) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        instance </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientInstance</span><span style="color:#E1E4E8">(clientConfig.</span><span style="color:#B392F0">cloneClientConfig</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.factoryIndexGenerator.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">(), clientId, rpcHook);</span></span>
+<span class="line"><span style="color:#E1E4E8">        MQClientInstance prev </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.factoryTable.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(clientId, instance);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (prev </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            instance </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prev;</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Returned Previous MQClientInstance for clientId:[{}]"</span><span style="color:#E1E4E8">, clientId);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Created new MQClientInstance for clientId:[{}]"</span><span style="color:#E1E4E8">, clientId);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> instance;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>这里，<code>clientID</code>与<code>MQClientInstance</code>一一对应，保存在一个ConcurrentHashMap当中。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//MQClientManager</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> ConcurrentMap</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">String</span><span style="color:#6A737D">/* clientId */</span><span style="color:#E1E4E8">, MQClientInstance</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> factoryTable </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">MQClientInstance</span><span style="color:#E1E4E8">>();</span></span></code></pre>
+<p>另外，创建完<code>MQClientInstance</code>实例，还要把该Producer注册进实例当中，<code>key</code>为<strong>生产者组名</strong>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//4.注册当前生产者至MQClientInstance管理之中</span></span>
+<span class="line"><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> registerOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mQClientFactory.</span><span style="color:#B392F0">registerProducer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<h2 id="23-启动">2.3 启动</h2>
+<p>通过<code>MQClientInstance</code>启动。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() throws MQClientException {</span></span>
+<span class="line"><span style="color:#F97583">    synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.serviceState) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> CREATE_JUST</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.serviceState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceState.START_FAILED;</span></span>
+<span class="line"><span style="color:#6A737D">                // If not specified,looking address from name server</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.clientConfig.</span><span style="color:#B392F0">getNamesrvAddr</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.mQClientAPIImpl.</span><span style="color:#B392F0">fetchNameServerAddr</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                // Start request-response channel</span></span>
+<span class="line"><span style="color:#6A737D">                //mQClientAPIImpl其实是个NettyRemotingClient代理</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.mQClientAPIImpl.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // Start various schedule tasks</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">startScheduledTask</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // Start pull service</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.pullMessageService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // Start rebalance service</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.rebalanceService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // Start push service</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getDefaultMQProducerImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the client factory [{}] start OK"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.clientId);</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.serviceState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceState.RUNNING;</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> START_FAILED</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The Factory object["</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getClientId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "] has been created before, and failed."</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="3-消息发送流程">3 消息发送流程</h1>
+<p><code>DefaultMQProducerImpl</code>中的<code>sendDefaultImpl()</code>是生产者消息发送的<code>核心方法</code>。</p>
+<p>我们从开头给的例子中send()方法出发。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg);</span></span></code></pre>
+<p>依次经过<code>DefaultMQProducer#send</code>、<code>DefaultMQProducerImpl#send()</code>、<code>DefaultMQProducerImpl#send()</code>、<code>DefaultMQProducerImpl#sendDefaultImpl()</code>。</p>
+<p>主要也是三个步骤：</p>
+<ul>
+<li>验证消息</li>
+<li>查找路由</li>
+<li>选择队列</li>
+<li>消息发送</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMQProducerImpl</span><span style="color:#F97583">  implements</span><span style="color:#B392F0"> MQProducerInner</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> SendResult </span><span style="color:#B392F0">sendDefaultImpl</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">            Message </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> CommunicationMode </span><span style="color:#FFAB70">communicationMode</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> SendCallback </span><span style="color:#FFAB70">sendCallback</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> timeout</span></span>
+<span class="line"><span style="color:#E1E4E8">    ) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> MQClientException, RemotingException, MQBrokerException, InterruptedException {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">makeSureStateOK</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //1. 验证消息</span></span>
+<span class="line"><span style="color:#E1E4E8">        Validators.</span><span style="color:#B392F0">checkMessage</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer);</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> invokeID </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> random.</span><span style="color:#B392F0">nextLong</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> beginTimestampFirst </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> beginTimestampPrev </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beginTimestampFirst;</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> endTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beginTimestampFirst;</span></span>
+<span class="line"><span style="color:#6A737D">        //2. 查找路由</span></span>
+<span class="line"><span style="color:#E1E4E8">        TopicPublishInfo topicPublishInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">tryToFindTopicPublishInfo</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (topicPublishInfo </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> topicPublishInfo.</span><span style="color:#B392F0">ok</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            boolean</span><span style="color:#E1E4E8"> callTimeout </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            MessageQueue mq </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            Exception exception </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            int</span><span style="color:#E1E4E8"> timesTotal </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> communicationMode </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> CommunicationMode.SYNC </span><span style="color:#F97583">?</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getRetryTimesWhenSendFailed</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            int</span><span style="color:#E1E4E8"> times </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            String</span><span style="color:#E1E4E8">[] brokersSent </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[timesTotal];</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (; times </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> timesTotal; times</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                String lastBrokerName </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> mq </span><span style="color:#F97583">?</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //3. 选择队列</span></span>
+<span class="line"><span style="color:#E1E4E8">                MessageQueue mqSelected </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">selectOneMessageQueue</span><span style="color:#E1E4E8">(topicPublishInfo, lastBrokerName);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (mqSelected </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    mq </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mqSelected;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    brokersSent[times] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        beginTimestampPrev </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (times </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                            //Reset topic with namespace during resend.</span></span>
+<span class="line"><span style="color:#E1E4E8">                            msg.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">withNamespace</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#F97583">                        long</span><span style="color:#E1E4E8"> costTime </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beginTimestampPrev </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTimestampFirst;</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (timeout </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> costTime) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            callTimeout </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        //4. 消息发送</span></span>
+<span class="line"><span style="color:#E1E4E8">                        sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">sendKernelImpl</span><span style="color:#E1E4E8">(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> costTime);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        endTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">updateFaultItem</span><span style="color:#E1E4E8">(mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">(), endTimestamp </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTimestampPrev, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                        switch</span><span style="color:#E1E4E8"> (communicationMode) {</span></span>
+<span class="line"><span style="color:#F97583">                            case</span><span style="color:#E1E4E8"> ASYNC</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                                return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                            case</span><span style="color:#E1E4E8"> ONEWAY</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                                return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                            case</span><span style="color:#E1E4E8"> SYNC</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                                if</span><span style="color:#E1E4E8"> (sendResult.</span><span style="color:#B392F0">getSendStatus</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> SendStatus.SEND_OK) {</span></span>
+<span class="line"><span style="color:#F97583">                                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">isRetryAnotherBrokerWhenNotStoreOK</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                                        continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                                return</span><span style="color:#E1E4E8"> sendResult;</span></span>
+<span class="line"><span style="color:#F97583">                            default:</span></span>
+<span class="line"><span style="color:#F97583">                                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#6A737D">                        //.......................省略</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //.......................省略</span></span>
+<span class="line"><span style="color:#B392F0">        validateNameServerSetting</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No route info of this topic: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> FAQUrl.</span><span style="color:#B392F0">suggestTodo</span><span style="color:#E1E4E8">(FAQUrl.NO_TOPIC_ROUTE_INFO),</span></span>
+<span class="line"><span style="color:#79B8FF">                null</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">setResponseCode</span><span style="color:#E1E4E8">(ClientErrorCode.NOT_FOUND_TOPIC_EXCEPTION);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="31-验证消息">3.1 验证消息</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Validators</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> checkMessage</span><span style="color:#E1E4E8">(Message </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">, DefaultMQProducer </span><span style="color:#FFAB70">defaultMQProducer</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> MQClientException {</span></span>
+<span class="line"><span style="color:#6A737D">        //1. 是否为空消息</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> msg) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(ResponseCode.MESSAGE_ILLEGAL, </span><span style="color:#9ECBFF">"the message is null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 2. 验证主题合法性</span></span>
+<span class="line"><span style="color:#E1E4E8">        Validators.</span><span style="color:#B392F0">checkTopic</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //3. 该主题是否存在于不允许客户端发送消息的主题集合当中</span></span>
+<span class="line"><span style="color:#E1E4E8">        Validators.</span><span style="color:#B392F0">isNotAllowedSendTopic</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 4. 消息本身合法性验证，包括是否为空，长度是否为0，是否超长</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(ResponseCode.MESSAGE_ILLEGAL, </span><span style="color:#9ECBFF">"the message body is null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">0</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">().length) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(ResponseCode.MESSAGE_ILLEGAL, </span><span style="color:#9ECBFF">"the message body length is zero"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">().length </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> defaultMQProducer.</span><span style="color:#B392F0">getMaxMessageSize</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(ResponseCode.MESSAGE_ILLEGAL,</span></span>
+<span class="line"><span style="color:#9ECBFF">                    "the message body size over max value, MAX: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> defaultMQProducer.</span><span style="color:#B392F0">getMaxMessageSize</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="32-查找路由">3.2 查找路由</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> TopicPublishInfo </span><span style="color:#B392F0">tryToFindTopicPublishInfo</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String topic) {</span></span>
+<span class="line"><span style="color:#6A737D">    //1. 本地缓存中是否有该主题的路由信息</span></span>
+<span class="line"><span style="color:#E1E4E8">    TopicPublishInfo topicPublishInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.topicPublishInfoTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#6A737D">    //2. 没有，则从NameServer中拉取并缓存</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> topicPublishInfo </span><span style="color:#F97583">||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">topicPublishInfo.</span><span style="color:#B392F0">ok</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.topicPublishInfoTable.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(topic, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> TopicPublishInfo</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //这里面会更新 TopicPublishInfo</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">updateTopicRouteInfoFromNameServer</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#E1E4E8">        topicPublishInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.topicPublishInfoTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (topicPublishInfo.</span><span style="color:#B392F0">isHaveTopicRouterInfo</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> topicPublishInfo.</span><span style="color:#B392F0">ok</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> topicPublishInfo;</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">updateTopicRouteInfoFromNameServer</span><span style="color:#E1E4E8">(topic, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer);</span></span>
+<span class="line"><span style="color:#E1E4E8">        topicPublishInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.topicPublishInfoTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> topicPublishInfo;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="33-选择队列">3.3 选择队列</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TopicPublishInfo</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //默认不启用Broker故障延迟机制</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#B392F0">selectOneMessageQueue</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">lastBrokerName</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //第一次选择队列（非重试）</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (lastBrokerName </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#B392F0"> selectOneMessageQueue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //sendWhichQueue</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageQueueList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.sendWhichQueue.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //遍历消息队列集合</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> pos </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">abs</span><span style="color:#E1E4E8">(index) </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageQueueList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (pos </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    pos </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //规避上次Broker队列</span></span>
+<span class="line"><span style="color:#E1E4E8">                MessageQueue mq </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageQueueList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(pos);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(lastBrokerName)) {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> mq;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //如果以上情况都不满足,返回sendWhichQueue取模后的队列</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#B392F0"> selectOneMessageQueue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //第一次选择队列</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#B392F0">selectOneMessageQueue</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //sendWhichQueue自增</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.sendWhichQueue.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //对队列大小取模</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> pos </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">abs</span><span style="color:#E1E4E8">(index) </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageQueueList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (pos </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            pos </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //返回对应的队列</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageQueueList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(pos);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="331-选择策略">3.3.1 选择策略</h3>
+<h4 id="3311-默认策略-轮询">3.3.1.1 默认策略-轮询</h4>
+<p>采用了最简单的<code>轮询算法</code>，这种算法有个很好的特性就是，保证每一个Queue队列的消息投递数量<code>尽可能均匀</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-roundRobin.png" alt="默认走轮询"></p>
+<blockquote>
+<p>代码见3.3节：<code>selectOneMessageQueue()</code>。</p>
+</blockquote>
+<p>有一个注意的地方就是<code>计数器</code>使用了线程的<code>ThreadLocal</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> volatile</span><span style="color:#E1E4E8"> ThreadLocalIndex sendWhichQueue </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ThreadLocalIndex</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ThreadLocalIndex</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ThreadLocal&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> threadLocalIndex </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ThreadLocal&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Random random </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Random</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> getAndIncrement</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //..............</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //..............</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>因为本身消息的生产就可以多线程进行，所以当然要基于<code>线程的上下文</code>来计数递增。</p>
+<h4 id="3312-带有规避机制的策略">3.3.1.2 带有规避机制的策略</h4>
+<p>默认的投递方式比较简单，但是也暴露了一个问题：</p>
+<blockquote>
+<p>有些Queue队列可能由于自身数量积压等原因，可能在投递的过程比较长，对于这样的Queue队列会影响后续投递的效果。</p>
+</blockquote>
+<p>基于这种现象，RocketMQ在每发送一个MQ消息后，都会<code>统计</code>一下消息投递的<code>时间延迟</code>，根据这个时间延迟，可以知道往哪些Queue队列投递的速度快。</p>
+<p>在这种场景下，会优先使用消息投递延迟最小的策略，如果没有生效，再使用Queue队列轮询的方式。</p>
+<p>统计一下消息投递的时间延迟：<code>org.apache.rocketmq.client.latency.MQFaultStrategy#updateFaultItem</code>的实现。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//MQFaultStrategy</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MQFaultStrategy</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> updateFaultItem</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">brokerName</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> currentLatency</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">boolean</span><span style="color:#FFAB70"> isolation</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sendLatencyFaultEnable) {</span></span>
+<span class="line"><span style="color:#6A737D">            //isolation为false，则结果为实际的时长、否则为默认的30s</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> duration </span><span style="color:#F97583">=</span><span style="color:#B392F0"> computeNotAvailableDuration</span><span style="color:#E1E4E8">(isolation </span><span style="color:#F97583">?</span><span style="color:#79B8FF"> 30000</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> currentLatency);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.latencyFaultTolerance.</span><span style="color:#B392F0">updateFaultItem</span><span style="color:#E1E4E8">(brokerName, currentLatency, duration);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> currentLatency</span><span style="color:#6A737D"> 延迟时长</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> 不可用时长</span></span>
+<span class="line"><span style="color:#6A737D">     * @description 发送延时latencyMax：50L,100L,550L,1000L,2000L,3000L,15000L</span></span>
+<span class="line"><span style="color:#6A737D">     * 故障规避notAvailableDuration：0L,0L,30000L,60000L,120000L,180000L,600000L</span></span>
+<span class="line"><span style="color:#6A737D">     * 假如：消息发送时长为100ms，则mq认为broker不可用的时长为0ms;</span></span>
+<span class="line"><span style="color:#6A737D">     * 假如：消息发送时长为600ms，则mq认为broker不可用的时长为30000ms;</span></span>
+<span class="line"><span style="color:#6A737D">     * 假如：消息发送时长为4000ms，则mq认为broker不可用的时长为180000ms;</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> long</span><span style="color:#B392F0"> computeNotAvailableDuration</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> currentLatency</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> latencyMax.length </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (currentLatency </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> latencyMax[i]) {</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.notAvailableDuration[i];</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-latency.png" alt="更新消息投递延迟"></p>
+<p>这里的操作大概如下：</p>
+<ul>
+<li>根据消息发送时长(currentLatency)，计算broker不可用时长(duration)，即如果消息发送时间越久，mq会认为broker不可用的时长越久，broker不可用时长是个<code>经验值</code>，如果传入isolation为true，表示默认当前发送时长为30000ms，即broker不可用时长为600000ms。</li>
+</ul>
+<blockquote>
+<p>为啥broker不可用是600s？
+发送延时latencyMax数组：50L,100L,550L,1000L,2000L,3000L,15000L
+故障规避notAvailableDuration数组：0L,0L,30000L,60000L,120000L,180000L,600000L，根据代码可得：</p>
+<ul>
+<li>假如：消息发送时长为<code>100ms</code>，则mq认为broker不可用的时长为<code>0ms</code>;</li>
+<li>假如：消息发送时长为<code>600ms</code>，则mq认为broker不可用的时长为<code>30000ms</code>;</li>
+<li>假如：消息发送时长为<code>4000ms</code>，则mq认为broker不可用的时长为<code>180000ms</code>;</li>
+<li>现在，消息发送市场为<code>30000ms</code>，则对应的broker不可用时长为<code>600000ms</code>，即<code>600s</code>，<code>10分钟</code>。</li>
+</ul>
+</blockquote>
+<ul>
+<li>调用<code>latencyFaultTolerance.updateFaultItem</code>更新broker异常容错信息。</li>
+</ul>
+<p>这个方法最终会往一个<code>ConcurrentHashMap</code>表中写每台broker的延时、<code>key</code>是<code>brokerName</code>，<code>value</code>是<code>FaultItem</code>，包含broker的<code>发送时长</code>、<code>恢复可用的时间点</code>。</p>
+<p>broker的预计恢复正常时间为：<code>当前时间</code> + <code>不可用时长</code>，即<code>System.currentTimeMillis() + notAvailableDuration</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> LatencyFaultToleranceImpl</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> LatencyFaultTolerance</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#6A737D">    //缓存broker对应的发送时长、恢复可用的时间点</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">FaultItem</span><span style="color:#E1E4E8">> faultItemTable </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">FaultItem</span><span style="color:#E1E4E8">>(</span><span style="color:#79B8FF">16</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ThreadLocalIndex whichItemWorst </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ThreadLocalIndex</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> updateFaultItem</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> currentLatency</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> notAvailableDuration</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        FaultItem old </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.faultItemTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(name);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> old) {</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> FaultItem faultItem </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> FaultItem</span><span style="color:#E1E4E8">(name);</span></span>
+<span class="line"><span style="color:#E1E4E8">            faultItem.</span><span style="color:#B392F0">setCurrentLatency</span><span style="color:#E1E4E8">(currentLatency);</span></span>
+<span class="line"><span style="color:#6A737D">            //broker 恢复可用的时间点</span></span>
+<span class="line"><span style="color:#E1E4E8">            faultItem.</span><span style="color:#B392F0">setStartTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> notAvailableDuration);</span></span>
+<span class="line"><span style="color:#6A737D">            //保存每台broker的延时、key是brokerName，value是currentLatency(延时)。</span></span>
+<span class="line"><span style="color:#E1E4E8">            old </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.faultItemTable.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(name, faultItem);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (old </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                old.</span><span style="color:#B392F0">setCurrentLatency</span><span style="color:#E1E4E8">(currentLatency);</span></span>
+<span class="line"><span style="color:#E1E4E8">                old.</span><span style="color:#B392F0">setStartTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> notAvailableDuration);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            old.</span><span style="color:#B392F0">setCurrentLatency</span><span style="color:#E1E4E8">(currentLatency);</span></span>
+<span class="line"><span style="color:#E1E4E8">            old.</span><span style="color:#B392F0">setStartTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> notAvailableDuration);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>因此<code>LatencyFaultToleranceImpl#isAvailable</code>判断broker是否预计可用的实现也很清晰了：</p>
+<blockquote>
+<p>只要<code>当前时间>startTimestamp</code>，即表示该broker正常了(逻辑意义上的正常，预计broker会在这个时间点后恢复正常)。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-latencyFault.png" alt="故障规避启用后的broker队列选择逻辑"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//LatencyFaultToleranceImpl</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isAvailable</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String name) {</span></span>
+<span class="line"><span style="color:#F97583">final</span><span style="color:#E1E4E8"> FaultItem faultItem </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.faultItemTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(name);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (faultItem </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> faultItem.</span><span style="color:#B392F0">isAvailable</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//FaultItem</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isAvailable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> (System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> startTimestamp) </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>总结下带有故障规避策略的整体实现思路</strong>：</p>
+<ul>
+<li>在消息发送失败，mq根据消息发送耗时来<code>预测该broker不可用的时长</code>，并将<code>broker名称</code>，<code>发送时长</code>及<code>预计恢复时间点</code>，存储于<code>ConcurrentHashMap</code>类型的<code>faultItemTable</code>中；</li>
+<li>在开启消息容错后，选择消息队列时，会根据<code>当前时间</code>与FaultItem中该broker的<code>预计恢复时间点</code>做比较，若<code>(System.currentTimeMillis() - startTimestamp) >= 0</code>，则预计该broker恢复正常，选择该broker的消息队列；</li>
+<li>若所有的broker都预计不可用，<code>随机选择</code>一个不可用的broker，从路由信息中选择下一个消息队列，重置其brokerName，queueId，进行消息发送。</li>
+</ul>
+<h4 id="3313-选择队列策略的对比">3.3.1.3 选择队列策略的对比</h4>
+<p>在<code>默认队列选择机制</code>下，会<code>随机选择</code>一个MessageQueue，若发送失败，<code>轮询</code>队列重新进行重试发送(屏蔽单次发送中不可用的broker)，同步模式下默认失败时<code>重试发送2次</code>，但它的问题就是消息发送很大可能再次失败，引发再次重复失败，带来不必要的性能损耗。</p>
+<p>在<code>开启故障延迟机制</code>后，消息队列选择时，会在一段时间内<strong>过滤</strong>掉RocketMQ认为<strong>不可用的broker</strong>，以此来避免不断向宕机的broker发送消息，从而实现消息发送<code>高可用</code>。</p>
+<blockquote>
+<p>这两个策略没有绝对的好与坏，个人认为，如果在工作中选择，应该是看<code>网络环境</code>和<code>服务器的环境</code>。</p>
+<ul>
+<li>如果是网络和服务器环境比较好，那么我推荐<code>默认策略</code>，毕竟重试的次数和几率比较小。</li>
+<li>如果是网络和服务器环境压力比较大，推荐使用<code>故障延迟机制</code>。</li>
+</ul>
+</blockquote>
+<h2 id="34-消息发送">3.4 消息发送</h2>
+<p>会经历很多方法，但最终还是会调用<code>NettyRemotingClient</code>中的发送方法，选择<code>同步发送</code>、<code>异步发送</code>、<code>oneway</code>发送其中之一。2.3节提到过，<code>mQClientAPIImpl</code>其实是个<code>NettyRemotingClient</code>代理。前者封装了很多API供生产者和消费者调用。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

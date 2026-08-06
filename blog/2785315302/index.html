@@ -1,0 +1,101 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】12.整数转罗马数字</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】12.整数转罗马数字 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/10/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>罗马数字包含以下七种字符： <code>I</code>， <code>V</code>， <code>X</code>， <code>L</code>，<code>C</code>，<code>D</code> 和 <code>M</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>字符          数值</span></span>
+<span class="line"><span>I             1</span></span>
+<span class="line"><span>V             5</span></span>
+<span class="line"><span>X             10</span></span>
+<span class="line"><span>L             50</span></span>
+<span class="line"><span>C             100</span></span>
+<span class="line"><span>D             500</span></span>
+<span class="line"><span>M             1000</span></span></code></pre>
+<p>例如， 数字 <code>2</code> 写做 <code>II</code> ，即为两个并列的 1。<code>12</code> 写做 <code>XII</code> ，即为 <code>X + II </code>。 <code>27</code> 写做  <code>XXVII</code>, 即为 <code>XX + V + II</code> 。</p>
+<p>通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如 <code>4</code> 不写做 <code>IIII</code>，而是 <code>IV</code>。数字 1 在数字 5 的左边，所表示的数等于大数 5 减小数 1 得到的数值 4 。同样地，数字 <code>9</code> 表示为 <code>IX</code>。这个特殊的规则只适用于以下六种情况：</p>
+<ul>
+<li>I 可以放在 V (5) 和 X (10) 的左边，来表示 4 和 9。</li>
+<li>X 可以放在 L (50) 和 C (100) 的左边，来表示 40 和 90。</li>
+<li>C 可以放在 D (500) 和 M (1000) 的左边，来表示 400 和 900。</li>
+</ul>
+<p>给你一个整数，将其转为罗马数字。</p>
+<h2 id="示例-1">示例 1</h2>
+<blockquote>
+<p>输入: num = 3
+输出: “III”</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: num = 4
+输出: “IV”</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入: num = 9
+输出: “IX”</p>
+</blockquote>
+<h2 id="示例-4">示例 4</h2>
+<blockquote>
+<p>输入: num = 58
+输出: “LVIII”
+解释: L = 50, V = 5, III = 3.</p>
+</blockquote>
+<h2 id="示例-5">示例 5</h2>
+<blockquote>
+<p>输入: num = 1994
+输出: “MCMXCIV”
+解释: M = 1000, CM = 900, XC = 90, IV = 4.</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>1 &#x3C;= num &#x3C;= 3999</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>以题目中num的界限为基准，阿拉伯数字的表示形式为：
+<code>num=a*1000+b*100+c*10+d</code>.</p>
+<h2 id="21-解法一">2.1 解法一</h2>
+<p>类似阿拉伯数字的表示形式，罗马的表示形式可以为：
+<code>num=a*M+b*C+c*X(或c*L)+d*I</code>，但是有所不同的是，对于百位和十位，罗马数字有不同的表示方式，因而我们可以把各个位上的基础数字表示完整，通过阿拉伯数字的表示形式，计算出各个位的有多少因子即可。</p>
+<p>比如：百位的基数罗马数字可以用String数组表示：
+<code>String[] hrns = {"","C","CC","CCC","CD","D","DC","DCC","DCCC","CM"};</code>。</p>
+<p><code>hrns</code>可以将百位上的数表示完整，即100、200、300、…、900，<code>hrns[0]</code>表明百位上可能为0。其他位类似表示。</p>
+<p>详见代码中的解法一。</p>
+<h2 id="22-解法二">2.2 解法二</h2>
+<p>类似2.1中的表示形式，我们可以列举出罗马数字的所有基础数字，即：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] strs </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"M"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"CM"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"D"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"CD"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"C"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"XC"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"L"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"XL"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"X"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"IX"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"V"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"IV"</span><span style="color:#E1E4E8">,</span><span style="color:#9ECBFF">"I"</span><span style="color:#E1E4E8">};</span></span></code></pre>
+<p>表示数字为1000，900，500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1。罗马数字只能由<code>strs</code>数组中的字符表示出来。</p>
+<p>因而，我们可以把数字表示成：有几个M，有几个CM，…, 以此类推。只是这里可以通过减法去做。</p>
+<p>详见代码中的解法二。</p>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //0-9 d</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] ones </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"I"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"II"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"III"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"IV"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"V"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"VI"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"VII"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"VIII"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"IX"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">    //10-90 c</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] tens </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"X"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XXX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XL"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"L"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"LX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"LXX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"LXXX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XC"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">    //100-900 b</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] hrns </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"C"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CCC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CD"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"D"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"DC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"DCC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"DCCC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CM"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">    //1000-3000 a</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] ths </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"M"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"MM"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"MMM"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //    解法一</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">intToRoman2</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> num</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //num=a*1000+b*100+c*10+d</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> ths[num </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> hrns[(num </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 1000</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> tens[(num </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> ones[num </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //    解法二</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">intToRoman</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> num</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8">[] values </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">900</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">500</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">400</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">90</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">50</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">40</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">9</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#F97583">        String</span><span style="color:#E1E4E8">[] strs </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span><span style="color:#9ECBFF">"M"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CM"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"D"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"CD"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"C"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"L"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"XL"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"X"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"IX"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"V"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"IV"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"I"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        StringBuilder sb </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StringBuilder</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> values.length; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (num </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> values[i]) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                num </span><span style="color:#F97583">-=</span><span style="color:#E1E4E8"> values[i];</span></span>
+<span class="line"><span style="color:#E1E4E8">                sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(strs[i]);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sb.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

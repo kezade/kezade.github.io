@@ -1,0 +1,339 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】Spring集成MyBatis的原理分析</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】Spring集成MyBatis的原理分析 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring Boot</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="前言">前言</h1>
+<p>上一章中{%post_link ‘【Mybatis源码学习】Mybatis与Spring整合’%}，我们介绍了Mybatis与Spring、Spring Boot的融合，其中我们提到了mybatis-spring中的几个关键类，本章我们来跟踪下这几个关键类的源码，看看它们干了些啥.</p>
+<h1 id="一源码下载">一、源码下载</h1>
+<p>和mybatis源码下载一样，从GitHub下载好后，本地打包部署一下，方便我们后面进行测试时方便查看。源码地址：<a href="https://github.com/mybatis/spring">这里是MyBatis-Spring源码地址</a>.</p>
+<h1 id="二核心类源码解析">二、核心类源码解析</h1>
+<p>先来回顾下核心类的功能：</p>
+<ul>
+<li>SqlSessionFactoryBean：用于创建SqlSessionFactory；</li>
+<li>MapperScannerConfigurer：自动扫描所有的 Mapper 接口，使用时可以直接注入接口。</li>
+</ul>
+<h2 id="1sqlsessionfactorybean">1.SqlSessionFactoryBean</h2>
+<p>(1) UML
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324100712686.png" alt="&#x22;SqlSessionFactoryBean&#x22;">
+(2) 配置和源码解析
+通常我们在项目中整合Spring和mybatis时，Spring相关的配置文件会包含：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#6A737D">&#x3C;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.spring.SqlSessionFactoryBean"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#B392F0"> ref</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"typeAliasesPackage"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.entity"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"mapperLocations"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"classpath:sqlmapper/*.xml"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>并且dataSource必须配置，我们可以从方法afterPropertiesSet()看出来：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">   * 在spring容器中创建全局唯一的sqlSessionFactory</span></span>
+<span class="line"><span style="color:#6A737D">   *</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@throws</span><span style="color:#B392F0"> Exception</span><span style="color:#6A737D"> 异常</span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> afterPropertiesSet</span><span style="color:#E1E4E8">() throws Exception {</span></span>
+<span class="line"><span style="color:#6A737D">    //数据源不能为空</span></span>
+<span class="line"><span style="color:#B392F0">    notNull</span><span style="color:#E1E4E8">(dataSource, </span><span style="color:#9ECBFF">"Property 'dataSource' is required"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //sqlSessionFactoryBuilder不能为空，但初始化SqlSessionFactoryBean完，sqlSessionFactoryBuilder已经创建了</span></span>
+<span class="line"><span style="color:#B392F0">    notNull</span><span style="color:#E1E4E8">(sqlSessionFactoryBuilder, </span><span style="color:#9ECBFF">"Property 'sqlSessionFactoryBuilder' is required"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">    state</span><span style="color:#E1E4E8">((configuration </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> configLocation </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">(configuration </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> configLocation </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#9ECBFF">              "Property 'configuration' and 'configLocation' can not specified with together"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.sqlSessionFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> buildSqlSessionFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<p>接下来，看看方法。主要功能构建和丰富Configuration，并创建sqlSessionFactory.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">   * Build a {@code SqlSessionFactory} instance.</span></span>
+<span class="line"><span style="color:#6A737D">   *</span></span>
+<span class="line"><span style="color:#6A737D">   * The default implementation uses the standard MyBatis {@code XMLConfigBuilder} API to build a</span></span>
+<span class="line"><span style="color:#6A737D">   * {@code SqlSessionFactory} instance based on an Reader.</span></span>
+<span class="line"><span style="color:#6A737D">   * Since 1.3.0, it can be specified a {@link Configuration} instance directly(without config file).</span></span>
+<span class="line"><span style="color:#6A737D">   *</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> SqlSessionFactory</span></span>
+<span class="line"><span style="color:#6A737D">   * </span><span style="color:#F97583">@throws</span><span style="color:#B392F0"> IOException</span><span style="color:#6A737D"> if loading the config file failed</span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#F97583">  protected</span><span style="color:#E1E4E8"> SqlSessionFactory </span><span style="color:#B392F0">buildSqlSessionFactory</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Configuration configuration;</span></span>
+<span class="line"><span style="color:#E1E4E8">    XMLConfigBuilder xmlConfigBuilder </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">    //如果configuration不为空，则使用该对象，并对其进行配置</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configuration </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.configuration;</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (configuration.</span><span style="color:#B392F0">getVariables</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">setVariables</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">getVariables</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">putAll</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#6A737D">      //创建xmlConfigBuilder，读取mybatis的核心配置文件</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configLocation </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      xmlConfigBuilder </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLConfigBuilder</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configLocation.</span><span style="color:#B392F0">getInputStream</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> xmlConfigBuilder.</span><span style="color:#B392F0">getConfiguration</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">      //如果configuration为空，实例化一个configuration对象</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Property 'configuration' or 'configLocation' not specified, using default MyBatis Configuration"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Configuration</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">setVariables</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.configurationProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //设置objectFactory</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.objectFactory </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration.</span><span style="color:#B392F0">setObjectFactory</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.objectFactory);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //设置objectWrapperFactory</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.objectWrapperFactory </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration.</span><span style="color:#B392F0">setObjectWrapperFactory</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.objectWrapperFactory);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //设置vfs</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.vfs </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration.</span><span style="color:#B392F0">setVfsImpl</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.vfs);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //扫描指定的包typeAliasesPackage，注册别名</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">hasLength</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeAliasesPackage)) {</span></span>
+<span class="line"><span style="color:#F97583">      String</span><span style="color:#E1E4E8">[] typeAliasPackageArray </span><span style="color:#F97583">=</span><span style="color:#B392F0"> tokenizeToStringArray</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeAliasesPackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (String packageToScan </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> typeAliasPackageArray) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">getTypeAliasRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">registerAliases</span><span style="color:#E1E4E8">(packageToScan, typeAliasesSuperType </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> Object.class </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> typeAliasesSuperType);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Scanned package: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> packageToScan </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' for aliases"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //为typeAliases指定的类注册别名</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeAliases)) {</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> typeAlias </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.typeAliases) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">getTypeAliasRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">registerAlias</span><span style="color:#E1E4E8">(typeAlias);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Registered type alias: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> typeAlias </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //注册插件</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.plugins)) {</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (Interceptor plugin </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.plugins) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">addInterceptor</span><span style="color:#E1E4E8">(plugin);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Registered plugin: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> plugin </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //扫描指定的包typeHandlersPackage，注册类型解析器</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">hasLength</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeHandlersPackage)) {</span></span>
+<span class="line"><span style="color:#F97583">      String</span><span style="color:#E1E4E8">[] typeHandlersPackageArray </span><span style="color:#F97583">=</span><span style="color:#B392F0"> tokenizeToStringArray</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeHandlersPackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (String packageToScan </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> typeHandlersPackageArray) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">getTypeHandlerRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(packageToScan);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Scanned package: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> packageToScan </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' for type handlers"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //为typeHandlers指定的类注册类型解析器</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.typeHandlers)) {</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (TypeHandler&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> typeHandler </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.typeHandlers) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">getTypeHandlerRegistry</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(typeHandler);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Registered type handler: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> typeHandler </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //配置databaseIdProvider</span></span>
+<span class="line"><span style="color:#6A737D">    //fix #64 set databaseId before parse mapper xmls</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.databaseIdProvider </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">setDatabaseId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.databaseIdProvider.</span><span style="color:#B392F0">getDatabaseId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.dataSource));</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (SQLException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NestedIOException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed getting a databaseId"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //配置缓存</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.cache </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration.</span><span style="color:#B392F0">addCache</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.cache);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //使用xmlConfigBuilder读取mybatis的核心配置文件</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (xmlConfigBuilder </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        xmlConfigBuilder.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Parsed configuration file: '"</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.configLocation </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NestedIOException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to parse config resource: "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.configLocation, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //默认使用SpringManagedTransactionFactory作为事务管理器</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.transactionFactory </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">      this</span><span style="color:#E1E4E8">.transactionFactory </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SpringManagedTransactionFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //设置Environment</span></span>
+<span class="line"><span style="color:#E1E4E8">    configuration.</span><span style="color:#B392F0">setEnvironment</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Environment</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.environment, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.transactionFactory, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.dataSource));</span></span>
+<span class="line"><span style="color:#6A737D">    //根据mapperLocations的配置，处理映射配置文件以及相应的mapper接口</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mapperLocations)) {</span></span>
+<span class="line"><span style="color:#F97583">      for</span><span style="color:#E1E4E8"> (Resource mapperLocation </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mapperLocations) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (mapperLocation </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">          continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          XMLMapperBuilder xmlMapperBuilder </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLMapperBuilder</span><span style="color:#E1E4E8">(mapperLocation.</span><span style="color:#B392F0">getInputStream</span><span style="color:#E1E4E8">(), configuration, mapperLocation.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">(), configuration.</span><span style="color:#B392F0">getSqlFragments</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">          xmlMapperBuilder.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">          throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NestedIOException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to parse mapping resource: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mapperLocation </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Parsed mapper file: '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mapperLocation </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (LOGGER.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        LOGGER.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Property 'mapperLocations' was not specified or no matching resources found"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //最终使用sqlSessionFactoryBuilder创建sqlSessionFactory</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.sqlSessionFactoryBuilder.</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(configuration);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<p>最后一句</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.sqlSessionFactoryBuilder.</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(configuration);</span></span></code></pre>
+<p>是不是又回到了熟悉的地方。</p>
+<h2 id="2mapperscannerconfigurer">2.MapperScannerConfigurer</h2>
+<p>(1) UML
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324140422191.png" alt="&#x22;MapperScannerConfigurer UML&#x22;">
+(2) 配置和源码解析
+这里我们主要关注这个接口：BeanDefinitionRegistryPostProcessor
+MapperScannerConfigurer实现了BeanDefinitionRegistryPostProcessor接口，BeanDefinitionRegistryPostProcessor接口是一个可以修改spring工厂中已定义的bean的接口，该接口有个postProcessBeanDefinitionRegistry方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> postProcessBeanDefinitionRegistry</span><span style="color:#E1E4E8">(BeanDefinitionRegistry registry) {</span></span>
+<span class="line"><span style="color:#6A737D">  //占位符处理</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processPropertyPlaceHolders) {</span></span>
+<span class="line"><span style="color:#B392F0">    processPropertyPlaceHolders</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#6A737D">  //实例化ClassPathMapperScanner，并对scanner相关属性进行配置</span></span>
+<span class="line"><span style="color:#E1E4E8">  ClassPathMapperScanner scanner </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ClassPathMapperScanner</span><span style="color:#E1E4E8">(registry);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setAddToConfig</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.addToConfig);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setAnnotationClass</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.annotationClass);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setMarkerInterface</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.markerInterface);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setSqlSessionFactory</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactory);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setSqlSessionTemplate</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplate);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setSqlSessionFactoryBeanName</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactoryBeanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setSqlSessionTemplateBeanName</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplateBeanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setResourceLoader</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.applicationContext);</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">setBeanNameGenerator</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.nameGenerator);</span></span>
+<span class="line"><span style="color:#6A737D">  //根据上述配置，生成过滤器，只扫描合条件的class</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">registerFilters</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">  //扫描指定的包以及其子包</span></span>
+<span class="line"><span style="color:#E1E4E8">  scanner.</span><span style="color:#B392F0">scan</span><span style="color:#E1E4E8">(StringUtils.</span><span style="color:#B392F0">tokenizeToStringArray</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>点进去，看看ClassPathMapperScanner.scan()方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Calls the parent search that will search and register all the candidates.</span></span>
+<span class="line"><span style="color:#6A737D"> * Then the registered objects are post processed to set them as</span></span>
+<span class="line"><span style="color:#6A737D"> * MapperFactoryBeans</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Set</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">BeanDefinitionHolder</span><span style="color:#F97583">></span><span style="color:#B392F0"> doScan</span><span style="color:#E1E4E8">(String... basePackages) {</span></span>
+<span class="line"><span style="color:#6A737D">    //通过父类ClassPathBeanDefinitionScanner的扫描，获取所有复合条件的BeanDefinitionHolder对象</span></span>
+<span class="line"><span style="color:#E1E4E8">    Set&#x3C;</span><span style="color:#F97583">BeanDefinitionHolder</span><span style="color:#E1E4E8">> beanDefinitions </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">doScan</span><span style="color:#E1E4E8">(basePackages);</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (beanDefinitions.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No MyBatis mapper was found in '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> Arrays.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">(basePackages) </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' package. Please check your configuration."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //处理扫描得到的BeanDefinitionHolder集合，将集合中的每一个mapper接口转换成MapperFactoryBean后，注册至spring容器</span></span>
+<span class="line"><span style="color:#B392F0">        processBeanDefinitions</span><span style="color:#E1E4E8">(beanDefinitions);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> beanDefinitions;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * 处理扫描得到的BeanDefinitionHolder集合，将集合中的每一个mapper接口转换成MapperFactoryBean后，注册至spring容器</span></span>
+<span class="line"><span style="color:#6A737D"> *</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> beanDefinitions</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processBeanDefinitions</span><span style="color:#E1E4E8">(Set</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">BeanDefinitionHolder</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> beanDefinitions) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    GenericBeanDefinition definition;</span></span>
+<span class="line"><span style="color:#6A737D">    //遍历集合</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (BeanDefinitionHolder holder </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> beanDefinitions) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        definition </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (GenericBeanDefinition) holder.</span><span style="color:#B392F0">getBeanDefinition</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Creating MapperFactoryBean with name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> holder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">                    +</span><span style="color:#9ECBFF"> "' and '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> definition.</span><span style="color:#B392F0">getBeanClassName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' mapperInterface"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // the mapper interface is the original class of the bean</span></span>
+<span class="line"><span style="color:#6A737D">        // but, the actual class of the bean is MapperFactoryBean</span></span>
+<span class="line"><span style="color:#6A737D">        //增加一个构造方法，接口类型作为构造函数的入参</span></span>
+<span class="line"><span style="color:#E1E4E8">        definition.</span><span style="color:#B392F0">getConstructorArgumentValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">addGenericArgumentValue</span><span style="color:#E1E4E8">(definition.</span><span style="color:#B392F0">getBeanClassName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //将bean的类型转换成mapperFactoryBean</span></span>
+<span class="line"><span style="color:#E1E4E8">        definition.</span><span style="color:#B392F0">setBeanClass</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mapperFactoryBean.</span><span style="color:#B392F0">getClass</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //增加addToConfig属性</span></span>
+<span class="line"><span style="color:#E1E4E8">        definition.</span><span style="color:#B392F0">getPropertyValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"addToConfig"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.addToConfig);</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> explicitFactoryUsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //增加sqlSessionFactory属性</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactoryBeanName)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            definition.</span><span style="color:#B392F0">getPropertyValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> RuntimeBeanReference</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactoryBeanName));</span></span>
+<span class="line"><span style="color:#E1E4E8">            explicitFactoryUsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactory </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            definition.</span><span style="color:#B392F0">getPropertyValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionFactory);</span></span>
+<span class="line"><span style="color:#E1E4E8">            explicitFactoryUsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //增加sqlSessionTemplate属性</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplateBeanName)) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (explicitFactoryUsed) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            definition.</span><span style="color:#B392F0">getPropertyValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sqlSessionTemplate"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">new</span><span style="color:#B392F0"> RuntimeBeanReference</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplateBeanName));</span></span>
+<span class="line"><span style="color:#E1E4E8">            explicitFactoryUsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplate </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (explicitFactoryUsed) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                logger.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Cannot use both: sqlSessionTemplate and sqlSessionFactory together. sqlSessionFactory is ignored."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            definition.</span><span style="color:#B392F0">getPropertyValues</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"sqlSessionTemplate"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.sqlSessionTemplate);</span></span>
+<span class="line"><span style="color:#E1E4E8">            explicitFactoryUsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //修改自动注入的方式 bytype</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">explicitFactoryUsed) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isDebugEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                logger.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Enabling autowire by type for MapperFactoryBean with name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> holder.</span><span style="color:#B392F0">getBeanName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            definition.</span><span style="color:#B392F0">setAutowireMode</span><span style="color:#E1E4E8">(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>注释已经写得很清楚了，这里再看看MapperFactoryBean.
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210324144607379.png" alt="MapperFactoryBean">
+其继承了SqlSessionDaoSupport类，SqlSessionDaoSupport类继承DaoSupport抽象类，DaoSupport抽象类实现了InitializingBean接口，因此实例一个MapperFactoryBean的时候，都会调用InitializingBean接口的afterPropertiesSet方法。而MapperFactoryBean也重写了：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * MapperFactoryBean在容器初始化时，要确保mapper接口被注册到mapperRegistry</span></span>
+<span class="line"><span style="color:#6A737D"> * {@inheritDoc}</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> checkDaoConfig</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">  super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkDaoConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">  notNull</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mapperInterface, </span><span style="color:#9ECBFF">"Property 'mapperInterface' is required"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">  //通过SqlSession从容器中拿到configuration</span></span>
+<span class="line"><span style="color:#E1E4E8">  Configuration configuration </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSqlSession</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getConfiguration</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.addToConfig </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">configuration.</span><span style="color:#B392F0">hasMapper</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mapperInterface)) {</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  	//如果mapperRegistry中不包含当前接口的动态代理工厂，则添加一个</span></span>
+<span class="line"><span style="color:#E1E4E8">      configuration.</span><span style="color:#B392F0">addMapper</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mapperInterface);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      logger.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error while adding the mapper '"</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mapperInterface </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' to configuration."</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#F97583">      throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#E1E4E8">(e);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>看到configuration.addMapper()方法，是不是又想起了configuration熟悉的味道了。</p>
+<p>MapperScannerConfigurer在Spring配置文件中的应用如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#6A737D">&#x3C;!-- DAO接口所在包名，Spring会自动查找其下的类 --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.spring.mapper.MapperScannerConfigurer"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- 可以使用分号或逗号作为分隔符设置多于一个的包路径 --></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"basePackage"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.mapper"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- optional unless there are multiple session factories defined --></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactoryBeanName"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>作用很简单，扫描特定目录下的所有mapper.java，生成MapperFactoryBean，然后创建动态代理工厂类MapperProxyFactory，并注册至mapperRegistry当中。使用时依赖注入即可。
+当然，如果只有一个mapper，我们也可以这样配置：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"tUserMapper"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.spring.mapper.MapperFactoryBean"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"mapperInterface"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.mapper.TUserMapper"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#B392F0"> ref</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>但是，一般项目中mapper肯定不止一个，一旦新增了一个新的mapper，我们就需要配置很多个这样子的bean，MapperScannerConfigurer帮我们解决了这样的问题。</p>
+<p>sqlSessionFactoryBeanName非必填，但是如果是多数据源的环境，就必须配置好。注意 bean 的<strong>名称name</strong>是<strong>必须</strong>的,而不是 bean 的引用,因此,value 属性在这里替代通常的ref。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

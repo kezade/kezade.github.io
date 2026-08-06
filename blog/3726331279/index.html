@@ -1,0 +1,122 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】114.二叉树展开为链表</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】114.二叉树展开为链表 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/4/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#迭代</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#递归</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给你二叉树的根结点 <code>root</code> ，请你将它展开为一个<code>单链表</code>：</p>
+<ul>
+<li>展开后的<code>单链表</code>应该同样使用 <code>TreeNode</code> ，其中 <code>right</code> 子指针指向链表中<code>下一个结点</code>，而左子指针<code>left</code>始终为 <code>null</code> 。</li>
+<li>展开后的<code>单链表</code>应该与二叉树<code>先序遍历</code>顺序相同。</li>
+</ul>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC114-1.jpeg" alt="示例"></p>
+<blockquote>
+<p>输入：root = [1,2,5,3,4,null,6]
+输出：[1,null,2,null,3,null,4,null,5,null,6]</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：root = []
+输出：[]</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入：root = [0]
+输出：[0]</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>树中结点数在范围 [0, 2000] 内</li>
+<li>-100 &#x3C;= Node.val &#x3C;= 100</li>
+</ul>
+<blockquote>
+<p>进阶：你可以使用原地算法（O(1) 额外空间）展开这棵树吗？</p>
+</blockquote>
+<h1 id="2-解题思路">2 解题思路</h1>
+<h2 id="21-先序遍历">2.1 先序遍历</h2>
+<p>大致思路就是：按照先序遍历的递归方法，将遍历完成的节点列表，再次遍历，将相邻的节点连接起来即可，这里不给出具体实现了。</p>
+<h2 id="22-迭代">2.2 迭代</h2>
+<ul>
+<li>如果<code>root</code>左子节点不为空，先标记<code>root.left</code>为<code>next</code>；</li>
+<li>然后找到<code>next</code>节点的最右侧节点，标记为<code>prev</code>；</li>
+<li>此时，<code>prev.right</code>指向<code>root.right</code>，就把左右子树连接起来；</li>
+<li>再将root.right重新指向新的下一个节点，即<code>next</code>；</li>
+<li>将<code>root.left</code>置为<code>null</code>，继续迭代<code>root.right</code>，此时的<code>root.right</code>其实就是原来的左子树头结点。</li>
+</ul>
+<blockquote>
+<p>详见<code>flatten2</code>方法。</p>
+</blockquote>
+<h2 id="23-迭代">2.3 迭代</h2>
+<p>原理：</p>
+<ul>
+<li>按照类似先序遍历的递归思想，先<code>flatten(root.left)</code>; 再<code>flatten(root.right);</code>；</li>
+<li>临时存储<code>root.right</code>，令其指向<code>tmp</code>；</li>
+<li>将<code>root.right</code>指向新的下一个节点，即指向<code>root.left</code>；</li>
+<li><code>root.left</code>置为<code>null</code>；</li>
+<li>找到<code>root</code>的最右侧节点，即原先<code>root.left</code>最右侧的节点，将其指向<code>tmp</code>，即原先<code>root.right</code>.</li>
+</ul>
+<blockquote>
+<p>详见<code>flatten</code>方法。</p>
+</blockquote>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * Definition for a binary tree node.</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *     int val;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode left;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode() {}</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val) { this.val = val; }</span></span>
+<span class="line"><span style="color:#6A737D"> *     TreeNode(int val, TreeNode left, TreeNode right) {</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.val = val;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.left = left;</span></span>
+<span class="line"><span style="color:#6A737D"> *         this.right = right;</span></span>
+<span class="line"><span style="color:#6A737D"> *     }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> flatten2</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //Morris Solution</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode curr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> curr) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> curr.left) {</span></span>
+<span class="line"><span style="color:#6A737D">                //the next node is the new right node of curr</span></span>
+<span class="line"><span style="color:#E1E4E8">                TreeNode next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> curr.left;</span></span>
+<span class="line"><span style="color:#E1E4E8">                TreeNode prev </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#6A737D">                //find the rightest node of the left tree</span></span>
+<span class="line"><span style="color:#F97583">                while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> prev.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    prev </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prev.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //prev.right points to the root's right</span></span>
+<span class="line"><span style="color:#E1E4E8">                prev.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> curr.right;</span></span>
+<span class="line"><span style="color:#6A737D">                //root points to the new next, that is curr.left</span></span>
+<span class="line"><span style="color:#E1E4E8">                curr.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next;</span></span>
+<span class="line"><span style="color:#E1E4E8">                curr.left </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //finished the root's left, then traverse the new right</span></span>
+<span class="line"><span style="color:#E1E4E8">            curr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> curr.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> flatten</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //preorder traversal</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#B392F0">        flatten</span><span style="color:#E1E4E8">(root.left);</span></span>
+<span class="line"><span style="color:#B392F0">        flatten</span><span style="color:#E1E4E8">(root.right);</span></span>
+<span class="line"><span style="color:#6A737D">        //temporarily store the root.right</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode tmp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root.right;</span></span>
+<span class="line"><span style="color:#6A737D">        //root.right points to the new next node, root.left</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root.left;</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.left </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //find the old left tree's rightest node</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> root.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            root </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //then points to the old right tree of root</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> tmp;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

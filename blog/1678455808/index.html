@@ -1,0 +1,530 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】11.源码之事务消息</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】11.源码之事务消息 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/10/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>回顾下事务消息流程：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/tx-msg-flow.png" alt="RocketMQ事务消息流程"></p>
+<p>其中分为两个流程：<code>正常事务消息的发送及提交</code>、<code>事务消息的补偿流程</code>。</p>
+<h2 id="11-正常事务流程">1.1 正常事务流程</h2>
+<ul>
+<li>发送消息(half 消息)：图中步骤 1。</li>
+<li>服务端响应消息写入结果：图中步骤 2。</li>
+<li>根据发送结果执行本地事务(如果写入失败，此时 half 消息对业务不可见，本地逻辑不执行)：图中步骤 3。</li>
+<li>根据本地事务状态执行 Commit 或者 Rollback(Commit 操作生成消息索引，消息对消费者可见)：图中步骤 4。</li>
+</ul>
+<h2 id="12-事务补偿流程">1.2 事务补偿流程</h2>
+<ul>
+<li>对没有 <code>Commit/Rollback</code> 的事务消息(pending 状态的消息)，从服务端发起一次“回查”：图中步骤 5。</li>
+<li><code>Producer</code> 收到回查消息，检查回查消息对应的本地事务的状态：图中步骤 6。</li>
+<li>根据本地事务状态，重新 <code>Commit</code> 或者 <code>Rollback</code>：图中步骤 6。
+其中，<code>补偿阶段</code>用于解决消息 <code>Commit</code> 或者 <code>Rollback</code> 发生<code>超时</code>或者<code>失败</code>的情况。</li>
+</ul>
+<h2 id="13-事务消息状态">1.3 事务消息状态</h2>
+<p>事务消息共有三种状态：</p>
+<ul>
+<li><code>CommitTransaction</code>：提交状态，它允许消费者消费此消息（完成图中了1,2,3,4步，第4步是Commit）。</li>
+<li><code>RollbackTransaction</code>：回滚状态，它代表该消息将被删除，不允许被消费（完成图中了1,2,3,4步, 第4步是Rollback）。</li>
+<li><code>Unknown</code>：中间状态，它代表需要检查消息队列来确定状态（完成图中了1,2,3步, 但是没有4或者没有7，无法Commit或Rollback）。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> enum</span><span style="color:#B392F0"> LocalTransactionState</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //本地事务执行成功，给Broker发送一个commit的标识</span></span>
+<span class="line"><span style="color:#79B8FF">    COMMIT_MESSAGE</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">    //本地事务执行失败，给Broker发送一个回滚的标识</span></span>
+<span class="line"><span style="color:#79B8FF">    ROLLBACK_MESSAGE</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">    //未知，既不是成功，也不是失败，引发回查操作</span></span>
+<span class="line"><span style="color:#79B8FF">    UNKNOW</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="2-例子">2 例子</h1>
+<h2 id="21-生产者">2.1 生产者</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TransactionProducer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> MQClientException, InterruptedException {</span></span>
+<span class="line"><span style="color:#6A737D">    //创建事务监听器，就是2.2节的东东</span></span>
+<span class="line"><span style="color:#E1E4E8">    TransactionListener transactionListener </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TransactionListenerImpl</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //创建消息生产者</span></span>
+<span class="line"><span style="color:#E1E4E8">    TransactionMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TransactionMQProducer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TransactionProducer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    // 设置NameServer的地址</span></span>
+<span class="line"><span style="color:#E1E4E8">    producer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"localhost:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //创建线程池</span></span>
+<span class="line"><span style="color:#E1E4E8">    ExecutorService executorService </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ThreadPoolExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">, TimeUnit.SECONDS, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ArrayBlockingQueue&#x3C;</span><span style="color:#F97583">Runnable</span><span style="color:#E1E4E8">>(</span><span style="color:#79B8FF">2000</span><span style="color:#E1E4E8">), </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ThreadFactory</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">      @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">      public</span><span style="color:#E1E4E8"> Thread </span><span style="color:#B392F0">newThread</span><span style="color:#E1E4E8">(Runnable </span><span style="color:#FFAB70">r</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Thread thread </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Thread</span><span style="color:#E1E4E8">(r);</span></span>
+<span class="line"><span style="color:#E1E4E8">        thread.</span><span style="color:#B392F0">setName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"client-transaction-msg-check-thread"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> thread;</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#6A737D">    //设置生产者回查线程池</span></span>
+<span class="line"><span style="color:#E1E4E8">    producer.</span><span style="color:#B392F0">setExecutorService</span><span style="color:#E1E4E8">(executorService);</span></span>
+<span class="line"><span style="color:#6A737D">    //生产者设置监听器，指定本地事务监听器</span></span>
+<span class="line"><span style="color:#E1E4E8">    producer.</span><span style="color:#B392F0">setTransactionListener</span><span style="color:#E1E4E8">(transactionListener);</span></span>
+<span class="line"><span style="color:#6A737D">    //启动消息生产者</span></span>
+<span class="line"><span style="color:#E1E4E8">    producer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    String</span><span style="color:#E1E4E8">[] tags </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[]{</span><span style="color:#9ECBFF">"TagA"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagB"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagC"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">      try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Message msg </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Message</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">                "TransactionTopic"</span><span style="color:#E1E4E8">, </span></span>
+<span class="line"><span style="color:#E1E4E8">                tags[i </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> tags.length], </span></span>
+<span class="line"><span style="color:#9ECBFF">                "KEY"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> i,</span></span>
+<span class="line"><span style="color:#E1E4E8">                (</span><span style="color:#9ECBFF">"Hello RocketMQ "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> i).</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(RemotingHelper.DEFAULT_CHARSET));</span></span>
+<span class="line"><span style="color:#6A737D">        //1,2步  半事务的发送，确认。</span></span>
+<span class="line"><span style="color:#E1E4E8">        SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">sendMessageInTransaction</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, sendResult);</span></span>
+<span class="line"><span style="color:#E1E4E8">        Thread.</span><span style="color:#B392F0">sleep</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (MQClientException | UnsupportedEncodingException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //先不要停掉生产者，观察事务回调和回查</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 100000</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      Thread.</span><span style="color:#B392F0">sleep</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    producer.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="22-事务监听消息回查">2.2 事务监听(消息回查)</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TransactionListenerImpl</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> TransactionListener</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  //事务状态记录</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#E1E4E8"> AtomicInteger transactionIndex </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AtomicInteger</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> localTrans </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;>();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  /**</span></span>
+<span class="line"><span style="color:#6A737D">   * 执行本地事务 3</span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#E1E4E8"> LocalTransactionState </span><span style="color:#B392F0">executeLocalTransaction</span><span style="color:#E1E4E8">(Message </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">, Object </span><span style="color:#FFAB70">arg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"执行本地事务"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionIndex.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //0,1,2</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    localTrans.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">(), status);</span></span>
+<span class="line"><span style="color:#6A737D">    //这里模拟的不进行步骤4  A系统不知道的--UNKNOWN，这个状态会引发回查动作</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> LocalTransactionState.UNKNOW;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  /**</span></span>
+<span class="line"><span style="color:#6A737D">   * 检查本地事务状态 6,  默认是60s，一分钟检查一次</span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#E1E4E8"> LocalTransactionState </span><span style="color:#B392F0">checkLocalTransaction</span><span style="color:#E1E4E8">(MessageExt </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    //打印每次回查的时间</span></span>
+<span class="line"><span style="color:#6A737D">    //设置日期格式</span></span>
+<span class="line"><span style="color:#E1E4E8">    SimpleDateFormat df </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SimpleDateFormat</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"yyyy-MM-dd HH:mm:ss"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    // new Date()为获取当前系统时间</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"checkLocalTransaction:"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> df.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">    Integer status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> localTrans.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> status) {</span></span>
+<span class="line"><span style="color:#F97583">      switch</span><span style="color:#E1E4E8"> (status) {</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> -></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"MQ检查消息【"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "】事务状态【中间状态】"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">          return</span><span style="color:#E1E4E8"> LocalTransactionState.UNKNOW;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        case</span><span style="color:#79B8FF"> 2</span><span style="color:#F97583"> -></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"MQ检查消息【"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "】事务状态【回滚状态】"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">          return</span><span style="color:#E1E4E8"> LocalTransactionState.ROLLBACK_MESSAGE;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        default</span><span style="color:#F97583"> -></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"MQ检查消息【"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "】事务状态【提交状态】"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">          return</span><span style="color:#E1E4E8"> LocalTransactionState.COMMIT_MESSAGE;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> LocalTransactionState.COMMIT_MESSAGE;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="3-源码追踪">3 源码追踪</h1>
+<h2 id="31-producer启动">3.1 Producer启动</h2>
+<p>事务消息生产者<code>TransactionMQProducer</code>继承自<code>DefaultMQProducer</code>，大部分与普通消息生产者无异。</p>
+<p>启动前，会初始化相关回查线程池、事务消息生产者：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">    //TransactionMQProducer</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() throws MQClientException {</span></span>
+<span class="line"><span style="color:#6A737D">        //初始化：事务消息生产者、回查线程池、阻塞队列</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMQProducerImpl.</span><span style="color:#B392F0">initTransactionEnv</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //这里与普通消息生产者无异</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //DefaultMQProducerImpl</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> initTransactionEnv</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        TransactionMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (TransactionMQProducer) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer;</span></span>
+<span class="line"><span style="color:#6A737D">        //生产者回查线程池</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (producer.</span><span style="color:#B392F0">getExecutorService</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.checkExecutor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">getExecutorService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        //队列长度：2000</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.checkRequestQueue </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedBlockingQueue&#x3C;</span><span style="color:#F97583">Runnable</span><span style="color:#E1E4E8">>(producer.</span><span style="color:#B392F0">getCheckRequestHoldMax</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.checkExecutor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ThreadPoolExecutor</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#6A737D">          //默认核心、最大线程数均为1个</span></span>
+<span class="line"><span style="color:#E1E4E8">          producer.</span><span style="color:#B392F0">getCheckThreadPoolMinSize</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">          producer.</span><span style="color:#B392F0">getCheckThreadPoolMaxSize</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">          1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 60</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">          TimeUnit.MILLISECONDS,</span></span>
+<span class="line"><span style="color:#79B8FF">          this</span><span style="color:#E1E4E8">.checkRequestQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<blockquote>
+<p>不难发现，它就是检查我们是否指定了线程池，如果没有指定，则MQ为我们指定一个。</p>
+</blockquote>
+<p>然后是调用<code>super.start()</code>方法，既然是调用父类的，那就是我们前面熟悉的普通消息的启动过程，这里就不在赘述了。</p>
+<h2 id="32-半消息发送send-half-message">3.2 半消息发送（Send half message）</h2>
+<p>上述<code>TransactionMQProducer</code>已经启动，接下来就要进行事务消息发送的第一步了，即<code>半消息发送</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">sendMessageInTransaction</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>定位至<code>sendMessageInTransaction()</code>方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">    //TransactionMQProducer</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TransactionSendResult </span><span style="color:#B392F0">sendMessageInTransaction</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Message msg, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Object arg) throws MQClientException {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.transactionListener) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"TransactionListener is null"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        msg.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(NamespaceUtil.</span><span style="color:#B392F0">wrapNamespace</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getNamespace</span><span style="color:#E1E4E8">(), msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMQProducerImpl.</span><span style="color:#B392F0">sendMessageInTransaction</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, arg);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>实际最后调用的是<code>DefaultMQProducerImpl#sendMessageInTransaction()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultMQProducerImpl</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> TransactionSendResult </span><span style="color:#B392F0">sendMessageInTransaction</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Message msg, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> LocalTransactionExecuter localTransactionExecuter, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Object arg)</span></span>
+<span class="line"><span style="color:#E1E4E8">        throws MQClientException {</span></span>
+<span class="line"><span style="color:#6A737D">        //获取本地事务监听器</span></span>
+<span class="line"><span style="color:#E1E4E8">        TransactionListener transactionListener </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getCheckListener</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> localTransactionExecuter </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> transactionListener) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"tranExecutor is null"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // ignore DelayTimeLevel parameter</span></span>
+<span class="line"><span style="color:#6A737D">        //事务消息不支持延迟</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getDelayTimeLevel</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            MessageAccessor.</span><span style="color:#B392F0">clearProperty</span><span style="color:#E1E4E8">(msg, MessageConst.PROPERTY_DELAY_TIME_LEVEL);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //校验消息</span></span>
+<span class="line"><span style="color:#E1E4E8">        Validators.</span><span style="color:#B392F0">checkMessage</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //设置事务消息的标识</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msg, MessageConst.PROPERTY_TRANSACTION_PREPARED, </span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msg, MessageConst.PROPERTY_PRODUCER_GROUP, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //同步发送消息，这个消息的发送过程和普通消息一模一样，就不赘述了</span></span>
+<span class="line"><span style="color:#6A737D">            //在Broker端将会根据属性判断是否为事务消息，从而做特殊处理</span></span>
+<span class="line"><span style="color:#E1E4E8">            sendResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MQClientException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"send message Exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        LocalTransactionState localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LocalTransactionState.UNKNOW;</span></span>
+<span class="line"><span style="color:#E1E4E8">        Throwable localException </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (sendResult.</span><span style="color:#B392F0">getSendStatus</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> SEND_OK</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (sendResult.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msg.</span><span style="color:#B392F0">putUserProperty</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"__transactionId__"</span><span style="color:#E1E4E8">, sendResult.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    String transactionId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getProperty</span><span style="color:#E1E4E8">(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> transactionId </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(transactionId)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        msg.</span><span style="color:#B392F0">setTransactionId</span><span style="color:#E1E4E8">(transactionId);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> localTransactionExecuter) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> localTransactionExecuter.</span><span style="color:#B392F0">executeLocalTransactionBranch</span><span style="color:#E1E4E8">(msg, arg);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (transactionListener </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Used new transaction API"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                        //使用这个API来执行本地事务，也就是我们指定的那个，步骤3</span></span>
+<span class="line"><span style="color:#E1E4E8">                        localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionListener.</span><span style="color:#B392F0">executeLocalTransaction</span><span style="color:#E1E4E8">(msg, arg);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> localTransactionState) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LocalTransactionState.UNKNOW;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (localTransactionState </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> LocalTransactionState.COMMIT_MESSAGE) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"executeLocalTransactionBranch return {}"</span><span style="color:#E1E4E8">, localTransactionState);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"executeLocalTransactionBranch exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    localException </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">            //如果发送失败，则不会执行本地事务，直接设置为Rollback状态，Broker将回滚</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> FLUSH_DISK_TIMEOUT</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> FLUSH_SLAVE_TIMEOUT</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> SLAVE_NOT_AVAILABLE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LocalTransactionState.ROLLBACK_MESSAGE;</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //本地事务结束，设置事务状态，发给Broker</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">endTransaction</span><span style="color:#E1E4E8">(sendResult, localTransactionState, localException);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"local transaction execute "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> localTransactionState </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ", but end broker transaction failed"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        TransactionSendResult transactionSendResult </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TransactionSendResult</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setSendStatus</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getSendStatus</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setMessageQueue</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setMsgId</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getMsgId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setQueueOffset</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getQueueOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setTransactionId</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        transactionSendResult.</span><span style="color:#B392F0">setLocalTransactionState</span><span style="color:#E1E4E8">(localTransactionState);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> transactionSendResult;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h2 id="33-执行本地事务">3.3 执行本地事务</h2>
+<p>如果半消息发送成功，即发送结果状态为<code>SEND_OK</code>，则执行本地事务，即图【RocketMQ事务消息流程】步骤3：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionListener.</span><span style="color:#B392F0">executeLocalTransaction</span><span style="color:#E1E4E8">(msg, arg);</span></span></code></pre>
+<p>也就是执行2.2节，我们自定义的消息监听中的这个方法：<code>TransactionListenerImpl#executeLocalTransaction()</code>。</p>
+<h2 id="34-结束事务commitrollback">3.4 结束事务（commit/rollback）</h2>
+<p>将本地执行事务的结果同步给Broker，让Broker去处理下本次事务消息的结果：</p>
+<ul>
+<li>如果半消息发送失败或本地事务执行失败，则告诉Broker去<code>删除半消息</code>；</li>
+<li>半消息发送成功且本地事务执行成功，则告诉Broker<code>生效半消息</code>。</li>
+</ul>
+<p>定位至方法：<code>DefaultMQProducerImpl#endTransaction()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> endTransaction</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> SendResult sendResult,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> LocalTransactionState localTransactionState,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> Throwable localException) throws RemotingException, MQBrokerException, InterruptedException, UnknownHostException {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> MessageId id;</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (sendResult.</span><span style="color:#B392F0">getOffsetMsgId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageDecoder.</span><span style="color:#B392F0">decodeMessageId</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getOffsetMsgId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageDecoder.</span><span style="color:#B392F0">decodeMessageId</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getMsgId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        String transactionId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sendResult.</span><span style="color:#B392F0">getTransactionId</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> String brokerAddr </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">findBrokerAddressInPublish</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        EndTransactionRequestHeader requestHeader </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EndTransactionRequestHeader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">setTransactionId</span><span style="color:#E1E4E8">(transactionId);</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">setCommitLogOffset</span><span style="color:#E1E4E8">(id.</span><span style="color:#B392F0">getOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (localTransactionState) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> COMMIT_MESSAGE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestHeader.</span><span style="color:#B392F0">setCommitOrRollback</span><span style="color:#E1E4E8">(MessageSysFlag.TRANSACTION_COMMIT_TYPE);</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> ROLLBACK_MESSAGE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestHeader.</span><span style="color:#B392F0">setCommitOrRollback</span><span style="color:#E1E4E8">(MessageSysFlag.TRANSACTION_ROLLBACK_TYPE);</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">            //如果是UNKNOW 将会引起回查</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> UNKNOW</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestHeader.</span><span style="color:#B392F0">setCommitOrRollback</span><span style="color:#E1E4E8">(MessageSysFlag.TRANSACTION_NOT_TYPE);</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">setProducerGroup</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">setTranStateTableOffset</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getQueueOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        requestHeader.</span><span style="color:#B392F0">setMsgId</span><span style="color:#E1E4E8">(sendResult.</span><span style="color:#B392F0">getMsgId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        String remark </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> localException </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">"executeLocalTransactionBranch exception: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> localException.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">()) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //将本地事务的执行结果状态发送给Broker</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">endTransactionOneway</span><span style="color:#E1E4E8">(brokerAddr, requestHeader, remark, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQProducer.</span><span style="color:#B392F0">getSendMsgTimeout</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>总结下消息发送过程就是，客户端（消息生产者）发送事务消息主要做<code>三件事</code>：</p>
+<ul>
+<li>设置事务消息属性，将消息(半事务消息)发往Broker，这个发送过程就和普通消息一样；</li>
+<li>如果消息发送成功，则执行本地事务；如果发送失败，则不会执行本地事务，直接回滚半事务消息；</li>
+<li>本地事务执行完毕，则将本地事务执行的状态发送给Broker，Broker根据状态来判断是回滚还是提交。</li>
+</ul>
+<h2 id="35-broker的两阶段">3.5 Broker的”两阶段”</h2>
+<h3 id="351-一阶段">3.5.1 一阶段</h3>
+<p>一阶段为Broker接收半消息，Broker端通过<code>SendMessageProcessor.asyncProcessRequest()</code>方法接收处理 Producer 发送的半消息。</p>
+<p>最后会调用到<code>SendMessageProcessor.asyncSendMessage()</code>，判断消息类型，进行消息存储。</p>
+<p>这里也分成两个步骤来跟进：</p>
+<ul>
+<li>解析过程</li>
+<li>存储过程</li>
+</ul>
+<h4 id="3511-解析过程">3.5.1.1 解析过程</h4>
+<p>即解析生产者发过来的半消息，依次经历：<code>TransactionalMessageServiceImpl#asyncPrepareMessage()</code>-><code>TransactionalMessageBridge#parseHalfMessageInner()</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">    //TransactionalMessageServiceImpl</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> CompletableFuture</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">PutMessageResult</span><span style="color:#F97583">></span><span style="color:#B392F0"> asyncPrepareMessage</span><span style="color:#E1E4E8">(MessageExtBrokerInner messageInner) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> transactionalMessageBridge.</span><span style="color:#B392F0">asyncPutHalfMessage</span><span style="color:#E1E4E8">(messageInner);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>暂存真实的topic、队列ID，替换为内部topic，队列ID为0：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> MessageExtBrokerInner </span><span style="color:#B392F0">parseHalfMessageInner</span><span style="color:#E1E4E8">(MessageExtBrokerInner msgInner) {</span></span>
+<span class="line"><span style="color:#6A737D">        //暂存真实的topic、queueID</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msgInner, MessageConst.PROPERTY_REAL_TOPIC, msgInner.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msgInner, MessageConst.PROPERTY_REAL_QUEUE_ID,</span></span>
+<span class="line"><span style="color:#E1E4E8">            String.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setSysFlag</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">            MessageSysFlag.</span><span style="color:#B392F0">resetTransactionValue</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">(), MessageSysFlag.TRANSACTION_NOT_TYPE));</span></span>
+<span class="line"><span style="color:#6A737D">        //替换topic为 RMQ_SYS_TRANS_HALF_TOPIC</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(TransactionalMessageUtil.</span><span style="color:#B392F0">buildHalfTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //替换消息的队列ID为 0号队列</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setQueueId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        msgInner.</span><span style="color:#B392F0">setPropertiesString</span><span style="color:#E1E4E8">(MessageDecoder.</span><span style="color:#B392F0">messageProperties2String</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getProperties</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> msgInner;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h4 id="3512-存储过程">3.5.1.2 存储过程</h4>
+<p>同普通消息的存储过程，见{%post_link ‘【RocketMQ学习】9-源码之Store’ ‘源码之Store，2.1节DefaultMessageStore’%}。</p>
+<h3 id="352-二阶段">3.5.2 二阶段</h3>
+<p>即接收本地事务的执行结果状态。</p>
+<p>3.2节中，LocalTransactionState可能会有三种状态，<code>COMMIT_MESSAGE</code>, <code>ROLLBACK_MESSAGE</code>, <code>UNKNOW</code>，其中之一会发送给Broker进行处理。</p>
+<p>Broker端接收事务状态的处理器是：<code>EndTransactionProcessor</code>。针对可能收到的事务消息状态，Broker有不同的处理方式。</p>
+<h4 id="3521-本地事务提交">3.5.2.1 本地事务提交</h4>
+<p>如果本地事务执行成功，反馈给Broker需要进行事务的提交：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Commit-Broker.png" alt="半消息提交"></p>
+<h4 id="3522-本地事务回滚">3.5.2.2 本地事务回滚</h4>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Rollback-Broker.png" alt="半消息提交"></p>
+<h4 id="3523-回查">3.5.2.3 回查</h4>
+<p><code>EndTransactionProcessor</code>只有<code>COMMIT_MESSAGE</code>, <code>ROLLBACK_MESSAGE</code>的状态处理，唯独没有<code>UNKNOW</code>，是不是阿里巴巴搞错了，漏掉了？</p>
+<p>实际上并不是，<code>UNKNOW</code>的消息状态处理是通过异步线程<code>TransactionalMessageCheckService</code>来完成处理的。</p>
+<p>该类会在<code>BrokerController</code>初始化时，创建实例；在<code>BrokerController</code>执行<code>start()</code>方法时，开启线程执行<code>run()</code>方法。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsgCheck-Init.png" alt="TransactionalMessageCheckService初始化">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsgCheck-Start.png" alt="TransactionalMessageCheckService启动调用路径"></p>
+<p><code>BrokerController#startProcessorByHa()</code>方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> startProcessorByHa</span><span style="color:#E1E4E8">(BrokerRole role) {</span></span>
+<span class="line"><span style="color:#6A737D">        //当节点为主节点时，开启对应的事务状态回查处理器，对PREPARE状态的消息发起事务状态回查请求。</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (BrokerRole.SLAVE </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> role) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.transactionalMessageCheckService </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.transactionalMessageCheckService.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span></code></pre>
+<p><code>TransactionalMessageCheckService#run()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TransactionalMessageCheckService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">   </span></span>
+<span class="line"><span style="color:#6A737D">    //.....省略部分代码......</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Start transaction check service thread!"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        //60s执行一次</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> checkInterval </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerController.</span><span style="color:#B392F0">getBrokerConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTransactionCheckInterval</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">waitForRunning</span><span style="color:#E1E4E8">(checkInterval);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"End transaction check service thread!"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onWaitEnd</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> timeout </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerController.</span><span style="color:#B392F0">getBrokerConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTransactionTimeOut</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> checkMax </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerController.</span><span style="color:#B392F0">getBrokerConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getTransactionCheckMax</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> begin </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Begin to check prepare message, begin time:{}"</span><span style="color:#E1E4E8">, begin);</span></span>
+<span class="line"><span style="color:#6A737D">        //check操作</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getTransactionalMessageService</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">check</span><span style="color:#E1E4E8">(timeout, checkMax, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.brokerController.</span><span style="color:#B392F0">getTransactionalMessageCheckListener</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"End to check prepare message, consumed time:{}"</span><span style="color:#E1E4E8">, System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> begin);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>check()</code>方法很长，我们只要关注回查的部分：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> isNeedCheck </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (opMsg </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> valueOfCurrentMinusBorn </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> checkImmunityTime)</span></span>
+<span class="line"><span style="color:#F97583">              ||</span><span style="color:#E1E4E8"> (opMsg </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> (opMsg.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(opMsg.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">getBornTimestamp</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> startTime </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> transactionTimeout))</span></span>
+<span class="line"><span style="color:#F97583">              ||</span><span style="color:#E1E4E8"> (valueOfCurrentMinusBorn </span><span style="color:#F97583">&#x3C;=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">          if</span><span style="color:#E1E4E8"> (isNeedCheck) {</span></span>
+<span class="line"><span style="color:#F97583">              if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">putBackHalfMsgQueue</span><span style="color:#E1E4E8">(msgExt, i)) {</span></span>
+<span class="line"><span style="color:#F97583">                  continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">              }</span></span>
+<span class="line"><span style="color:#E1E4E8">              listener.</span><span style="color:#B392F0">resolveHalfMsg</span><span style="color:#E1E4E8">(msgExt);</span></span>
+<span class="line"><span style="color:#E1E4E8">          } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">              pullResult </span><span style="color:#F97583">=</span><span style="color:#B392F0"> fillOpRemoveMap</span><span style="color:#E1E4E8">(removeMap, opQueue, pullResult.</span><span style="color:#B392F0">getNextBeginOffset</span><span style="color:#E1E4E8">(), halfOffset, doneOpOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">              log.</span><span style="color:#B392F0">debug</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The miss offset:{} in messageQueue:{} need to get more opMsg, result is:{}"</span><span style="color:#E1E4E8">, i,</span></span>
+<span class="line"><span style="color:#E1E4E8">                  messageQueue, pullResult);</span></span>
+<span class="line"><span style="color:#F97583">              continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">          }</span></span></code></pre>
+<p>这个流程，有大佬把图画好了，借用：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TransMsg-Checkback-Flow.jpg" alt="半消息回查流程图"></p>
+<p>那什么样的消息需要回查？
+1）每一条半事务消息如果经过了<code>commit/rollback</code>, 那么对应就会创建一个<code>Op消息</code>；反过来说，如果没有Op消息，但是有Half消息，那么说明是二阶段失败了（本地事务返回的状态码是<code>UNKNOW</code>），此时需要回查；
+2）还有就是<code>TM</code>（生产者）在<code>6秒内</code>没有将最终确认状态发送给<code>TC</code>（Broker），此时也会触发回查。</p>
+<p>回查发起，我们从方法<code>resolveHalfMsg()</code>追踪。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Checkback.png" alt="发起回查">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Checkback2.png" alt="发起回查">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Checkback3.png" alt="发起回查"></p>
+<h2 id="36-producer回查处理">3.6 Producer回查处理</h2>
+<p>接下来，Producer收到Broker发起的回查请求，执行本地事务回查处理，处理方法就是我们自定义的监听器内的方法：<code>checkLocalTransaction()</code>。</p>
+<p>Producer接收消息回查请求的是<code>ClientRemotingProcessor类</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ClientRemotingProcessor</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> AsyncNettyRequestProcessor</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> NettyRequestProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //......略.......</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#B392F0">processRequest</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> RemotingCommandException {</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (request.</span><span style="color:#B392F0">getCode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //处理Broker发过来的回查请求</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.CHECK_TRANSACTION_STATE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkTransactionState</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#E1E4E8">            </span></span>
+<span class="line"><span style="color:#6A737D">            //.....忽略其他case.......</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">     //......略........</span></span>
+<span class="line"><span style="color:#E1E4E8">}    </span></span></code></pre>
+<p><code>checkTransactionState()</code>方法会调用到<code>DefaultMQProducerImpl类</code>的<code>checkTransactionState(...)</code>方法中，这方法内容比较多，但其实主要就做了<code>3件事</code>：</p>
+<ul>
+<li>获取本地事务监听器(就是代码实例中指定的<code>TransactionListenerImpl</code>)；</li>
+<li>执行本地事务的回查；</li>
+<li>将回查结果上报给Broker；</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> checkTransactionState</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String addr, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExt msg,</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> CheckTransactionStateRequestHeader header) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    Runnable request </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String brokerAddr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> addr;</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> MessageExt message </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg;</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CheckTransactionStateRequestHeader checkRequestHeader </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> header;</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String group </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> DefaultMQProducerImpl.this.defaultMQProducer.</span><span style="color:#B392F0">getProducerGroup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">            //这个listener已废弃</span></span>
+<span class="line"><span style="color:#E1E4E8">            TransactionCheckListener transactionCheckListener </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> DefaultMQProducerImpl.this.</span><span style="color:#B392F0">checkListener</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //1.获取事务监听器，就是demo中我们指定的TransactionListenerImpl</span></span>
+<span class="line"><span style="color:#E1E4E8">            TransactionListener transactionListener </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getCheckListener</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (transactionCheckListener </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> transactionListener </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                LocalTransactionState localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LocalTransactionState.UNKNOW;</span></span>
+<span class="line"><span style="color:#E1E4E8">                </span></span>
+<span class="line"><span style="color:#6A737D">                // 2. 执行本地事务回查(省略其他if判断代码)，步骤6，见2.2节事务监听</span></span>
+<span class="line"><span style="color:#E1E4E8">                localTransactionState </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionListener.</span><span style="color:#B392F0">checkLocalTransaction</span><span style="color:#E1E4E8">(message);</span></span>
+<span class="line"><span style="color:#6A737D">                //3. 反馈给Broker，步骤7</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">processTransactionState</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                    localTransactionState,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    group,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    exception);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"CheckTransactionState, pick transactionCheckListener by group[{}] failed"</span><span style="color:#E1E4E8">, group);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //这个方法和前面的endTransaction(....)方法的逻辑是一模一样的，就是将回查后的状态发给broker</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processTransactionState</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> LocalTransactionState </span><span style="color:#FFAB70">localTransactionState</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">producerGroup</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> Throwable </span><span style="color:#FFAB70">exception</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            </span></span>
+<span class="line"><span style="color:#6A737D">            //.....省略诸多代码..........</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">               //3. 将回查结果上报给Broker</span></span>
+<span class="line"><span style="color:#E1E4E8">               DefaultMQProducerImpl.this.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">endTransactionOneway</span><span style="color:#E1E4E8">(brokerAddr, thisHeader, remark,</span></span>
+<span class="line"><span style="color:#79B8FF">                    3000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"endTransactionOneway exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    };</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 这个 checkExecutor 就是demo 示例中我们指定的线程池</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.checkExecutor.</span><span style="color:#B392F0">submit</span><span style="color:#E1E4E8">(request);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>然后将回查后的状态，再次发送给Broker</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">DefaultMQProducerImpl.this.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">endTransactionOneway</span><span style="color:#E1E4E8">(brokerAddr, thisHeader, remark, </span><span style="color:#79B8FF">3000</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>至此事务消息整个流程源码跟踪完毕。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-TranMsg-Flow.jpg" alt="事务消息整体流程"></p>
+<h1 id="4-事务消息的使用总结">4 事务消息的使用总结</h1>
+<ul>
+<li>事务消息<strong>不支持</strong><code>延时消息</code>和<code>批量消息</code>。</li>
+<li>为了避免单个消息被检查太多次而导致半队列消息累积，MQ默认将<code>单个消息</code>的检查次数限制为 <code>15 次</code>，用户可以通过 <code>transactionCheckMax</code> 参数来修改此限制。如果已经回查某条消息超过 <code>transactionCheckMax</code> 次的话，则Broker将<code>丢弃</code>此消息，并打印错误日志。</li>
+<li>事务消息将在参数 <code>transactionTimeout</code> 指定的时间长度之后被回查。当发送事务消息时，用户还可以通过设置用户属性 <code>CHECK_IMMUNITY_TIME_IN_SECONDS</code> 来改变这个限制，该参数<code>优先于 transactionTimeout</code> 参数。</li>
+<li>事务消息的生产者 ID <strong>不能</strong>与其他类型消息的生产者 ID 共享。与其他类型的消息不同，事务消息允许反向查询、MQ服务器能通过它们的生产者 ID 查询到消费者。</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

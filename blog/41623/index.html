@@ -1,0 +1,307 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Spring源码学习】FactoryBean 类型的接口</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Spring源码学习】FactoryBean 类型的接口 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="前言">前言</h1>
+<p>在{%post_link ‘【Spring源码学习】Spring-Bean实例化过程-创建Bean实例’%} 一文中，实例在真正创建完成(完成了创建、依赖属性注入、初始化)后，会有FactoryBean的接口调用，我们先定位到这段代码来看看，本章也主要跟一下这个调用的流程。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//AbstractBeanFactory</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> T </span><span style="color:#B392F0">doGetBean</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">		String name, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> Class</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> requiredType, @</span><span style="color:#F97583">Nullable</span><span style="color:#F97583"> Object</span><span style="color:#E1E4E8">[] args, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> typeCheckOnly) throws BeansException {</span></span>
+<span class="line"><span style="color:#6A737D">	// 获取一个beanName，处理两种情况，一个是前面说的 FactoryBean (前面带 '&#x26;')，</span></span>
+<span class="line"><span style="color:#6A737D">	// 一个是别名问题，因为这个方法是 getBean，获取 Bean 用的，你要是传一个别名进来，是完全可以的</span></span>
+<span class="line"><span style="color:#E1E4E8">	String beanName </span><span style="color:#F97583">=</span><span style="color:#B392F0"> transformedBeanName</span><span style="color:#E1E4E8">(name);</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object bean;</span></span>
+<span class="line"><span style="color:#6A737D">	/*</span></span>
+<span class="line"><span style="color:#6A737D">	 * Description : 检查缓存中或者实例工厂中是否有对应的实例</span></span>
+<span class="line"><span style="color:#6A737D">	 * 因为在创建单例 bean的时候会存在依赖注入，而在创建依赖的时候为了避免循环依赖，</span></span>
+<span class="line"><span style="color:#6A737D">	 * spring创建bean的原则是：不等 bean 创建完成就将创建bean的 ObjectFactory 提早曝光，</span></span>
+<span class="line"><span style="color:#6A737D">	 *  换句话说，也就是将 ObjectFactory 加入到缓存中，一旦下一个bean创建的时候需要依赖上</span></span>
+<span class="line"><span style="color:#6A737D">	 *  一个bean则直接使用 ObjectFactory</span></span>
+<span class="line"><span style="color:#6A737D">	 *</span></span>
+<span class="line"><span style="color:#6A737D">	 *  第一次getSingleton(beanName)</span></span>
+<span class="line"><span style="color:#6A737D">	 */</span></span>
+<span class="line"><span style="color:#6A737D">	// Eagerly check singleton cache for manually registered singletons.</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object sharedInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSingleton</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#6A737D">	//如果缓存里面能拿到实例,但第一次缓存中是没有的，所以第一次不会进入这个if</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (sharedInstance </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> args </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isSingletonCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Returning eagerly cached instance of singleton bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">						"' that is not fully initialized yet - a consequence of a circular reference"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Returning cached instance of singleton bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 该方法是 FactoryBean 接口的调用入口</span></span>
+<span class="line"><span style="color:#6A737D">		// 如果是普通 Bean 的话，直接返回 sharedInstance（直接返回对象本身）</span></span>
+<span class="line"><span style="color:#6A737D">		// 如果是 FactoryBean 的话，返回它创建的那个实例对象(返回指定方法返回的实例)</span></span>
+<span class="line"><span style="color:#E1E4E8">		bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(sharedInstance, name, beanName, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//如果singletonObjects缓存里面没有，则走下来</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//如果是scope 是Prototype的，校验是否有出现循环依赖，如果有则直接报错</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isPrototypeCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// Check if bean definition exists in this factory.</span></span>
+<span class="line"><span style="color:#6A737D">		//检查一下这个 BeanDefinition 在容器中是否存在</span></span>
+<span class="line"><span style="color:#E1E4E8">		BeanFactory parentBeanFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getParentBeanFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		</span></span>
+<span class="line"><span style="color:#6A737D">		//......省略部分代码</span></span>
+<span class="line"><span style="color:#E1E4E8">		</span></span>
+<span class="line"><span style="color:#6A737D">		//要开始创建bean了，分两种情况：一种是针对单例的（singleton），一种是针对多例的（prototype），一种是自定义scope的</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//父子BeanDefinition合并</span></span>
+<span class="line"><span style="color:#E1E4E8">			RootBeanDefinition mbd </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getMergedLocalBeanDefinition</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#B392F0">			checkMergedBeanDefinition</span><span style="color:#E1E4E8">(mbd, beanName, args);</span></span>
+<span class="line"><span style="color:#6A737D">			//获取依赖对象属性，依赖对象要先实例化</span></span>
+<span class="line"><span style="color:#6A737D">			// Guarantee initialization of beans that the current bean depends on.</span></span>
+<span class="line"><span style="color:#F97583">			String</span><span style="color:#E1E4E8">[] dependsOn </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mbd.</span><span style="color:#B392F0">getDependsOn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			</span></span>
+<span class="line"><span style="color:#6A737D">			//......省略部分代码</span></span>
+<span class="line"><span style="color:#E1E4E8">			</span></span>
+<span class="line"><span style="color:#6A737D">			//单例情况singleton，着重看，大部分是单例的情况</span></span>
+<span class="line"><span style="color:#6A737D">			// Create bean instance.</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">				sharedInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSingleton</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">					try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">						return</span><span style="color:#B392F0"> createBean</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#F97583">					catch</span><span style="color:#E1E4E8"> (BeansException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">						destroySingleton</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">						throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#E1E4E8">				});</span></span>
+<span class="line"><span style="color:#6A737D">				//该方法是FactoryBean接口的调用入口</span></span>
+<span class="line"><span style="color:#E1E4E8">				bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(sharedInstance, name, beanName, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#6A737D">			//多例情况prototype</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isPrototype</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">				// It's a prototype -> create a new instance.</span></span>
+<span class="line"><span style="color:#E1E4E8">				Object prototypeInstance </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">				try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">					beforePrototypeCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">					prototypeInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBean</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">					afterPrototypeCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#6A737D">				//该方法是FactoryBean接口的调用入口</span></span>
+<span class="line"><span style="color:#E1E4E8">				bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(prototypeInstance, name, beanName, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#6A737D">			// 如果不是 singleton 和 prototype 的话，需要委托给相应的实现类来处理</span></span>
+<span class="line"><span style="color:#F97583">			else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				String scopeName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mbd.</span><span style="color:#B392F0">getScope</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">StringUtils.</span><span style="color:#B392F0">hasLength</span><span style="color:#E1E4E8">(scopeName)) {</span></span>
+<span class="line"><span style="color:#F97583">					throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalStateException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No scope name defined for bean ´"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">				Scope scope </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.scopes.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(scopeName);</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (scope </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">					throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalStateException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No Scope registered for scope name '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> scopeName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">					Object scopedInstance </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> scope.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">						beforePrototypeCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">						try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">							return</span><span style="color:#B392F0"> createBean</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#F97583">						finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">							afterPrototypeCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#E1E4E8">					});</span></span>
+<span class="line"><span style="color:#E1E4E8">					bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(scopedInstance, name, beanName, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				catch</span><span style="color:#E1E4E8"> (IllegalStateException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">					throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(beanName,</span></span>
+<span class="line"><span style="color:#9ECBFF">							"Scope '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> scopeName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "' is not active for the current thread; consider "</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">							"defining a scoped proxy for this bean if you intend to refer to it from a singleton"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">							ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeansException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">			cleanupAfterBeanCreationFailure</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//......省略部分代码</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> (T) bean;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>bean = getObjectForBeanInstance()方法就是FactoryBean接口的调用入口了。而这个接口首次调用则是在创建完成一个可用的bean之后，也就是在下面这个代码里首次调用的(<strong>本章主要针对单例，其他多例、自定义scope类似</strong>)</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	sharedInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSingleton</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#B392F0"> createBean</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeansException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">			// Explicitly remove instance from singleton cache: It might have been put there</span></span>
+<span class="line"><span style="color:#6A737D">			// eagerly by the creation process, to allow for circular reference resolution.</span></span>
+<span class="line"><span style="color:#6A737D">			// Also remove any beans that received a temporary reference to the bean.</span></span>
+<span class="line"><span style="color:#B392F0">			destroySingleton</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	});</span></span>
+<span class="line"><span style="color:#6A737D">	//该方法是FactoryBean接口的调用入口</span></span>
+<span class="line"><span style="color:#E1E4E8">	bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(sharedInstance, name, beanName, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="一factorybean接口的调用">一、FactoryBean接口的调用</h1>
+<h2 id="1getobjectforbeaninstance">1.getObjectForBeanInstance()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">getObjectForBeanInstance</span><span style="color:#E1E4E8">(Object beanInstance, String name, String beanName, @</span><span style="color:#F97583">Nullable</span><span style="color:#E1E4E8"> RootBeanDefinition mbd) {</span></span>
+<span class="line"><span style="color:#6A737D">	// Don't let calling code try to dereference the factory if the bean isn't a factory.</span></span>
+<span class="line"><span style="color:#6A737D">	//以&#x26;开头，针对本身就是FactoryBean的判断</span></span>
+<span class="line"><span style="color:#6A737D">	//如果要获取到FactoryBean 类本身，就必须加上”&#x26;”符号，比如beanFactory.getBean(“&#x26;beanName”),</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (BeanFactoryUtils.</span><span style="color:#B392F0">isFactoryDereference</span><span style="color:#E1E4E8">(name)) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (beanInstance </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> NullBean) {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> beanInstance;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(beanInstance </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> FactoryBean)) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanIsNotAFactoryException</span><span style="color:#E1E4E8">(beanName, beanInstance.</span><span style="color:#B392F0">getClass</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (mbd </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			mbd.isFactoryBean </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> beanInstance;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Now we have the bean instance, which may be a normal bean or a FactoryBean.</span></span>
+<span class="line"><span style="color:#6A737D">	// If it's a FactoryBean, we use it to create a bean instance, unless the</span></span>
+<span class="line"><span style="color:#6A737D">	// caller actually wants a reference to the factory.</span></span>
+<span class="line"><span style="color:#6A737D">	//如果实例不是FactoryBean类型的</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">(beanInstance </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> FactoryBean)) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> beanInstance;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//如果代码能走下来，则说明 beanName不是以&#x26;开头，并且beanInstance是FactoryBean类型的</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object object </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (mbd </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		mbd.isFactoryBean </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//从缓存里面拿FactoryBean类型的实例</span></span>
+<span class="line"><span style="color:#E1E4E8">		object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getCachedObjectForFactoryBean</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (object </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		// Return bean instance from factory.</span></span>
+<span class="line"><span style="color:#E1E4E8">		FactoryBean&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> factory </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (FactoryBean</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8">) beanInstance;</span></span>
+<span class="line"><span style="color:#6A737D">		// Caches object obtained from FactoryBean if it is a singleton.</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (mbd </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#B392F0"> containsBeanDefinition</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			mbd </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getMergedLocalBeanDefinition</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		boolean</span><span style="color:#E1E4E8"> synthetic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (mbd </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> mbd.</span><span style="color:#B392F0">isSynthetic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">		//重点看</span></span>
+<span class="line"><span style="color:#E1E4E8">		object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectFromFactoryBean</span><span style="color:#E1E4E8">(factory, beanName, </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">synthetic);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> object;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>这里有两种情况下的返回</p>
+<ul>
+<li>直接返回原对象：针对bean实例本身就是FactoryBean类型或者beanName是以&#x26;开头的情况</li>
+<li>返回factoryBean：beanName不是以&#x26;开头，并且beanInstance是FactoryBean类型的，这里又分情况：
+<ul>
+<li>从factoryBeanObjectCache缓存中获取</li>
+<li>缓存中不存在该bean，则调用factory的getObject()方法，并且判断一级缓存中如果存在该bean 实例把实例缓存到factoryBeanObjectCache 对应的map 中，这个是单独缓存FactoryBean 类型实例的map</li>
+</ul>
+</li>
+</ul>
+<h2 id="2getobjectfromfactorybeandogetobjectfromfactorybean">2.getObjectFromFactoryBean(),doGetObjectFromFactoryBean()</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//FactoryBeanRegistrySupport</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">getObjectFromFactoryBean</span><span style="color:#E1E4E8">(FactoryBean</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> factory, String beanName, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> shouldPostProcess) {</span></span>
+<span class="line"><span style="color:#6A737D">	//factory是单例且一级缓存中存在</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (factory.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#B392F0"> containsSingleton</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">		synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">getSingletonMutex</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			Object object </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.factoryBeanObjectCache.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">			if</span><span style="color:#E1E4E8"> (object </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">				//调用getObject方法</span></span>
+<span class="line"><span style="color:#E1E4E8">				object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> doGetObjectFromFactoryBean</span><span style="color:#E1E4E8">(factory, beanName);</span></span>
+<span class="line"><span style="color:#6A737D">				// Only post-process and store if not put there already during getObject() call above</span></span>
+<span class="line"><span style="color:#6A737D">				// (e.g. because of circular reference processing triggered by custom getBean calls)</span></span>
+<span class="line"><span style="color:#E1E4E8">				Object alreadyThere </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.factoryBeanObjectCache.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">				if</span><span style="color:#E1E4E8"> (alreadyThere </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">					object </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> alreadyThere;</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#F97583">				else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">					//后置处理</span></span>
+<span class="line"><span style="color:#F97583">					if</span><span style="color:#E1E4E8"> (shouldPostProcess) {</span></span>
+<span class="line"><span style="color:#F97583">						if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isSingletonCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#6A737D">							// Temporarily return non-post-processed object, not storing it yet..</span></span>
+<span class="line"><span style="color:#F97583">							return</span><span style="color:#E1E4E8"> object;</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#B392F0">						beforeSingletonCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">						try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">							object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> postProcessObjectFromFactoryBean</span><span style="color:#E1E4E8">(object, beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#F97583">						catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">							throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(beanName,</span></span>
+<span class="line"><span style="color:#9ECBFF">									"Post-processing of FactoryBean's singleton object failed"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#F97583">						finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">							afterSingletonCreation</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">						}</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#F97583">					if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">containsSingleton</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#6A737D">						//把实例缓存到factoryBeanObjectCache map中，这个是单独缓存FactoryBean类型实例的map</span></span>
+<span class="line"><span style="color:#79B8FF">						this</span><span style="color:#E1E4E8">.factoryBeanObjectCache.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, object);</span></span>
+<span class="line"><span style="color:#E1E4E8">					}</span></span>
+<span class="line"><span style="color:#E1E4E8">				}</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#E1E4E8"> object;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		Object object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> doGetObjectFromFactoryBean</span><span style="color:#E1E4E8">(factory, beanName);</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (shouldPostProcess) {</span></span>
+<span class="line"><span style="color:#F97583">			try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				object </span><span style="color:#F97583">=</span><span style="color:#B392F0"> postProcessObjectFromFactoryBean</span><span style="color:#E1E4E8">(object, beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(beanName, </span><span style="color:#9ECBFF">"Post-processing of FactoryBean's object failed"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#E1E4E8"> object;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">doGetObjectFromFactoryBean</span><span style="color:#E1E4E8">(FactoryBean</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> factory, String beanName) throws BeanCreationException {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object object;</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (System.</span><span style="color:#B392F0">getSecurityManager</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			AccessControlContext acc </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getAccessControlContext</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">			try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">				object </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> AccessController.</span><span style="color:#B392F0">doPrivileged</span><span style="color:#E1E4E8">((PrivilegedExceptionAction</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Object</span><span style="color:#F97583">></span><span style="color:#E1E4E8">) factory</span><span style="color:#F97583">::</span><span style="color:#E1E4E8">getObject, acc);</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#F97583">			catch</span><span style="color:#E1E4E8"> (PrivilegedActionException </span><span style="color:#FFAB70">pae</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">				throw</span><span style="color:#E1E4E8"> pae.</span><span style="color:#B392F0">getException</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">			}</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			//调用getObject方法</span></span>
+<span class="line"><span style="color:#E1E4E8">			object </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> factory.</span><span style="color:#B392F0">getObject</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (FactoryBeanNotInitializedException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(beanName, ex.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(beanName, </span><span style="color:#9ECBFF">"FactoryBean threw exception on object creation"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Do not accept a null value for a FactoryBean that's not fully</span></span>
+<span class="line"><span style="color:#6A737D">	// initialized yet: Many FactoryBeans just return null then.</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (object </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isSingletonCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">					beanName, </span><span style="color:#9ECBFF">"FactoryBean which is currently in creation returned null from getObject"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		object </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NullBean</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> object;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>BeanFactory.getBean(“beanName”)只能获取到getObject()方法返回的实例。getObject 方法返回的实例会有单独的缓存存储，跟其他实例不是同一个缓存，对应的缓存是：factoryBeanObjectCache。</p>
+<h1 id="二总结">二、总结</h1>
+<ul>
+<li>FactoryBean 接口的首次调用入口在实例化、IOC/DI 以及初始化做完后，就会调用FactoryBean 类型的接口</li>
+<li>如果要获取到FactoryBean 类本身，就必须加上”&#x26;”符号，比如beanFactory.getBean(“&#x26;beanName”)</li>
+<li>factoryBean有单独的缓存factoryBeanObjectCache，跟其他实例不是同一个</li>
+</ul>
+<p>有关FactoryBean的作用和例子可以参考这位大佬写的例子-<a href="https://bestcxx.blog.csdn.net/article/details/103242240?utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-4.vipsorttest&#x26;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromMachineLearnPai2%7Edefault-4.vipsorttest">Spring 源码学习 FactoryBean</a></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

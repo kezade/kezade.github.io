@@ -1,0 +1,113 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】1143. 最长公共子序列</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】1143. 最长公共子序列 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/14/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#动态规划</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给定两个字符串 text1 和 text2，返回这两个字符串的最长 公共子序列 的长度。如果不存在 公共子序列 ，返回 0 。</p>
+<p>一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。</p>
+<p>例如，“ace” 是 “abcde” 的子序列，但 “aec” 不是 “abcde” 的子序列。
+两个字符串的 公共子序列 是这两个字符串所共同拥有的子序列。</p>
+<h2 id="示例-1">示例 1</h2>
+<blockquote>
+<p>输入：text1 = “abcde”, text2 = “ace”<br>
+输出：3<br>
+解释：最长公共子序列是 “ace” ，它的长度为 3 。</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：text1 = “abc”, text2 = “abc”
+输出：3
+解释：最长公共子序列是 “abc” ，它的长度为 3 。</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入：text1 = “abc”, text2 = “def”
+输出：0
+解释：两个字符串没有公共子序列，返回 0 。</p>
+</blockquote>
+<p><strong>提示</strong>：</p>
+<ul>
+<li>1 &#x3C;= text1.length, text2.length &#x3C;= 1000</li>
+<li>text1 和 text2 仅由小写英文字符组成。</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<h2 id="21-动态规划">2.1 动态规划</h2>
+<p>定义<code>dp~ij~</code>表示<code>text~1~</code>的前<code>i-1</code>个字符和<code>text~2~ </code>的前<code>j-1</code>个字符所能形成的最长公共子序列的长度。
+令<code>len1</code>为<code>text~1~</code> 的总长，<code>len2</code>为<code>text~2~</code> 的总长，则<code>dp~len1,len2~</code> 即为题目所求。</p>
+<ul>
+<li>
+<p>当 i=0 时，<code>text~1~ [0:i]</code> 为空，空字符串和任何字符串的最长公共子序列的长度都是 0，因此对任意 <code>0≤j≤len2</code>，有 <code>dp~0,j~=0</code>；</p>
+</li>
+<li>
+<p>当 j=0 时，<code>text~2~[0:j]</code> 为空，同理可得，对任意 <code>0≤i≤len1</code>，有 <code>dp[i][0]=0</code>。</p>
+</li>
+</ul>
+<p>因此动态规划的边界情况是：当 i=0 或 j=0 时，<code>dp~i,0~=0</code>。</p>
+<ul>
+<li>
+<p>当 i>0 且 j>0 时，考虑 <code>dp~ij~</code>的计算：</p>
+<ul>
+<li>
+<p>当 <code>text~1~[i−1] = text~2~[j−1]</code> 时，将这两个相同的字符称为公共字符，考虑 <code>text~1~[0:i−1]</code> 和 <code>text~2~[0:j−1]</code> 的最长公共子序列，再增加一个字符（即公共字符）即可得到 <code>text~1~[0:i]</code> 和 <code>text~2~[0:j]</code> 的最长公共子序列，因此 <code>dp~ij~=dp~i-1,j-1~+1</code>。</p>
+</li>
+<li>
+<p>当 <code>text~1~[i−1]≠text~2~[j−1]</code> 时，考虑以下两项：</p>
+<ul>
+<li>
+<p><code>text~1~[0:i−1]</code> 和 <code>text~2~[0:j]</code> 的最长公共子序列；</p>
+</li>
+<li>
+<p><code>text~1~[0:i]</code> 和 <code>text~2~[0:j−1]</code> 的最长公共子序列。</p>
+</li>
+</ul>
+<p>要得到 <code>text~1~[0:i]</code> 和 <code>text~2~[0:j]</code> 的最长公共子序列，应取两项中的长度较大的一项，因此 <code>dp~ij~ == max⁡(dp~i−1,j~, dp~i,j−1~)</code>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>由此可以得到如下状态转移方程：</p>
+<ul>
+<li>当<code>text~1~[0:i-1]=text~2~[0:j-1]</code>, <code>dp~i,j~ = dp~i-1,j-1~ +1</code>;</li>
+<li>否则，dp<del>i,j</del> =max{dp<del>i,j-1</del> , dp<del>i-1,j</del> }</li>
+</ul>
+<p>最终，<code>dp~len1,len2~</code> 即为<code>text~1~</code> 和 <code>text~2~</code> 的最长公共子序列。</p>
+<p>例如，<code>text~1~ =abcddab</code>, <code>text~2~ =bdcaba</code>，则动态规划矩阵如下图：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/473d6bb69bfe4b2ea395e519fb43f8be.png" alt="&#x22;动态规划矩阵&#x22;"></p>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">动态规划（利用偏移）</span></span>
+<span class="line"><span style="color:#6A737D">上述「追加空格」的做法是我比较习惯的做法 🤣</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">事实上，我们也可以通过修改「状态定义」来实现递推：</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">f[i][j] 代表考虑 s1 的前 i−1 个字符、考虑 s2 的前 j−1 的字符，形成的最长公共子序列长度。</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">那么最终的 f[n][m] 就是我们的答案，f[0][0] 当做无效值，不处理即可。</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">s1[i-1]==s2[j-1] : f[i][j]=f[i−1][j−1]+1。代表使用 s1[i−1] 与 s2[j−1] 形成最长公共子序列的长度。</span></span>
+<span class="line"><span style="color:#6A737D">s1[i-1]!=s2[j-1] : f[i][j]=max(f[i−1][j],f[i][j−1])。代表不使用 s1[i−1] 形成最长公共子序列的长度、不使用 s2[j−1] 形成最长公共子序列的长度。这两种情况中的最大值。</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">作者：宫水三叶</span></span>
+<span class="line"><span style="color:#6A737D">链接：https://leetcode.cn/problems/longest-common-subsequence/solutions/697187/gong-shui-san-xie-zui-chang-gong-gong-zi-xq0h/</span></span>
+<span class="line"><span style="color:#6A737D">来源：力扣（LeetCode）</span></span>
+<span class="line"><span style="color:#6A737D">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span></span>
+<span class="line"><span style="color:#6A737D">    */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> longestCommonSubsequence</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">text1</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">text2</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        char</span><span style="color:#E1E4E8">[] t1 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> text1.</span><span style="color:#B392F0">toCharArray</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        char</span><span style="color:#E1E4E8">[] t2 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> text2.</span><span style="color:#B392F0">toCharArray</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> length1 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> t1.length;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> length2 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> t2.length;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8">[][] dp </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[length1</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">][length2</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> length1 </span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> j </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; j </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> length2 </span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">; j</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (t1[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> t2[j</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]){</span></span>
+<span class="line"><span style="color:#6A737D">                    // 这边找到一个 lcs 的元素，继续往前找</span></span>
+<span class="line"><span style="color:#E1E4E8">                    dp[i][j] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> dp[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">][j</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    //谁能让 lcs 最长，就听谁的</span></span>
+<span class="line"><span style="color:#E1E4E8">                    dp[i][j] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(dp[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">][j],dp[i][j</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> dp[length1][length2];</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

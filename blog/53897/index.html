@@ -1,0 +1,284 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】MyBatis与Spring整合</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】MyBatis与Spring整合 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring Boot</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="前言">前言</h1>
+<p>目前大部分项目中运用MyBatis均与Spring有关，尤其是Spring Boot大行其道，普通程序员基本上可以无缝的完成一个简单的CRUD项目。通过前面对于MyBatis 源码的学习，我已经对其了（一）如（脸）指（懵）掌（逼），本章我们来玩玩MyBatis与Spring的结合以及它们的融合原理。</p>
+<h1 id="一什么是mybatis-spring">一、什么是Mybatis-Spring</h1>
+<p>一句话：将 MyBatis 代码无缝地整合到 Spring 中。集成过程中的增强处理主要体现在以下几个方面：</p>
+<ul>
+<li>Spring 将会加载必要的 MyBatis 工厂类和 session 类</li>
+<li>提供一个简单的方式来注入 MyBatis 数据映射器和 SqlSession 到业务层的 bean 中</li>
+<li>方便集成Spring事务</li>
+<li>翻译 MyBatis 的异常到 Spring 的 DataAccessException 异常(数据访问异常)中</li>
+</ul>
+<h1 id="二关键配置类">二、关键配置类</h1>
+<h2 id="1sqlsessionfactorybean">1.SqlSessionFactoryBean</h2>
+<p>SqlSessionFactoryBean作用：用于创建SqlSessionFactory。关键参数有：</p>
+<ul>
+<li>dataSource ：<strong>必填</strong>。用于配置数据源，必须通过这个属性配置数据源。</li>
+<li>mapperLocations ： 配置 SqlSessionFactoryBean 扫描*<strong>mapper.xml</strong>映射文件的路径。</li>
+<li>configLocation ：用于配置<strong>mybatis-config.xml</strong>的路径，除了数据源外，对MyBatis的各种配直仍然可以通过这种方式进行，并且配置MyBatis settings 时只能使用这种方式。但配置文件中任意环境,数据源和 MyBatis 的事务管理器都会被忽略；</li>
+<li>typeAliasesPackage ： 配置包中类的别名，配置后，包中的类在 XML 映射文件中使用时可以省略包名部分，直接使用类名。这个配置不支持Ant风格的路径，当需要配置多个包路径时可以使用分号或逗号进行分隔.</li>
+</ul>
+<h2 id="2mapperscannerconfigurer">2.MapperScannerConfigurer</h2>
+<p>作用：自动扫描所有的 Mapper 接口，使用时可以直接注入接口。
+关键参数：</p>
+<ul>
+<li>basePackage ：用于配置基本的包路径。可以使用分号或逗号作为分隔符设置多于一个的包路径，每个映射器将会在指定的包路径中递归地被搜索到 。</li>
+<li>annotationClass ：用于过滤被扫描的接口，如果设置了该属性，那么 MyBatis 的接口只有包含该注解才会被扫描进去。</li>
+</ul>
+<h1 id="三mybatis与spring融合实战">三、MyBatis与Spring融合实战</h1>
+<h2 id="1依赖">1.依赖</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#6A737D"> &#x3C;!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>mysql&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>mysql-connector-java&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>5.1.42&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.mybatis&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>mybatis&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>3.5.0&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.mybatis&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>mybatis-spring&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>1.3.3&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 数据库连接池 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>com.alibaba&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>druid&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>1.0.20&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-core&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-context&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-beans&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-jdbc&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-test&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>${spring.version}&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>其中spring.version为4.3.3.RELEASE。</p>
+<h2 id="2spring配置文件">2.Spring配置文件</h2>
+<p>本项目中的spring配置文件名为applicationContext.xml，主要用于配置：</p>
+<ul>
+<li>数据源</li>
+<li>sqlSessionFactory</li>
+<li>MapperScannerConfigurer</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">context:property-placeholder</span><span style="color:#B392F0"> location</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"classpath:db.properties"</span><span style="color:#B392F0"> ignore-unresolvable</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">context:component-scan</span><span style="color:#B392F0"> base-package</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.*"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.alibaba.druid.pool.DruidDataSource"</span><span style="color:#B392F0"> init-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"init"</span><span style="color:#B392F0"> destroy-method</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"close"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 基本属性 url、user、password --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"driverClassName"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_driver}"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"url"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_url}"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_username}"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_password}"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 配置初始化大小、最小、最大 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"initialSize"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"minIdle"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"maxActive"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"20"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 配置获取连接等待超时的时间 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"maxWait"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"60000"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"timeBetweenEvictionRunsMillis"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"60000"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 配置一个连接在池中最小生存的时间，单位是毫秒 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"minEvictableIdleTimeMillis"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"300000"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"validationQuery"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"SELECT 'x'"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"testWhileIdle"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"testOnBorrow"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"testOnReturn"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 打开PSCache，并且指定每个连接上PSCache的大小 --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"poolPreparedStatements"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"maxPoolPreparedStatementPerConnectionSize"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"20"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 配置监控统计拦截的filters --></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"filters"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"stat"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 --></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlSessionFactory"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.spring.SqlSessionFactoryBean"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#B392F0"> ref</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"typeAliasesPackage"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.entity"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"mapperLocations"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"classpath:sqlmapper/*.xml"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- DAO接口所在包名，Spring会自动查找其下的类 --></span></span>
+<span class="line"><span style="color:#E1E4E8"> 	 &#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.spring.mapper.MapperScannerConfigurer"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"basePackage"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.mapper"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- (事务管理)transaction manager --></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">bean</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"transactionManager"</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#B392F0"> ref</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"dataSource"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">qualifier</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"transactionManager"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">bean</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">tx:annotation-driven</span><span style="color:#B392F0"> transaction-manager</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"transactionManager"</span><span style="color:#E1E4E8"> /></span></span></code></pre>
+<h2 id="3mybatis配置文件">3.Mybatis配置文件</h2>
+<p>文件名为mybatis-config.xml，注意该文件除了settings必须配置在里面外，其他都可以在spring配置文件中配置。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">settings</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">setting</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"mapUnderscoreToCamelCase"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">settings</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	&#x3C;!-- 别名定义 --></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;</span><span style="color:#85E89D">typeAliases</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">package</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.entity"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">	&#x3C;/</span><span style="color:#85E89D">typeAliases</span><span style="color:#E1E4E8">></span></span></code></pre>
+<h2 id="4mapper">4.mapper</h2>
+<p>还是以UserInfoMapper.xml为例，文件内容如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;?</span><span style="color:#85E89D">xml</span><span style="color:#B392F0"> version</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1.0"</span><span style="color:#B392F0"> encoding</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"UTF-8"</span><span style="color:#E1E4E8"> ?></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;!</span><span style="color:#F97583">DOCTYPE</span><span style="color:#79B8FF"> mapper</span><span style="color:#E1E4E8"> PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" ></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> namespace</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.mapper.UserInfoMapper"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">resultMap</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"BaseResultMap"</span><span style="color:#B392F0"> type</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.entity.UserInfo"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">id</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"id"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"id"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"VARCHAR"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"VARCHAR"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"VARCHAR"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"openid"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"openid"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"VARCHAR"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"role"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"role"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"BIT"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"create_time"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"createTime"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"TIMESTAMP"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">result</span><span style="color:#B392F0"> column</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"update_time"</span><span style="color:#B392F0"> property</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"updateTime"</span><span style="color:#B392F0"> jdbcType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"TIMESTAMP"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">resultMap</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">sql</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Base_Column_List"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        id, username, password, openid, role, create_time, update_time</span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">sql</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">select</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"selectByPrimaryKey"</span><span style="color:#B392F0"> resultMap</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"BaseResultMap"</span><span style="color:#B392F0"> parameterType</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"java.lang.String"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        select</span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">include</span><span style="color:#B392F0"> refid</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Base_Column_List"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        from user_info</span></span>
+<span class="line"><span style="color:#E1E4E8">        where id = #{id,jdbcType=VARCHAR}</span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">select</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mapper</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>对应dao：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> interface</span><span style="color:#B392F0"> UserInfoMapper</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    UserInfo </span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">id</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>po:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> UserInfo</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String id;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String username;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String password;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String openid;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> Boolean role;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> Date createTime;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> Date updateTime;</span></span>
+<span class="line"><span style="color:#6A737D">	//省略getter、setter</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="5测试类">5.测试类</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RunWith</span><span style="color:#E1E4E8">(SpringJUnit4ClassRunner.class)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">ContextConfiguration</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"classpath:applicationContext.xml"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MybatisSpringTest</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> UserInfoMapper userInfoMapper;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> test_selectByPrimaryKey</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        UserInfo userInfo</span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> userInfoMapper.</span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(userInfo.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="四mybatis与springboot融合实战">四、Mybatis与SpringBoot融合实战</h1>
+<h2 id="1依赖-1">1.依赖</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.mybatis.spring.boot&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>mybatis-spring-boot-starter&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>2.0.1&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- mysql驱动 --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>mysql&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>mysql-connector-java&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>5.1.18&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#6A737D">		&#x3C;!-- 单元测试相关依赖 --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>junit&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>junit&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>4.12&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">scope</span><span style="color:#E1E4E8">>test&#x3C;/</span><span style="color:#85E89D">scope</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.projectlombok&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>lombok&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">>1.18.18&#x3C;/</span><span style="color:#85E89D">version</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">optional</span><span style="color:#E1E4E8">>true&#x3C;/</span><span style="color:#85E89D">optional</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.springframework.boot&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>spring-boot-starter-test&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">			&#x3C;</span><span style="color:#85E89D">scope</span><span style="color:#E1E4E8">>test&#x3C;/</span><span style="color:#85E89D">scope</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">		&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span></code></pre>
+<h2 id="2applicationyml">2.application.yml</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yml"><code><span class="line"><span style="color:#6A737D">#DataSource config 配置数据源信息</span></span>
+<span class="line"><span style="color:#85E89D">spring</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  datasource</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    driver-class-name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">com.mysql.jdbc.Driver</span></span>
+<span class="line"><span style="color:#85E89D">    url</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">jdbc:mysql://localhost:3306/springcloudsell?useUnicode=true&#x26;characterEncoding=utf-8</span></span>
+<span class="line"><span style="color:#85E89D">    username</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">root</span></span>
+<span class="line"><span style="color:#85E89D">    password</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">root</span></span>
+<span class="line"><span style="color:#6A737D"># 配置MyBatis的配置文件地址和MyBatis的映射文件地址</span></span>
+<span class="line"><span style="color:#85E89D">mybatis</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  mapper-locations</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">classpath*:sqlmapper/*.xml</span></span>
+<span class="line"><span style="color:#85E89D">  configuration</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">    # 关闭二级缓存</span></span>
+<span class="line"><span style="color:#85E89D">    cache-enabled</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#85E89D">    map-underscore-to-camel-case</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">logging</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  level</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    root</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">info</span></span>
+<span class="line"><span style="color:#85E89D">    org.springframework.web</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">info</span></span>
+<span class="line"><span style="color:#6A737D">    #    打印sql</span></span>
+<span class="line"><span style="color:#85E89D">    com.enjoylearning.mybatis.mapper</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">DEBUG</span></span>
+<span class="line"><span style="color:#85E89D">server</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  port</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">8081</span></span></code></pre>
+<h2 id="3启动类">3.启动类</h2>
+<p>为了不用在每个mapper.java中添加@Mapper注解，可以统一在启动类加上@MapperScan注解。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">SpringBootApplication</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">MapperScan</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">basePackages</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "com.enjoylearning.mybatis.dao"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Slf4j</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MybatisSpringbootDemoApplication</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"------------------MybatisSpringbootDemoApplication-----------start "</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        SpringApplication.</span><span style="color:#B392F0">run</span><span style="color:#E1E4E8">(MybatisSpringbootDemoApplication.class, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"------------------MybatisSpringbootDemoApplication------------end "</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="4测试类">4.测试类</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RunWith</span><span style="color:#E1E4E8">(SpringRunner.class)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">SpringBootTest</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">classes</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> MybatisSpringbootDemoApplication.class)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> StudentMapperTest</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">	private</span><span style="color:#E1E4E8"> UserInfoMapper userInfoMapper;</span></span>
+<span class="line"><span style="color:#E1E4E8">	@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> selectStudentById</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">	    UserInfo userInfo </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> userInfoMapper.</span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"1"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"---->查询结果为={}"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> userInfo);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

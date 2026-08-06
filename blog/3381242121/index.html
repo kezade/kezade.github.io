@@ -1,0 +1,792 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】9.源码之Store</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】9.源码之Store </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/2/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Store源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-整体流程">1 整体流程</h1>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Store-Flow2.png" alt="消息存储整体流程"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Store-Arch.png" alt="消息存储架构设计"></p>
+<h1 id="2-核心类">2 核心类</h1>
+<h2 id="21-defaultmessagestore">2.1 DefaultMessageStore</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-DefaultMessageStore.png" alt="DefaultMessageStore"></p>
+<p>部分属性：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> MessageStoreConfig messageStoreConfig;	</span><span style="color:#6A737D">//消息配置属性</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CommitLog commitLog;		</span><span style="color:#6A737D">//CommitLog文件存储的实现类</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ConcurrentMap</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">String</span><span style="color:#6A737D">/* topic */</span><span style="color:#E1E4E8">, ConcurrentMap</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">Integer</span><span style="color:#6A737D">/* queueId */</span><span style="color:#E1E4E8">, ConsumeQueue</span><span style="color:#F97583">>></span><span style="color:#E1E4E8"> consumeQueueTable;	</span><span style="color:#6A737D">//消息队列存储缓存表,按照消息主题分组</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> FlushConsumeQueueService flushConsumeQueueService;	</span><span style="color:#6A737D">//消息队列文件刷盘线程</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CleanCommitLogService cleanCommitLogService;	</span><span style="color:#6A737D">//清除CommitLog文件服务</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CleanConsumeQueueService cleanConsumeQueueService;	</span><span style="color:#6A737D">//清除ConsumerQueue队列文件服务</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> IndexService indexService;	</span><span style="color:#6A737D">//索引实现类</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> AllocateMappedFileService allocateMappedFileService;	</span><span style="color:#6A737D">//MappedFile分配服务</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ReputMessageService reputMessageService;</span><span style="color:#6A737D">//CommitLog消息分发,根据CommitLog文件构建ConsumerQueue、IndexFile文件</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HAService haService;	</span><span style="color:#6A737D">//存储HA机制</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ScheduleMessageService scheduleMessageService;	</span><span style="color:#6A737D">//消息服务调度线程</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> StoreStatsService storeStatsService;	</span><span style="color:#6A737D">//消息存储服务</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> TransientStorePool transientStorePool;	</span><span style="color:#6A737D">//消息堆外内存缓存</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> BrokerStatsManager brokerStatsManager;	</span><span style="color:#6A737D">//Broker状态管理器</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> MessageArrivingListener messageArrivingListener;	</span><span style="color:#6A737D">//消息拉取长轮询模式消息达到监听器</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> BrokerConfig brokerConfig;	</span><span style="color:#6A737D">//Broker配置类</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#E1E4E8"> StoreCheckpoint storeCheckpoint;	</span><span style="color:#6A737D">//文件刷盘监测点</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> LinkedList&#x3C;</span><span style="color:#F97583">CommitLogDispatcher</span><span style="color:#E1E4E8">> dispatcherList;	</span><span style="color:#6A737D">//CommitLog文件转发请求</span></span></code></pre>
+<p>以流程图为准，以<code>普通消息</code>为例，从<code>DefaultMessageStore#asyncPutMessage</code>出发，源码追踪。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MessageStore</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageResult</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">asyncPutMessage</span><span style="color:#E1E4E8">(MessageExtBrokerInner </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //1.检查Store状态</span></span>
+<span class="line"><span style="color:#E1E4E8">        PutMessageStatus checkStoreStatus </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkStoreStatus</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (checkStoreStatus </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> PutMessageResult</span><span style="color:#E1E4E8">(checkStoreStatus, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //2.检查消息本体</span></span>
+<span class="line"><span style="color:#E1E4E8">        PutMessageStatus msgCheckStatus </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkMessage</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msgCheckStatus </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> PutMessageStatus.MESSAGE_ILLEGAL) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> PutMessageResult</span><span style="color:#E1E4E8">(msgCheckStatus, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> beginTime </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //3.将消息写入CommitLog文件</span></span>
+<span class="line"><span style="color:#E1E4E8">        CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageResult</span><span style="color:#E1E4E8">> putResultFuture </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.commitLog.</span><span style="color:#B392F0">asyncPutMessage</span><span style="color:#E1E4E8">(msg);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        putResultFuture.</span><span style="color:#B392F0">thenAccept</span><span style="color:#E1E4E8">((result) </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> elapsedTime </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTime;</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (elapsedTime </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 500</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"putMessage not in lock elapsed time(ms)={}, bodyLength={}"</span><span style="color:#E1E4E8">, elapsedTime, msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">().length);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //4.putMessage过程耗时记录</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.storeStatsService.</span><span style="color:#B392F0">setPutMessageEntireTimeMax</span><span style="color:#E1E4E8">(elapsedTime);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">result.</span><span style="color:#B392F0">isOk</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.storeStatsService.</span><span style="color:#B392F0">getPutMessageFailedTimes</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">incrementAndGet</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> putResultFuture;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /** 检查Store状态 */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> PutMessageStatus </span><span style="color:#B392F0">checkStoreStatus</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //1.是否关机</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.shutdown) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"message store has shutdown, so putMessage is forbidden"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.SERVICE_NOT_AVAILABLE;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //2.判断Broker角色，如果是从节点，则无需写入</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (BrokerRole.SLAVE </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.messageStoreConfig.</span><span style="color:#B392F0">getBrokerRole</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.printTimes.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> ((value </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 50000</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"broke role is slave, so putMessage is forbidden"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.SERVICE_NOT_AVAILABLE;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //3.判断当前写入状态，如果是正在写入，则不能继续</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.runningFlags.</span><span style="color:#B392F0">isWriteable</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> value </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.printTimes.</span><span style="color:#B392F0">getAndIncrement</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> ((value </span><span style="color:#F97583">%</span><span style="color:#79B8FF"> 50000</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message store is not writable. It may be caused by one of the following reasons: "</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">                        "the broker's disk is full, write to logic queue error, write to index file error, etc"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.SERVICE_NOT_AVAILABLE;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.printTimes.</span><span style="color:#B392F0">set</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //4.判断系统PageCache缓存去是否占用</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isOSPageCacheBusy</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.OS_PAGECACHE_BUSY;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /** 检查消息本体 */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> PutMessageStatus </span><span style="color:#B392F0">checkMessage</span><span style="color:#E1E4E8">(MessageExtBrokerInner </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //1.判断消息主题长度是否超过最大限制</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> Byte.MAX_VALUE) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"putMessage message topic length too long "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.MESSAGE_ILLEGAL;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //2.判断消息属性长度是否超过限制</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getPropertiesString</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getPropertiesString</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> Short.MAX_VALUE) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"putMessage message properties length too long "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getPropertiesString</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> PutMessageStatus.MESSAGE_ILLEGAL;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其中，<code>checkStoreStatus</code>检查Store状态，<code>checkMessage</code>检查消息本体。检查完毕没问题后，则调用<code>commitLog#asyncPutMessage</code>进行消息落地。</p>
+<h2 id="22-commitlog">2.2 CommitLog</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> CommitLog</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageResult</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">asyncPutMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExtBrokerInner </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 1.记录消息存储时间</span></span>
+<span class="line"><span style="color:#E1E4E8">        msg.</span><span style="color:#B392F0">setStoreTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 2.Set the message body BODY CRC (consider the most appropriate setting on the client)</span></span>
+<span class="line"><span style="color:#E1E4E8">        msg.</span><span style="color:#B392F0">setBodyCRC</span><span style="color:#E1E4E8">(UtilAll.</span><span style="color:#B392F0">crc32</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#6A737D">        // Back to Results</span></span>
+<span class="line"><span style="color:#E1E4E8">        AppendMessageResult result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //3.获取消息存储服务</span></span>
+<span class="line"><span style="color:#E1E4E8">        StoreStatsService storeStatsService </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getStoreStatsService</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        String topic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> queueId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> tranType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageSysFlag.</span><span style="color:#B392F0">getTransactionValue</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (tranType </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_NOT_TYPE </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> tranType </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_COMMIT_TYPE) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 4.延迟消息</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getDelayTimeLevel</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (msg.</span><span style="color:#B392F0">getDelayTimeLevel</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getScheduleMessageService</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getMaxDelayLevel</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    msg.</span><span style="color:#B392F0">setDelayTimeLevel</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getScheduleMessageService</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getMaxDelayLevel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //5.将延迟消息的topic替换为broker固定的topic: SCHEDULE_TOPIC_XXXX</span></span>
+<span class="line"><span style="color:#E1E4E8">                topic </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> TopicValidator.RMQ_SYS_SCHEDULE_TOPIC;</span></span>
+<span class="line"><span style="color:#6A737D">                //6.将queueid替换为（延迟级别-1)，每个延迟级别都对应一条队列</span></span>
+<span class="line"><span style="color:#E1E4E8">                queueId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ScheduleMessageService.</span><span style="color:#B392F0">delayLevel2QueueId</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getDelayTimeLevel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">                //7.备份原始的topic/queueid, 留着后面解析</span></span>
+<span class="line"><span style="color:#E1E4E8">                MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msg, MessageConst.PROPERTY_REAL_TOPIC, msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                MessageAccessor.</span><span style="color:#B392F0">putProperty</span><span style="color:#E1E4E8">(msg, MessageConst.PROPERTY_REAL_QUEUE_ID, String.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">                msg.</span><span style="color:#B392F0">setPropertiesString</span><span style="color:#E1E4E8">(MessageDecoder.</span><span style="color:#B392F0">messageProperties2String</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getProperties</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#6A737D">                //8.将消息topic设置为延迟topic，这样订阅该topic的消费者不能及时去消费了</span></span>
+<span class="line"><span style="color:#6A737D">                //等到延迟时间到了，将延迟topic再替换成原始topic，消费者就可以消费了</span></span>
+<span class="line"><span style="color:#E1E4E8">                msg.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#E1E4E8">                msg.</span><span style="color:#B392F0">setQueueId</span><span style="color:#E1E4E8">(queueId);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> elapsedTimeInLock </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        MappedFile unlockMappedFile </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        MappedFile mappedFile </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">getLastMappedFile</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        putMessageLock.</span><span style="color:#B392F0">lock</span><span style="color:#E1E4E8">(); </span><span style="color:#6A737D">//spin or ReentrantLock ,depending on store config</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> beginLockTimestamp </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getSystemClock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.beginTimeInLock </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beginLockTimestamp;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            // Here settings are stored timestamp, in order to ensure an orderly</span></span>
+<span class="line"><span style="color:#6A737D">            // global</span></span>
+<span class="line"><span style="color:#E1E4E8">            msg.</span><span style="color:#B392F0">setStoreTimestamp</span><span style="color:#E1E4E8">(beginLockTimestamp);</span></span>
+<span class="line"><span style="color:#6A737D">            //9.判断mappedFile，如果为空或者已满，创建新的mappedFile文件</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> mappedFile </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">isFull</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                mappedFile </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">getLastMappedFile</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// Mark: NewFile may be cause noise</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //10.如果创建失败,直接返回</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> mappedFile) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"create mapped file1 error, topic: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " clientAddr: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getBornHostString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                beginTimeInLock </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> PutMessageResult</span><span style="color:#E1E4E8">(PutMessageStatus.CREATE_MAPEDFILE_FAILED, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //11.写入消息到mappedFile中（还未刷盘）</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">appendMessage</span><span style="color:#E1E4E8">(msg, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.appendMessageCallback);</span></span>
+<span class="line"><span style="color:#6A737D">            //...........</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            putMessageLock.</span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //...........</span></span>
+<span class="line"><span style="color:#E1E4E8">        PutMessageResult putMessageResult </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PutMessageResult</span><span style="color:#E1E4E8">(PutMessageStatus.PUT_OK, result);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Statistics</span></span>
+<span class="line"><span style="color:#E1E4E8">        storeStatsService.</span><span style="color:#B392F0">getSinglePutMessageTopicTimesTotal</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">incrementAndGet</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        storeStatsService.</span><span style="color:#B392F0">getSinglePutMessageTopicSizeTotal</span><span style="color:#E1E4E8">(topic).</span><span style="color:#B392F0">addAndGet</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getWroteBytes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //12.flush，刷盘</span></span>
+<span class="line"><span style="color:#E1E4E8">        CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageStatus</span><span style="color:#E1E4E8">> flushResultFuture </span><span style="color:#F97583">=</span><span style="color:#B392F0"> submitFlushRequest</span><span style="color:#E1E4E8">(result, msg);</span></span>
+<span class="line"><span style="color:#6A737D">        //13.主从同步</span></span>
+<span class="line"><span style="color:#E1E4E8">        CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageStatus</span><span style="color:#E1E4E8">> replicaResultFuture </span><span style="color:#F97583">=</span><span style="color:#B392F0"> submitReplicaRequest</span><span style="color:#E1E4E8">(result, msg);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> flushResultFuture.</span><span style="color:#B392F0">thenCombine</span><span style="color:#E1E4E8">(replicaResultFuture, (flushStatus, replicaStatus) </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (flushStatus </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                putMessageResult.</span><span style="color:#B392F0">setPutMessageStatus</span><span style="color:#E1E4E8">(flushStatus);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (replicaStatus </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                putMessageResult.</span><span style="color:#B392F0">setPutMessageStatus</span><span style="color:#E1E4E8">(replicaStatus);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (replicaStatus </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> PutMessageStatus.FLUSH_SLAVE_TIMEOUT) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"do sync transfer other node, wait return, but failed, topic: {} tags: {} client address: {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                            msg.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), msg.</span><span style="color:#B392F0">getTags</span><span style="color:#E1E4E8">(), msg.</span><span style="color:#B392F0">getBornHostNameString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> putMessageResult;</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其中，第11步写入mappedFile时，只是写缓冲区，并未刷盘，刷盘要等到第12步进行。</p>
+<h2 id="23-mappedfile">2.3 MappedFile</h2>
+<p><code>MappedFile#appendMessage(msg, this.appendMessageCallback);</code>开始写入缓冲区<code>ByteBuffer</code>。其中<code>appendMessageCallback</code>的类为<code>CommitLog</code>内部类，写完缓冲区会回调给<code>CommitLog#putMessage</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MappedFile</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ReferenceResource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> AppendMessageResult </span><span style="color:#B392F0">appendMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExtBrokerInner </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> AppendMessageCallback </span><span style="color:#FFAB70">cb</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> appendMessagesInner</span><span style="color:#E1E4E8">(msg, cb);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> AppendMessageResult </span><span style="color:#B392F0">appendMessagesInner</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExt </span><span style="color:#FFAB70">messageExt</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> AppendMessageCallback </span><span style="color:#FFAB70">cb</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        assert</span><span style="color:#E1E4E8"> messageExt </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        assert</span><span style="color:#E1E4E8"> cb </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //1.获取写指针</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> currentPos </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.wrotePosition.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //如果指针大于文件大小则直接返回</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (currentPos </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileSize) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            ByteBuffer byteBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> writeBuffer </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> writeBuffer.</span><span style="color:#B392F0">slice</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mappedByteBuffer.</span><span style="color:#B392F0">slice</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            byteBuffer.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">(currentPos);</span></span>
+<span class="line"><span style="color:#E1E4E8">            AppendMessageResult result;</span></span>
+<span class="line"><span style="color:#6A737D">            //2.写缓冲，通过回调方法写入</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (messageExt </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> MessageExtBrokerInner) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cb.</span><span style="color:#B392F0">doAppend</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getFileFromOffset</span><span style="color:#E1E4E8">(), byteBuffer, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.fileSize </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> currentPos, (MessageExtBrokerInner) messageExt);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (messageExt </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> MessageExtBatch) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cb.</span><span style="color:#B392F0">doAppend</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getFileFromOffset</span><span style="color:#E1E4E8">(), byteBuffer, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.fileSize </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> currentPos, (MessageExtBatch) messageExt);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.UNKNOWN_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //3.更新写指针</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.wrotePosition.</span><span style="color:#B392F0">addAndGet</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getWroteBytes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.storeTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> result.</span><span style="color:#B392F0">getStoreTimestamp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"MappedFile.appendMessage return null, wrotePosition: {} fileSize: {}"</span><span style="color:#E1E4E8">, currentPos, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.fileSize);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.UNKNOWN_ERROR);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>第2步写缓冲，采用了回调，调用了<code>CommitLog</code>的内部类<code>DefaultAppendMessageCallback</code>进行写，方法有点长。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> DefaultAppendMessageCallback</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> AppendMessageCallback</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> AppendMessageResult </span><span style="color:#B392F0">doAppend</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> fileFromOffset</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ByteBuffer </span><span style="color:#FFAB70">byteBuffer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> maxBlank</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageExtBrokerInner </span><span style="color:#FFAB70">msgInner</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // STORETIMESTAMP + STOREHOSTADDRESS + OFFSET &#x3C;br></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // PHY OFFSET</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> wroteOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fileFromOffset </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> byteBuffer.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> sysflag </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> bornHostLength </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (sysflag </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8"> MessageSysFlag.BORNHOST_V6_FLAG) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 4</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 4</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 16</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> storeHostLength </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (sysflag </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8"> MessageSysFlag.STOREHOSTADDRESS_V6_FLAG) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 4</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 4</span><span style="color:#F97583"> :</span><span style="color:#79B8FF"> 16</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 4</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteBuffer bornHostHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">allocate</span><span style="color:#E1E4E8">(bornHostLength);</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteBuffer storeHostHolder </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ByteBuffer.</span><span style="color:#B392F0">allocate</span><span style="color:#E1E4E8">(storeHostLength);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resetByteBuffer</span><span style="color:#E1E4E8">(storeHostHolder, storeHostLength);</span></span>
+<span class="line"><span style="color:#E1E4E8">        String msgId;</span></span>
+<span class="line"><span style="color:#6A737D">        //生成消息ID</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> ((sysflag </span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8"> MessageSysFlag.STOREHOSTADDRESS_V6_FLAG) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            msgId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageDecoder.</span><span style="color:#B392F0">createMessageId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.msgIdMemory, msgInner.</span><span style="color:#B392F0">getStoreHostBytes</span><span style="color:#E1E4E8">(storeHostHolder), wroteOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            msgId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageDecoder.</span><span style="color:#B392F0">createMessageId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.msgIdV6Memory, msgInner.</span><span style="color:#B392F0">getStoreHostBytes</span><span style="color:#E1E4E8">(storeHostHolder), wroteOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Record ConsumeQueue information</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyBuilder.</span><span style="color:#B392F0">setLength</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyBuilder.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyBuilder.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'-'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyBuilder.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        String key </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> keyBuilder.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //获得该消息在消息队列中的偏移量</span></span>
+<span class="line"><span style="color:#E1E4E8">        Long queueOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.topicQueueTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(key);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> queueOffset) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            queueOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0L</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            CommitLog.this.topicQueueTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(key, queueOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Transaction messages that require special handling</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> tranType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageSysFlag.</span><span style="color:#B392F0">getTransactionValue</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (tranType) {</span></span>
+<span class="line"><span style="color:#6A737D">            // Prepared and Rollback message is not consumed, will not enter the</span></span>
+<span class="line"><span style="color:#6A737D">            // consumer queuec</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_PREPARED_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_ROLLBACK_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                queueOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0L</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_NOT_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_COMMIT_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        /**</span></span>
+<span class="line"><span style="color:#6A737D">         * Serialize message</span></span>
+<span class="line"><span style="color:#6A737D">         */</span></span>
+<span class="line"><span style="color:#6A737D">        //获得消息属性长度</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">[] propertiesData </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getPropertiesString</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getPropertiesString</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(MessageDecoder.CHARSET_UTF8);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> propertiesLength </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> propertiesData </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> propertiesData.length;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (propertiesLength </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> Short.MAX_VALUE) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"putMessage message properties length too long. length={}"</span><span style="color:#E1E4E8">, propertiesData.length);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.PROPERTIES_SIZE_EXCEEDED);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //获得消息主题大小</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">[] topicData </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">(MessageDecoder.CHARSET_UTF8);</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> topicLength </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> topicData.length;</span></span>
+<span class="line"><span style="color:#6A737D">        //获得消息体大小</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> bodyLength </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> msgInner.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">().length;</span></span>
+<span class="line"><span style="color:#6A737D">        //计算消息总长度</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> msgLen </span><span style="color:#F97583">=</span><span style="color:#B392F0"> calMsgLength</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">(), bodyLength, topicLength, propertiesLength);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Exceeds the maximum message</span></span>
+<span class="line"><span style="color:#6A737D">        //消息长度不能超过4M</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (msgLen </span><span style="color:#F97583">></span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.maxMessageSize) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            CommitLog.log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"message size exceeded, msg total size: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msgLen </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ", msg body size: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> bodyLength</span></span>
+<span class="line"><span style="color:#F97583">                    +</span><span style="color:#9ECBFF"> ", maxMessageSize: "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.maxMessageSize);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.MESSAGE_SIZE_EXCEEDED);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Determines whether there is sufficient free space</span></span>
+<span class="line"><span style="color:#6A737D">        //消息如果没有足够的存储空间则新创建CommitLog文件</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> ((msgLen </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> END_FILE_MIN_BLANK_LENGTH) </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> maxBlank) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resetByteBuffer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.msgStoreItemMemory, maxBlank);</span></span>
+<span class="line"><span style="color:#6A737D">            // 1 TOTALSIZE</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(maxBlank);</span></span>
+<span class="line"><span style="color:#6A737D">            // 2 MAGICCODE</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(CommitLog.BLANK_MAGIC_CODE);</span></span>
+<span class="line"><span style="color:#6A737D">            // 3 The remaining space may be any value</span></span>
+<span class="line"><span style="color:#6A737D">            // Here the length of the specially set maxBlank</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> beginTimeMills </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.defaultMessageStore.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            byteBuffer.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">array</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, maxBlank);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.END_OF_FILE, wroteOffset, maxBlank, msgId, msgInner.</span><span style="color:#B392F0">getStoreTimestamp</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    queueOffset, CommitLog.this.defaultMessageStore.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTimeMills);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Initialization of storage space</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resetByteBuffer</span><span style="color:#E1E4E8">(msgStoreItemMemory, msgLen);</span></span>
+<span class="line"><span style="color:#6A737D">        // 1 TOTALSIZE</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgLen);</span></span>
+<span class="line"><span style="color:#6A737D">        // 2 MAGICCODE</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(CommitLog.MESSAGE_MAGIC_CODE);</span></span>
+<span class="line"><span style="color:#6A737D">        // 3 BODYCRC</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getBodyCRC</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 4 QUEUEID</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 5 FLAG</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 6 QUEUEOFFSET</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(queueOffset);</span></span>
+<span class="line"><span style="color:#6A737D">        // 7 PHYSICALOFFSET</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(fileFromOffset </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> byteBuffer.</span><span style="color:#B392F0">position</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 8 SYSFLAG</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getSysFlag</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 9 BORNTIMESTAMP</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getBornTimestamp</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 10 BORNHOST</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resetByteBuffer</span><span style="color:#E1E4E8">(bornHostHolder, bornHostLength);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getBornHostBytes</span><span style="color:#E1E4E8">(bornHostHolder));</span></span>
+<span class="line"><span style="color:#6A737D">        // 11 STORETIMESTAMP</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getStoreTimestamp</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 12 STOREHOSTADDRESS</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">resetByteBuffer</span><span style="color:#E1E4E8">(storeHostHolder, storeHostLength);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getStoreHostBytes</span><span style="color:#E1E4E8">(storeHostHolder));</span></span>
+<span class="line"><span style="color:#6A737D">        // 13 RECONSUMETIMES</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getReconsumeTimes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 14 Prepared Transaction Offset</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putLong</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getPreparedTransactionOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 15 BODY</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putInt</span><span style="color:#E1E4E8">(bodyLength);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (bodyLength </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(msgInner.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        // 16 TOPIC</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">((</span><span style="color:#F97583">byte</span><span style="color:#E1E4E8">) topicLength);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(topicData);</span></span>
+<span class="line"><span style="color:#6A737D">        // 17 PROPERTIES</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">putShort</span><span style="color:#E1E4E8">((</span><span style="color:#F97583">short</span><span style="color:#E1E4E8">) propertiesLength);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (propertiesLength </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(propertiesData);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //将消息存储到ByteBuffer中,返回AppendMessageResult</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> beginTimeMills </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.defaultMessageStore.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // Write messages to the queue buffer</span></span>
+<span class="line"><span style="color:#E1E4E8">        byteBuffer.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.msgStoreItemMemory.</span><span style="color:#B392F0">array</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, msgLen);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        AppendMessageResult result </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> AppendMessageResult</span><span style="color:#E1E4E8">(AppendMessageStatus.PUT_OK, wroteOffset, msgLen, msgId,</span></span>
+<span class="line"><span style="color:#E1E4E8">                msgInner.</span><span style="color:#B392F0">getStoreTimestamp</span><span style="color:#E1E4E8">(), queueOffset, CommitLog.this.defaultMessageStore.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTimeMills);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (tranType) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_PREPARED_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_ROLLBACK_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_NOT_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> MessageSysFlag.TRANSACTION_COMMIT_TYPE</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#6A737D">                // The next update ConsumeQueue information</span></span>
+<span class="line"><span style="color:#E1E4E8">                CommitLog.this.topicQueueTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(key, </span><span style="color:#F97583">++</span><span style="color:#E1E4E8">queueOffset);</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>回到<code>DefaultMessageStore#asyncPutMessage</code>的第11步，写入mappedFile缓冲区完成，再刷盘、主从同步。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//12.flush，刷盘</span></span>
+<span class="line"><span style="color:#E1E4E8">CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageStatus</span><span style="color:#E1E4E8">> flushResultFuture </span><span style="color:#F97583">=</span><span style="color:#B392F0"> submitFlushRequest</span><span style="color:#E1E4E8">(result, msg);</span></span>
+<span class="line"><span style="color:#6A737D">//13.主从同步</span></span>
+<span class="line"><span style="color:#E1E4E8">CompletableFuture&#x3C;</span><span style="color:#F97583">PutMessageStatus</span><span style="color:#E1E4E8">> replicaResultFuture </span><span style="color:#F97583">=</span><span style="color:#B392F0"> submitReplicaRequest</span><span style="color:#E1E4E8">(result, msg);</span></span></code></pre>
+<h1 id="3-存储文件">3 存储文件</h1>
+<p>存储文件结构详见{%post_link ‘【RocketMQ学习】3-RocketMQ的存储设计’ ‘3.1 存储文件’%}一节。</p>
+<h2 id="31-commitlog文件">3.1 CommitLog文件</h2>
+<p>首先说说MappedFile的作用，如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MappedFile.png" alt="MappedFile所处位置"></p>
+<p>再从创建文件看看源码，定位到<code>CommitLog#asyncPutMessage()</code>第9~11步：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//9.判断mappedFile，如果为空或者已满，创建新的mappedFile文件</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> mappedFile </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">isFull</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    mappedFile </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">getLastMappedFile</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">); </span><span style="color:#6A737D">// Mark: NewFile may be cause noise</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>老版本以前叫<code>protected MappedFile tryCreateMappedFile(long createOffset) {}</code>，这里我们看看<code>mappedFile</code>命名规则，看<code>UtilAll.offset2FileName(createOffset)</code>方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">offset2FileName</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> offset) {</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> NumberFormat nf </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> NumberFormat.</span><span style="color:#B392F0">getInstance</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //文件名长度：20</span></span>
+<span class="line"><span style="color:#E1E4E8">    nf.</span><span style="color:#B392F0">setMinimumIntegerDigits</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    nf.</span><span style="color:#B392F0">setMaximumFractionDigits</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    nf.</span><span style="color:#B392F0">setGroupingUsed</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> nf.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(offset);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>在<code>MappedFileQueue#getLastMappedFile(startOffset, true)</code>中，通过<code>AllocateMappedFileService#putRequestAndReturnMappedFile</code>创建<code>mappedFile</code>，这个是个异步操作。因为<code>AllocateMappedFileService</code>也是和<code>PullMessageService</code>、<code>RebalanceService</code>一样，继承自<code>ServiceThread</code>，而在上一章节中，我们说过<code>ServiceThread</code>继承自<code>Thread</code>.</p>
+<p>关注<code>AllocateMappedFileService#mmapOperation()</code>中如下代码即可：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">MappedFile mappedFile;</span></span>
+<span class="line"><span style="color:#6A737D">//TransientStorePoolEnable为true并且开启异步刷盘，则消息数据先写入堆外内存，然后异步线程把堆外内存数据刷到 PageCache</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (messageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isTransientStorePoolEnable</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        mappedFile </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ServiceLoader.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">(MappedFile.class).</span><span style="color:#B392F0">iterator</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //写入MappedByteBuffer缓冲区，建立磁盘文件-内存映射关系</span></span>
+<span class="line"><span style="color:#E1E4E8">        mappedFile.</span><span style="color:#B392F0">init</span><span style="color:#E1E4E8">(req.</span><span style="color:#B392F0">getFilePath</span><span style="color:#E1E4E8">(), req.</span><span style="color:#B392F0">getFileSize</span><span style="color:#E1E4E8">(), messageStore.</span><span style="color:#B392F0">getTransientStorePool</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (RuntimeException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Use default implementation."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        mappedFile </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MappedFile</span><span style="color:#E1E4E8">(req.</span><span style="color:#B392F0">getFilePath</span><span style="color:#E1E4E8">(), req.</span><span style="color:#B392F0">getFileSize</span><span style="color:#E1E4E8">(), messageStore.</span><span style="color:#B392F0">getTransientStorePool</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">//TransientStorePoolEnable为false，则直接写入 PageCache</span></span>
+<span class="line"><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    mappedFile </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MappedFile</span><span style="color:#E1E4E8">(req.</span><span style="color:#B392F0">getFilePath</span><span style="color:#E1E4E8">(), req.</span><span style="color:#B392F0">getFileSize</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>写入消息时，</p>
+<ul>
+<li>如果 <code>isTransientStorePoolEnable</code> 方法返回 <code>true</code>，则消息数据<code>先写入堆外内存</code>，<code>然后异步线程把堆外内存数据刷到 PageCache</code>；</li>
+<li>如果返回 <code>false</code>，则直接写入 <code>PageCache</code>。后面根据刷盘策略把 PageCache 中数据持久化到磁盘。如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Msg-Write-Strategy.png" alt="消息写入流程"></li>
+</ul>
+<p>但无论先写对堆外内存还是直接写 PageCache，文件数据都会映射到 <code>MappedByteBuffer</code>。不同的是，如果消息先写入堆外内存，则 <code>MappedByteBuffer</code> 主要用来<code>读消息</code>，<code>堆外内存</code>用来<code>写消息</code>。这一定程度上实现了读写分离，减少 <code>PageCache</code> 写入压力。</p>
+<p>再来看看<code>mappedFile.init()</code>方法，对于上述两种情况，其实就是第一种情况多走了一步写对外内存(PS：这里有<code>零拷贝</code>出现，赶紧标记下)。</p>
+<blockquote>
+<p>为了让<code>CommitLog</code>操作效率更高，RocketMQ 使用了 <code>mmap</code> 将磁盘上日志文件映射到用户态的内存地址中，减少日志文件从磁盘到用户态内存之间的数据拷贝。</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MappedFile</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ReferenceResource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //开启transientStorePoolEnable和异步刷盘，走这里</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">fileName</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> fileSize</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> TransientStorePool </span><span style="color:#FFAB70">transientStorePool</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#B392F0">        init</span><span style="color:#E1E4E8">(fileName, fileSize);</span></span>
+<span class="line"><span style="color:#6A737D">        //初始化writeBuffer</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.writeBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transientStorePool.</span><span style="color:#B392F0">borrowBuffer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.transientStorePool </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transientStorePool;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //未开启transientStorePoolEnable或者同步刷盘，走这里</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">fileName</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> fileSize</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fileName;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fileSize;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.file </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> File</span><span style="color:#E1E4E8">(fileName);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileFromOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Long.</span><span style="color:#B392F0">parseLong</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">        ensureDirOK</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file.</span><span style="color:#B392F0">getParent</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.fileChannel </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RandomAccessFile</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file, </span><span style="color:#9ECBFF">"rw"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">getChannel</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //MMAP，刷盘会在CommitLog#asyncPutMessage(final MessageExtBrokerInner msg)方法中落实</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedByteBuffer </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileChannel.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(MapMode.READ_WRITE, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, fileSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">            TOTAL_MAPPED_VIRTUAL_MEMORY.</span><span style="color:#B392F0">addAndGet</span><span style="color:#E1E4E8">(fileSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">            TOTAL_MAPPED_FILES.</span><span style="color:#B392F0">incrementAndGet</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (FileNotFoundException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to create file "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileName, e);</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to map file "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileName, e);</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">ok </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileChannel </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.fileChannel.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>writeBuffer</code>还有印象吗？看看2.3节。</p>
+<h2 id="32-consumequeueindex文件">3.2 ConsumeQueue/Index文件</h2>
+<p><code>消息消费队列文件</code>(ConsumeQueue)、<code>消息属性索引文件</code>(IndexFile)都是基于<code>CommitLog文件</code>构建的，当消息生产者提交的消息存储在CommitLog文件中，ConsumerQueue、IndexFile需要及时更新，否则消息<code>无法及时被消费</code>，根据消息属性查找消息也会出现较大延迟。</p>
+<p>RocketMQ通过开启一个线程<code>ReputMessageService</code>来<strong>准实时</strong>转发CommitLog文件更新事件，相应的<code>任务处理器</code>根据转发的消息及时更新ConsumerQueue、IndexFile文件。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher.png" alt="RocketMQ Dispatcher"></p>
+<p>在 DefaultMessageStore 初始化的时候会启动一个线程 <code>ReputMessageService</code>，这个线程的逻辑是死循环里面<code>每隔1ms</code>执行一次，从 CommitLog 中获取消息然后写入 <code>ConsumeQueue</code> 和 <code>indexFile</code> 文件。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ReputMessageService.png" alt="ReputMessageService初始化"></p>
+<p>其本质上也是一个线程：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> ReputMessageService</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ServiceThread</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMessageStore.log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service started"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isStopped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                Thread.</span><span style="color:#B392F0">sleep</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">doReput</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                DefaultMessageStore.log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service has exception. "</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMessageStore.log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getServiceName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " service end"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>调用路径：<code>ReputMessageService#doReput()</code>-><code>DefaultMessageStore.this.doDispatch</code>-><code>CommitLogDispatcher#dispatch()</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> doDispatch</span><span style="color:#E1E4E8">(DispatchRequest req) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (CommitLogDispatcher dispatcher </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.dispatcherList) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        dispatcher.</span><span style="color:#B392F0">dispatch</span><span style="color:#E1E4E8">(req);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>而<code>CommitLogDispatcher</code>有两个实现类：</p>
+<ul>
+<li><code>CommitLogDispatcherBuildConsumeQueue</code>：写ConsumeQueue；</li>
+<li><code>CommitLogDispatcherBuildIndex</code>：写Index.</li>
+</ul>
+<p>其中，<code>dispatcherList</code>如下构建：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageStoreConfig messageStoreConfig, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> BrokerStatsManager brokerStatsManager,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> MessageArrivingListener messageArrivingListener, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> BrokerConfig brokerConfig) throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">        //ConsumeQueue、Index分发处理器</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.dispatcherList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.dispatcherList.</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> CommitLogDispatcherBuildConsumeQueue</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.dispatcherList.</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> CommitLogDispatcherBuildIndex</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<blockquote>
+<p>可以看到，即使 Broker 挂了，只要 CommitLog 在，就可以重新构建出 ConsumeQueue 和 Index 文件。</p>
+</blockquote>
+<p>上述调用流程图如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatcher-Flow.png" alt="转发CommitLog文件更新事件过程"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatch-to-ConsumeQueue-Flow.png" alt="ConsumeQueue产生过程"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Dispatch-to-IndexFile-Flow.png" alt="Index产生过程"></p>
+<h1 id="4-消息队列和索引文件恢复">4 消息队列和索引文件恢复</h1>
+<p>由于RocketMQ存储首先将消息全量存储在CommitLog文件中，然后<code>异步</code>生成转发任务更新ConsumerQueue和Index文件。如果消息成功存储到CommitLog文件中，转发任务未成功执行，此时消息服务器Broker由于某个原因宕机，导致<code>CommitLog、ConsumerQueue、IndexFile文件数据不一致</code>。如果不加以人工修复的话，会有一部分消息即便在CommitLog中文件中存在，但由于没有转发到ConsumerQueue，这部分消息将永远无法被消费者消费。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeQueue-Index-Recovery-Flow2.png" alt="消息队列和索引文件恢复过程"></p>
+<h2 id="41-存储文件加载">4.1 存储文件加载</h2>
+<p><code>DefaultMessageStore#load</code> 判断上一次是否异常退出。实现机制是Broker在<strong>启动时</strong>创建<code>abort文件</code>，在<strong>退出时</strong>通过<code>JVM钩子函数</code>删除abort文件。如果下次启动时<code>存在</code>abort文件。说明Broker时<code>异常退出</code>的，CommitLog与ConsumerQueue数据有可能不一致，需要进行修复。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-File-Loading.png" alt="存储文件加载"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MessageStore</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //DefaultMessageStore#load</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> load</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //判断临时文件是否存在</span></span>
+<span class="line"><span style="color:#F97583">            boolean</span><span style="color:#E1E4E8"> lastExitOK </span><span style="color:#F97583">=</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isTempFileExist</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"last shutdown {}"</span><span style="color:#E1E4E8">, lastExitOK </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> "normally"</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> "abnormally"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">            //加载延时队列</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> scheduleMessageService) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.scheduleMessageService.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            // 加载CommitLog文件</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.commitLog.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            // 加载 Consume Queue</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">loadConsumeQueue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (result) {</span></span>
+<span class="line"><span style="color:#6A737D">                //加载存储监测点，监测点主要记录CommitLog文件、ConsumerQueue文件、Index索引文件的刷盘点</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.storeCheckpoint </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StoreCheckpoint</span><span style="color:#E1E4E8">(StorePathConfigHelper.</span><span style="color:#B392F0">getStoreCheckpoint</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageStoreConfig.</span><span style="color:#B392F0">getStorePathRootDir</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#6A737D">                //加载index文件</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.indexService.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">(lastExitOK);</span></span>
+<span class="line"><span style="color:#6A737D">                //根据Broker是否异常退出，执行不同的恢复策略</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">recover</span><span style="color:#E1E4E8">(lastExitOK);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"load over, and the max phy offset = {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getMaxPhyOffset</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"load exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">result) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.allocateMappedFileService.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> recover</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> lastExitOK</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //获得ConsumeQueue最大的物理偏移</span></span>
+<span class="line"><span style="color:#F97583">        long</span><span style="color:#E1E4E8"> maxPhyOffsetOfConsumeQueue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">recoverConsumeQueue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //异常文件不存在，则正常恢复；否则，异常恢复</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (lastExitOK) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.commitLog.</span><span style="color:#B392F0">recoverNormally</span><span style="color:#E1E4E8">(maxPhyOffsetOfConsumeQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.commitLog.</span><span style="color:#B392F0">recoverAbnormally</span><span style="color:#E1E4E8">(maxPhyOffsetOfConsumeQueue);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //在CommitLog中保存每个消息消费队列当前的存储逻辑偏移量</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">recoverTopicQueueTable</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="42-正常恢复">4.2 正常恢复</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> recoverNormally</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">long</span><span style="color:#E1E4E8"> maxPhyOffsetOfConsumeQueue) {</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> checkCRCOnRecover </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isCheckCRCOnRecover</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">MappedFile</span><span style="color:#E1E4E8">> mappedFiles </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">getMappedFiles</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">mappedFiles.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            // Began to recover from the last third file</span></span>
+<span class="line"><span style="color:#6A737D">            //Broker正常停止再重启时，从倒数第三个开始恢复，如果不足3个文件，则从第一个文件开始恢复。</span></span>
+<span class="line"><span style="color:#F97583">            int</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (index </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                index </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            MappedFile mappedFile </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(index);</span></span>
+<span class="line"><span style="color:#E1E4E8">            ByteBuffer byteBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">sliceByteBuffer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> processOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileFromOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //代表当前已校验通过的offset</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> mappedFileOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                DispatchRequest dispatchRequest </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">checkMessageAndReturnSize</span><span style="color:#E1E4E8">(byteBuffer, checkCRCOnRecover);</span></span>
+<span class="line"><span style="color:#F97583">                int</span><span style="color:#E1E4E8"> size </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dispatchRequest.</span><span style="color:#B392F0">getMsgSize</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                // Normal data</span></span>
+<span class="line"><span style="color:#6A737D">                //查找结果为true,并且消息长度大于0,表示消息正确. mappedFileOffset向前移动本消息长度</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (dispatchRequest.</span><span style="color:#B392F0">isSuccess</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> size </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    mappedFileOffset </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> size;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                // Come the end of the file, switch to the next file Since the</span></span>
+<span class="line"><span style="color:#6A737D">                // return 0 representatives met last hole,</span></span>
+<span class="line"><span style="color:#6A737D">                // this can not be included in truncate offset</span></span>
+<span class="line"><span style="color:#6A737D">                //如果查找结果为true且消息长度等于0,表示已到该文件末尾,如果还有下一个文件,则重置processOffset和MappedFileOffset重复查找下一个文件,否则跳出循环。</span></span>
+<span class="line"><span style="color:#F97583">                else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (dispatchRequest.</span><span style="color:#B392F0">isSuccess</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> size </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    index</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (index </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // Current branch can not happen</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"recover last 3 physics file over, last mapped file "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                        break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        mappedFile </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(index);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        byteBuffer </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">sliceByteBuffer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        processOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileFromOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        mappedFileOffset </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"recover next physics file, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                // Intermediate file read error</span></span>
+<span class="line"><span style="color:#6A737D">                // 查找结果为false，表明该文件未填满所有消息，跳出循环，结束循环</span></span>
+<span class="line"><span style="color:#F97583">                else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">dispatchRequest.</span><span style="color:#B392F0">isSuccess</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"recover physics file end, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //更新MappedFileQueue的flushedWhere和committedWhere指针</span></span>
+<span class="line"><span style="color:#E1E4E8">            processOffset </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> mappedFileOffset;</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setFlushedWhere</span><span style="color:#E1E4E8">(processOffset);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setCommittedWhere</span><span style="color:#E1E4E8">(processOffset);</span></span>
+<span class="line"><span style="color:#6A737D">            //删除offset之后的所有文件</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">truncateDirtyFiles</span><span style="color:#E1E4E8">(processOffset);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            // Clear ConsumeQueue redundant data</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (maxPhyOffsetOfConsumeQueue </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> processOffset) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"maxPhyOffsetOfConsumeQueue({}) >= processOffset({}), truncate dirty logic files"</span><span style="color:#E1E4E8">, maxPhyOffsetOfConsumeQueue, processOffset);</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">truncateDirtyLogicFiles</span><span style="color:#E1E4E8">(processOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            // Commitlog case files are deleted</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The commitlog files are deleted, and delete the consume queue files"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setFlushedWhere</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setCommittedWhere</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">destroyLogics</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h2 id="43-异常恢复">4.3 异常恢复</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Deprecated</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> recoverAbnormally</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">long</span><span style="color:#E1E4E8"> maxPhyOffsetOfConsumeQueue) {</span></span>
+<span class="line"><span style="color:#6A737D">    //....................省略</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">mappedFiles.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">        // Looking beginning to recover from which file</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        MappedFile mappedFile </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (; index </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; index</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            mappedFile </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(index);</span></span>
+<span class="line"><span style="color:#6A737D">            //判断消息文件是否是一个正确的文件</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isMappedFileMatchedRecover</span><span style="color:#E1E4E8">(mappedFile)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"recover from this mapped file "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mappedFile.</span><span style="color:#B392F0">getFileName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //根据索引取出mappedFile文件</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (index </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            index </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            mappedFile </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mappedFiles.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(index);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //..........验证消息的合法性,并将消息转发到消息消费队列和索引文件</span></span>
+<span class="line"><span style="color:#E1E4E8">           </span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span><span style="color:#F97583">else</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#6A737D">        //未找到mappedFile,重置flushWhere、committedWhere都为0，销毁消息队列文件</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setFlushedWhere</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.mappedFileQueue.</span><span style="color:#B392F0">setCommittedWhere</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">destroyLogics</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="5-刷盘机制">5 刷盘机制</h1>
+<p>RocketMQ的存储是基于<code>JDK NIO</code>的<code>内存映射机制</code>（MappedByteBuffer）的，消息存储首先将消息追加到内存，再根据配置的刷盘策略在不同时间进行刷写磁盘。</p>
+<h2 id="51--同步刷盘">5.1  同步刷盘</h2>
+<p>消息追加到内存后，立即将数据刷写到磁盘文件。调用从<code>CommitLog#asyncPutMessage()</code>开始，调用方法入下，看同步刷盘部分：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> CompletableFuture</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">PutMessageStatus</span><span style="color:#F97583">></span><span style="color:#B392F0"> submitFlushRequest</span><span style="color:#E1E4E8">(AppendMessageResult result, MessageExt messageExt) {</span></span>
+<span class="line"><span style="color:#6A737D">        // Synchronization flush，同步刷盘</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (FlushDiskType.SYNC_FLUSH </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getFlushDiskType</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //刷盘服务</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> GroupCommitService service </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (GroupCommitService) </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.flushCommitLogService;</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (messageExt.</span><span style="color:#B392F0">isWaitStoreMsgOK</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                //封装刷盘请求</span></span>
+<span class="line"><span style="color:#E1E4E8">                GroupCommitRequest request </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> GroupCommitRequest</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getWroteOffset</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> result.</span><span style="color:#B392F0">getWroteBytes</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getSyncFlushTimeout</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                //提交刷盘请求</span></span>
+<span class="line"><span style="color:#E1E4E8">                service.</span><span style="color:#B392F0">putRequest</span><span style="color:#E1E4E8">(request);</span></span>
+<span class="line"><span style="color:#6A737D">                //异步返回</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> request.</span><span style="color:#B392F0">future</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                service.</span><span style="color:#B392F0">wakeup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(PutMessageStatus.PUT_OK);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // Asynchronous flush，异步刷盘</span></span>
+<span class="line"><span style="color:#F97583">        else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //如果未开启transientStorePoolEnable，消息直接追加到物理文件直接映射文件中，然后刷写到磁盘中</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMessageStore.</span><span style="color:#B392F0">getMessageStoreConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isTransientStorePoolEnable</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                flushCommitLogService.</span><span style="color:#B392F0">wakeup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8">  {</span></span>
+<span class="line"><span style="color:#6A737D">                //如果开启transientStorePoolEnable，RocketMQ会单独申请一个与目标物理文件（commitLog）同样大小的堆外内存，该堆外内存将使用内存锁定，确保不会被置换到虚拟内存中去，消息首先追加到堆外内存，然后提交到物理文件的内存映射中，然后刷写到磁盘。</span></span>
+<span class="line"><span style="color:#E1E4E8">                commitLogService.</span><span style="color:#B392F0">wakeup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> CompletableFuture.</span><span style="color:#B392F0">completedFuture</span><span style="color:#E1E4E8">(PutMessageStatus.PUT_OK);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>提交刷盘请求后，由于<code>GroupCommitService</code>也是继承自<code>ServiceThread</code>，因而执行刷盘请求要看<code>run()</code>方法，这里我们关注<code>doCommit()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> doCommit</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.requestsRead) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.requestsRead.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (GroupCommitRequest req </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.requestsRead) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // There may be a message in the next file, so a maximum of</span></span>
+<span class="line"><span style="color:#6A737D">                        // two times the flush</span></span>
+<span class="line"><span style="color:#6A737D">                        //已刷大于等于待刷指针，则证明刷盘成功。消息可能跨文件存储，所以刷两次</span></span>
+<span class="line"><span style="color:#F97583">                        boolean</span><span style="color:#E1E4E8"> flushOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.mappedFileQueue.</span><span style="color:#B392F0">getFlushedWhere</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> req.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 2</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">flushOK; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            CommitLog.this.mappedFileQueue.</span><span style="color:#B392F0">flush</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            flushOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.mappedFileQueue.</span><span style="color:#B392F0">getFlushedWhere</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> req.</span><span style="color:#B392F0">getNextOffset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                        req.</span><span style="color:#B392F0">wakeupCustomer</span><span style="color:#E1E4E8">(flushOK </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> PutMessageStatus.PUT_OK </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> PutMessageStatus.FLUSH_DISK_TIMEOUT);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                    long</span><span style="color:#E1E4E8"> storeTimestamp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> CommitLog.this.mappedFileQueue.</span><span style="color:#B392F0">getStoreTimestamp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (storeTimestamp </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        CommitLog.this.defaultMessageStore.</span><span style="color:#B392F0">getStoreCheckpoint</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">setPhysicMsgTimestamp</span><span style="color:#E1E4E8">(storeTimestamp);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.requestsRead.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // Because of individual messages is set to not sync flush, it</span></span>
+<span class="line"><span style="color:#6A737D">                    // will come to this process</span></span>
+<span class="line"><span style="color:#E1E4E8">                    CommitLog.this.mappedFileQueue.</span><span style="color:#B392F0">flush</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span></code></pre>
+<p>整个同步刷盘流程如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-SYNC-Flush2.png" alt="同步刷盘"></p>
+<h2 id="52--异步刷盘">5.2  异步刷盘</h2>
+<p>在消息追加到内存后，立即返回给消息发送端。</p>
+<ul>
+<li>如果开启<code>transientStorePoolEnable</code>，RocketMQ会单独申请一个与目标物理文件（commitLog）同样大小的<code>堆外内存</code>，该堆外内存将使用内存<code>锁定</code>，确保不会被置换到虚拟内存中去，消息首先<strong>追加</strong>到<code>堆外内存</code>，然后<strong>提交</strong>到<code>物理文件的内存映射</code>中，然后<strong>刷写到磁盘</strong>。</li>
+<li>如果未开启<code>transientStorePoolEnable</code>，消息<strong>直接追加</strong>到<code>物理文件直接映射文件</code>中，然后刷写到磁盘中。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ASYNC-Flush.jpg" alt="异步刷盘"></li>
+</ul>
+<p>开启transientStorePoolEnable后异步刷盘步骤:</p>
+<ul>
+<li>将消息直接追加到ByteBuffer（堆外内存）</li>
+<li><code>CommitRealTimeService</code>线程<code>每隔200ms</code>将ByteBuffer新追加内容提交到MappedByteBuffer中</li>
+<li>MappedByteBuffer在内存中追加提交的内容，wrotePosition指针向后移动</li>
+<li>commit操作成功返回，将committedPosition位置恢复</li>
+<li><code>FlushRealTimeService</code>线程默认<code>每500ms</code>将MappedByteBuffer中新追加的内存刷写到磁盘 代码：CommitLog$CommitRealTimeService#run</li>
+</ul>
+<h1 id="6-过期文件删除机制">6 过期文件删除机制</h1>
+<p>由于RocketMQ操作<code>CommitLog</code>、<code>ConsumerQueue</code>文件是基于内存映射机制并在启动的时候加载<code>CommitLog</code>、<code>ConsumerQueue</code>目录下的所有文件，为了避免内存与磁盘的浪费，不可能将消息永久存储在消息服务器上，所以要引入一种机制来删除<code>已过期的文件</code>。</p>
+<p>RocketMQ<code>顺序写</code>CommitLog、ConsumerQueue文件，所有写操作全部落在最后一个CommitLog或者ConsumerQueue文件上，之前的文件在下一个文件创建后将不会再被更新。</p>
+<p>RocketMQ清除过期文件的方法时：</p>
+<blockquote>
+<p>如果当前文件在在一定时间间隔内没有再次被消费，则认为是过期文件，可以被删除，RocketMQ不会关注这个文件上的消息是否全部被消费。</p>
+<p>默认每个文件的过期时间为<code>72小时</code>，通过在Broker配置文件中设置<code>fileReservedTime</code>来改变过期时间，单位为<code>小时</code>。</p>
+</blockquote> </div> </article>  <!-- </div>
+    </main> --> </body></html>

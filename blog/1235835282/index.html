@@ -1,0 +1,209 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Redis学习】4.高可用之Sentinel</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Redis学习】4.高可用之Sentinel </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#哨兵模式</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>上一章，主要讲述了高可用基础方案-<code>主从复制</code>。读者可能会有这样一种疑问：若主节点挂掉了，谁来处理写操作啊？这个问题显而易见，单节点问题马上显现，因而需要一种机制，能够自动进行故障恢复，而不是需要人工去手动恢复，要是这样，运维估计要骂街了。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-Down.jpg" alt="主从复制主节点宕机">
+Redis提供了几种实现高可用方案的架构，比如本章要介绍的<code>哨兵模式</code>。该模式下，通过监控主节点的状态，可以在主节点宕机后实现自动故障恢复，通过选举实现主备切换。</p>
+<blockquote>
+<p>Redis实现<code>高可用相关的技术</code>。它们包括：<code>持久化</code>、<code>复制</code>、<code>哨兵</code>和<code>集群</code>，其主要作用和解决的问题是：</p>
+<ul>
+<li>持久化：持久化是最简单的高可用方法(有时甚至不被归为高可用的手段)，主要作用是数据备份，即将数据存储在硬盘，保证数据不会因进程退出而丢失。</li>
+<li>复制：复制是<strong>高可用Redis的基础</strong>，哨兵和集群都是在复制基础上实现高可用的。复制主要实现了数据的多机备份，以及对于读操作的负载均衡和简单的故障恢复。<code>缺陷</code>：<strong>故障恢复无法自动化</strong>；<strong>写操作无法负载均衡</strong>；<strong>存储能力受到单机的限制</strong>。</li>
+<li>哨兵：在复制的基础上，哨兵实现了自动化的故障恢复。<code>缺陷</code>：<strong>写操作无法负载均衡</strong>；<strong>存储能力受到单机的限制</strong>。</li>
+<li>集群：通过集群，Redis<strong>解决</strong>了<code>写操作无法负载均衡</code>，以及<code>存储能力受到单机限制</code>的问题，实现了较为完善的高可用方案。</li>
+</ul>
+</blockquote>
+<h1 id="2-机制">2 机制</h1>
+<p><code>Redis Sentinel</code>，即Redis哨兵，在<code>Redis 2.8版本</code>开始引入。哨兵的<code>核心功能</code>是<strong>主节点的自动故障转移</strong>。下面是Redis官方文档对于哨兵功能的描述：</p>
+<ul>
+<li>监控（Monitoring）：哨兵会不断地检查主节点和从节点是否运作正常。</li>
+<li>自动故障转移（Automatic failover）：当主节点不能正常工作时，哨兵会开始自动故障转移操作，它会将<code>失效主节点</code>的其中一个<code>从节点</code>升级为<code>新的主节点</code>，并让其他从节点改为复制新的主节点。</li>
+<li>配置提供者（Configuration provider）：客户端在初始化时，通过<code>连接哨兵</code>来获得当前Redis服务的主节点地址。</li>
+<li>通知（Notification）：哨兵可以将故障转移的结果发送给客户端。</li>
+</ul>
+<p>其中，<code>监控</code>和<code>自动故障转移</code>功能，使得哨兵可以及时发现主节点故障并完成转移；而<code>配置提供者</code>和<code>通知</code>功能，则需要在与客户端的交互中才能体现。</p>
+<p>因而，对于哨兵模式下的Sentinel节点，其主要作用有三个：监控、选主、通知。</p>
+<blockquote>
+<p>Sentinel节点，即哨兵节点，本身也是一种Redis节点，最大不同就是<code>不存储数据</code>，工作职能就是监控主节点，实际上，每个Sentinel节点会对<code>Redis数据节点</code>和<code>其余Sentinel节点</code>进行监控。</p>
+</blockquote>
+<p>一个典型的哨兵集群监控的逻辑图如下所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Arch.png" alt="哨兵模式经典架构"></p>
+<h1 id="3-sentinel集群组建">3 Sentinel集群组建</h1>
+<p>Sentinel实例之间可以相互发现，要归功于 Redis 提供的 <code>pub/sub 机制</code>，也就是<code>发布/订阅机制</code>。</p>
+<p>Sentinel节点启动命令：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">sentinel</span><span style="color:#9ECBFF"> monitor</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">master-nam</span><span style="color:#E1E4E8">e</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">i</span><span style="color:#E1E4E8">p</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">redis-por</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">quoru</span><span style="color:#E1E4E8">m</span><span style="color:#F97583">></span></span></code></pre>
+<p>其中：</p>
+<ul>
+<li><code>master-name</code>：表示Redis主节点名称；</li>
+<li><code>ip</code>：主节点的 IP 地址；</li>
+<li><code>redis-port</code>：主节点的端口号；</li>
+<li><code>quorum</code>：法定投票数，即Sentinel主节点需达到quorum才有资格选举为Sentinel主节点，还有就是需达到此投票数，主节点才会判定为<code>客观下线</code>。</li>
+</ul>
+<p>另外，在Redis主节点中，有一个公共频道<code>__sentinel__:hello</code>，不同哨兵就是通过它来相互发现，实现互相通信的。</p>
+<p>在下图中，<code>Sentinel A</code>把自己的 IP 地址（192.168.50.1）和端口（26379）的信息发布到<code>__sentinel__:hello</code>频道上，<code>Sentinel B</code>（192.168.50.2:26380）和<code>Sentinel C</code>（192.168.50.3:26381）订阅了该频道。那么此时，<code>Sentinel B</code> 和 <code>Sentinel C</code> 就可以从这个频道直接获取<code>Sentinel A</code> 的 IP 地址和端口号。然后，<code>Sentinel B</code>、<code>Sentinel C</code> 可以和<code>Sentinel A</code> 建立网络连接。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-PubSub.png" alt="Sentinel集群发现"></p>
+<h1 id="4-三个定时任务">4 三个定时任务</h1>
+<p>本小节，我将从<code>三个定时任务</code>来说明Sentinel模式下，Sentinel节点如何对Redis进行监控、选主、通知，实现自动故障转移。</p>
+<h2 id="41-10秒sms">4.1 10秒(SMS)</h2>
+<p>这里，为了方便记忆，我将这个<code>每隔10秒</code>执行的定时任务命名为：<code>SMS</code>，意思为<code>Sentinel-Master-Slave</code>。</p>
+<p>通过向主节点发送<code>info replication</code>命令，Sentinel节点可以获取到<code>所有从节点信息列表</code>；接着，Sentinel节点就可以根据从节点列表中的连接信息，和每个从节点建立连接，并在这个连接上持续地对从节点进行监控。<code>Sentinel A</code> 和 <code>Sentinel C</code>可以通过相同的方法和从节点建立连接。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-SMS.png" alt="&#x22;SMS&#x22; 每隔10秒的定时任务"></p>
+<blockquote>
+<p>这也是为什么Sentinel节点不需要显式配置监控从节点的原因。</p>
+</blockquote>
+<p>这个定时任务的<code>作用</code>具体可以表现在<code>三个方面</code>：</p>
+<ul>
+<li>通过向<code>主节点</code>执行<code>info</code>命令，获取从节点的信息，这也是为什么Sentinel节点不需要显式配置监控从节点。</li>
+<li>当有<code>新的从节点</code>加入时都可以立刻感知出来。</li>
+<li>节点不可达或者故障转移后，可以通过<code>info命令</code>实时更新节点拓扑信息。</li>
+</ul>
+<h2 id="42-2秒sm">4.2 2秒(SM)</h2>
+<p><code>SM</code>意思是：<code>Sentinel-Master</code>，即每个Sentinel节点会向Redis数据节点的<code>__sentinel__:hello</code>频道上发送该Sentinel节点对于<code>主节点的判断</code>以及<code>当前Sentinel节点的信息</code>，同时每个Sentinel节点也会订阅该频道，来了解其他Sentinel节点以及它们对主节点的判断。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-SM.png" alt="&#x22;SM&#x22; 每隔2秒的定时任务"></p>
+<p>这个定时任务可以完成以下<code>两个工作</code>：</p>
+<ul>
+<li>发现新的Sentinel节点：通过订阅主节点的<code>__sentinel__:hello</code>了解其他的Sentinel节点信息，如果是新加入的Sentinel节点，将该Sentinel节点信息保存起来，并与该Sentinel节点创建连接。</li>
+<li>Sentinel节点之间交换主节点的状态，作为后面<code>客观下线</code>以及<code>Leader选举</code>的依据。</li>
+</ul>
+<h2 id="43-1秒s-all">4.3 1秒(S-ALL)</h2>
+<p><code>S-ALL</code>意思是：Sentinel节点与所有节点，包括<code>其他Sentinel节点</code>，<code>Redis主从节点</code>的定时任务，即心跳机制。</p>
+<p><code>每隔1秒</code>，每个Sentinel节点会向<code>主节点</code>、<code>从节点</code>、<code>其余Sentinel节点</code>发送一条<code>ping命令</code>做一次<code>心跳检测</code>，来确认这些节点当前是否可达。如图所示。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-S-ALL.png" alt="&#x22;S-ALL&#x22; 每隔1秒的定时任务">
+通过上面的定时任务，Sentinel节点对主节点、从节点、其余Sentinel节点都建立起连接，实现了对每个节点的监控，这个定时任务是节点失败判定的重要依据。</p>
+<blockquote>
+<p>对<code>ping命令</code>的回复可以分为以下两种情况：</p>
+<ul>
+<li>有效回复：返回<code>+PONG</code>、<code>-LOADING</code>、<code>-MASTERDOWN</code>三种回复的其中一种；</li>
+<li>无效回复：返回除上述三种回复之外的<code>其他回复</code>，或者在指定时限内(<code>down-after-milliseconds</code>)没有返回任何回复。</li>
+</ul>
+</blockquote>
+<h2 id="44-选举">4.4 选举</h2>
+<h3 id="441-下线">4.4.1 下线</h3>
+<p>下线有两种类型：</p>
+<ul>
+<li><code>主观下线</code>：即Sentinel节点对于发送出去的心跳，超过<code>down-after-milliseconds</code>没有进行有效回复，Sentinel节点就会对该节点做失败判定，<code>主观判定</code>Redis节点下线。</li>
+<li><code>客观下线</code>：如果主观判定下线的节点为主节点，则该Sentinel节点会向其他Sentinel节点发送<code>sentinel is-master-down-by-addr</code>命令，询问它们对该主节点的判断结果，当超过<code>quorum</code>个数，Sentinel节点认为主节点确实有问题，这时该Sentinel节点会做出<code>客观下线</code>的决定。</li>
+</ul>
+<blockquote>
+<p><code>从节点</code>、<code>Sentinel节点</code>在<strong>主观下线</strong>后，<strong>没有</strong>后续的<code>故障转移</code>操作。</p>
+</blockquote>
+<p>这里有必要对<code>sentinel is-master-down-by-addr</code>命令做一个介绍，它的使用方法如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">sentinel</span><span style="color:#9ECBFF"> is-master-down-by-addr</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">i</span><span style="color:#E1E4E8">p</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">por</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">current_epoc</span><span style="color:#E1E4E8">h</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">runi</span><span style="color:#E1E4E8">d</span><span style="color:#F97583">></span></span></code></pre>
+<p>其中：</p>
+<ul>
+<li><code>ip</code>：Redis主节点IP。</li>
+<li><code>port</code>：Redis主节点端口。</li>
+<li><code>current_epoch</code>：当前配置纪元。</li>
+<li><code>runid</code>：此参数有两种类型，不同类型决定了此API作用的不同：
+<ul>
+<li>当<code>runid等于“*”</code>时，作用是Sentinel节点直接交换对<code>主节点下线的判定</code>。</li>
+<li>当<code>runid等于当前Sentinel节点的runid</code>时，作用是当前Sentinel节点希望目标Sentinel节点同意自己成为领导者(Leader)的请求，有关Sentinel <code>Leader选举</code>，后面会进行介绍。</li>
+</ul>
+</li>
+</ul>
+<p>返回结果包含<code>三个参数</code>，如下所示：</p>
+<ul>
+<li><code>down_state</code>：目标Sentinel节点对于主节点的下线判断，<code>1是下线</code>，<code>0是在线</code>。</li>
+<li><code>leader_runid</code>：当<code>leader_runid</code>等于<code>“*”</code>时，代表返回结果是用来做主节点是否不可达；当<code>leader_runid</code>等于具体的<code>runid</code>，代表目标节点同意<code>runid</code>成为Leader。</li>
+<li><code>leader_epoch</code>：领导者纪元。</li>
+</ul>
+<h4 id="4411-主观下线">4.4.1.1 主观下线</h4>
+<p>示意图如下所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Subjective2.png" alt="主观下线"></p>
+<p>主要通过4.3节的<code>S-ALL</code>定时任务，倘若心跳发出去后，在<code>down-after-milliseconds</code>（单位：毫秒）时间内没有收到目标节点的回复，则该Sentinel节点会对目标节点做出<code>主观下线</code>的判定。</p>
+<h4 id="4412-客观下线">4.4.1.2 客观下线</h4>
+<p>如果Sentinel节点对目标节点是<code>Redis主节点</code>的判定是<code>主观下线</code>，则该Sentinel会通过<code>sentinel is-master-down-by-addr</code>命令，向其他Sentinel节点发出询问，若其他Sentinel节点对于目标主节点判定<code>主观下线</code>的投票数超过<code>quorum</code>，则该节点就会判定为<code>客观下线</code>。</p>
+<blockquote>
+<p>这里再次强调下：是对<code>Redis主节点</code>判定是<code>主观下线</code>，才会有这步动作，如果目标节点是<code>Sentinel节点</code>或者是<code>Redis从节点</code>，则不会有此步<code>问询</code>动作，更不会有<code>故障转移</code>动作。</p>
+<p>简而述之，<code>客观下线只适用于主节点</code>。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Objective.png" alt="客观下线"></p>
+<p>当这个Sentinel节点的赞同票数达到Sentinel节点配置文件中的 <code>quorum</code> 配置项设定的值后，这时主节点就会被该Sentinel节点标记为<code>「客观下线」</code>。</p>
+<h3 id="442-选举">4.4.2 选举</h3>
+<p>判断完Redis主节点下线后，故障转移的工作只需要<code>一个Sentinel节点</code>来完成即可，由哪个Sentinel节点来<strong>执行</strong>主从切换，进而完成故障转移呢？这里就需要<code>Sentinel集群</code>的<code>选举机制</code>了。</p>
+<p>Sentinel节点要想成为<code>Leader</code>，必须满足以下<code>三个条件</code>：</p>
+<ul>
+<li>成为<code>候选人</code>，所谓的候选人就是想当 <code>Leader</code> 的Sentinel节点；</li>
+<li>拿到<code>半数以上</code>的赞成票；</li>
+<li>拿到的票数同时还需要<code>大于等于</code>Sentinel配置文件中的 <code>quorum</code> 值。</li>
+</ul>
+<p>先说第一个条件，成为候选人。 一句话总结：</p>
+<blockquote>
+<p>哪个Sentinel节点判断Redis主节点为<code>「客观下线」</code>，这个Sentinel节点就是候选人。</p>
+</blockquote>
+<p>第二、三个条件，当Sentinel节点对目标主节点判定为主观下线后，会向其他Sentinel节点发送命令：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">sentinel</span><span style="color:#9ECBFF"> is-master-down-by-addr</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">目标主节点i</span><span style="color:#E1E4E8">p</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">目标主节点por</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">current_epoc</span><span style="color:#E1E4E8">h</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">当前Sentinel节点的runi</span><span style="color:#E1E4E8">d</span><span style="color:#F97583">></span></span></code></pre>
+<p>，其中包含<code>当前Sentinel节点的runid</code>，其目的就想让其他Sentinel节点选举自己为Leader。</p>
+<p>当其他Sentinel节点收到后，如果没有同意过其他Sentinel节点的<code>sentinel is-master-down-by-addr</code>命令，将同意该请求，否则拒绝。这样，就会出现两种结果：</p>
+<ul>
+<li>如果该Sentinel节点发现自己的票数已经<strong>大于等于</strong><code>max（quorum，num（sentinels）/2+1）</code>，那么它将成为Leader；</li>
+<li>否则，进行下一次选举。</li>
+</ul>
+<blockquote>
+<p>以 3 个Sentinel节点为例，假设此时的 <code>quorum</code> 设置为 <code>2</code>，那么，任何一个想成为 Leader 的Sentinel节点只要拿到 <code>2 张赞成票</code>，就可以了。</p>
+</blockquote>
+<blockquote>
+<p>选举使用的算法是<code>Raft算法</code>.</p>
+<p>Raft算法的基本思路是<code>先到先得</code>：即在一轮选举中，哨兵A向B发送成为Leader的申请，如果B没有同意过其他哨兵，则会同意A成为Leader。</p>
+<p>选举的具体过程这里不做详细描述，一般来说，哨兵选择的过程很快，<strong>谁先完成客观下线，一般就能成为Leader</strong>。</p>
+</blockquote>
+<p>这里有个很容易混淆的过程：即<code>判定客观下线</code>和<code>是否能够主从切换</code>（选举制度），均涉及投票。</p>
+<p>再举一个例子。Redis 1主4从，5个Sentinel节点部署，Sentinel配置<code>quorum=2</code>，如果<code>3个</code>Sentinel故障，当主节点宕机时，Sentinel能否判断主库“客观下线”？能否自动切换？</p>
+<p>经过实际测试：
+1、结论：Sentinel集群<code>可以判定</code>主库“客观下线”。
+由于<code>quorum=2</code>，所以当一个Sentinel判断主库“主观下线”后，询问另外一个Sentinel后也会得到同样的结果，<code>2个</code>Sentinel都判定“主观下线”，达到了<code>quorum</code>的值，因此，Sentinel集群可以判定主库为“客观下线”。</p>
+<p>2、但Sentinel<code>不能完成</code>主从切换。
+Sentinel标记主库“客观下线”后，在选举“Sentinel领导者”时，一个Sentinel必须拿到<code>超过多数</code>的选票，即<code>5/2+1=3</code>票)。但目前只有<code>2个</code>Sentinel活着，无论怎么投票，一个Sentinel<code>最多只能拿到2票</code>，永远无法达到<code>N/2+1</code>选票的结果。</p>
+<p>所以，<code>quorum</code> 的值建议设置为<code>N/2+1</code>，其中<code>N</code>为Sentinel节点个数，例如 3 个Sentinel节点就设置 2，5 个Sentinel节点设置为 3，而且Sentinel节点的数量<code>N</code>应该是<code>奇数</code>。</p>
+<h3 id="443-主从切换故障转移">4.4.3 主从切换（故障转移）</h3>
+<p>完成上述的Sentinel Leader选举后，接下来，Sentinel Leader就需要进行Redis主节点切换了，选取主节点需要从现有的从节点中进行，主从故障转移操作包含以下<code>四个步骤</code>：</p>
+<ul>
+<li>第一步：在已下线主节点（旧主节点）属下的所有<code>「从节点」</code>里面，挑选出一个从节点，并将其转换为主节点。</li>
+<li>第二步：让已下线主节点属下的所有<code>「从节点」</code>修改复制目标，修改为复制「新主节点」；</li>
+<li>第三步：将新主节点的 IP 地址和信息，通过「发布者/订阅者机制」通知给客户端；</li>
+<li>第四步：继续监视旧主节点，当这个旧主节点重新上线时，将它设置为新主节点的从节点；</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Selection.png" alt="主从切换选主步骤"></p>
+<p>其中，过滤过程主要是过滤掉这些从节点：</p>
+<ul>
+<li>“不健康”（主观下线、断线）；</li>
+<li>5秒内没有回复过Sentinel节点ping响应；</li>
+<li>与主节点失联超过<code>down-after-milliseconds*10</code>秒。</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Selection21.png" alt="故障转移"></p>
+<p>转移之后，整个节点逻辑图如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Sentinel-Selection22.png" alt="故障转移之后"></p>
+<h1 id="5-总结">5 总结</h1>
+<p>Redis 在 <code>2.8版本以后</code>提供的哨兵（Sentinel）机制，它的作用是实现<code>主从节点故障转移</code>。它会监测主节点是否存活，如果发现主节点挂了，它就会选举一个从节点切换为主节点，并且把新主节点的相关信息通知给从节点和客户端。</p>
+<p>Sentinel一般是以集群的方式部署，<code>至少</code>需要 <code>3 个</code>Sentinel节点，Sentinel集群主要负责三件事情：<code>监控</code>、<code>选主</code>、<code>通知</code>。</p>
+<p>Sentinel节点通过 Redis 的<code>发布者/订阅者</code>机制，Sentinel之间可以相互感知，相互连接，然后组成Sentinel集群，同时Sentinel又通过 INFO 命令，在主节点里获得了所有从节点连接信息，于是就能和从节点建立连接，并进行监控了。</p>
+<h2 id="51-第一轮投票判断主节点下线">5.1 第一轮投票：判断主节点下线</h2>
+<p>当Sentinel集群中的某个Sentinel节点判定主节点下线（主观下线）后，就会向其他Sentinel节点发起命令，其他Sentinel节点收到这个命令后，就会根据自身和主节点的网络状况，做出赞成投票或者拒绝投票的响应。</p>
+<p>当这个Sentinel节点的赞同票数达到Sentinel节点配置文件中的 <code>quorum</code> 配置项设定的值后，这时主节点就会被该Sentinel节点标记为<code>「客观下线」</code>。</p>
+<h2 id="52-第二轮投票选出sentinel-leader">5.2 第二轮投票：选出Sentinel Leader</h2>
+<p>某个Sentinel节点判定主节点<code>客观下线</code>后，该Sentinel节点就会发起投票，告诉其他Sentinel节点，它想成为 leader。要想成为 leader 的Sentinel节点，要满足<code>三个条件</code>：</p>
+<ul>
+<li>成为候选人；</li>
+<li>拿到半数以上的赞成票；</li>
+<li>拿到的票数同时还需要<code>大于等于</code>Sentinel节点配置文件中的 <code>quorum</code> 值。</li>
+</ul>
+<h2 id="53-由sentinel-leader-进行主从故障转移">5.3 由Sentinel leader 进行主从故障转移</h2>
+<p>选举出了Sentinel leader 后，就可以进行<code>主从故障转移</code>的过程了。该操作包含以下<code>四个步骤</code>：</p>
+<ul>
+<li>第一步：在已下线主节点（旧主节点）属下的所有「从节点」里面，挑选出一个从节点，并将其转换为主节点，选择的规则：
+<ul>
+<li>过滤掉已经离线的从节点；</li>
+<li>过滤掉历史网络连接状态不好的从节点；</li>
+<li>将剩下的从节点，进行三轮考察：<code>优先级</code>、<code>复制进度offset</code>、<code>runId</code> 。在每一轮考察过程中，如果找到了一个胜出的从节点，就将其作为新主节点。</li>
+</ul>
+</li>
+<li>第二步：让已下线主节点属下的所有<code>「从节点」</code>修改复制目标，修改为复制<code>「新主节点」</code>；</li>
+<li>第三步：将新主节点的 <code>IP 地址</code>和<code>信息</code>，通过<code>「发布者/订阅者机制」</code>通知给客户端；</li>
+<li>第四步：继续监视<code>旧主节点</code>，当这个旧主节点<code>重新上线</code>时，将它设置为<code>新主节点的从节点</code>；</li>
+</ul>
+<h1 id="6-参考">6 参考</h1>
+<ul>
+<li><a href="https://www.xiaolincoding.com/redis/cluster/sentinel.html#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E6%9C%89%E5%93%A8%E5%85%B5%E6%9C%BA%E5%88%B6">为什么要有哨兵？</a></li>
+<li><a href="https://pdai.tech/md/db/nosql-redis/db-redis-x-sentinel.html">高可用：哨兵机制（Redis Sentinel）详解</a></li>
+<li>张益军（付磊）. 《Redis 开发与运维》第9章。</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

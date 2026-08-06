@@ -1,0 +1,185 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Redis学习】3.高可用之主从复制</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Redis学习】3.高可用之主从复制 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Redis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#主从模式</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-概述">1 概述</h1>
+<p>复制，主要用于解决单点问题。生产上通常会备用多个节点，以备主节点宕机之患。同时，对于读场景多的情况，也可以做到负载均衡的效果。</p>
+<blockquote>
+<p>主从复制，是指将一台Redis服务器的数据，复制到其他的Redis服务器。前者称为<code>主节点</code>(master)，后者称为<code>从节点</code>(slave)；</p>
+<p>数据的复制是<code>单向的</code>，只能由<strong>主节点到从节点</strong>。</p>
+</blockquote>
+<p>主从复制的<code>作用</code>主要包括：</p>
+<ul>
+<li><code>数据冗余</code>：主从复制实现了数据的热备份，是持久化之外的一种<code>数据冗余</code>方式。</li>
+<li><code>故障恢复</code>：当主节点出现问题时，可以由从节点提供服务，实现快速的故障恢复；实际上是一种<code>服务的冗余</code>。</li>
+<li><code>负载均衡</code>：在主从复制的基础上，配合<code>读写分离</code>，可以由主节点提供写服务，由从节点提供读服务（即写Redis数据时应用连接主节点，读Redis数据时应用连接从节点），分担服务器负载；尤其是在<code>写少读多</code>的场景下，通过多个从节点分担读负载，可以大大提高Redis服务器的并发量。</li>
+<li><code>高可用基石</code>：除了上述作用以外，主从复制还是哨兵和集群能够实施的基础，因此说主从复制是Redis高可用的基础。</li>
+</ul>
+<h1 id="2-原理">2 原理</h1>
+<p>Redis 提供了<code>主从复制模式</code>，可以保证多台服务器的<code>数据一致性</code>，且主从服务器之间采用的是<code>「读写分离」</code>的方式。</p>
+<ul>
+<li>读操作：主节点、从节点都可以接收；</li>
+<li>写操作：首先到主节点执行，然后，主节点将写操作<code>同步</code>给从节点。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication.png" alt="主从复制示意图"></li>
+</ul>
+<h2 id="21-过程">2.1 过程</h2>
+<h3 id="211-建立连接">2.1.1 建立连接</h3>
+<blockquote>
+<p>主从复制的开启，完全是在<code>从节点</code>发起的；不需要我们在主节点做任何事情。</p>
+</blockquote>
+<p>使用 <code>replicaof</code>（Redis 5.0 之前使用 <code>slaveof</code>）命令形成主节点和从节点的关系。</p>
+<p>从节点开启主从复制，有<code>3种方式</code>：</p>
+<ul>
+<li>配置文件：在<code>从节点</code>服务器的<code>配置文件</code>中加入：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">replicaof</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">masteri</span><span style="color:#E1E4E8">p</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">masterpor</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span></span></code></pre>
+<ul>
+<li>启动命令：<code>redis-server</code>启动命令后加入 <code>--replicaof &#x3C;masterip> &#x3C;masterport></code></li>
+<li>客户端命令：Redis服务器启动后，直接通过客户端执行命令：<code>replicaof &#x3C;masterip> &#x3C;masterport></code>，则该Redis实例成为从节点。</li>
+</ul>
+<blockquote>
+<p>ps: 通过命令<code>replicaof no one</code>，可以断开主从复制关系。</p>
+</blockquote>
+<p>通过<code>replicaof</code>命令启动成功后，从节点会保存主节点的<code>ip</code>、<code>port</code>，然后通过定时任务（间隔1s）向主节点发送建立连接请求，主节点通过后，从节点会发送<code>ping</code>命令验证连接的联通情况，通过之后，若从节点开启了身份验证，则还要经过这一步的验证，验证成功，从节点再向主节点发送端口号，以后主向从发送信息则通过这个端口进行；验证失败，断开连接，重试操作。</p>
+<p>上述流程图如下所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-Connect.png" alt="建立连接过程"></p>
+<h3 id="212-数据同步">2.1.2 数据同步</h3>
+<p>主从复制连接建立起来后，主、从节点就可以开始进行数据同步了。</p>
+<blockquote>
+<p>注意：在<code>2.8版本之前</code>只有全量复制，而<code>2.8版本之后</code>有<code>全量复制</code>和<code>增量复制</code>。</p>
+<ul>
+<li>全量复制：比如第一次同步时.</li>
+<li>增量复制：只会把主从节点<code>网络断连期间</code>，主节点收到的命令，同步给从节点.</li>
+</ul>
+</blockquote>
+<p>这里以<code>2.8版本之后</code>的Redis为例。从节点发送命令：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">psync</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">runI</span><span style="color:#E1E4E8">d</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">offse</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span></span></code></pre>
+<p>其中，<code>runId</code>为<code>主节点的runID</code>，<code>offset</code>为从节点的复制进度。首次主从同步，<code>runId</code>为<code>?</code>，<code>offset</code>为<code>-1</code>。</p>
+<blockquote>
+<p>每个 Redis 服务器在<code>启动时</code>都会<code>自动产生</code>一个<code>随机的 ID</code>来唯一标识自己。即：<code>runId</code>。
+<code>offset</code>为从节点目前从主节点同步的进度，首次同步时，由于没有，所以会给个默认值<code>-1</code>。</p>
+</blockquote>
+<p>主节点收到从节点的同步请求后，根据<code>runId</code>、<code>offset</code>进行判定，该从节点是否曾经同步过。若同步过，则<code>runId</code>必等于自己的<code>runId</code>；否则，从节点为新的节点，需要全量复制进行同步。</p>
+<p><code>runId</code>验证通过，还要验证其<code>offset</code>，主节点自身维护的有一个叫做<code>复制积压缓冲区</code>的东东，用于存储写入的命令及其对应的偏移量，若<code>offset</code>存在于这个<code>复制积压缓冲区</code>中，则可进行<code>增量复制</code>，反之，则需进行<code>全量复制</code>。</p>
+<p>首次同步，主节点返回</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">FULLRESYNC</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">主节点的</span><span style="color:#9ECBFF"> runI</span><span style="color:#E1E4E8">D</span><span style="color:#F97583">></span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF">主节点目前的复制进度</span><span style="color:#9ECBFF"> offse</span><span style="color:#E1E4E8">t</span><span style="color:#F97583">></span></span></code></pre>
+<p>从节点收到响应后，会记录下这两个参数。这里有个地方需要注意，<code>FULLRESYNC</code>响应表示<code>第一次</code>复制采用的全量复制，也就是说，主节点会把当前<code>所有的数据</code>都复制给从节点。</p>
+<p>接着，主节点执行<code>bgsave</code>，将<code>RDB文件</code>发送给从节点，从节点接收到 RDB 文件后，会先<code>清空</code>当前数据节点，然后加载 RDB 文件。</p>
+<p>在主节点将数据同步给从节点的过程中，主节点<code>不会被阻塞</code>，仍然可以正常接收请求。但是，这些请求中的写操作<code>并没有</code>记录到刚刚生成的 RDB 文件中。为了保证主从节点的数据一致性，主节点会在内存中用专门的 <code>replication buffer</code>，<strong>记录 RDB 文件生成后收到的所有写操作</strong>。</p>
+<p>有<code>三个时间间隙</code>，主节点会将收到的写操作命令，写入到 <code>replication buffer</code> 缓冲区里：</p>
+<ul>
+<li>主节点生成 RDB 文件期间；</li>
+<li>主节点发送 RDB 文件给从节点期间；</li>
+<li>「从节点」加载 RDB 文件期间。</li>
+</ul>
+<h3 id="213-命令传播">2.1.3 命令传播</h3>
+<p>从节点完成 RDB 文件的载入后，会回复一个<code>确认消息</code>给主节点。</p>
+<p>接着，主节点将 replication buffer 缓冲区里所记录的写操作命令发送给从节点，从节点执行来自主节点 replication buffer 缓冲区里发来的命令，这时主从节点的数据就一致了。</p>
+<p>至此，主从节点的第一次同步的工作就完成了。</p>
+<p>主从节点在完成第一次同步后，双方之间就会维护一个 <code>TCP 连接</code>，用于命令传播。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-TCP.png" alt="命令传播"></p>
+<p>后续主节点可以通过这个连接继续将写操作命令传播给从节点，然后从节点执行该命令，使得与主节点的数据库状态相同。</p>
+<p>而且这个连接是<code>长连接</code>的，目的是<strong>避免频繁的 TCP 连接和断开带来的性能开销</strong>。</p>
+<p>上面的这个过程被称为<code>基于长连接的命令传播</code>，通过这种方式来保证第一次同步后的<code>主从节点的数据一致性</code>。</p>
+<blockquote>
+<p>在命令传播阶段，除了发送写命令，主从节点还维持着<code>心跳机制</code>：<code>PING</code>和<code>REPLCONF ACK</code>。心跳机制对于主从复制的超时判断、数据安全等有作用。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Heartbeat.png" alt="主从节点心跳机制"></p>
+</blockquote>
+<ul>
+<li><code>主->从</code>：默认<code>每隔 10 秒</code>发送 <code>ping</code> 命令给从节点，判断其存活性和连接状态，由<code>repl-ping-slave-period</code>参数控制，单位是<code>秒</code>；</li>
+<li><code>从->主</code>：<code>每隔 1 秒</code>发送 <code>replconf ack &#x3C;offset></code>，上报自己的 <code>offset</code>，实时监测主从节点网络状态，检测命令丢失（没有断线情况下）。</li>
+</ul>
+<p>上述<code>全量复制同步</code>的过程，总结如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-FullSyn.jpg" alt="全量复制过程"></p>
+<p>如果为<code>增量复制</code>，其流程如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-AppendSyn.jpg" alt="增量复制过程"></p>
+<p>能够完成<code>增量复制</code>的前提主要有：</p>
+<ul>
+<li>主节点复制积压缓冲区（repl_backlog_buffer）：是一个「环形」缓冲区，默认大小是 1M，用于主从节点断连后，从中找到差异的数据；</li>
+<li>主从节点各自的复制偏移量（replication offset）：标记上面那个缓冲区的同步进度，主从节点都有各自的偏移量，主节点使用 <code>master_repl_offset</code> 来记录自己「写」到的位置，从节点使用 <code>slave_repl_offset</code>来记录自己「读」到的位置。</li>
+<li>主节点（runId）</li>
+</ul>
+<blockquote>
+<p>那<code>repl_backlog_buffer</code>缓冲区是什么时候写入的呢？</p>
+</blockquote>
+<p>在主节点进行命令传播时，不仅会将<code>写命令</code>发送给从节点，还会将写命令写入到 <code>repl_backlog_buffer</code> 缓冲区里，因此这个缓冲区里会保存着<strong>最近传播的写命令</strong>。</p>
+<p>网络断开后，当从节点<strong>重新连上</strong>主节点时，从节点会通过 <code>psync 命令</code>将自己的复制偏移量 <code>slave_repl_offset</code>发送给主节点，主节点根据自己的 <code>master_repl_offset</code> 和 <code>slave_repl_offset</code> 之间的差距，然后来决定<strong>对从节点执行哪种同步操作</strong>：</p>
+<ul>
+<li>如果判断出从节点要读取的数据还在 <code>repl_backlog_buffer</code> 缓冲区里，那么主节点将采用<code>增量复制</code>的方式；</li>
+<li>如果判断出从节点要读取的数据已经<strong>不存在</strong> <code>repl_backlog_buffer</code> 缓冲区里，那么主节点将采用<code>全量复制</code>的方式。</li>
+</ul>
+<p>当主节点在 <code>repl_backlog_buffer</code> 中找到主从节点差异（增量）的数据后，就会将增量的数据写入到 <code>replication buffer</code> 缓冲区，这个缓冲区我们前面也提到过，它是缓存将要传播给从节点的命令。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Redis-Replication-AppendSyn2.jpg" alt="增量复制过程"></p>
+<p><code>repl_backlog_buffer</code> 缓行缓冲区的默认大小是 <code>1M</code>，并且由于它是一个<code>环形缓冲区</code>，所以当缓冲区写满后，主节点继续写入的话，就会覆盖之前的数据。因此，当主节点的<code>写入速度</code><strong>远超于</strong>从节点的<code>读取速度</code>，缓冲区的数据一下就会被覆盖。</p>
+<p>那么在网络恢复时，如果从节点想读的数据已经被覆盖了，主节点就会采用<code>全量复制</code>，这个方式比<code>增量复制</code>的<strong>性能损耗要大很多</strong>。</p>
+<p>因此，为了避免在网络恢复时，主节点<code>频繁地</code>使用<code>全量复制</code>的方式，我们应该调整下 <code>repl_backlog_buffer</code> 缓冲区大小，尽可能的大一些，减少出现从节点要读取的数据被覆盖的概率，从而使得主节点采用<code>增量复制</code>的方式。
+一般经验，<code>repl_backlog_buffer</code>大小采用如下方案设定：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">repl-backlog-size</span><span style="color:#9ECBFF"> =</span><span style="color:#9ECBFF"> second</span><span style="color:#79B8FF"> *</span><span style="color:#9ECBFF"> write_size_per_second</span></span></code></pre>
+<p>其中，</p>
+<ul>
+<li><code>second</code>：为从节点断线后<code>重新连接</code>上主节点所需的<code>平均时间</code>(以秒计算)。</li>
+<li><code>write_size_per_second</code>：则是主节点平均每秒产生的写命令数据量大小。</li>
+</ul>
+<blockquote>
+<p>举个例子，如果主节点平均每秒产生 <code>1 MB</code> 的写命令，而从节点断线之后平均要 <code>5 秒</code>才能重新连接主节点。</p>
+<p>那么 <code>repl_backlog_buffer</code> 大小就不能低于 <code>5 MB</code>，否则新写地命令就会覆盖旧数据了。</p>
+<p>当然，为了应对一些突发的情况，可以将 <code>repl_backlog_buffer</code> 的大小设置为此基础上的 <code>2 倍</code>，也就是 <code>10 MB</code>。</p>
+</blockquote>
+<h1 id="3-问题">3 问题</h1>
+<h2 id="31-redis主从节点时长连接还是短连接">3.1 Redis主从节点时长连接还是短连接？</h2>
+<p>长连接</p>
+<h2 id="32-怎么判断-redis-某个节点是否正常工作">3.2 怎么判断 Redis 某个节点是否正常工作？</h2>
+<p>Redis 判断节点是否正常工作，基本都是通过互相的 <code>ping-pong</code> 心态检测机制，如果有<code>一半以上</code>的节点去 <code>ping</code> 一个节点的时候没有 <code>pong</code> 回应，集群就会认为这个节点挂掉了，会断开与这个节点的连接。</p>
+<p>Redis 主从节点发送的心态间隔是不一样的，而且作用也有一点区别：</p>
+<ul>
+<li>Redis 主节点默认<code>每隔 10 秒</code>对从节点发送 <code>ping</code> 命令，判断从节点的存活性和连接状态，可通过参数<code>repl-ping-slave-period</code>控制发送频率。</li>
+<li>Redis 从节点<code>每隔 1 秒</code>发送 <code>replconf ack{offset}</code> 命令，给主节点上报自身当前的复制偏移量，目的是为了：
+<ul>
+<li>实时监测主从节点网络状态；</li>
+<li>上报自身复制偏移量， 检查复制数据是否丢失， 如果从节点数据丢失， 再从主节点的复制缓冲区中拉取丢失数据。</li>
+</ul>
+</li>
+</ul>
+<h2 id="33-主从复制架构中过期key如何处理">3.3 主从复制架构中，过期key如何处理？</h2>
+<p>主节点处理了一个key或者通过淘汰算法淘汰了一个key，这个时间主节点模拟一条<code>del命令</code>发送给从节点，从节点收到该命令后，就进行<code>删除key的操作</code>。</p>
+<h2 id="34-redis-是同步复制还是异步复制">3.4 Redis 是同步复制还是异步复制？</h2>
+<p>Redis 主节点每次收到写命令之后，先写到内部的缓冲区，然后<code>异步</code>发送给从节点。</p>
+<h2 id="35-主从复制中两个-bufferreplication-buffer-repl-backlog-buffer有什么区别">3.5 主从复制中两个 Buffer(replication buffer 、repl backlog buffer)有什么区别？</h2>
+<p><code>replication buffer</code> 、<code>repl backlog buffer</code> 区别如下：</p>
+<ul>
+<li>出现的阶段不一样：
+<ul>
+<li><code>repl backlog buffer</code> 是在<code>增量复制阶段</code>出现，一个主节点只分配一个 <code>repl backlog buffer</code>；</li>
+<li><code>replication buffer</code> 是在<code>全量复制阶段</code>和<code>增量复制阶段</code>都会出现，主节点会给每个新连接的从节点，分配一个 <code>replication buffer</code>；</li>
+</ul>
+</li>
+<li>这两个 Buffer 都有<code>大小限制</code>的，当缓冲区满了之后，发生的事情不一样：
+<ul>
+<li>当 <code>repl backlog buffer</code> 满了，因为是环形结构，会直接<code>覆盖</code>起始位置数据;</li>
+<li>当 <code>replication buffer</code> 满了，会导致连接断开，删除缓存，从节点重新连接，重新开始全量复制。</li>
+</ul>
+</li>
+</ul>
+<h2 id="36-如何应对主从数据不一致">3.6 如何应对主从数据不一致？</h2>
+<blockquote>
+<p>为什么会出现主从数据不一致？</p>
+</blockquote>
+<p>主从数据不一致，就是指客户端从从节点中读取到的值和主节点中的最新值并不一致。</p>
+<p>之所以会出现主从数据不一致的现象，是因为主从节点间的<code>命令复制</code>(命令传播)是<code>异步</code>进行的，所以无法实现<code>强一致性</code>保证（主从数据时时刻刻保持一致）。</p>
+<p>具体来说，在主从节点<code>命令传播阶段</code>，主节点收到新的写命令后，会发送给从节点。但是，主节点并不会等到从节点实际执行完命令后，再把结果返回给客户端，而是主节点自己在本地执行完命令后，就会向客户端返回结果了。如果从节点还没有执行主节点同步过来的命令，主从节点间的数据就不一致了。</p>
+<blockquote>
+<p>如何如何应对主从数据不一致？</p>
+</blockquote>
+<ul>
+<li>第一种方法，尽量保证主从节点间的网络连接状况良好，避免主从节点在不同的机房。</li>
+<li>第二种方法，可以开发一个外部程序来监控主从节点间的复制进度。具体做法：
+<ul>
+<li>Redis 的 <code>INFO replication</code> 命令可以查看主节点接收写命令的进度信息（<code>master_repl_offset</code>）和从节点复制写命令的进度信息（<code>slave_repl_offset</code>），所以，我们就可以开发一个监控程序，先用 <code>INFO replication</code> 命令查到主、从节点的进度，然后，我们用 <code>master_repl_offset</code> 减去 <code>slave_repl_offset</code>，这样就能得到从节点和主节点间的复制进度差值了。</li>
+<li>如果某个从节点的进度差值<code>大于</code>我们预设的阈值，我们可以让客户端不再和这个从节点连接进行数据读取，这样就可以减少读到不一致数据的情况。不过，为了避免出现客户端和所有从节点都不能连接的情况，我们需要把<code>复制进度差值的阈值</code>设置得<code>大</code>一些。</li>
+</ul>
+</li>
+</ul>
+<h1 id="4-参考">4 参考</h1>
+<ul>
+<li><a href="https://www.xiaolincoding.com/redis/cluster/master_slave_replication.html#%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%90%8C%E6%AD%A5">主从复制是怎么实现的？</a></li>
+<li><a href="https://pdai.tech/md/db/nosql-redis/db-redis-x-copy.html">Redis进阶 - 高可用：主从复制详解</a></li>
+<li><a href="https://www.cnblogs.com/kismetv/p/9236731.html#t61">深入学习Redis（3）：主从复制</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

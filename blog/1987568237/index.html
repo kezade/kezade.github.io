@@ -1,0 +1,239 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】字节面试：加了什么锁，导致死锁的？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【每日一面】字节面试：加了什么锁，导致死锁的？ </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/5/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#意向锁</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#间隙锁</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MySQL锁</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>前段时间，一网友进行了字节面试，遇到了一道非常经典的有关MySQL锁相关的问题，咱们来复盘一下，看看这道题怎样才能回答的天衣无缝，能让面试官无地自容。</p>
+<h1 id="1-题目描述">1 题目描述</h1>
+<p>现有数据库表有以下字段：(id, no, name, age, score)，数据如下：</p>
+<ul>
+<li>(15, S0001, Bob, 25, 34)</li>
+<li>(18, S0002, Alice, 24, 77)</li>
+<li>(20, S0003, Jim, 24, 5)</li>
+<li>(30, S0004, Eric, 23, 91)</li>
+<li>(37, S0005, Tom, 22, 22)</li>
+<li>(49, S0006, Tom, 25, 83)</li>
+<li>(50, S0007, Rose, 23, 89)</li>
+</ul>
+<p>现有两个线程如下操作：</p>
+<ul>
+<li>事务A执行：
+<ul>
+<li>time1: update students set score=100 where id=25</li>
+<li>time3: insert into students(id, no, name, age, score) value (25, ‘s0025’, ‘sony’, 28,90)</li>
+</ul>
+</li>
+<li>事务B执行：
+<ul>
+<li>time2: update students set score=100 where id=26</li>
+<li>time4: insert into students(id, no, name, age, score) value(26, ‘S0026’, ‘ace’, 28,90)</li>
+</ul>
+</li>
+</ul>
+<h1 id="2-问题">2 问题</h1>
+<p>在<code>可重复读</code>隔离级别下，这个场景会发生什么？</p>
+<h1 id="3-分析">3 分析</h1>
+<h2 id="31-准备工作">3.1 准备工作</h2>
+<p>先创建一张 <code>t_student</code> 表，假设除了 id 字段，其他字段都是普通字段。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">CREATE</span><span style="color:#F97583"> TABLE</span><span style="color:#E1E4E8"> `</span><span style="color:#B392F0">t_student</span><span style="color:#E1E4E8">` (</span></span>
+<span class="line"><span style="color:#9ECBFF">`id`</span><span style="color:#F97583"> int</span><span style="color:#F97583"> NOT NULL</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">`no`</span><span style="color:#F97583"> varchar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">DEFAULT</span><span style="color:#F97583"> NULL</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">`name`</span><span style="color:#F97583"> varchar</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">255</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">DEFAULT</span><span style="color:#F97583"> NULL</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">`age`</span><span style="color:#F97583"> int</span><span style="color:#F97583"> DEFAULT</span><span style="color:#F97583"> NULL</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">`score`</span><span style="color:#F97583"> int</span><span style="color:#F97583"> DEFAULT</span><span style="color:#F97583"> NULL</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">PRIMARY KEY</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">`id`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">) ENGINE</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">InnoDB </span><span style="color:#F97583">DEFAULT</span><span style="color:#E1E4E8"> CHARSET</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">utf8mb4;</span></span></code></pre>
+<p>然后，插入相关的数据后，t_student 表中的记录如下：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>id</th><th>no</th><th>name</th><th>age</th><th>score</th></tr></thead><tbody><tr><td>15</td><td>S0001</td><td>Bob</td><td>25</td><td>24</td></tr><tr><td>18</td><td>S0002</td><td>Alice</td><td>24</td><td>77</td></tr><tr><td>20</td><td>S0003</td><td>Jim</td><td>24</td><td>5</td></tr><tr><td>30</td><td>S0004</td><td>Eric</td><td>23</td><td>91</td></tr><tr><td>37</td><td>S0005</td><td>Tom</td><td>22</td><td>22</td></tr><tr><td>49</td><td>S0006</td><td>Tom</td><td>25</td><td>83</td></tr><tr><td>50</td><td>S0007</td><td>Rose</td><td>23</td><td>89</td></tr></tbody></table>
+<h2 id="32-当前环境">3.2 当前环境</h2>
+<ul>
+<li>MySQL：8.0.26</li>
+<li>隔离级别：可重复读</li>
+</ul>
+<h2 id="33-开始试验">3.3 开始试验</h2>
+<p>启动两个事务A、B，按照题目的 SQL 执行顺序，过程如下表格：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>阶段</th><th>事务A</th><th>事务B</th></tr></thead><tbody><tr><td></td><td>begin</td><td>begin</td></tr><tr><td>阶段一</td><td>update students set score=100 where <code>id=25</code></td><td></td></tr><tr><td>阶段二</td><td></td><td>update students set score=100 where <code>id=26</code></td></tr><tr><td>阶段三</td><td>insert into students(id, no, name, age, score) value (<code>25</code>, ‘s0025’, ‘sony’, 28,90) 阻塞等待…</td><td></td></tr><tr><td>阶段四</td><td></td><td>insert into students(id, no, name, age, score) value(<code>26</code>, ‘S0026’, ‘ace’, 28,90) 阻塞等待…</td></tr></tbody></table>
+<p>可以看到，事务 A 和 事务 B 都在执行 <code>insert</code> 语句后，都陷入了<code>等待状态</code>（前提没有打开死锁检测），也就是发生了死锁，因为都在相互等待对方释放锁。</p>
+<h2 id="34-为什么会发生死锁">3.4 为什么会发生死锁？</h2>
+<p>我们可以通过 <code>select * from performance_schema.data_locks\G;</code> 这条语句，查看事务执行 SQL 过程中加了什么锁。</p>
+<p>接下来，针对每一条 SQL 语句分析具体加了什么锁。</p>
+<h3 id="341-time-1-阶段加锁分析">3.4.1 Time 1 阶段加锁分析</h3>
+<p>Time 1 阶段，事务 A 执行以下语句：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># 事务 A</span></span>
+<span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">begin</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">Query</span><span style="color:#9ECBFF"> OK,</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF"> rows</span><span style="color:#9ECBFF"> affected</span><span style="color:#E1E4E8"> (0.00 </span><span style="color:#9ECBFF">sec</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">update</span><span style="color:#9ECBFF"> t_student</span><span style="color:#9ECBFF"> set</span><span style="color:#9ECBFF"> score</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 100</span><span style="color:#9ECBFF"> where</span><span style="color:#9ECBFF"> id</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 25</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">Query</span><span style="color:#9ECBFF"> OK,</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF"> rows</span><span style="color:#9ECBFF"> affected</span><span style="color:#E1E4E8"> (0.01 </span><span style="color:#9ECBFF">sec</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Rows</span><span style="color:#9ECBFF"> matched:</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF">  Changed:</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF">  Warnings:</span><span style="color:#79B8FF"> 0</span></span></code></pre>
+<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 A 此时加了什么锁。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update.jpg" alt="事务A的update分析"></p>
+<p>从上图可以看到，共加了<code>两个锁</code>，分别是：</p>
+<ul>
+<li>表锁：X 类型的意向锁；</li>
+<li>行锁：X 类型的间隙锁；</li>
+</ul>
+<p>这里我们重点关注<code>行锁</code>，图中 <code>LOCK_TYPE</code> 中的 <code>RECORD</code> 表示<code>行级锁</code>，而<strong>不是记录锁的意思</strong>，通过 <code>LOCK_MODE</code> 可以确认是 <code>next-key</code> 锁，还是<code>间隙锁</code>，还是<code>记录锁</code>：</p>
+<ul>
+<li>如果 LOCK_MODE 为 <code>X</code>，说明是 <code>next-key 锁</code>；</li>
+<li>如果 LOCK_MODE 为 <code>X, REC_NOT_GAP</code>，说明是<code>记录锁</code>；</li>
+<li>如果 LOCK_MODE 为 <code>X, GAP</code>，说明是<code>间隙锁</code>；</li>
+</ul>
+<p>因此，此时事务 A 在主键索引<code>（INDEX_NAME : PRIMARY）</code>上加的是<code>间隙锁</code>，锁范围是<code>(20, 30)</code>。</p>
+<p>间隙锁的范围(20, 30) ，是怎么确定的？</p>
+<p>根据我的经验，如果 <code>LOCK_MODE</code> 是 <code>next-key 锁</code>或者<code>间隙锁</code>，那么 <code>LOCK_DATA</code> 就表示锁的范围<strong>最右值</strong>，此次的事务 A 的 LOCK_DATA 是 <code>30</code>。</p>
+<p>然后锁范围的<strong>最左值</strong>是 t_student 表中 id 为 <code>30</code> 的<strong>上一条记录</strong>的 id 值，即 <code>20</code>。如下图所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Update2.jpg" alt="事务A的update语句的锁范围"></p>
+<p>因此，间隙锁的范围(20, 30)。</p>
+<h3 id="342-time-2-阶段加锁分析">3.4.2 Time 2 阶段加锁分析</h3>
+<p>Time 2 阶段，事务 B 执行以下语句：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># 事务 B</span></span>
+<span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">begin</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">Query</span><span style="color:#9ECBFF"> OK,</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF"> rows</span><span style="color:#9ECBFF"> affected</span><span style="color:#E1E4E8"> (0.00 </span><span style="color:#9ECBFF">sec</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">update</span><span style="color:#9ECBFF"> t_student</span><span style="color:#9ECBFF"> set</span><span style="color:#9ECBFF"> score</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 100</span><span style="color:#9ECBFF"> where</span><span style="color:#9ECBFF"> id</span><span style="color:#9ECBFF"> =</span><span style="color:#79B8FF"> 26</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">Query</span><span style="color:#9ECBFF"> OK,</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF"> rows</span><span style="color:#9ECBFF"> affected</span><span style="color:#E1E4E8"> (0.01 </span><span style="color:#9ECBFF">sec</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Rows</span><span style="color:#9ECBFF"> matched:</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF">  Changed:</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF">  Warnings:</span><span style="color:#79B8FF"> 0</span></span></code></pre>
+<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 B 此时加了什么锁。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Update.jpg" alt="事务B的update分析"></p>
+<p>从上图可以看到，行锁是 X 类型的间隙锁，间隙锁的范围是(20, 30)。</p>
+<blockquote>
+<p>事务 A 和 事务 B 的间隙锁范围都是一样的，为什么不会冲突？
+先说结论：两个事务的间隙锁之间是相互兼容的，不会产生冲突。
+在MySQL官网上还有一段非常关键的描述：</p>
+<blockquote>
+<p>Gap locks in InnoDB are “purely inhibitive”, which means that their only purpose is to prevent other transactions from Inserting to the gap. Gap locks can co-exist. A gap lock taken by one transaction does not prevent another transaction from taking a gap lock on the same gap. There is no difference between shared and exclusive gap locks. They do not conflict with each other, and they perform the same function.</p>
+</blockquote>
+</blockquote>
+<p><code>间隙锁</code>的意义只在于<strong>阻止区间被插入</strong>，因此是可以共存的。一个事务获取的间隙锁不会阻止另一个事务获取同一个间隙范围的间隙锁，共享（S型）和排他（X型）的间隙锁是没有区别的，他们相互不冲突，且功能相同。</p>
+<h3 id="343-time-3-阶段加锁分析">3.4.3 Time 3 阶段加锁分析</h3>
+<p>Time 3，事务 A 插入了一条记录：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">insert</span><span style="color:#9ECBFF"> into</span><span style="color:#9ECBFF"> t_student</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">id,</span><span style="color:#9ECBFF"> no,</span><span style="color:#9ECBFF"> name,</span><span style="color:#9ECBFF"> age,score</span><span style="color:#E1E4E8">) </span><span style="color:#9ECBFF">value</span><span style="color:#E1E4E8"> (25, </span><span style="color:#9ECBFF">'S0025',</span><span style="color:#9ECBFF"> 'sony',</span><span style="color:#9ECBFF"> 28,</span><span style="color:#79B8FF"> 90</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">//</span><span style="color:#9ECBFF"> 阻塞等待......</span></span></code></pre>
+<p>此时，事务 A 就陷入了等待状态。</p>
+<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 A 在获取什么锁而导致被阻塞。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-A-Insert.jpg" alt="事务A的insert分析"></p>
+<p>可以看到，事务 A 的状态为<code>等待状态</code>（LOCK_STATUS: WAITING），因为向事务 B 生成的间隙锁（范围 (20, 30)）中插入了一条记录，所以事务 A 的插入操作生成了一个<code>插入意向锁</code>（LOCK_MODE:INSERT_INTENTION）。</p>
+<blockquote>
+<p>插入意向锁是什么？
+注意！插入意向锁名字里虽然有意向锁这三个字，但是它并不是意向锁，它属于<code>行级锁</code>，是一种<code>特殊的间隙锁</code>。</p>
+<p>在MySQL的官方文档中有以下重要描述：
+An Insert intention lock is a type of gap lock set by Insert operations prior to row Insertion. This lock signals the intent to Insert in such a way that multiple transactions Inserting into the same index gap need not wait for each other if they are not Inserting at the same position within the gap. Suppose that there are index records with values of 4 and 7. Separate transactions that attempt to Insert values of 5 and 6, respectively, each lock the gap between 4 and 7 with Insert intention locks prior to obtaining the exclusive lock on the Inserted row, but do not block each other because the rows are nonconflicting.</p>
+</blockquote>
+<p>这段话表明尽管插入意向锁是一种特殊的间隙锁，但不同于间隙锁的是，该锁只用于<code>并发插入</code>操作。</p>
+<p>如果说间隙锁锁住的是一个区间，那么<code>插入意向锁</code>锁住的就是<code>一个点</code>。因而从这个角度来说，插入意向锁确实是一种特殊的间隙锁。</p>
+<blockquote>
+<p><code>插入意向锁</code>与<code>间隙锁</code>的另一个非常重要的差别是：尽管<code>插入意向锁</code>也属于间隙锁，但两个事务却不能在同一时间内，一个拥有间隙锁，另一个拥有该间隙区间内的插入意向锁（当然，插入意向锁如果不在间隙锁区间内则是可以的）。所以，插入意向锁和间隙锁之间是<code>冲突的</code>。</p>
+</blockquote>
+<p>另外，我补充一点，插入意向锁的生成时机：</p>
+<blockquote>
+<p>每插入一条新记录，都需要看一下待插入记录的下一条记录上是否已经被加了间隙锁，如果已加间隙锁，此时会生成一个插入意向锁，然后锁的状态设置为<code>等待状态</code>（PS：MySQL 加锁时，是先生成锁结构，然后设置锁的状态，如果锁状态是等待状态，并不是意味着事务成功获取到了锁，只有当锁状态为正常状态时，才代表事务成功获取到了锁），现象就是 Insert 语句会被阻塞。</p>
+</blockquote>
+<h3 id="344-time-4-阶段加锁分析">3.4.4 Time 4 阶段加锁分析</h3>
+<p>Time 4，事务 B 插入了一条记录：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">mysql</span><span style="color:#E1E4E8">> </span><span style="color:#9ECBFF">insert</span><span style="color:#9ECBFF"> into</span><span style="color:#9ECBFF"> t_student</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">id,</span><span style="color:#9ECBFF"> no,</span><span style="color:#9ECBFF"> name,</span><span style="color:#9ECBFF"> age,score</span><span style="color:#E1E4E8">) </span><span style="color:#9ECBFF">value</span><span style="color:#E1E4E8"> (26, </span><span style="color:#9ECBFF">'S0026',</span><span style="color:#9ECBFF"> 'ace',</span><span style="color:#9ECBFF"> 28,</span><span style="color:#79B8FF"> 90</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">//</span><span style="color:#9ECBFF"> 阻塞等待......</span></span></code></pre>
+<p>此时，事务 B 就陷入了<code>等待状态</code>。</p>
+<p>然后执行 <code>select * from performance_schema.data_locks\G; </code>这条语句，查看事务 B 在获取什么锁而导致被阻塞。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-B-Insert.jpg" alt="事务B的insert分析"></p>
+<p>可以看到，事务 B 在生成<code>插入意向锁</code>时而导致被阻塞，这是因为事务 B 向事务 A 生成的范围为 <code>(20, 30)</code> 的间隙锁插入了一条记录，而插入意向锁和间隙锁是<code>冲突的</code>，所以事务 B 在获取插入意向锁时就陷入了<code>等待状态</code>。</p>
+<h3 id="355-案例总结">3.5.5 案例总结</h3>
+<p>最后回答，为什么会发生死锁？</p>
+<p>本次案例中，事务 A 和事务 B 在执行完后 <code>update</code> 语句后都持有范围为<code>(20, 30)</code>的间隙锁，而接下来的插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了<code>循环等待</code>，满足了死锁的四个条件：<code>互斥</code>、<code>占有且等待</code>、<code>不可强占用</code>、<code>循环等待</code>，因此发生了<code>死锁</code>。</p>
+<h1 id="4-总结">4 总结</h1>
+<p>两个事务即使生成的间隙锁的范围是一样的，也不会发生冲突，因为间隙锁目的是为了防止其他事务插入数据，因此<strong>间隙锁与间隙锁之间是相互兼容的</strong>。</p>
+<p>在执行<code>插入语句</code>时，如果插入的记录在其他事务持有<code>间隙锁</code>范围内，插入语句就会被阻塞，因为插入语句在碰到间隙锁时，会生成一个插入意向锁，然后<code>插入意向锁</code>和<code>间隙锁</code>之间是<code>互斥</code>的关系。</p>
+<p>如果两个事务分别向对方持有的间隙锁范围内插入一条记录，而插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了循环等待，满足了<code>死锁的四个条件</code>：互斥、占有且等待、不可强占用、循环等待，因此发生了死锁。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

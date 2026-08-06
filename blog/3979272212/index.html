@@ -1,0 +1,80 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】108.将有序数组转换为二叉搜索树</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】108.将有序数组转换为二叉搜索树 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/4/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二分法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#递归</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给你一个整数数组 <code>nums</code> ，其中元素已经按<strong>升序</strong>排列，请你将其转换为一棵<code>高度平衡二叉搜索树</code>。</p>
+<blockquote>
+<p><code>高度平衡二叉树</code>是一棵满足「每个节点的左右两个子树的高度差的绝对值不超过 1 」的二叉树。</p>
+</blockquote>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC108-1.jpeg" alt="示例1"></p>
+<blockquote>
+<p>输入：nums = [-10,-3,0,5,9]
+输出：[0,-3,9,-10,null,5]
+解释：[0,-10,5,null,-3,null,9] 也将被视为正确答案：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC108-2.jpeg" alt="示例1结果"></p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/LC108-3.jpeg" alt="示例2"></p>
+<blockquote>
+<p>输入：nums = [1,3]
+输出：[3,1]
+解释：[1,null,3] 和 [3,1] 都是<code>高度平衡二叉搜索树</code>。</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>1 &#x3C;= nums.length &#x3C;= 104</li>
+<li>-104 &#x3C;= nums[i] &#x3C;= 104</li>
+<li>nums 按<strong>严格递增</strong>顺序排列</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>二叉树结构：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode left;</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode right;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    TreeNode</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> val</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">left</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">right</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.val </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.left </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> left;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.right </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> right;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>题目中醒目给出数组是<code>严格递增的</code>，也就是数组不存在相同的元素且升序排列。立马应该想到<code>二分法</code><strong>递归</strong>解决此类问题。</p>
+<p>而<code>高度平衡二叉搜索树</code>要求结果不能随意是一个二叉树，因此再构造的时候，</p>
+<ul>
+<li>当前节点的左子树所有节点的元素值一定是<strong>严格小于</strong>当前节点的值；</li>
+<li>其右子树所有节点的元素值一定是<strong>严格大于</strong>当前节点的值。</li>
+</ul>
+<p>我们可以结合题目给定的<code>严格递增</code>条件，轻松解决：</p>
+<ul>
+<li>定义构造BST的方法为：<code>TreeNode createBST(int[] nums, int start, int end);</code>，其中<code>nums</code>是题目已知的数组，start表示子树的起始位置，end则表示子树的结束位置；</li>
+<li>选择数组中间节点为根节点：<code>TreeNode root = new TreeNode(nums[mid]);</code></li>
+<li><code>root.left=createBST(nums, start, mid - 1);</code>，递归解决当前节点左子树构造问题，限定了左子树的范围是在数组索引<code>[start, mid-1]</code>的范围；</li>
+<li>同理，<code>root.right = createBST(nums, mid + 1, end);</code>，解决其右子树构造问题，其右子树在数组的范围是<code>[mid+1, end]</code>。</li>
+</ul>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">sortedArrayToBST</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //二分法（提示了 严格递增数组）</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> createBST</span><span style="color:#E1E4E8">(nums, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, nums.length </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> TreeNode </span><span style="color:#B392F0">createBST</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> start</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> end</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (start </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> end) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> mid </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> start </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> (end </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> start) </span><span style="color:#F97583">/</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //build a root</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode root </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TreeNode</span><span style="color:#E1E4E8">(nums[mid]);</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.left </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBST</span><span style="color:#E1E4E8">(nums, start, mid </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        root.right </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBST</span><span style="color:#E1E4E8">(nums, mid </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">, end);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

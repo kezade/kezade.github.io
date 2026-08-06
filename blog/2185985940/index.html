@@ -1,0 +1,35 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【新鲜事】Nacos2.3.0正式发布</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【新鲜事】Nacos2.3.0正式发布 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/13/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Nacos</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#注册中心</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#配置中心</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>Nacos，一个用于构建云原生应用的动态服务发现、配置管理和服务管理平台，由阿里巴巴开源，致力于发现、配置和管理微服务。</p>
+<p>总体上，Nacos主要功能分为两大块：注册中心、配置中心。</p>
+<p>11月30日，Nacos发布了2.3.0正式版，接下来就介绍下本次又带来了哪些新的特性。</p>
+<h1 id="一反脆弱插件转正">一、反脆弱插件转正</h1>
+<p>Nacos 2.2.0 版本开始加入<code>反脆弱插件(Nacos Control Plugin)</code>，从 2.3.0 版本开始正式转正可用。</p>
+<h2 id="11-用途">1.1 用途</h2>
+<p>反脆弱插件，即<code>防止服务端变得脆弱</code>，它的主要用途是保护 Nacos 服务端避免出现大规模故障，就算在高压情况下也能快速拒绝请求，防止过多的资源访问导致服务端资源耗尽引起的大面积不可用。</p>
+<h2 id="12-实现策略">1.2 实现策略</h2>
+<p>反脆弱插件的具体实现策略就是，当访问服务端的某种资源的频率或次数达到一定程度时，则限制其访问。</p>
+<p>Nacos 支持通过<code>SPI</code>的方式注入反脆弱相关插件，并支持在<code>application.properties</code>配置文件中配置一个反脆弱插件的实现，SPI 机制的灵活性可以大大增加了反脆弱插件的扩展灵活性，这个机制也贯穿了阿里系开源框架。</p>
+<h2 id="二服务端及客户端间的能力协商机制">二、服务端及客户端间的能力协商机制</h2>
+<p>我们都知道，Nacos 分为服务端和客户端，随着 Nacos 版本越来越高，功能越来越多，不同版本间对新增功能支持程度也会很大的差异。</p>
+<p>当版本和功能越来越多的时候，如果版本不一致，两者的通信可能存储一定的兼容性问题。比如，服务端有这个功能，而客户端的版本不支持，这样就会产生兼容性问题，也会带来多余和通信开销。</p>
+<p>在 Nacos 2.3.0 之前的版本中，Nacos 中的很多能力都是根据<code>版本号</code>来判断的，可读性、可维护性和可扩展性都很差。所以，Nacos 2.3.0 新增了一个客户端和服务端之间的能力协商机制。</p>
+<p>这个能力协商机制，可以让连接的双方都知道对方能支持的所有功能，以便双方都开启对应的功能并进行相应的操作，避免盲目的试错带来的系统性问题及额外开销。</p>
+<h2 id="三配置变更插件">三、配置变更插件</h2>
+<p>配置变更插件(Config Change Plugin)，可用于 Nacos 配置中心能在配置发生变更时，通知一些特定系统，比如，可用于发送配置变更记录、变更提醒及警告、审计等功能等。</p>
+<p>在<code>Nacos2.3.0之前</code>的版本中，Nacos 只能通过模拟客户端订阅配置的方式实现，这种方式存在许多的局限性。所以，Nacos 2.3.0 正式推出了 Nacos 配置变更插件。</p>
+<p>该插件也支持通过<code>SPI</code>的方式注入配置，也支持用户自定义配置变更插件，可以对配置变更前，和变更完成后分别执行一些自定义逻辑，如格式校验，白名单校验，webhook 通知等，相比之前的方式要更强大、更灵活。</p>
+<h2 id="四更多新特性">四、更多新特性</h2>
+<p>Nacos 2.3.0 还新增了以下几个重要特性：</p>
+<ul>
+<li>支持通过 gRPC 注册或注销持久化实例。</li>
+<li>支持 gRPC 使用 SSL 连接。</li>
+<li>支持 Nacos 客户端请求服务器异常指标。</li>
+<li>支持当客户端请求实例 ID 为空时自动创建 ID。</li>
+<li>支持在控制台中获取更多模块状态和开关。</li>
+<li>支持验证大多数的请求参数。</li>
+<li>支持在控制台 UI 中配置 toml 格式。</li>
+<li>支持批量注销服务实例。</li>
+<li>支持禁用控制台 UI 并添加引导信息。</li>
+</ul>
+<p>更多详情，参见官方原文：<code>https://github.com/alibaba/nacos/releases/tag/2.3.0</code></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

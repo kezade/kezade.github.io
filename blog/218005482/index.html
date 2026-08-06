@@ -1,0 +1,714 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】16.SpringBoot整合RocketMQ实战</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】16.SpringBoot整合RocketMQ实战 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/22/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ实战</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-springboot整合rocketmq">1 SpringBoot整合RocketMQ</h1>
+<p>简单四步即可将两者整合在一起。</p>
+<h2 id="11-引入依赖">1.1 引入依赖</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>org.apache.rocketmq&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>rocketmq-spring-boot-starter&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span></code></pre>
+<h2 id="12-配置">1.2 配置</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">rocketmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">    consumer</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">        group</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">springboot_consumer_group</span></span>
+<span class="line"><span style="color:#6A737D">        # 一次拉取消息最大值，注意是拉取消息的最大值而非消费最大值</span></span>
+<span class="line"><span style="color:#85E89D">        pull-batch-size</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">10</span></span>
+<span class="line"><span style="color:#85E89D">    name-server</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">localhost:9876</span></span>
+<span class="line"><span style="color:#85E89D">    producer</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">        # 发送同一类消息的设置为同一个group，保证唯一</span></span>
+<span class="line"><span style="color:#85E89D">        group</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">springboot_producer_group</span></span>
+<span class="line"><span style="color:#6A737D">        # 发送消息超时时间，默认3000</span></span>
+<span class="line"><span style="color:#85E89D">        sendMessageTimeout</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">10000</span></span>
+<span class="line"><span style="color:#6A737D">        # 发送消息失败重试次数，默认2</span></span>
+<span class="line"><span style="color:#85E89D">        retryTimesWhenSendFailed</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#6A737D">        # 异步消息重试此处，默认2</span></span>
+<span class="line"><span style="color:#85E89D">        retryTimesWhenSendAsyncFailed</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#6A737D">        # 消息最大长度，默认1024 * 1024 * 4(默认4M)</span></span>
+<span class="line"><span style="color:#85E89D">        maxMessageSize</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">4096</span></span>
+<span class="line"><span style="color:#6A737D">        # 压缩消息阈值，默认4k(1024 * 4)</span></span>
+<span class="line"><span style="color:#85E89D">        compressMessageBodyThreshold</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">4096</span></span>
+<span class="line"><span style="color:#6A737D">        # 是否在内部发送失败时重试另一个broker，默认false</span></span>
+<span class="line"><span style="color:#85E89D">        retryNextServer</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">false</span></span></code></pre>
+<h2 id="13-消费监听">1.3 消费监听</h2>
+<p>实现RocketMQListener接口，完成消息的监听，消费消息。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> org.apache.rocketmq.spring.annotation.RocketMQMessageListener;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> org.apache.rocketmq.spring.core.RocketMQListener;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> org.springframework.stereotype.Component;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Component</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RocketMQMessageListener</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">topic</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "SqlFilterTest"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">consumerGroup</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "springboot_consumer_group"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MyConsumer</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> RocketMQListener</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onMessage</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 处理消息的逻辑</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Received message: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> message);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="14-发送接口">1.4 发送接口</h2>
+<p>这里将发送消息（生产者）写成接口，方便调试。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RestController</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NormalProduceController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#E1E4E8"> RocketMQTemplate rocketmqTemplate;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">GetMapping</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/test"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#E1E4E8"> SendResult </span><span style="color:#B392F0">test</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">      Message&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> msg </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageBuilder.</span><span style="color:#B392F0">withPayload</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Hello,RocketMQ"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">      rocketmqTemplate.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterTest"</span><span style="color:#E1E4E8">, msg);</span></span>
+<span class="line"><span style="color:#F97583">      return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SendResult</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="2-常见的使用过程中的问题">2 常见的使用过程中的问题</h1>
+<h2 id="21-warn-no-appenders-could-be-found-for-logger">2.1 WARN No appenders could be found for logger</h2>
+<p>启动项目时会在日志中看到如下告警</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">RocketMQLog:WARN</span><span style="color:#9ECBFF"> No</span><span style="color:#9ECBFF"> appenders</span><span style="color:#9ECBFF"> could</span><span style="color:#9ECBFF"> be</span><span style="color:#9ECBFF"> found</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> logger</span><span style="color:#E1E4E8"> (io.netty.util.internal.InternalThreadLocalMap).</span></span>
+<span class="line"><span style="color:#B392F0">RocketMQLog:WARN</span><span style="color:#9ECBFF"> Please</span><span style="color:#9ECBFF"> initialize</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> logger</span><span style="color:#9ECBFF"> system</span><span style="color:#9ECBFF"> properly.</span></span></code></pre>
+<p>此时我们只需要在启动类中设置环境变量<code>rocketmq.client.logUseSlf4j</code> 为 <code>true</code>，明确指定RocketMQ的日志框架。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">SpringBootApplication</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketDemoApplication</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        /*</span></span>
+<span class="line"><span style="color:#6A737D">         * 指定使用的日志框架，否则将会告警</span></span>
+<span class="line"><span style="color:#6A737D">         * RocketMQLog:WARN No appenders could be found for logger (io.netty.util.internal.InternalThreadLocalMap).</span></span>
+<span class="line"><span style="color:#6A737D">         * RocketMQLog:WARN Please initialize the logger system properly.</span></span>
+<span class="line"><span style="color:#6A737D">         */</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.</span><span style="color:#B392F0">setProperty</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"rocketmq.client.logUseSlf4j"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        SpringApplication.</span><span style="color:#B392F0">run</span><span style="color:#E1E4E8">(RocketDemoApplication.class, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>同时还得在配置文件中调整<code>日志级别</code>，不然在控制台会一直看到broker的日志信息。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">logging</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  level</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">    # 关闭RocketmqClient info日志，不然每隔几秒就会打印broker信息</span></span>
+<span class="line"><span style="color:#85E89D">    RocketmqClient</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">ERROR</span></span>
+<span class="line"><span style="color:#85E89D">    io</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      netty</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">ERROR</span></span></code></pre>
+<h2 id="22-不支持localdate-和-localdatetime">2.2 不支持LocalDate 和 LocalDateTime</h2>
+<p>在使用Java8后经常会使用<code>LocalDate/LocalDateTime</code>这两个时间类型字段，然而RocketMQ原始配置并不支持Java时间类型，当我们发送的实体消息中包含上述两个字段时，消费端在消费时会出现如下所示的错误。</p>
+<p>比如生产者的代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">GetMapping</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/test"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">ApiOperation</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">value</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "发送RocketMQ普通消息-时间格式"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> test</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //普通消息无返回值，只负责发送消息⽽不等待服务器回应且没有回调函数触发。</span></span>
+<span class="line"><span style="color:#E1E4E8">        RocketMessage rocketMessage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RocketMessage.</span><span style="color:#B392F0">builder</span><span style="color:#E1E4E8">().</span></span>
+<span class="line"><span style="color:#B392F0">                id</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1111L</span><span style="color:#E1E4E8">).</span></span>
+<span class="line"><span style="color:#B392F0">                message</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"hello,world"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">                .</span><span style="color:#B392F0">localDate</span><span style="color:#E1E4E8">(LocalDate.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">                .</span><span style="color:#B392F0">localDateTime</span><span style="color:#E1E4E8">(LocalDateTime.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">                .</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        rocketmqTemplate.</span><span style="color:#B392F0">convertAndSend</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SqlFilterTest"</span><span style="color:#E1E4E8">, rocketMessage);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>消费者的代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Component</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RocketMQMessageListener</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">consumerGroup</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "springboot_consumer_group"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">topic</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "SqlFilterTest"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQConsumer</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> RocketMQListener</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">RMQController</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">RocketMessage</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onMessage</span><span style="color:#E1E4E8">(RMQController.RocketMessage </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"RocketMQConsumer消费消息-"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> message);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>消费者开始消费时会出现类型转换异常错误<code>Cannot construct instance of java.time.LocalDate</code>，错误详情如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-localDate-Error.png" alt="解析java时间格式错误"></p>
+<p>原因：</p>
+<blockquote>
+<p>RocketMQ内置使用的转换器是<code>RocketMQMessageConverter</code>，转换Json时使用的是<code>MappingJackson2MessageConverter</code>，但是这个转换器不支持时间类型。</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQMessageConverter</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> JACKSON_PRESENT;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> FASTJSON_PRESENT;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CompositeMessageConverter messageConverter;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> RocketMQMessageConverter</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">MessageConverter</span><span style="color:#E1E4E8">> messageConverters </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteArrayMessageConverter byteArrayMessageConverter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ByteArrayMessageConverter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        byteArrayMessageConverter.</span><span style="color:#B392F0">setContentTypeResolver</span><span style="color:#E1E4E8">((ContentTypeResolver) </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(byteArrayMessageConverter);</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> StringMessageConverter</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (JACKSON_PRESENT) {</span></span>
+<span class="line"><span style="color:#6A737D">            //就是这里，不支持javatime</span></span>
+<span class="line"><span style="color:#E1E4E8">            messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> MappingJackson2MessageConverter</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (FASTJSON_PRESENT) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">((MessageConverter) ClassUtils.</span><span style="color:#B392F0">forName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"com.alibaba.fastjson.support.spring.messaging.MappingFastJsonMessageConverter"</span><span style="color:#E1E4E8">, ClassUtils.</span><span style="color:#B392F0">getDefaultClassLoader</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">newInstance</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IllegalAccessException | InstantiationException | ClassNotFoundException </span><span style="color:#FFAB70">var4</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.messageConverter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CompositeMessageConverter</span><span style="color:#E1E4E8">(messageConverters);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#6A737D">    //.............</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>解决办法：需要自定义消息转换器，将<code>MappingJackson2MessageConverter</code>进行替换，并添加支持时间模块。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Configuration</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQEnhanceConfig</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 解决RocketMQ Jackson不支持Java时间类型配置</span></span>
+<span class="line"><span style="color:#6A737D">     * 源码参考：{@link org.apache.rocketmq.spring.autoconfigure.MessageConverterConfiguration}</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Bean</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Primary</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RocketMQMessageConverter </span><span style="color:#B392F0">enhanceRocketMQMessageConverter</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        RocketMQMessageConverter converter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RocketMQMessageConverter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        CompositeMessageConverter compositeMessageConverter </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (CompositeMessageConverter) converter.</span><span style="color:#B392F0">getMessageConverter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">MessageConverter</span><span style="color:#E1E4E8">> messageConverterList </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> compositeMessageConverter.</span><span style="color:#B392F0">getConverters</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (MessageConverter messageConverter </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> messageConverterList) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (messageConverter </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> MappingJackson2MessageConverter) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                MappingJackson2MessageConverter jackson2MessageConverter </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (MappingJackson2MessageConverter) messageConverter;</span></span>
+<span class="line"><span style="color:#E1E4E8">                ObjectMapper objectMapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> jackson2MessageConverter.</span><span style="color:#B392F0">getObjectMapper</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                objectMapper.</span><span style="color:#B392F0">registerModules</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> JavaTimeModule</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> converter;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<blockquote>
+<p>PS：上述出问题，主要是依赖<code>rocketmq-spring-boot-starter</code>的版本在2.2.1及之前老版本会有，2.1的问题在2.2.2版本依然存在，但2.2.3之后就没有了，读者不信的话，可以自己去实践一下。</p>
+</blockquote>
+<p><code>rocketmq-spring-boot-starter</code> 2.2.3版本的转换器已经更新解决了这个bug。可以看看这个版本的实现：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQMessageConverter</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> JACKSON_PRESENT;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> FASTJSON_PRESENT;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> CompositeMessageConverter messageConverter;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> RocketMQMessageConverter</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">MessageConverter</span><span style="color:#E1E4E8">> messageConverters </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteArrayMessageConverter byteArrayMessageConverter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ByteArrayMessageConverter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        byteArrayMessageConverter.</span><span style="color:#B392F0">setContentTypeResolver</span><span style="color:#E1E4E8">((ContentTypeResolver) </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(byteArrayMessageConverter);</span></span>
+<span class="line"><span style="color:#E1E4E8">        messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> StringMessageConverter</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (JACKSON_PRESENT) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            MappingJackson2MessageConverter converter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MappingJackson2MessageConverter</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //解决LocalDate LocalDatetime问题</span></span>
+<span class="line"><span style="color:#E1E4E8">            ObjectMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> converter.</span><span style="color:#B392F0">getObjectMapper</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            mapper.</span><span style="color:#B392F0">disable</span><span style="color:#E1E4E8">(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);</span></span>
+<span class="line"><span style="color:#E1E4E8">            mapper.</span><span style="color:#B392F0">registerModule</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> JavaTimeModule</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            converter.</span><span style="color:#B392F0">setObjectMapper</span><span style="color:#E1E4E8">(mapper);</span></span>
+<span class="line"><span style="color:#E1E4E8">            </span></span>
+<span class="line"><span style="color:#E1E4E8">            messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(converter);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (FASTJSON_PRESENT) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                messageConverters.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">((MessageConverter) ClassUtils.</span><span style="color:#B392F0">forName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"com.alibaba.fastjson.support.spring.messaging.MappingFastJsonMessageConverter"</span><span style="color:#E1E4E8">, ClassUtils.</span><span style="color:#B392F0">getDefaultClassLoader</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">newInstance</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IllegalAccessException | InstantiationException | ClassNotFoundException </span><span style="color:#FFAB70">var5</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.messageConverter </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CompositeMessageConverter</span><span style="color:#E1E4E8">(messageConverters);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //.................</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="23-rocketmq环境隔离">2.3 RocketMQ环境隔离</h2>
+<p>在使用RocketMQ时，通常会在代码中直接指定消息主题(topic)，而且<code>开发环境</code>和<code>测试环境</code>可能共用一个RocketMQ环境。如果没有进行处理，在开发环境发送的消息就可能被测试环境的消费者消费，测试环境发送的消息也可能被开发环境的消费者消费，从而导致数据混乱的问题。</p>
+<p>为了解决这个问题，我们可以根据不同的环境实现<code>自动隔离</code>。通过简单配置一个选项，如<code>dev</code>、<code>test</code>、<code>prod</code>等不同环境，所有的消息都会被自动隔离。</p>
+<p>例如，当发送的消息主题为<code>consumer_topic</code>时，可以自动在topic后面加上环境后缀，如<code>consumer_topic_dev</code>。</p>
+<p>那么，我们该如何实现呢？</p>
+<p>可以编写一个配置类实现<code>BeanPostProcessor</code>，并重写<code>postProcessBeforeInitialization</code>方法，在监听器实例初始化前修改对应的topic。</p>
+<blockquote>
+<p><code>BeanPostProcessor</code>是Spring框架中的一个接口，它的作用是<strong>在Spring容器实例化、配置完bean之后，在bean初始化前后进行一些额外的处理工作</strong>。
+具体来说，BeanPostProcessor接口定义了两个方法：</p>
+<ul>
+<li><code>postProcessBeforeInitialization(Object bean, String beanName)</code>: 在<code>bean初始化之前</code>进行处理，可以对bean做一些<code>修改</code>等操作。</li>
+<li><code>postProcessAfterInitialization(Object bean, String beanName)</code>: 在<code>bean初始化之后</code>进行处理，可以进行一些<code>清理</code>或者<code>其他</code>操作。</li>
+</ul>
+<p><code>BeanPostProcessor</code>可以在应用程序中对Bean的<code>创建</code>和<code>初始化</code>过程进行拦截和修改，对Bean的生命周期进行干预和操作。它可以对所有的Bean类实例进行增强处理，使得开发人员可以在Bean初始化前后自定义一些操作，从而实现自己的业务需求。
+比如，可以通过<code>BeanPostProcessor</code>来实现注入某些必要的属性值、加入某一个对象等等。</p>
+</blockquote>
+<p>实现方案如下：</p>
+<h3 id="231-在配置文件中增加相关配置">2.3.1 在配置文件中增加相关配置</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">rocketmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  enhance</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">    # 启动隔离，用于激活配置类EnvironmentIsolationConfig</span></span>
+<span class="line"><span style="color:#6A737D">    # 启动后会自动在topic上拼接激活的配置文件，达到自动隔离的效果</span></span>
+<span class="line"><span style="color:#85E89D">    enabledIsolation</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#6A737D">    # 隔离环境名称，拼接到topic后，topic_dev，默认空字符串</span></span>
+<span class="line"><span style="color:#85E89D">    environment</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">dev</span></span></code></pre>
+<h3 id="232-新增配置类在实例化消息监听者之前把topic修改掉">2.3.2 新增配置类，在实例化消息监听者之前把topic修改掉</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Configuration</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EnvironmentIsolationConfig</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> BeanPostProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Value</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"${rocketmq.enhance.enabledIsolation:true}"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> enabledIsolation;</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Value</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"${rocketmq.enhance.environment:''}"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String environmentName;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 在装载Bean之前实现参数修改</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">postProcessBeforeInitialization</span><span style="color:#E1E4E8">(Object </span><span style="color:#FFAB70">bean</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">beanName</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> BeansException {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (bean </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> DefaultRocketMQListenerContainer) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            DefaultRocketMQListenerContainer container </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (DefaultRocketMQListenerContainer) bean;</span></span>
+<span class="line"><span style="color:#6A737D">            //拼接Topic</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (enabledIsolation </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(environmentName)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                container.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"_"</span><span style="color:#E1E4E8">, container.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), environmentName));</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> container;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> bean;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>启动项目可以看到日志中消息监听的队列已经被修改了：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">2023-08-23</span><span style="color:#9ECBFF"> 17:04:59.726</span><span style="color:#E1E4E8"> [main] INFO  o.a.r.s.support.DefaultRocketMQListenerContainer:290 - running container: DefaultRocketMQListenerContainer{consumerGroup</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'springboot_consumer_group',</span><span style="color:#E1E4E8"> nameServer</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'10.5.103.6:9876',</span><span style="color:#E1E4E8"> topic</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'consumer_topic_dev',</span><span style="color:#E1E4E8"> consumeMode</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">CONCURRENTLY,</span><span style="color:#E1E4E8"> selectorType</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">TAG,</span><span style="color:#E1E4E8"> selectorExpression</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'*',</span><span style="color:#E1E4E8"> messageModel</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">CLUSTERING</span><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="3-如何封装rocketmq">3 如何封装RocketMQ</h1>
+<p>先来看看RocketMQ官方文档中推荐的最佳实践</p>
+<ul>
+<li>消息发送成功或者失败要<code>打印消息日志</code>，用于业务排查问题。</li>
+<li>如果消息量较少，建议在消费入口方法打印消息，消费耗时等，方便后续排查问题。</li>
+<li>RocketMQ 无法避免消息重复（Exactly-Once），所以如果业务对消费重复非常敏感，务必要在业务层面进行去重处理。可以借助关系数据库进行去重。首先需要确定消息的唯一键，可以是<code>msgId</code>，也可以是消息内容中的唯一标识字段，例如订单Id等。</li>
+</ul>
+<p>上面三个步骤基本每次发送消息或者消费消息都要实现，属于<code>重复动作</code>。</p>
+<p>接下来讨论的是在RocketMQ中发送消息时选择何种消息类型最为合适。</p>
+<p>在RocketMQ中有<code>四种可选格式</code>：</p>
+<ul>
+<li>发送Json对象</li>
+<li>发送转Json后的String对象</li>
+<li>根据业务封装对应实体类</li>
+<li>直接使用原生MessageExt接收。
+对于如何选择消息类型，需要考虑到消费者在不查看消息发送者的情况下，如何获取消息的含义。因此，在这种情况下，使用<code>第三种方式</code>，即<strong>根据业务封装对应实体类</strong>的方式最为合适，也是大多数开发者在发送消息时的常用方式。</li>
+</ul>
+<p>有了上面两点结论以后我们来看看<code>为什么要对RocketMQ二次封装</code>。</p>
+<h2 id="31-为什么要二次封装">3.1 为什么要二次封装</h2>
+<p>按照上述最佳实践，一个完整的消息传递链路从生产到消费应包括：</p>
+<ul>
+<li>准备消息</li>
+<li>发送消息</li>
+<li>记录消息日志</li>
+<li>处理发送失败</li>
+<li>记录接收消息日志</li>
+<li>处理业务逻辑</li>
+<li>异常处理和异常重试</li>
+</ul>
+<p>虽然使用原生RocketMQ可以完成这些动作，但每个生产者和消费者都需要编写<code>大量重复</code>的代码来完成相同的任务，这就是需要进行二次封装的原因。我们希望通过二次封装，<strong>生产者只需准备好消息实体并调用封装后的工具类发送，而消费者只需处理核心业务逻辑，其他公共逻辑会得到统一处理。</strong></p>
+<p>在二次封装中，关键是找出框架在日常使用中所涵盖的许多操作，以及区分哪些操作是<code>可变的</code>，哪些是<code>不变的</code>。</p>
+<p>以上述例子为例，实际上只有<code>生产者的消息准备</code>和<code>消费者的业务处理</code>是<strong>可变的操作</strong>，需要根据需求进行处理，而其他步骤可以固定下来形成一个模板。</p>
+<p>当然，本文提到的二次封装<code>不是指对源代码进行封装</code>，而是<code>针对工具的原始使用方式进行的封装</code>。可以将其与<code>Mybatis</code>和<code>Mybatis-plus</code>区分开来。这两者都能完成任务，只不过<code>Mybatis-plus</code>更为简单便捷。</p>
+<h2 id="32-实现二次封装">3.2 实现二次封装</h2>
+<p>实现二次封装需要创建一个自定义的<code>starter</code>，这样其他项目只需要依赖此starter即可使用封装功能。同时，在自定义<code>starter</code>中还需要解决文章第二部分中提到的一些问题。</p>
+<h3 id="321-消息实体类的封装">3.2.1 消息实体类的封装</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * 消息实体，所有消息都需要继承此类</span></span>
+<span class="line"><span style="color:#6A737D"> * 公众号：JAVA日知录</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Data</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> BaseMessage</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 业务键，用于RocketMQ控制台查看消费情况</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#E1E4E8"> String key;</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 发送消息来源，用于排查问题</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#E1E4E8"> String source </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 发送时间</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#E1E4E8"> LocalDateTime sendTime </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LocalDateTime.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 重试次数，用于判断重试次数，超过重试次数发送异常警告</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#E1E4E8"> Integer retryTimes </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h3 id="322-消息发送工具类的封装">3.2.2 消息发送工具类的封装</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Slf4j</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Configuration</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQEnhanceTemplate</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> RocketMQTemplate template;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> RocketEnhanceProperties rocketEnhanceProperties;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RocketMQTemplate </span><span style="color:#B392F0">getTemplate</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> template;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 根据系统上下文自动构建隔离后的topic</span></span>
+<span class="line"><span style="color:#6A737D">     * 构建目的地</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">buildDestination</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">topic</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">tag</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        topic </span><span style="color:#F97583">=</span><span style="color:#B392F0"> reBuildTopic</span><span style="color:#E1E4E8">(topic);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> topic </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ":"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> tag;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 根据环境重新隔离topic</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> topic</span><span style="color:#6A737D"> 原始topic</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">reBuildTopic</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">topic</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (rocketEnhanceProperties.</span><span style="color:#B392F0">isEnabledIsolation</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(rocketEnhanceProperties.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> topic </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "_"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> rocketEnhanceProperties.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> topic;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 发送同步消息</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> &#x3C;</span><span style="color:#F97583">T</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> BaseMessage</span><span style="color:#E1E4E8">> SendResult </span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">topic</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">tag</span><span style="color:#E1E4E8">, T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 注意分隔符</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> send</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">buildDestination</span><span style="color:#E1E4E8">(topic, tag), message);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> &#x3C;</span><span style="color:#F97583">T</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> BaseMessage</span><span style="color:#E1E4E8">> SendResult </span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">destination</span><span style="color:#E1E4E8">, T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置业务键，此处根据公共的参数进行处理</span></span>
+<span class="line"><span style="color:#6A737D">        // 更多的其它基础业务处理...</span></span>
+<span class="line"><span style="color:#E1E4E8">        Message&#x3C;</span><span style="color:#F97583">T</span><span style="color:#E1E4E8">> sendMessage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageBuilder.</span><span style="color:#B392F0">withPayload</span><span style="color:#E1E4E8">(message).</span><span style="color:#B392F0">setHeader</span><span style="color:#E1E4E8">(RocketMQHeaders.KEYS, message.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> template.</span><span style="color:#B392F0">syncSend</span><span style="color:#E1E4E8">(destination, sendMessage);</span></span>
+<span class="line"><span style="color:#6A737D">        // 此处为了方便查看给日志转了json，根据选择选择日志记录方式，例如ELK采集</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[{}]同步消息[{}]发送结果[{}]"</span><span style="color:#E1E4E8">, destination, JSONObject.</span><span style="color:#B392F0">toJSON</span><span style="color:#E1E4E8">(message), JSONObject.</span><span style="color:#B392F0">toJSON</span><span style="color:#E1E4E8">(sendResult));</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sendResult;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 发送延迟消息</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> &#x3C;</span><span style="color:#F97583">T</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> BaseMessage</span><span style="color:#E1E4E8">> SendResult </span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">topic</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">tag</span><span style="color:#E1E4E8">, T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> delayLevel</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> send</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">buildDestination</span><span style="color:#E1E4E8">(topic, tag), message, delayLevel);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> &#x3C;</span><span style="color:#F97583">T</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> BaseMessage</span><span style="color:#E1E4E8">> SendResult </span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">destination</span><span style="color:#E1E4E8">, T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> delayLevel</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Message&#x3C;</span><span style="color:#F97583">T</span><span style="color:#E1E4E8">> sendMessage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MessageBuilder.</span><span style="color:#B392F0">withPayload</span><span style="color:#E1E4E8">(message).</span><span style="color:#B392F0">setHeader</span><span style="color:#E1E4E8">(RocketMQHeaders.KEYS, message.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> template.</span><span style="color:#B392F0">syncSend</span><span style="color:#E1E4E8">(destination, sendMessage, </span><span style="color:#79B8FF">3000</span><span style="color:#E1E4E8">, delayLevel);</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[{}]延迟等级[{}]消息[{}]发送结果[{}]"</span><span style="color:#E1E4E8">, destination, delayLevel, JSONObject.</span><span style="color:#B392F0">toJSON</span><span style="color:#E1E4E8">(message), JSONObject.</span><span style="color:#B392F0">toJSON</span><span style="color:#E1E4E8">(sendResult));</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> sendResult;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>这里封装了一个消息发送类，实现了<code>日志记录</code>以及<code>自动重建topic</code>的功能（即生产者实现环境隔离），后面项目中只需要注入<code>RocketMQEnhanceTemplate</code>来实现消息的发送。</p>
+<h3 id="323-消费者的封装">3.2.3 消费者的封装</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Slf4j</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EnhanceMessageHandler</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">T</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> BaseMessage</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 默认重试次数</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> MAX_RETRY_TIMES </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 延时等级</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> DELAY_LEVEL </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> EnhanceMessageConstant.FIVE_SECOND;</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Resource</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> RocketMQEnhanceTemplate rocketMQEnhanceTemplate;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 消息处理</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> message</span><span style="color:#6A737D"> 待处理消息</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@throws</span><span style="color:#B392F0"> Exception</span><span style="color:#6A737D"> 消费异常</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> handleMessage</span><span style="color:#E1E4E8">(T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 超过重试次数消息，需要启用isRetry</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> message</span><span style="color:#6A737D"> 待处理消息</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> handleMaxRetriesExceeded</span><span style="color:#E1E4E8">(T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 是否需要根据业务规则过滤消息，去重逻辑可以在此处处理</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> message</span><span style="color:#6A737D"> 待处理消息</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> true: 本次消息被过滤，false：不过滤</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> filter</span><span style="color:#E1E4E8">(T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 是否异常时重复发送</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> true: 消息重试，false：不重试</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isRetry</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 消费异常时是否抛出异常</span></span>
+<span class="line"><span style="color:#6A737D">     * 返回true，则由rocketmq机制自动重试</span></span>
+<span class="line"><span style="color:#6A737D">     * false：消费异常(如果没有开启重试则消息会被自动ack)</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> throwException</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 最大重试次数</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> 最大重试次数，默认5次</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> getMaxRetryTimes</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> MAX_RETRY_TIMES;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * isRetry开启时，重新入队延迟时间</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> -1：立即入队重试</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> getDelayLevel</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> DELAY_LEVEL;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 使用模板模式构建消息消费框架，可自由扩展或删减</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> dispatchMessage</span><span style="color:#E1E4E8">(T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 基础日志记录被父类处理了</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"消费者收到消息[{}]"</span><span style="color:#E1E4E8">, JSONObject.</span><span style="color:#B392F0">toJSON</span><span style="color:#E1E4E8">(message));</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">filter</span><span style="color:#E1E4E8">(message)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"消息id{}不满足消费条件，已过滤。"</span><span style="color:#E1E4E8">, message.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 超过最大重试次数时调用子类方法处理</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (message.</span><span style="color:#B392F0">getRetryTimes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#B392F0"> getMaxRetryTimes</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#B392F0">            handleMaxRetriesExceeded</span><span style="color:#E1E4E8">(message);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> now </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">            handleMessage</span><span style="color:#E1E4E8">(message);</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> costTime </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> now;</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"消息{}消费成功，耗时[{}ms]"</span><span style="color:#E1E4E8">, message.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">(), costTime);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"消息{}消费异常"</span><span style="color:#E1E4E8">, message.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">(), e);</span></span>
+<span class="line"><span style="color:#6A737D">            // 是捕获异常还是抛出，由子类决定</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">throwException</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                //抛出异常，由DefaultMessageListenerConcurrently类处理</span></span>
+<span class="line"><span style="color:#F97583">                throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RuntimeException</span><span style="color:#E1E4E8">(e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //此时如果不开启重试机制，则默认ACK了</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isRetry</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#B392F0">                handleRetry</span><span style="color:#E1E4E8">(message);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> handleRetry</span><span style="color:#E1E4E8">(T </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 获取子类RocketMQMessageListener注解拿到topic和tag</span></span>
+<span class="line"><span style="color:#E1E4E8">        RocketMQMessageListener annotation </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getClass</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(RocketMQMessageListener.class);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (annotation </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //重新构建消息体</span></span>
+<span class="line"><span style="color:#E1E4E8">        String messageSource </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> message.</span><span style="color:#B392F0">getSource</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">messageSource.</span><span style="color:#B392F0">startsWith</span><span style="color:#E1E4E8">(EnhanceMessageConstant.RETRY_PREFIX)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            message.</span><span style="color:#B392F0">setSource</span><span style="color:#E1E4E8">(EnhanceMessageConstant.RETRY_PREFIX </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> messageSource);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        message.</span><span style="color:#B392F0">setRetryTimes</span><span style="color:#E1E4E8">(message.</span><span style="color:#B392F0">getRetryTimes</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        SendResult sendResult;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            // 如果消息发送不成功，则再次重新发送，如果发送异常则抛出由MQ再次处理(异常时不走延迟消息)</span></span>
+<span class="line"><span style="color:#E1E4E8">            sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> rocketMQEnhanceTemplate.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(annotation.</span><span style="color:#B392F0">topic</span><span style="color:#E1E4E8">(), annotation.</span><span style="color:#B392F0">selectorExpression</span><span style="color:#E1E4E8">(), message, </span><span style="color:#B392F0">getDelayLevel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 此处捕获之后，相当于此条消息被消息完成然后重新发送新的消息</span></span>
+<span class="line"><span style="color:#6A737D">            //由生产者直接发送</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RuntimeException</span><span style="color:#E1E4E8">(ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 发送失败的处理就是不进行ACK，由RocketMQ重试</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (sendResult.</span><span style="color:#B392F0">getSendStatus</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> SendStatus.SEND_OK) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RuntimeException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"重试消息发送失败"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>使用模版设计模式定义了消息消费的骨架，实现了<code>日志打印</code>，<code>异常处理</code>，<code>异常重试</code>等公共逻辑，<code>消息过滤</code>（查重）、<code>业务处理</code>则交由子类实现。</p>
+<h3 id="324-基础配置类">3.2.4 基础配置类</h3>
+<ul>
+<li>增强配置类</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Configuration</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">EnableConfigurationProperties</span><span style="color:#E1E4E8">(RocketEnhanceProperties.class)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketMQEnhanceAutoConfiguration</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 注入增强的RocketMQEnhanceTemplate</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Bean</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RocketMQEnhanceTemplate </span><span style="color:#B392F0">rocketMQEnhanceTemplate</span><span style="color:#E1E4E8">(RocketMQTemplate </span><span style="color:#FFAB70">rocketMQTemplate</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RocketMQEnhanceTemplate</span><span style="color:#E1E4E8">(rocketMQTemplate);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 环境隔离配置</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Bean</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">ConditionalOnProperty</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">name</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "rocketmq.enhance.enabledIsolation"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">havingValue</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "true"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> EnvironmentIsolationConfig </span><span style="color:#B392F0">environmentSetup</span><span style="color:#E1E4E8">(RocketEnhanceProperties </span><span style="color:#FFAB70">rocketEnhanceProperties</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EnvironmentIsolationConfig</span><span style="color:#E1E4E8">(rocketEnhanceProperties);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<ul>
+<li>环境隔离配置类</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EnvironmentIsolationConfig</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> BeanPostProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> RocketEnhanceProperties rocketEnhanceProperties;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> EnvironmentIsolationConfig</span><span style="color:#E1E4E8">(RocketEnhanceProperties </span><span style="color:#FFAB70">rocketEnhanceProperties</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.rocketEnhanceProperties </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> rocketEnhanceProperties;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 在装载Bean之前实现参数修改</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">postProcessBeforeInitialization</span><span style="color:#E1E4E8">(Object </span><span style="color:#FFAB70">bean</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">beanName</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> BeansException {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (bean </span><span style="color:#F97583">instanceof</span><span style="color:#E1E4E8"> DefaultRocketMQListenerContainer) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            DefaultRocketMQListenerContainer container </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (DefaultRocketMQListenerContainer) bean;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (rocketEnhanceProperties.</span><span style="color:#B392F0">isEnabledIsolation</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> StringUtils.</span><span style="color:#B392F0">hasText</span><span style="color:#E1E4E8">(rocketEnhanceProperties.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                container.</span><span style="color:#B392F0">setTopic</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"_"</span><span style="color:#E1E4E8">, container.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), rocketEnhanceProperties.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> container;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> bean;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<ul>
+<li>属性类</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">ConfigurationProperties</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">prefix</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "rocketmq.enhance"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Data</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RocketEnhanceProperties</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> enabledIsolation;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> String environment;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h2 id="33-封装后的使用">3.3 封装后的使用</h2>
+<h3 id="331-引入依赖">3.3.1 引入依赖</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">>com.taeyeon&#x3C;/</span><span style="color:#85E89D">groupId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">>cloud-rocket-starter&#x3C;/</span><span style="color:#85E89D">artifactId</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">dependency</span><span style="color:#E1E4E8">></span></span></code></pre>
+<h3 id="332-自定义配置">3.3.2 自定义配置</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">rocketmq</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#79B8FF">    ...</span></span>
+<span class="line"><span style="color:#85E89D">    enhance</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">        # 启动隔离，用于激活配置类EnvironmentIsolationConfig</span></span>
+<span class="line"><span style="color:#6A737D">        # 启动后会自动在topic上拼接激活的配置文件，达到自动隔离的效果</span></span>
+<span class="line"><span style="color:#85E89D">        enabledIsolation</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#6A737D">        # 隔离环境名称，拼接到topic后，topic_dev，默认空字符串</span></span>
+<span class="line"><span style="color:#85E89D">        environment</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">dev</span></span></code></pre>
+<h3 id="333-发送消息">3.3.3 发送消息</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RestController</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RequestMapping</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"enhance"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Slf4j</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EnhanceProduceController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //注入增强后的模板，可以自动实现环境隔离，日志记录</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Autowired</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> RocketMQEnhanceTemplate rocketMQEnhanceTemplate;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String topic </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "rocket_enhance"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String tag </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "member"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 发送实体消息</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">GetMapping</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/member"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> SendResult </span><span style="color:#B392F0">member</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        String key </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> UUID.</span><span style="color:#B392F0">randomUUID</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        MemberMessage message </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MemberMessage</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置业务key</span></span>
+<span class="line"><span style="color:#E1E4E8">        message.</span><span style="color:#B392F0">setKey</span><span style="color:#E1E4E8">(key);</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置消息来源，便于查询</span></span>
+<span class="line"><span style="color:#E1E4E8">        message.</span><span style="color:#B392F0">setSource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"MEMBER"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 业务消息内容</span></span>
+<span class="line"><span style="color:#E1E4E8">        message.</span><span style="color:#B392F0">setUserName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"taeyeon"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        message.</span><span style="color:#B392F0">setBirthday</span><span style="color:#E1E4E8">(LocalDate.</span><span style="color:#B392F0">now</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> rocketMQEnhanceTemplate.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(topic, tag, message);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<blockquote>
+<p>注意这里使用的是封装后的模板工具类，一旦在配置文件中<code>启动环境隔离</code>，则生产者的消息也自动发送到隔离后的topic中。</p>
+</blockquote>
+<h3 id="334-消费者">3.3.4 消费者</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Slf4j</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Component</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RocketMQMessageListener</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">        consumerGroup</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "enhance_consumer_group"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        topic</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "rocket_enhance"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        selectorExpression</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "*"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">        consumeThreadMax</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 5</span><span style="color:#6A737D"> //默认是64个线程并发消息，配置 consumeThreadMax 参数指定并发消费线程数，避免太大导致资源不够</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EnhanceMemberMessageListener</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> EnhanceMessageHandler</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">MemberMessage</span><span style="color:#E1E4E8">> </span><span style="color:#F97583">implements</span><span style="color:#B392F0"> RocketMQListener</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">MemberMessage</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> handleMessage</span><span style="color:#E1E4E8">(MemberMessage </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#6A737D">        // 此时这里才是最终的业务处理，代码只需要处理资源类关闭异常，其他的可以交给父类重试</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"业务消息处理:"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> message.</span><span style="color:#B392F0">getUserName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> handleMaxRetriesExceeded</span><span style="color:#E1E4E8">(MemberMessage </span><span style="color:#FFAB70">message</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 当超过指定重试次数消息时此处方法会被调用</span></span>
+<span class="line"><span style="color:#6A737D">        // 生产中可以进行回退或其他业务操作</span></span>
+<span class="line"><span style="color:#E1E4E8">        log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"消息消费失败，请执行后续处理"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 是否执行重试机制</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isRetry</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> throwException</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        // 是否抛出异常，false搭配retry自行处理异常</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> filter</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        // 消息过滤</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 监听消费消息，不需要执行业务处理，委派给父类做基础操作，父类做完基础操作后会调用子类的实际处理类型</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onMessage</span><span style="color:#E1E4E8">(MemberMessage </span><span style="color:#FFAB70">memberMessage</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        super</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">dispatchMessage</span><span style="color:#E1E4E8">(memberMessage);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>为了方便消费者对RocketMQ中的消息进行处理，我们可以使用<code>EnhanceMessageHandler</code>来进行消息的处理和逻辑的处理。</p>
+<p>消费者实现了<code>RocketMQListener</code>的同时，可以继承<code>EnhanceMessageHandler</code>来进行公共逻辑的处理，而核心业务逻辑需要自己实现<code>handleMessage</code>方法。 如果需要对消息进行<code>过滤</code>或者<code>去重</code>处理，则可以重写父类的<code>filter</code>方法进行实现。这样可以更加方便地对消息进行处理，减轻开发者的工作量。</p>
+<h1 id="4-参考文献">4 参考文献</h1>
+<ul>
+<li><a href="https://juejin.cn/post/7110782118547947550">RocketMQ与SpringBoot整合进行生产级二次封装</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【JVM学习】1.JVM基础知识</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【JVM学习】1.JVM基础知识 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/26/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#JVM</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-jvm-从编译到执行">1 JVM 从编译到执行</h1>
+<p>首先给出基于JDK8的JAVA SE产品组件，里面包含了JDK，JRE，JVM三者之间的关系：
+{%cdnUrl ‘the components of Oracle’s Java SE products’ the-components-of-Oracle’s-Java-SE-products.png %}</p>
+<p><code>JVM</code>：Java Virtual Machine，可运行 Java 代码的抽象计算机，包括<code>一套字节码指令集</code>、<code>一组寄存器</code>、<code>一个栈</code>、 <code>一个垃圾回收</code>，<code>堆</code>和<code>一个存储方法域</code>。JVM 是运行在操作系统之上的，它与硬件<code>没有直接的交互</code>。</p>
+<p><code>JRE</code>：Java Runtime Environment，除了包含 <code>JVM</code> 之外，提供了很多的<code>类库</code>(就是我们说的 jar 包，它可以提供一些即插即用的功能，比如读取或者操作文件，连接网络，使用 <code>I/O</code> 等等之类的)，这些东西就是 <code>JRE</code> 提供的<code>基础类库</code>。</p>
+<p><code>JDK</code>：Java Development Kits，包含<code>JRE</code>，还有一些非常好用的小工具，比如 <code>javac</code>(编译代码)、<code>java</code>、<code>jar</code> (打包代码)、<code>javap</code>(反编译&#x3C;反汇编>)等。</p>
+<h2 id="11-java-程序的执行过程">1.1 Java 程序的执行过程</h2>
+<p>一个 Java 程序，首先经过 <code>javac</code> 编译成 <code>.class 文件</code>，然后 JVM 将其加载到<code>方法区</code>，执行引擎将会<strong>执行</strong>这些<code>字节码</code>。执行时，会翻译成操作系统相关的函数。JVM 作为 <code>.class 文件</code>的翻译存在，输入字节码，调用操作系统函数。
+过程如下：<code>Java 文件</code> -> <code>编译器</code> -> <code>字节码</code> -> <code>JVM</code> -> <code>机器码</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/the-diagram-of-java-program.png" alt="Java 程序的执行过程"></p>
+<h2 id="12-从跨平台到跨语言">1.2 从跨平台到跨语言</h2>
+<p>跨平台：我们写的一个类，在不同的操作系统上(Linux、Windows、MacOS 等平台)执行，效果是一样，这个就是 JVM 的<code>跨平台性</code>。 为了实现跨平台型，不同操作系统有对应的 JDK 的版本。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JDK-Version-in-OS.png" alt="不同操作系统的JDK版本"></p>
+<p>跨语言(语言无关性)：JVM 只识别<code>字节码</code>，所以 JVM 其实跟语言是<code>解耦</code>的，也就是没有直接关联，JVM 运行<code>不是翻译 Java 文件</code>，而是<code>识别 class 文件</code>，这个一般称之为<code>字节码</code>。还有像 <code>Groovy</code> 、<code>Kotlin</code>、<code>Scala</code> 等等语言，它们其实也是编译成字节码，所以它们也可以在 JVM 上面跑，这个就是 JVM 的<code>跨语言</code>特征。Java 的跨语言性一定程度上奠定了非常强大的 java 语言生态圈。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/kuapingtai-kuayuyan.png" alt="跨平台到跨语言"></p>
+<h1 id="2-jvm-的发展">2 JVM 的发展</h1>
+<p>常见的 JVM：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JVM-Implementations.png" alt="常见的JVM"></p>
+<h1 id="3-jvm-整体知识模块">3 JVM 整体知识模块</h1>
+<p>JVM 能涉及非常庞大的一块知识体系，比如<code>内存结构</code>、<code>垃圾回收</code>、<code>类加载</code>、<code>性能调优</code>、<code>JVM 自身优化技术</code>、<code>执行引擎</code>、<code>类文件结构</code>、<code>监控工具</code>等。 但是在所有的知识体系中，都或多或少跟<code>内存结构</code>有一定的关系: 比如<code>垃圾回收</code>回收的就是内存、<code>类加载</code>加载到的地方也是内存、<code>性能优化</code>也涉及到内存优化、<code>执行引擎</code>与内存密不可分、<code>类文件结构</code>与内存的设计有关系，<code>监控工具</code>也会监控内存。所以<code>内存结构</code>处于 JVM 中<code>核心位置</code>。也是属于我们入门 JVM 学习的最好的选择。</p>
+<p>同时 JVM 是一个虚拟化的操作系统，所以除了要<code>虚拟指令</code>之外，最重要的一个事情就是需要<code>虚拟化内存</code>，这个虚拟化内存就是我们马上要讲到的 <code>JVM 的内存区域</code>。下章见分晓。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Hole-of-JVM.png" alt="JVM 整体知识模块"></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

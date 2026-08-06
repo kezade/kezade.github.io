@@ -1,0 +1,94 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】47.全排列II</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】47.全排列II </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/26/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#回溯</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给定一个可<code>包含重复</code>数字的序列 <code>nums</code> ，按<code>任意顺序</code>返回所有<code>不重复的全排列</code>。</p>
+<h2 id="示例-1">示例 1</h2>
+<ul>
+<li>输入：nums = [1,1,2]</li>
+<li>输出：</li>
+</ul>
+<blockquote>
+<p>[[1,1,2],
+[1,2,1],
+[2,1,1]]</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：nums = [1,2,3]
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]</p>
+</blockquote>
+<p>提示：</p>
+<ul>
+<li>1 &#x3C;= nums.length &#x3C;= 8</li>
+<li>-10 &#x3C;= nums[i] &#x3C;= 10</li>
+</ul>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>可参考上一篇文章中提到的<code>回溯法</code>解决。主要区别在于此题中的数组包含<code>重复</code>数字。因而，在回溯开始之前，对数组<code>nums</code>进行排序。</p>
+<p>在<code>for</code>循环中，对于<code>重复</code>、<code>未使用的</code>的数字要进行排除，即跳过此次循环。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">nums.length;i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(used[i]){</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //去重最为关键的代码。</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">></span><span style="color:#79B8FF">0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> nums[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums[i]</span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">used[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]){</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>也可以是这样：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (i </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> nums[i] </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> nums[i </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> used[i </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">]) {</span></span>
+<span class="line"><span style="color:#F97583">    continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>为啥子？</p>
+<blockquote>
+<p><code>used[i - 1] == false</code> 或者 <code>!used[i-1]</code> 属于 <code>树层上的去重</code>
+<code>used[i-1] == true</code> 或者 <code>used[i-1]</code> 属于 <code>树枝上的去重</code></p>
+</blockquote>
+<p>比如：[1,1,1]</p>
+<p>树层上去重(used[i - 1] == false)，的树形结构如下：
+<img src="https://pic.leetcode.cn/1674877047-sDePiT-image.png" alt="树层上去重"></p>
+<p>树枝上去重（used[i - 1] == true）的树型结构如下：
+<img src="https://pic.leetcode.cn/1674877065-APVcHw-image.png" alt="树枝上去重"></p>
+<p>具体参考<a href="https://leetcode.cn/problems/permutations-ii/solutions/418230/47-quan-pai-lie-iiche-di-li-jie-pai-lie-zhong-de-q/">录哥</a> 的思路。这是🐂🍺。</p>
+<p><img src="https://pic.leetcode.cn/1674877014-GhcSpO-image.png" alt="包含重复数字的全排列流程"></p>
+<h1 id="3-代码">3 代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //结果集</span></span>
+<span class="line"><span style="color:#E1E4E8">    List&#x3C;List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">>> res</span><span style="color:#F97583">=new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //临时结果</span></span>
+<span class="line"><span style="color:#E1E4E8">    LinkedList&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> track</span><span style="color:#F97583">=new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //是否已使用</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8">[] used;</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> List&#x3C;List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">>> </span><span style="color:#B392F0">permuteUnique</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        used</span><span style="color:#F97583">=new</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8">[nums.length];</span></span>
+<span class="line"><span style="color:#6A737D">        //题目中有重复数字可用，那就先排序，把相同的放一起</span></span>
+<span class="line"><span style="color:#E1E4E8">        Arrays.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">(nums);</span></span>
+<span class="line"><span style="color:#B392F0">        backtrace</span><span style="color:#E1E4E8">(nums);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> backtrace</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(track.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums.length){</span></span>
+<span class="line"><span style="color:#E1E4E8">            res.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> LinkedList</span><span style="color:#E1E4E8">(track));</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">nums.length;i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(used[i]){</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //去重最为关键的代码。至于是利用 !used[i-1]，还是 used[i-1]，参考：https://leetcode.cn/problems/permutations-ii/solutions/418230/47-quan-pai-lie-iiche-di-li-jie-pai-lie-zhong-de-q/</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">></span><span style="color:#79B8FF">0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> nums[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums[i]</span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">used[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]){</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">            used[i]</span><span style="color:#F97583">=</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(nums[i]);</span></span>
+<span class="line"><span style="color:#B392F0">            backtrace</span><span style="color:#E1E4E8">(nums);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            //剔除当前选择</span></span>
+<span class="line"><span style="color:#E1E4E8">            track.</span><span style="color:#B392F0">removeLast</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            used[i]</span><span style="color:#F97583">=</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

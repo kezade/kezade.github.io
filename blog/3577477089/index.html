@@ -1,0 +1,262 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MySQL学习】1.基础</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MySQL学习】1.基础 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/24/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MySQL</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-推荐书籍">1 推荐书籍</h1>
+<p>-《深入浅出 MySQL》
+-《深入理解 MySQL 核心技术》
+-《高性能 MySQL》
+-《MySQL 技术内幕 : InnoDB 存储引擎 第 2 版》
+-《MySql必知必会》</p>
+<h1 id="2-mysql-的分支变种与替代">2 MySQL 的分支、变种与替代</h1>
+<p>MySQL 变种有好几个，主要有<strong>三个</strong>久经考验的主流变种:<code>Percona Server</code>， <code>MariaDB</code> 和 <code>Drizzle</code>。它们都有活跃的用户社区和某种程度上的商业支持，均由独立的服务供应商支持。</p>
+<h2 id="21-drizzle">2.1 Drizzle</h2>
+<p><code>Drizzle</code> 是真正的 <code>MySQL</code> 分支，而且是<code>完全开源</code>的产品，而非只是个变种或增强版本。它<strong>并不与 MySQL 兼容</strong>，不能简单地将 MySQL 后端替换为 Drizzle。</p>
+<p>Drizzle 与 MySQL 有很大差别，进行了一些<code>重大更改</code>，甚至 SQL 语法的变化都非常大，<code>设计目标之一</code>是<strong>提供一种出色的解决方案来解决高可用性问题</strong>。在实现上，Drizzle 清除了一些表现不佳和不必要的功能，将很多代码重写，对它们进行了优化，甚至将所用语言从 <code>C</code> 换成了 <code>C++</code>。</p>
+<p>此外，Drizzle <code>另一个设计目标</code>是<strong>能很好的适应具有大量内容的多核服务器、 运行 Linux 的 64 位机器、云计算中使用的服务器、托管网站的服务器和每分钟接收数以万计点击率的服务器并且大幅度的削减服务器成本</strong>。</p>
+<h2 id="22-mariadb">2.2 MariaDB</h2>
+<p>在 Sun 收购 MySQL 后，<code>Monty Widenius</code>，这位 MySQL 的创建者，因不认同 MySQL 开发流程而离开 Sun。他成立了 <code>Monty</code> 程序公司，创立了 MariaDB。MariaDB 的<code>目标</code>是<code>社区开发</code>，<code>Bug 修复</code>和许多的<code>新特性</code>。实际上，可以将 MariaDB 视为 MySQL 的<code>扩展集</code>，它不仅提供 MySQL 提供的所有功能，还提供其他功能。MariaDB 是原版 MySQL 的超集，因此已有的系统<strong>不需要任何修改就可以运行</strong>。</p>
+<p>诸如 <code>Google</code>，<code>Facebook</code>、<code>维基百科</code>等公司或者网站所使用了 MariaDB。不过 Monty 公司不是以赢利为目的，而是由产品驱动的，这可能会带来问题，因为没有赢利的公司不一定能长久维持下去。</p>
+<h2 id="23-percona-server">2.3 Percona Server</h2>
+<p>由领先的 MySQL 咨询公司 <code>Percona</code> 发布，Percona 公司的口号就是<code>The Database Performance Experts</code>，Percona 的创始人也就是<code>《高性能 MySQL》</code>书的作者。</p>
+<p>Percona Server 是个与 MySQL <code>向后兼容</code>的<code>替代品</code>，它尽可能不改变 SQL 语法、 客户端/服务器协议和磁盘上的文件格式。任何运行在 MySQL 上的都可以运行在 Percona Server 上而不需要修改。切换到 Percona Server 只需要关闭 MySQL 和启动 <code>PerconaServer</code>，不需要导出和重新导入数据。</p>
+<p>Percona Server 有<code>三个</code>主要的目标：</p>
+<ul>
+<li>透明，增加允许用户更紧密地查看服务器内部信息和行为的方法。比如慢查询日志中特别增加的详细信息；</li>
+<li>性能，<code>Percona Server</code> 包含许多性能和可扩展性方面的改进，还加强了性能的<code>可预测性</code>和<code>稳定性</code>。其中主要集中于 <code>InnoDB</code>；</li>
+<li>操作灵活性，<code>Percona Server</code> 使操作人员和系统管理员在让 MySQL 作为架构的一部分而<code>可靠并稳定</code>运行时提供了很多便利。</li>
+</ul>
+<p>一般来说，<code>Percona Server</code> 中的许多特性会在后来的<code>标准 MySQL</code> 中出现。 国内公司阿里内部就运行了上千个 Percona Server 的实例。</p>
+<h2 id="24-postgre-sql">2.4 Postgre SQL</h2>
+<p><code>PostgreSQL</code> 称自己是世界上最先进的开源数据库，同时也是个一专多长的<code>全栈数据库</code>。最初是 1985 年在加利福尼亚大学伯克利分校开发的。</p>
+<ul>
+<li><code>PostgreSQL</code> 的<code>稳定性极强</code>，在崩溃、断电之类的灾难场景下依然可以保证数据的正确；</li>
+<li>在高并发读写，负载逼近极限下，<code>PG</code> 的性能指标仍可以维持<code>双曲线</code>甚至<code>对数曲线</code>，到顶峰之后不再下降，表现得非常稳定，而 MySQL 明显出现一个波峰后下滑；</li>
+<li>PG 多年来在 <code>GIS</code> 领域处于优势地位，因为它有丰富的几何类型，实际上不止几何类型，PG 有大量<code>字典</code>、<code>数组</code>、<code>bitmap</code> 等数据类型，相比之下 mysql 就差很多。</li>
+</ul>
+<p>所以总的来说，PostgreSQL 更<code>学术化</code>一些，在绝对需要<code>可靠性</code>和<code>数据完整性</code>的时候，PostgreSQL 是更好的选择。但是从商业支持、文档资料、 易用性，第三方支持来说，MySQL 无疑更好些。</p>
+<h2 id="25-sqlite">2.5 SQLite</h2>
+<p><code>SQLite</code> 是世界上部署<code>最广泛</code>的数据库引擎，为物联网(IoT)下的数据库首选，并且是<code>手机</code>，<code>PDA</code>，甚至 <code>MP3 播放器</code>下的首选。</p>
+<p><code>SQLite</code> 代码占用空间小， 并且不需要数据库管理员的维护。</p>
+<p><code>SQLite</code> 没有单独的服务器进程，提供的事务也基本符合 <code>ACID</code>。当然，简单也就意味着功能和性能受限。</p>
+<h1 id="3-mysql-体系架构">3 MySQL 体系架构</h1>
+<p>上图
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-Architecture.jpeg" alt="MySQL体系架构"></p>
+<p>可以看出 MySQL 最上层是<code>连接组件</code>。下面<code>服务器</code>是由<code>连接池</code>、<code>管理工具</code>和<code>服务</code>、<code>SQL 接口</code>、<code>解析器</code>、<code>优化器</code>、<code>缓存</code>、<code>存储引擎</code>、<code>文件系统</code>组成。</p>
+<h2 id="31-连接池">3.1 连接池</h2>
+<p>由于每次建立建立需要消耗很多时间，<strong>连接池的作用</strong>就是将这些连接<code>缓存</code>下来，下次可以直接用已经建立好的连接，提升服务器性能。</p>
+<h2 id="32-管理工具和服务">3.2 管理工具和服务</h2>
+<p><code>系统管理</code>和<code>控制工具</code>，例如<code>备份恢复</code>、<code>Mysql 复制</code>、<code>集群</code>等。</p>
+<h2 id="33-sql接口">3.3 SQL接口</h2>
+<p>接受用户的SQL命令，并且返回用户需要查询的结果。比如<code>select from</code> 就是调用 <code>SQL Interface</code>。</p>
+<h2 id="34-解析器">3.4 解析器</h2>
+<p><code>SQL 命令</code>传递到<code>解析器</code>的时候会被解析器<code>验证和解析</code>。</p>
+<p>解析器主要功能：</p>
+<ul>
+<li>将 <code>SQL语句</code>分解成<code>数据结构</code>，并将这个结构传递到后续步骤，以后 SQL 语句的传递和处理就是基于这个结构的；</li>
+<li>如果在分解构成中遇到错误，那么就说明这个 SQL 语句是<code>不合理的</code>。</li>
+</ul>
+<h2 id="35-优化器">3.5 优化器</h2>
+<p>查询优化器，SQL 语句在查询之前会使用查询优化器对查询进行优化。</p>
+<h2 id="36-缓存器">3.6 缓存器</h2>
+<p>查询缓存，如果查询缓存有命中的查询结果，查询语句就可以直接去查询缓存中取数据。</p>
+<p>这个缓存机制是由一系列<code>小缓存</code>组成的。比如<code>表缓存</code>，<code>记录缓存</code>，<code>key 缓存</code>， <code>权限缓存</code>等。</p>
+<h2 id="37-存储引擎">3.7 存储引擎</h2>
+<p>是底层<code>物理结构</code>和<code>实际文件读写</code>的实现。</p>
+<p>类型有<code>InnoDB存储引擎</code>，<code>MylSAM 存储引擎</code>，<code>CSV 引擎</code>，<code>Memory 引擎</code>，<code>NDB 集群引擎</code>，<code>Federated 引擎</code>，<code>Blackhole 引擎</code>，<code>Archive 引擎</code>，<code>Mrg_MylSAM</code>。</p>
+<p>还有第三方引擎<code>Percona 的 XtraDB 存储引擎</code>，<code>TokuDB 引擎</code>，<code>Infobright</code>。</p>
+<p>从<code>MySQL 5.6</code>及以后，MySQL数据库默认的引擎就是<code>InnoDB</code>，在 <code>MySQL 5.1 及之前</code>的版本，<code>MyISAM</code> 是默认的存储引擎。</p>
+<h3 id="371-innodb-存储引擎">3.7.1 InnoDB 存储引擎</h3>
+<ul>
+<li>特性
+<ul>
+<li>InnoDB是事务性存储引擎，<code>支持事务</code>，也是MySQL内<code>唯一</code>一个支持事务的存储引擎；</li>
+<li>完全支持事务的<code>ACID</code>特性；</li>
+<li>InnoDB支持<code>行锁</code>、<code>页锁</code>和<code>表锁</code>，在使用得当的时候，可以有效地提高数据库的并发程度。</li>
+</ul>
+</li>
+</ul>
+<h3 id="372-mylsam-存储引擎">3.7.2 MylSAM 存储引擎</h3>
+<p>提供如<code>压缩表</code>、<code>空间数据索引</code>、<code>全文索引</code>等特性。</p>
+<p><strong>不支持</strong><code>事务</code>和<code>行级锁</code>，崩溃后<code>无法安全恢复</code>，但它绝不是一无是处的。对于<code>只读</code>的数据，或者<code>表比较小</code>、可以忍受修复(repair)操作，则依然可以继续使用 <code>MyISAM</code>。</p>
+<h3 id="373-myisam和innodb的比较">3.7.3 MyISAM和InnoDB的比较</h3>
+<p><code>MyISAM</code>和<code>InnoDB</code>是MySQL数据库中<code>最常用</code>的两个引擎，下面比较一下两个引擎的<code>区别</code>。</p>
+<table border="0" cellpadding="0" cellspacing="0" width="764" style="border-collapse:
+ collapse;table-layout:fixed;width:573pt;box-sizing: inherit;border-spacing: 0px;
+ font-variant-ligatures: normal;font-variant-caps: normal;orphans: 2;
+ text-align:start;widows: 2;-webkit-text-stroke-width: 0px;text-decoration-thickness: initial;
+ text-decoration-style: initial;text-decoration-color: initial">
+ <colgroup><col width="91" style="mso-width-source:userset;mso-width-alt:2901;width:68pt">
+ <col width="253" style="mso-width-source:userset;mso-width-alt:8106;width:190pt">
+ <col width="420" style="mso-width-source:userset;mso-width-alt:13440;width:315pt">
+ </colgroup><tbody><tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl65" width="91" style="height:18.0pt;width:68pt">对比项</td>
+  <td class="xl65" width="253" style="width:190pt">MyISAM</td>
+  <td class="xl65" width="420" style="width:315pt">InnoDB</td>
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">主外键</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">不支持</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">支持</td>
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">事务</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">不支持</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">支持</td>
+ </tr>
+ <tr height="24" style="mso-height-source:userset;height:18.0pt;box-sizing: inherit;
+  border-bottom:rgba(0, 0, 0, 0.12)">
+  <td rowspan="3" height="72" class="xl66" style="height:54.0pt;box-sizing: inherit;
+  display:table-cell;border-radius: 2px;min-width: 80px">行表锁</td>
+  <td rowspan="3" class="xl67" width="253" style="width:190pt;box-sizing: inherit;
+  display:table-cell;border-radius: 2px;min-width: 80px">表锁<br>
+    不适合高并发的读写操作</td>
+  <td rowspan="3" class="xl67" width="420" style="width:315pt;box-sizing: inherit;
+  display:table-cell;border-radius: 2px;min-width: 80px">行锁<br>
+    适合高并发操作<br>
+    同时也支持表锁和页锁</td>
+ </tr>
+ <tr height="24" style="mso-height-source:userset;height:18.0pt">
+ </tr>
+ <tr height="24" style="mso-height-source:userset;height:18.0pt">
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">缓存</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">只缓存索引，不缓存真实数据</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">不仅缓存索引，还要缓存真实数据，对内存要求高</td>
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">表空间</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">小</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">大</td>
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">关注点</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">性能</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">事务</td>
+ </tr>
+ <tr height="24" style="height:18.0pt;box-sizing: inherit;border-bottom:rgba(0, 0, 0, 0.12)">
+  <td height="24" class="xl66" style="height:18.0pt;box-sizing: inherit;display:
+  table-cell;border-radius: 2px;min-width: 80px">默认安装</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">Y</td>
+  <td class="xl66" style="box-sizing: inherit;display:table-cell;border-radius: 2px;
+  min-width: 80px">Y</td>
+ </tr>
+ <!--[if supportMisalignedColumns]-->
+ <tr height="0" style="display:none">
+  <td width="91" style="width:68pt"></td>
+  <td width="253" style="width:190pt"></td>
+  <td width="420" style="width:315pt"></td>
+ </tr>
+ <!--[endif]-->
+</tbody></table>
+<h2 id="38-文件系统">3.8 文件系统</h2>
+<h3 id="381-目录和文件">3.8.1 目录和文件</h3>
+<ul>
+<li>bin目录：存放着许多<code>可执行文件</code>，比如<code>mysqld</code>、<code>mysqldump</code>。</li>
+<li>数据目录</li>
+</ul>
+<p>像<code>InnoDB</code>、<code>MyISAM</code> 这样的存储引擎都是把表存储在<code>磁盘</code>上的，而操作系统用来管理磁盘的那个东东又被称为<code>文件系统</code>，所以用专业一点的话来表述就是：</p>
+<blockquote>
+<p>像 <code>InnoDB</code>、<code>MyISAM</code> 这样的存储引擎都是把<code>表</code>存储在<code>文件系统</code>上的。
+当我们想<code>读取</code>数据的时候，这些存储引擎会从文件系统中把数据<code>读出来</code>返回给我们， 当我们想<code>写入</code>数据的时候，这些存储引擎会把这些数据又<code>写回文件系统</code>。</p>
+</blockquote>
+<h4 id="3811-确定-mysql-中的数据目录">3.8.1.1 确定 MySQL 中的数据目录</h4>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">show</span><span style="color:#9ECBFF"> variables</span><span style="color:#9ECBFF"> like</span><span style="color:#9ECBFF"> 'datadir'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h4 id="3812-数据目录的作用">3.8.1.2 数据目录的作用</h4>
+<p>MySOL 在运行过程中都会产生哪些数据呢?
+当然会包含我们创建的<code>数据库</code>、 <code>表</code>、<code>视图</code>和<code>触发器</code>等<strong>用户数据</strong>，除了这些用户数据，为了程序更好的运行，MySQL 也会创建一些其他的额外数据。</p>
+<ul>
+<li><code>数据库</code>在文件系统中的表示
+<ul>
+<li>在数据目录下创建一个和数据库名<code>同名</code>的子目录（或者说是文件夹)；</li>
+<li>在与该数据库名<code>同名</code>的子目录下创建一个名为<code>db.opt</code> 的文件，这个文件中包含了该数据库的各种属性，比方说该数据库的<code>字符集</code>和<code>比较规则</code>是个啥。</li>
+</ul>
+</li>
+<li><code>表</code>在文件系统中的表示
+<ul>
+<li>表结构的定义：格式：表名.frm；</li>
+<li>表中的数据：在<code>MyISAM</code>、<code>InnoDB</code>存储引擎中又各不相同。
+<ul>
+<li><code>MyISAM</code>：数据和索引是分开存放的；无表空间一说；表数据都存放到对应的数据库子目录下。</li>
+<li><code>InnoDB</code>：在<code>MySQL5.6</code>版本之前，<code>InnoDB</code>默认是采用<code>系统表空间</code>，但是<code>5.6以后</code>就默认采用了<code>独立表空间</code>；</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Tips：</p>
+<ul>
+<li><code>系统表空间</code>：一个MySQL数据库中，存储的数据都是放在<code>一个系统级的文件</code>中，也就是所有表的数据都存储在<code>同一个文件</code>中。</li>
+<li><code>独立表空间</code>：每个表的数据<code>对应一个数据文件</code>，互不干扰。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>独立表空间和系统表空间的比较：</p>
+<ul>
+<li><code>系统表空间</code><strong>无法</strong>简单的收缩文件的大小；</li>
+<li><code>独立表空间</code>可以通过optimize table收缩文件；</li>
+<li><code>系统表空间</code>会产生<code>IO瓶颈</code>，在数据量大的时候，读取效率较独立表空间慢；</li>
+<li><code>独立表空间</code>可以<code>同时</code>向多个文件刷新数据，因为每个表对应的存储文件是<code>独立的</code>。</li>
+</ul>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/MySQL-Tablespace.png" alt="InnoDB下的独立表空间"></p>
+<h4 id="3812-日志文件">3.8.1.2 日志文件</h4>
+<ul>
+<li><code>错误日志</code>（error log）
+<ul>
+<li>对MySQL 的<code>启动</code>、<code>运行</code>、<code>关闭</code>过程进行了<code>记录</code>；</li>
+<li>也记录一些<code>警告信息</code>或<code>正确的信息</code>；</li>
+<li>查看错误日志文件的位置：<code>show variables like 'log_error'\G</code>。</li>
+</ul>
+</li>
+<li><code>慢查询日志</code>（slow query log）</li>
+<li><code>查询日志</code>（query log）：默认文件名：主机名.log。</li>
+<li><code>二进制文件</code>（bin log）
+<ul>
+<li>记录了对<code>MySQL</code> 数据库<code>执行更改的所有操作</code>；</li>
+<li>不包括<code>select</code> 和<code>show</code> 这类操作；</li>
+<li>几种作用：<code>恢复</code>（recovery）,<code>复制</code>（replication）,<code>审计</code>（audit）。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3813-其他的额外数据">3.8.1.3 其他的额外数据</h4>
+<ul>
+<li>服务器进程文件</li>
+<li><code>socket</code> 文件</li>
+<li>默认/自动生成的<code>SSL</code> 和<code>RSA 证书</code>和<code>密钥</code>文件。</li>
+</ul>
+<h1 id="4-系统库">4 系统库</h1>
+<h2 id="41-performance_schema">4.1 performance_schema</h2>
+<p>保存MySQL 服务器运行过程中的一些<code>状态信息</code>，包括<code>统计最近执行了哪些语句</code>，<code>在执行过程的每个阶段都花费了多长时间</code>，<code>内存的使用情况</code>等等信息。</p>
+<h2 id="42-sys">4.2 sys</h2>
+<p>通过视图的形式把<code>information_schema</code> 和 <code>performance_schema</code> 结合起来，让程序员可以更方便地了解<code>MySQL 服务器</code>的一些<code>性能信息</code>。</p>
+<p>支持MySQL 5.6 或更高版本。</p>
+<h2 id="43-information_schema">4.3 information_schema</h2>
+<p>保存着MySQL 服务器维护的所有其他数据库的信息，比如有哪些表、哪些视图、哪些触发器、哪些列、哪些索引。这些信息并不是真实的用户数据，而是一些描述性信息，有时候也称之为<code>元数据</code>。</p>
+<h2 id="44-mysql">4.4 mysql</h2>
+<p>在 MySQL 系统库中，MySQL <code>访问权限系统表</code>，放在 MySQL 库中，主要包含如下几个表：</p>
+<ul>
+<li><code>user</code>：包含用户账户、全局权限和其他非权限列表(安全配置字段和资 源控制字段)。</li>
+<li><code>db</code>：数据库级别的权限表。该表中记录的权限信息代表用户是否可以使 用这些权限来访问被授予访问的数据库下的所有对象(表或存储程序)。</li>
+<li><code>tables_priv</code>：表级别的权限表。</li>
+<li><code>columns_priv</code>：字段级别的权限表。</li>
+<li><code>procs_priv</code>：存储过程和函数权限表。</li>
+<li><code>proxies_priv</code>：代理用户权限表。</li>
+</ul>
+<p>下一章节讲讲<code>事务和事务的隔离级别</code>。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

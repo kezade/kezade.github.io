@@ -1,0 +1,145 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】144.二叉树的前序遍历</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】144.二叉树的前序遍历 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/29/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给你二叉树的根节点 root ，返回它节点值的 前序 遍历。</p>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/bfcfd742f58b7f629df27b4bf8a169a9.jpeg" alt="&#x22;图1&#x22;"></p>
+<blockquote>
+<p>输入：root = [1,null,2,3]
+输出：[1,2,3]</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：root = []
+输出：[]</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入：root = [1]
+输出：[1]</p>
+</blockquote>
+<h2 id="示例-4">示例 4</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/055d4e3cd757f49afe71b8e1467d480a.jpeg" alt="&#x22;图2&#x22;"></p>
+<blockquote>
+<p>输入：root = [1,2]
+输出：[1,2]</p>
+</blockquote>
+<h2 id="示例-5">示例 5</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/1e3a847f0b72e64b899dbeb0dcbca616.jpeg" alt="&#x22;图3&#x22;"></p>
+<blockquote>
+<p>输入：root = [1,null,2]
+输出：[1,2]</p>
+</blockquote>
+<p><strong>提示</strong>：</p>
+<ul>
+<li>树中节点数目在范围 [0, 100] 内</li>
+<li>-100 &#x3C;= Node.val &#x3C;= 100</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<h2 id="21-递归">2.1 递归</h2>
+<p>中序遍历的规则是 根-左-右，然后访问左子树、右子树时同样按照此规则遍历，非常容易通过递归实现，按照规则，代码非常容易写出来。定义 <strong>preorderTraversal(root)</strong> 为递归遍历函数方法，root 为根节点。伪代码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">root.val;</span></span>
+<span class="line"><span style="color:#B392F0">preorderTraversal</span><span style="color:#E1E4E8">(root.left);</span></span>
+<span class="line"><span style="color:#B392F0">preorderTraversal</span><span style="color:#E1E4E8">(root.right);</span></span></code></pre>
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>
+<p>时间复杂度：O(n)，其中 n 是二叉树的节点数。每一个节点恰好被遍历一次。</p>
+</li>
+<li>
+<p>空间复杂度：O(n)，为递归过程中栈的开销，平均情况下为 O(log⁡n)，最坏情况下树呈现链状，为 O(n)。</p>
+</li>
+</ul>
+<h2 id="22-迭代">2.2 迭代</h2>
+<p>显示利用栈结构，遍历二叉树。
+引用LeetCode动态图解迭代过程：
+1）访问根节点
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/9d2a4485420c7a95799a09999b81d662.png" alt="&#x22;图4&#x22;">
+2）根节点入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/64301bc1906294b4853a32161890f3ec.png" alt="&#x22;图5&#x22;">
+3）左子树根节点遍历、入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/625bc2dd91f7e489d64311098b60599c.png" alt="&#x22;图6&#x22;">
+4）左子树根节点出栈，遍历其左右子节点
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/1795695bfe91736dd9daba150dc75b02.png" alt="&#x22;图7&#x22;">
+5）左根节点左子树不存在，遍历其右子树4
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/053fb2ab6e498be02df4e0b7c1e8bd78.png" alt="&#x22;图8&#x22;">
+6）左子树遍历完毕，遍历根节点右子树
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/92ba07a2ab80979a6adcbb932f43c0ad.png" alt="&#x22;图9&#x22;">
+7）遍历右子树根节点，根节点出栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/d19f60849640fb1625a0424b3cbde631.png" alt="&#x22;图10&#x22;">
+8）右子树根节点入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2db7363f3e0366a1b2242fb703c95751.png" alt="&#x22;图11&#x22;"></p>
+<p>9）右子树左节点遍历，入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/0df77d13242bf0d1028476a613d15084.png" alt="&#x22;图12&#x22;"></p>
+<p>10）右子树左节点遍历完毕，该节点出栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/3a874f3193e082298063797fc8fba000.png" alt="&#x22;图13&#x22;">
+11）遍历右子树右节点，右子树根节点出栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/62cd727620a3733c5b93de45ef8c8d83.png" alt="&#x22;图14&#x22;">
+12）右子树右节点遍历，入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/44473bed64019699f1a718508dbf4a24.png" alt="&#x22;图15&#x22;">
+13）右子树遍历完毕，出栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/87b30e5ca23edf3bee8fe942d99b7e4b.png" alt="&#x22;图16&#x22;">
+14）遍历完毕
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/c2cee3c4c3edf74912ccc14b9dbba9af.png" alt="&#x22;图17&#x22;">
+<strong>复杂度分析</strong></p>
+<ul>
+<li>
+<p>时间复杂度：O(n)，其中 n 是二叉树的节点数。每一个节点恰好被遍历一次。</p>
+</li>
+<li>
+<p>空间复杂度：O(n)，为迭代过程中显式栈的开销，平均情况下为 O(log⁡n)，最坏情况下树呈现链状，为 O(n)。</p>
+</li>
+</ul>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 递归</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> root</span><span style="color:#6A737D"> TreeNode类</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> int整型一维数组</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[] </span><span style="color:#B392F0">preorderTraversal</span><span style="color:#E1E4E8"> (TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // write code here</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> list </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">        preorderTraversal2</span><span style="color:#E1E4E8">(list, root);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">stream</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">mapToInt</span><span style="color:#E1E4E8">(Integer</span><span style="color:#F97583">::</span><span style="color:#E1E4E8">valueOf).</span><span style="color:#B392F0">toArray</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#6A737D"> 	//递归方法</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> preorderTraversal2</span><span style="color:#E1E4E8"> (List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">list</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        list.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.val);</span></span>
+<span class="line"><span style="color:#B392F0">        preorderTraversal2</span><span style="color:#E1E4E8">(list, root.left);</span></span>
+<span class="line"><span style="color:#B392F0">        preorderTraversal2</span><span style="color:#E1E4E8">(list, root.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//迭代，栈思想</span></span>
+<span class="line"><span style="color:#F97583">	public</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">preorderTraversal</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> res </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">	        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">	            return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">	        }</span></span>
+<span class="line"><span style="color:#E1E4E8">	        Stack&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">> stack </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> Stack&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">	        stack.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#E1E4E8">	        TreeNode p;</span></span>
+<span class="line"><span style="color:#F97583">	        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">stack.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	            p </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> stack.</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	            res.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(p.val);</span></span>
+<span class="line"><span style="color:#6A737D">	            //先把右节点入栈</span></span>
+<span class="line"><span style="color:#F97583">	            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> p.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	                stack.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(p.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">	            }</span></span>
+<span class="line"><span style="color:#F97583">	            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> p.left) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	                stack.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(p.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">	            }</span></span>
+<span class="line"><span style="color:#E1E4E8">	        }</span></span>
+<span class="line"><span style="color:#F97583">	        return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">	    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

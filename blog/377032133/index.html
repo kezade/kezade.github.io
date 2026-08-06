@@ -1,0 +1,144 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】128. 最长连续序列</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】128. 最长连续序列 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/13/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给定一个未排序的整数数组 nums ，找出数字连续的最长序列（不要求序列元素在原数组中连续）的长度。</p>
+<p>请你设计并实现时间复杂度为 O(n) 的算法解决此问题。</p>
+<h2 id="示例-1">示例 1</h2>
+<blockquote>
+<p>输入：nums = [100,4,200,1,3,2]
+输出：4
+解释：最长数字连续序列是 [1, 2, 3, 4]。它的长度为 4。</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：nums = [0,3,7,2,5,8,4,6,0,1]
+输出：9</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<ul>
+<li>0 &#x3C;= nums.length &#x3C;= 105</li>
+<li>-109 &#x3C;= nums[i] &#x3C;= 109</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<h2 id="21-先排序后遍历再判断">2.1 先排序后遍历再判断</h2>
+<p>先对数组进行升序排列，则若存在连续序列，当遍历到某一值时，其前后之差应该为1，则进行最长序列长度统计；若不为1，如果相等，则跳过此值，进行下一个循环；如果不等，则不连续，当前统计的连续序列长度置为1。见方法<code>longestConsecutive2</code>。
+此方法，虽然看似时间复杂度为O(N)，其实排序就占用了至少O(N)，还是不是很理想的算法。</p>
+<h2 id="22-哈希表">2.2 哈希表</h2>
+<p>定义一哈希表，key为数组中的元素，value为当前元素所在连续序列的长度。
+对于<strong>不存在</strong>于哈希表中的元素：</p>
+<ul>
+<li>取出其左右相邻数已有的连续区间长度 left 和 right</li>
+<li>计算当前数的区间长度为：<code>cur_length = left + right + 1</code></li>
+<li>根据 cur_length 更新最大长度 max_length 的值</li>
+<li>更新区间两端点的长度值</li>
+</ul>
+<p>例如，key = 5， value = 3，意味着对于5来说，有一个长度为3的连续区间，5属于这个区间(不要纠结5这个元素到底在该区间的哪个位置) 具体来说，这个连续区间可能是[4, 6], [3, 5], [5,7]都是满足定义的，具体看nums里有哪些元素。</p>
+<p>如果对于元素 num=5，在判断 <code>!map.contains(num)</code> 时，其不存在于哈希表中，即第一次遍历到5这个元素，则对于可能存在的连续序列，num-1若出现在序列当中，则其范围应为<code>[num-value, num-1]</code>. 比如：上述元素5，则4所在范围只能是<code>[4-value, 4]</code>，如果不是，那5必在其中，不符合我们的循环条件。这里value表示4所对应的连续序列长度。</p>
+<p>同样道理，对于6，其出现的范围只能是<code>[6, 6+value]</code>；这里value表示6所对应的连续序列长度。详见代码中方法<code>longestConsecutive</code>。</p>
+<p>接着需要将之前计算的合并长度进行赋值，并且只要赋值给端点就行了，这是因为整个子序列 <code>[num-left, num+right]</code> 中的元素都已经被访问过了所有的值都已经存储到了map里面，那么如果其他数字想要通过这个判断 <code>!map.contains(num)</code> ，这个数字只可能在这个子序列的左边或者右边.</p>
+<p>我们还是以左边为例，当我们放入第num-left-1个数字的时候就需要知道我们的右边第num-left的子序列长度，而通过之前的计算 <code>map[num - left] = cur_length</code>我们可以知道第num-left为开头的最大子序列长度为cur_length, 可以看出左端点（num-left）的值只有其左边的数字用的上，那么他自己自然只需要存右边的子序列长度就可以了，右边同理。</p>
+<h2 id="23-hashset">2.3 HashSet</h2>
+<ul>
+<li>通过HashSet将不重复的元素入库</li>
+<li>遍历数组，判断当前num减去1的元素是否已存在：
+<ul>
+<li>如果不存在，并且num+当前连续序列最大长度的值存在于HashSet中，统计连续序列长度</li>
+<li>否则，跳过该元素。这里循环的条件目的就是找到连续序列的起始元素，找到后，才开始统计最大的连续序列长度</li>
+</ul>
+</li>
+</ul>
+<p>详见代码中方法<code>longestConsecutive3</code>。不过此算法由于用到HashSet，其时间复杂度不符合题目中所需O(N)的条件。</p>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //1.先排序</span></span>
+<span class="line"><span style="color:#6A737D">    //2.连续序列差值为1，统计连续序列长度</span></span>
+<span class="line"><span style="color:#6A737D">    //3.否则，相等的话，继续循环遍历；不等，重新计数连续序列长度</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> longestConsecutive2</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //判空</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> nums.length</span><span style="color:#F97583">==</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //只有一个</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums.length){</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //排序</span></span>
+<span class="line"><span style="color:#E1E4E8">        Arrays.</span><span style="color:#B392F0">sort</span><span style="color:#E1E4E8">(nums);</span></span>
+<span class="line"><span style="color:#6A737D">        //结果</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> maxLength</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">        //初始最长连续序列长度</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> current</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">nums.length;i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#6A737D">            //是否相差1</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(nums[i]</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">nums[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">==</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">){</span></span>
+<span class="line"><span style="color:#E1E4E8">                current</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                maxLength</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">Math.</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(maxLength, current);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //相等</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8">(nums[i]</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">nums[i</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]){</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //不等，重新统计</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#E1E4E8">                current</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> maxLength;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> longestConsecutive3</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 遍历数组，构造哈希集合，去重记录出现过的数字</span></span>
+<span class="line"><span style="color:#E1E4E8">        HashSet&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> numSet </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> HashSet&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> num </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> nums) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            numSet.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(num);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> maxLength</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> currentLength</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> num </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> nums){</span></span>
+<span class="line"><span style="color:#6A737D">            //当前数字不是其可能所在连续序列的最小值，则略过；否则向上循环寻找num+1，记录长度</span></span>
+<span class="line"><span style="color:#6A737D">            //如果当前num+当前最大长度不在哈希表里，那这次循环就不用看了</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">numSet.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> numSet.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">maxLength)){</span></span>
+<span class="line"><span style="color:#E1E4E8">                currentLength</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                while</span><span style="color:#E1E4E8">(numSet.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    currentLength</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    num</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(currentLength</span><span style="color:#F97583">></span><span style="color:#E1E4E8">maxLength){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    maxLength</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">currentLength;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> maxLength;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> longestConsecutive</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //定义map为num及其所在连续序列的长度</span></span>
+<span class="line"><span style="color:#E1E4E8">        Map&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> map</span><span style="color:#F97583">=new</span><span style="color:#E1E4E8"> HashMap&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> left;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> right;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> currentLength;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> maxLength</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> num </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> nums){</span></span>
+<span class="line"><span style="color:#6A737D">            //不包含num</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">map.</span><span style="color:#B392F0">containsKey</span><span style="color:#E1E4E8">(num)){</span></span>
+<span class="line"><span style="color:#6A737D">                //对于第一次出现的num, num-1出现的范围只能是[num-left, num-1]</span></span>
+<span class="line"><span style="color:#E1E4E8">                left</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">map.</span><span style="color:#B392F0">getOrDefault</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">                //num+1出现的范围只能是[num+1, num+right]</span></span>
+<span class="line"><span style="color:#E1E4E8">                right</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">map.</span><span style="color:#B392F0">getOrDefault</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                currentLength</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">left</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">right</span><span style="color:#F97583">+</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8">(currentLength</span><span style="color:#F97583">></span><span style="color:#E1E4E8">maxLength){</span></span>
+<span class="line"><span style="color:#E1E4E8">                    maxLength</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">currentLength;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //旁边的两个数 我已经相告了，这里对num保存的值不重要</span></span>
+<span class="line"><span style="color:#E1E4E8">                map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(num, currentLength);</span></span>
+<span class="line"><span style="color:#6A737D">                //告诉左边的数字我的右边连续子序列长度是curLength（或者说只有他左边的数字需要他）</span></span>
+<span class="line"><span style="color:#E1E4E8">                map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">left, currentLength);</span></span>
+<span class="line"><span style="color:#6A737D">                //告诉右边的数字我的左边连续子序列长度是cur_length</span></span>
+<span class="line"><span style="color:#E1E4E8">                map.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(num</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">right, currentLength);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> maxLength;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

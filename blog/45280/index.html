@@ -1,0 +1,304 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Hexo】基于Fluid主题的Hexo增加相册功能实践</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Hexo】基于Fluid主题的Hexo增加相册功能实践 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/6/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Hexo博客</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Fluid</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#相册</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>本文是基于Hexo 6.3.0, Fluid 1.9.4进行开发，主要借鉴于<a href="https://gishai.top/blog/posts/798ba833.html">hexo的fluid主题添加瀑布流懒加载相册功能</a>，其中基于<a href="https://zhuanlan.zhihu.com/p/346643522">jsDelivr+Github 实现免费CDN加速</a>可以参考这篇文章搭建自己的CDN。</p>
+<h1 id="1创建相册页面">1.创建相册页面</h1>
+<ul>
+<li>在自己的博客项目下，新建相册页</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">hexo</span><span style="color:#9ECBFF"> new</span><span style="color:#9ECBFF"> page</span><span style="color:#9ECBFF"> photos</span></span></code></pre>
+<ul>
+<li>编辑 /source/photos/index.md，输入以下内容</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="md"><code><span class="line"><span style="color:#E1E4E8">---</span></span>
+<span class="line"><span style="color:#85E89D">title</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">photos</span></span>
+<span class="line"><span style="color:#85E89D">date</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">2020-12-30 19:04:03</span></span>
+<span class="line"><span style="color:#85E89D">layout</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">photo</span></span>
+<span class="line"><span style="color:#E1E4E8">---</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;style></span></span>
+<span class="line"><span style="color:#E1E4E8">.ImageGrid {</span></span>
+<span class="line"><span style="color:#E1E4E8">  width: 100%;</span></span>
+<span class="line"><span style="color:#E1E4E8">  max-width: 1040px;</span></span>
+<span class="line"><span style="color:#E1E4E8">  margin: 0 auto;</span></span>
+<span class="line"><span style="color:#E1E4E8">  text-align: center;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">.card {</span></span>
+<span class="line"><span style="color:#E1E4E8">  overflow: hidden;</span></span>
+<span class="line"><span style="color:#E1E4E8">  transition: .3s ease-in-out;</span></span>
+<span class="line"><span style="color:#E1E4E8">  border-radius: 8px;</span></span>
+<span class="line"><span style="color:#E1E4E8">  background-color: #efefef;</span></span>
+<span class="line"><span style="color:#E1E4E8">  padding: 1.4px;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">.ImageInCard img {</span></span>
+<span class="line"><span style="color:#E1E4E8">  padding: 0;</span></span>
+<span class="line"><span style="color:#E1E4E8">  border-radius: 8px;</span></span>
+<span class="line"><span style="color:#E1E4E8">  width:100%;</span></span>
+<span class="line"><span style="color:#E1E4E8">  height:100%;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">@media (prefers-color-scheme: dark) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  .card {background-color: #333;}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/style></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;div id="imageTab">&#x3C;/div></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;div class="ImageGrid">&#x3C;/div></span></span>
+<span class="line"></span></code></pre>
+<h1 id="2处理图片信息">2.处理图片信息</h1>
+<p>这里需要创建自己的github相册，可参考这篇文章<a href="https://zhuanlan.zhihu.com/p/346643522">jsDelivr+Github 实现免费CDN加速</a>。</p>
+<p>这里主要是为了加快图片的加载速度, 利用GitHub +jsDelivr的方式，此处不再演示。文件夹结构如图:</p>
+<p><img src="https://gishai.top/blog/posts/798ba833/image-20210110205814315.png" alt=""></p>
+<p>这里没有安装 image-size，需要npm安装下</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">npm</span><span style="color:#9ECBFF"> i</span><span style="color:#79B8FF"> -S</span><span style="color:#9ECBFF"> image-size</span></span></code></pre>
+<p>在github相册目录下，执行createjs，</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@192 11:34:28 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">/source/photos]$ node createjs.js </span></span></code></pre>
+<p>脚本如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> fs</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'fs-extra'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> path</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'path'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> imageSize</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> require</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'image-size'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> rootPath</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">"gallery/"</span><span style="color:#6A737D">   //相册相对路径，也可填绝对路径，指向相册的目录，目的为了生成json</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> PhotoExtension</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.size </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 64</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.offset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Photo</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.dirName </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ''</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileName </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ''</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.iconID </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ''</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.extension </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PhotoExtension</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> PhotoGroup</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ''</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.children </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> createPlotIconsData</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> allPlots </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> allPlotGroups </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> plotJsonFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, </span><span style="color:#9ECBFF">'./photosInfo.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> plotGroupJsonFile</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, </span><span style="color:#9ECBFF">'./photos.json'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (fs.</span><span style="color:#B392F0">existsSync</span><span style="color:#E1E4E8">(plotJsonFile)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        allPlots </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(fs.</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(plotJsonFile));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (fs.</span><span style="color:#B392F0">existsSync</span><span style="color:#E1E4E8">(plotGroupJsonFile)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        allPlotGroups </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(fs.</span><span style="color:#B392F0">readFileSync</span><span style="color:#E1E4E8">(plotGroupJsonFile));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    fs.</span><span style="color:#B392F0">readdirSync</span><span style="color:#E1E4E8">(__dirname).</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">function</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">dirName</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> stats</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">statSync</span><span style="color:#E1E4E8">(path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, dirName));</span></span>
+<span class="line"><span style="color:#F97583">        const</span><span style="color:#79B8FF"> isDir</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> stats.</span><span style="color:#B392F0">isDirectory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (isDir) {</span></span>
+<span class="line"><span style="color:#F97583">            const</span><span style="color:#79B8FF"> subfiles</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> fs.</span><span style="color:#B392F0">readdirSync</span><span style="color:#E1E4E8">(path.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(__dirname, dirName));</span></span>
+<span class="line"><span style="color:#E1E4E8">            subfiles.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">function</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">subfileName</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 如果已经存在 则不再处理</span></span>
+<span class="line"><span style="color:#6A737D">                // if (allPlots.find(o => o.fileName === subfileName &#x26;&#x26; o.dirName === dirName)) {</span></span>
+<span class="line"><span style="color:#6A737D">                //     return;</span></span>
+<span class="line"><span style="color:#6A737D">                // }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">                // 新增标</span></span>
+<span class="line"><span style="color:#F97583">                const</span><span style="color:#79B8FF"> plot</span><span style="color:#F97583"> =</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Photo</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                plot.dirName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dirName;</span></span>
+<span class="line"><span style="color:#E1E4E8">                plot.fileName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> subfileName;</span></span>
+<span class="line"><span style="color:#F97583">                const</span><span style="color:#79B8FF"> imageInfo</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> imageSize</span><span style="color:#E1E4E8">(rootPath</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">dirName </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "/"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> subfileName);</span></span>
+<span class="line"><span style="color:#E1E4E8">                plot.iconID </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imageInfo.width </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> '.'</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> imageInfo.height </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ' '</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> subfileName;</span></span>
+<span class="line"><span style="color:#E1E4E8">                allPlots.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(plot);</span></span>
+<span class="line"><span style="color:#E1E4E8">                console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`RD: createPlotIconsData -> new plot`</span><span style="color:#E1E4E8">, plot);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">                // 为新增标添加分组 暂时以它所处的文件夹为分组</span></span>
+<span class="line"><span style="color:#F97583">                let</span><span style="color:#E1E4E8"> group </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> allPlotGroups.</span><span style="color:#B392F0">find</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">o</span><span style="color:#F97583"> =></span><span style="color:#E1E4E8"> o.name </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> dirName);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">group) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    group </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PhotoGroup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    group.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dirName;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    allPlotGroups.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(group);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`RD: createPlotIconsData -> new group`</span><span style="color:#E1E4E8">, group);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                group.children.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(plot.iconID);</span></span>
+<span class="line"><span style="color:#E1E4E8">            });</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    fs.</span><span style="color:#B392F0">writeJSONSync</span><span style="color:#E1E4E8">(plotJsonFile, allPlots);</span></span>
+<span class="line"><span style="color:#E1E4E8">    fs.</span><span style="color:#B392F0">writeJSONSync</span><span style="color:#E1E4E8">(plotGroupJsonFile, allPlotGroups);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">createPlotIconsData</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>将photos.json拷贝到博客目录下的photos
+<img src="https://gishai.top/blog/posts/798ba833/image-20210110210639345.png" alt=""></p>
+<h1 id="3加载-js和css文件">3.加载 js和css文件</h1>
+<p>在 /source/js/ 目录下创建 photoWall.js</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> imgDataPath </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "/blog/photos/photos.json"</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//图片名称高宽信息json文件路径</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> imgPath </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "https://gcore.jsdelivr.net/gh/Cenergy/images/gallery/"</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//图片访问路径, 这里参考文章开头提到的CDN加速</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> imgMaxNum </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 50</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//图片显示数量</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> windowWidth </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#E1E4E8">  window.innerWidth </span><span style="color:#F97583">||</span></span>
+<span class="line"><span style="color:#E1E4E8">  document.documentElement.clientWidth </span><span style="color:#F97583">||</span></span>
+<span class="line"><span style="color:#E1E4E8">  document.body.clientWidth;</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (windowWidth </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 768</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> imageWidth </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 145</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//图片显示宽度(手机端)</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  var</span><span style="color:#E1E4E8"> imageWidth </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 250</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//图片显示宽度</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> photo</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  page: </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  offset: imgMaxNum,</span></span>
+<span class="line"><span style="color:#B392F0">  init</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#F97583">    var</span><span style="color:#E1E4E8"> that </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    $.</span><span style="color:#B392F0">getJSON</span><span style="color:#E1E4E8">(imgDataPath, </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">data</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      that.</span><span style="color:#B392F0">render</span><span style="color:#E1E4E8">(that.page, data);</span></span>
+<span class="line"><span style="color:#6A737D">      //that.scroll(data);</span></span>
+<span class="line"><span style="color:#E1E4E8">      that.</span><span style="color:#B392F0">eventListen</span><span style="color:#E1E4E8">(data);</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#B392F0">  constructHtml</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">options</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">      imageWidth</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      imageX</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      imageY</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      name</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      imgPath</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      imgName</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">      imgNameWithPattern</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> htmlEle</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `&#x3C;div class="card lozad" style="width:${</span><span style="color:#E1E4E8">imageWidth</span><span style="color:#9ECBFF">}px"></span></span>
+<span class="line"><span style="color:#9ECBFF">                  &#x3C;div class="ImageInCard" style="height:${</span></span>
+<span class="line"><span style="color:#9ECBFF">                    (</span><span style="color:#E1E4E8">imageWidth</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> imageY</span><span style="color:#9ECBFF">) </span><span style="color:#F97583">/</span><span style="color:#E1E4E8"> imageX</span></span>
+<span class="line"><span style="color:#9ECBFF">                  }px"></span></span>
+<span class="line"><span style="color:#9ECBFF">                    &#x3C;a data-fancybox="gallery" href="${</span><span style="color:#E1E4E8">imgPath</span><span style="color:#9ECBFF">}${</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}/${</span><span style="color:#E1E4E8">imgNameWithPattern</span><span style="color:#9ECBFF">}"</span></span>
+<span class="line"><span style="color:#9ECBFF">                          data-caption="${</span><span style="color:#E1E4E8">imgName</span><span style="color:#9ECBFF">}" title="${</span><span style="color:#E1E4E8">imgName</span><span style="color:#9ECBFF">}"></span></span>
+<span class="line"><span style="color:#9ECBFF">                            &#x3C;img  class="lazyload" data-src="${</span><span style="color:#E1E4E8">imgPath</span><span style="color:#9ECBFF">}${</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}/${</span><span style="color:#E1E4E8">imgNameWithPattern</span><span style="color:#9ECBFF">}"</span></span>
+<span class="line"><span style="color:#9ECBFF">                            src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="</span></span>
+<span class="line"><span style="color:#9ECBFF">                            onload="lzld(this)"</span></span>
+<span class="line"><span style="color:#9ECBFF">                            lazyload="auto"></span></span>
+<span class="line"><span style="color:#9ECBFF">                        &#x3C;/a></span></span>
+<span class="line"><span style="color:#9ECBFF">                  &#x3C;/div></span></span>
+<span class="line"><span style="color:#9ECBFF">                &#x3C;/div>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> htmlEle;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#B392F0">  render</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">page</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">data</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> []) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.data </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> data;</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">data.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    var</span><span style="color:#E1E4E8"> html,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgNameWithPattern,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgName,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageSize,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageX,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageY,</span></span>
+<span class="line"><span style="color:#E1E4E8">      li </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> liHtml </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> contentHtml </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    data.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">item</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> activeClass</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ?</span><span style="color:#9ECBFF"> "active"</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      liHtml </span><span style="color:#F97583">+=</span><span style="color:#9ECBFF"> `&#x3C;li class="nav-item" role="presentation"></span></span>
+<span class="line"><span style="color:#9ECBFF">          &#x3C;a class="nav-link ${</span><span style="color:#E1E4E8">activeClass</span><span style="color:#9ECBFF">} photo-tab" id="home-tab" photo-uuid="${</span><span style="color:#E1E4E8">item</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}" data-toggle="tab" href="#${</span><span style="color:#E1E4E8">item</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}"  role="tab" aria-controls="${</span><span style="color:#E1E4E8">item</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}" aria-selected="true">${</span><span style="color:#E1E4E8">item</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}&#x3C;/a></span></span>
+<span class="line"><span style="color:#9ECBFF">        &#x3C;/li>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">initData</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {}] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> data;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">children</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> [],</span><span style="color:#79B8FF">name</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> initData;</span></span>
+<span class="line"><span style="color:#E1E4E8">    children.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">item</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgNameWithPattern </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imgNameWithPattern.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageX </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imageSize.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageY </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imageSize.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#F97583">      let</span><span style="color:#E1E4E8"> imgOptions </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageWidth,</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageX,</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageY,</span></span>
+<span class="line"><span style="color:#E1E4E8">        name,</span></span>
+<span class="line"><span style="color:#E1E4E8">        imgName,</span></span>
+<span class="line"><span style="color:#E1E4E8">        imgPath,</span></span>
+<span class="line"><span style="color:#E1E4E8">        imgNameWithPattern,</span></span>
+<span class="line"><span style="color:#E1E4E8">      };</span></span>
+<span class="line"><span style="color:#E1E4E8">      li </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">constructHtml</span><span style="color:#E1E4E8">(imgOptions);</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">    contentHtml </span><span style="color:#F97583">+=</span><span style="color:#9ECBFF"> ` &#x3C;div class="tab-pane fade show active"  role="tabpanel" aria-labelledby="home-tab">${</span><span style="color:#E1E4E8">li</span><span style="color:#9ECBFF">}&#x3C;/div>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> ulHtml</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `&#x3C;ul class="nav nav-tabs" id="myTab" role="tablist">${</span><span style="color:#E1E4E8">liHtml</span><span style="color:#9ECBFF">}&#x3C;/ul>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    const</span><span style="color:#79B8FF"> tabContent</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> `&#x3C;div class="tab-content" id="myTabContent">${</span><span style="color:#E1E4E8">contentHtml</span><span style="color:#9ECBFF">}&#x3C;/div>`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    $</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"#imageTab"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(ulHtml);</span></span>
+<span class="line"><span style="color:#B392F0">    $</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">".ImageGrid"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(tabContent);</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">minigrid</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#B392F0">  eventListen</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">data</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> self </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    var</span><span style="color:#E1E4E8"> html,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgNameWithPattern,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imgName,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageSize,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageX,</span></span>
+<span class="line"><span style="color:#E1E4E8">      imageY,</span></span>
+<span class="line"><span style="color:#E1E4E8">      li </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">    $</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'a[data-toggle="tab"]'</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"shown.bs.tab"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">      $</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">".ImageGrid"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">empty</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> selectId</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> $</span><span style="color:#E1E4E8">(e.target).</span><span style="color:#B392F0">attr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"photo-uuid"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#79B8FF"> selectedData</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> data.</span><span style="color:#B392F0">find</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">data</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> data.name </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> selectId) </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> {};</span></span>
+<span class="line"><span style="color:#F97583">      const</span><span style="color:#E1E4E8"> { </span><span style="color:#79B8FF">children</span><span style="color:#E1E4E8">,</span><span style="color:#79B8FF">name</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> selectedData;</span></span>
+<span class="line"><span style="color:#F97583">      let</span><span style="color:#E1E4E8"> li </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> ""</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      children.</span><span style="color:#B392F0">forEach</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">item</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">index</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        imgNameWithPattern </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        imgName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imgNameWithPattern.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">" "</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageX </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imageSize.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        imageY </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> imageSize.</span><span style="color:#B392F0">split</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"."</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#F97583">        let</span><span style="color:#E1E4E8"> imgOptions </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">          imageWidth,</span></span>
+<span class="line"><span style="color:#E1E4E8">          imageX,</span></span>
+<span class="line"><span style="color:#E1E4E8">          imageY,</span></span>
+<span class="line"><span style="color:#E1E4E8">          name,</span></span>
+<span class="line"><span style="color:#E1E4E8">          imgName,</span></span>
+<span class="line"><span style="color:#E1E4E8">          imgPath,</span></span>
+<span class="line"><span style="color:#E1E4E8">          imgNameWithPattern,</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#E1E4E8">        li </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> self.</span><span style="color:#B392F0">constructHtml</span><span style="color:#E1E4E8">(imgOptions);</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"><span style="color:#B392F0">      $</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">".ImageGrid"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(li);</span></span>
+<span class="line"><span style="color:#E1E4E8">      self.</span><span style="color:#B392F0">minigrid</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#B392F0">  minigrid</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#F97583">    var</span><span style="color:#E1E4E8"> grid </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Minigrid</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">      container: </span><span style="color:#9ECBFF">".ImageGrid"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      item: </span><span style="color:#9ECBFF">".card"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">      gutter: </span><span style="color:#79B8FF">12</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">    grid.</span><span style="color:#B392F0">mount</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">    $</span><span style="color:#E1E4E8">(window).</span><span style="color:#B392F0">resize</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">      grid.</span><span style="color:#B392F0">mount</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#E1E4E8">photo.</span><span style="color:#B392F0">init</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span></code></pre>
+<p>然后使用注册器将需要的js,css注入,在scripts/injector.js(如没有,则创建)中输入以下内容</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#E1E4E8"> { </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">siteRoot</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "/"</span><span style="color:#E1E4E8"> } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> hexo.config;</span></span>
+<span class="line"><span style="color:#6A737D">// layout为photo的时候导入这些js与css</span></span>
+<span class="line"><span style="color:#E1E4E8">hexo.extend.injector.</span><span style="color:#B392F0">register</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#9ECBFF">  "body_end"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  `</span></span>
+<span class="line"><span style="color:#9ECBFF">  &#x3C;link rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css"></span></span>
+<span class="line"><span style="color:#9ECBFF">  &#x3C;script src="//gcore.jsdelivr.net/npm/minigrid@3.1.1/dist/minigrid.min.js">&#x3C;/script></span></span>
+<span class="line"><span style="color:#9ECBFF">  &#x3C;script src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js">&#x3C;/script></span></span>
+<span class="line"><span style="color:#9ECBFF">	&#x3C;script src="https://cdn.bootcdn.net/ajax/libs/lazyloadjs/3.2.2/lazyload.js">&#x3C;/script></span></span>
+<span class="line"><span style="color:#9ECBFF">    &#x3C;script defer src="${</span><span style="color:#E1E4E8">siteRoot</span><span style="color:#9ECBFF">}js/photoWall.js">&#x3C;/script>`</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#9ECBFF">  "photo"</span></span>
+<span class="line"><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>最后 <code>hexo clean &#x26;&#x26; hexo g &#x26;&#x26; hexo s</code>，本地部署看看效果。</p>
+<p><strong>提示</strong>：
+GitHub +jsDelivr 期初加载有点慢，要等好几分钟，所有图才有加速，不要误以为是其他问题。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

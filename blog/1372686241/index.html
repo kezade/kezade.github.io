@@ -1,0 +1,364 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Docker学习】2.命令备忘</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Docker学习】2.命令备忘 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/19/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-入门">1 入门</h1>
+<h2 id="11-在后台创建和运行容器">1.1 在后台创建和运行容器</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> 80:80</span><span style="color:#9ECBFF"> docker/getting-started</span></span></code></pre>
+<p>参数说明：</p>
+<ul>
+<li>-d：在分离模式下运行容器</li>
+<li>-p 80:80 - 将端口 80 映射到容器中的端口 80</li>
+<li>docker/getting-started - 要使用的镜像</li>
+</ul>
+<h2 id="12-在前台创建并运行容器">1.2 在前台创建并运行容器</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> 8001:8080</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> my-nginx</span><span style="color:#9ECBFF"> nginx</span></span></code></pre>
+<p>参数说明：</p>
+<ul>
+<li>-it - 交互式 bash 模式</li>
+<li>-p 8001:8080 - 将端口 8001 映射到容器中的端口 8080</li>
+<li>—name my-nginx - 指定名称</li>
+<li>nginx - 要使用的镜像</li>
+</ul>
+<h1 id="2-一般命令">2 一般命令</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>描述</th></tr></thead><tbody><tr><td>docker ps</td><td>列出正在运行的容器</td></tr><tr><td>docker ps -a</td><td>列出所有容器</td></tr><tr><td>docker ps -s</td><td>列出正在运行的容器（带 CPU/内存）</td></tr><tr><td>docker images</td><td>列出所有镜像</td></tr><tr><td>docker exec -it <container> bash</container></td><td>连接到容器</td></tr><tr><td>docker logs <container></container></td><td>显示容器的控制台日志</td></tr><tr><td>docker stop <container></container></td><td>停止一个容器</td></tr><tr><td>docker restart <container></container></td><td>重启一个容器</td></tr><tr><td>docker rm <container></container></td><td>移除一个容器</td></tr><tr><td>docker port <container></container></td><td>显示容器的端口映射</td></tr><tr><td>docker top <container></container></td><td>列出进程</td></tr><tr><td>docker kill <container></container></td><td>杀死一个容器</td></tr></tbody></table>
+<blockquote>
+<p>ps: 参数<container>可以是容器 ID 或名称.</container></p>
+</blockquote>
+<p>以下命令，与Docker 容器相关。</p>
+<h1 id="3-docker容器">3 Docker容器</h1>
+<h2 id="31-启动和停止">3.1 启动和停止</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>描述</th></tr></thead><tbody><tr><td>docker start nginx-server</td><td>开始</td></tr><tr><td>docker stop nginx-server</td><td>停止</td></tr><tr><td>docker restart nginx-server</td><td>重启</td></tr><tr><td>docker pause nginx-server</td><td>暂停</td></tr><tr><td>docker unpause nginx-server</td><td>取消暂停</td></tr><tr><td>docker wait nginx-server</td><td>阻塞容器</td></tr><tr><td>docker kill nginx-server</td><td>发送 SIGKILL</td></tr><tr><td>docker attach nginx-server</td><td>连接到现有容器</td></tr></tbody></table>
+<h2 id="32-信息">3.2 信息</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>描述</th></tr></thead><tbody><tr><td>docker ps</td><td>列出正在运行的容器</td></tr><tr><td>docker ps -a</td><td>列出所有容器</td></tr><tr><td>docker logs nginx-server</td><td>容器日志</td></tr><tr><td>docker inspect nginx-server</td><td>检查容器</td></tr><tr><td>docker events nginx-server</td><td>容器事件</td></tr><tr><td>docker port nginx-server</td><td>公共端口</td></tr><tr><td>docker top nginx-server</td><td>运行进程</td></tr><tr><td>docker stats nginx-server</td><td>容器资源使用</td></tr><tr><td>docker diff nginx-server</td><td>列出对容器所做的更改。</td></tr></tbody></table>
+<h2 id="33-创建">3.3 创建</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> create</span><span style="color:#E1E4E8"> [options] IMAGE</span></span>
+<span class="line"><span style="color:#B392F0">    -a,</span><span style="color:#79B8FF"> --attach</span><span style="color:#6A737D">               # attach stdout/err</span></span>
+<span class="line"><span style="color:#B392F0">    -i,</span><span style="color:#79B8FF"> --interactive</span><span style="color:#6A737D">          # attach stdin (interactive)</span></span>
+<span class="line"><span style="color:#B392F0">    -t,</span><span style="color:#79B8FF"> --tty</span><span style="color:#6A737D">                  # pseudo-tty</span></span>
+<span class="line"><span style="color:#B392F0">        --name</span><span style="color:#9ECBFF"> NAME</span><span style="color:#6A737D">            # name your image</span></span>
+<span class="line"><span style="color:#B392F0">    -p,</span><span style="color:#79B8FF"> --publish</span><span style="color:#9ECBFF"> 5000:5000</span><span style="color:#6A737D">    # port map (host:container)</span></span>
+<span class="line"><span style="color:#B392F0">        --expose</span><span style="color:#79B8FF"> 5432</span><span style="color:#6A737D">          # expose a port to containers</span></span>
+<span class="line"><span style="color:#B392F0">    -P,</span><span style="color:#79B8FF"> --publish-all</span><span style="color:#6A737D">          # publish all ports</span></span>
+<span class="line"><span style="color:#B392F0">        --link</span><span style="color:#9ECBFF"> container:alias</span><span style="color:#6A737D"> # linking</span></span>
+<span class="line"><span style="color:#B392F0">    -v,</span><span style="color:#79B8FF"> --volume</span><span style="color:#9ECBFF"> `</span><span style="color:#79B8FF">pwd</span><span style="color:#9ECBFF">`</span><span style="color:#B392F0">:/app</span><span style="color:#6A737D">    # mount (absolute paths needed)</span></span>
+<span class="line"><span style="color:#B392F0">    -e,</span><span style="color:#79B8FF"> --env</span><span style="color:#9ECBFF"> NAME=hello</span><span style="color:#6A737D">       # env vars</span></span></code></pre>
+<p>举例：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> create</span><span style="color:#79B8FF"> --name</span><span style="color:#9ECBFF"> my_redis</span><span style="color:#79B8FF"> --expose</span><span style="color:#79B8FF"> 6379</span><span style="color:#9ECBFF"> redis:3.0.2</span></span></code></pre>
+<h2 id="34-操作">3.4 操作</h2>
+<h3 id="341-重命名容器">3.4.1 重命名容器</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> rename</span><span style="color:#9ECBFF"> my-nginx</span><span style="color:#9ECBFF"> nginx-server</span></span></code></pre>
+<h3 id="342-移除容器">3.4.2 移除容器</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> rm</span><span style="color:#9ECBFF"> nginx-server</span></span></code></pre>
+<h3 id="343-更新容器">3.4.3 更新容器</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> update</span><span style="color:#79B8FF"> --cpu-shares</span><span style="color:#79B8FF"> 512</span><span style="color:#79B8FF"> -m</span><span style="color:#9ECBFF"> 300M</span><span style="color:#9ECBFF"> nginx-server</span></span></code></pre>
+<h1 id="4-docker-镜像">4 Docker 镜像</h1>
+<h2 id="41-操作">4.1 操作</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>描述</th></tr></thead><tbody><tr><td>docker images</td><td>列出镜像</td></tr><tr><td>docker rmi nginx</td><td>删除镜像</td></tr><tr><td>docker load &#x3C; ubuntu.tar.gz</td><td>加载 tarred 存储库</td></tr><tr><td>docker load —input ubuntu.tar</td><td>加载 tarred 存储库</td></tr><tr><td>docker save busybox > ubuntu.tar</td><td>将镜像保存到 tar 存档</td></tr><tr><td>docker history</td><td>显示镜像的历史</td></tr><tr><td>docker commit nginx</td><td>将容器另存为镜像</td></tr><tr><td>docker tag nginx eon01/nginx</td><td>标记镜像</td></tr><tr><td>docker push eon01/nginx</td><td>推送图片</td></tr></tbody></table>
+<h2 id="42-构建镜像">4.2 构建镜像</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> github.com/creack/docker-firefox</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> -</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF"> Dockerfile</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#9ECBFF"> -</span><span style="color:#F97583"> &#x3C;</span><span style="color:#9ECBFF"> context.tar.gz</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> eon/nginx-server</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> myOtherDockerfile</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> curl</span><span style="color:#9ECBFF"> example.com/remote/Dockerfile</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> -</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<h1 id="5-docker-网络">5 Docker 网络</h1>
+<h2 id="51-操作">5.1 操作</h2>
+<h3 id="511-删除网络">5.1.1 删除网络</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> rm</span><span style="color:#9ECBFF"> MyOverlayNetwork</span></span></code></pre>
+<h3 id="512-列出网络">5.1.2 列出网络</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> ls</span></span></code></pre>
+<h3 id="513-获取有关网络的信息">5.1.3 获取有关网络的信息</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> inspect</span><span style="color:#9ECBFF"> MyOverlayNetwork</span></span></code></pre>
+<h3 id="514-将正在运行的容器连接到网络">5.1.4 将正在运行的容器连接到网络</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> connect</span><span style="color:#9ECBFF"> MyOverlayNetwork</span><span style="color:#9ECBFF"> nginx</span></span></code></pre>
+<h3 id="515-启动时将容器连接到网络">5.1.5 启动时将容器连接到网络</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF"> -it</span><span style="color:#79B8FF"> -d</span><span style="color:#79B8FF"> --network=MyOverlayNetwork</span><span style="color:#9ECBFF"> nginx</span></span></code></pre>
+<h3 id="516-断开容器与网络的连接">5.1.6 断开容器与网络的连接</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> disconnect</span><span style="color:#9ECBFF"> MyOverlayNetwork</span><span style="color:#9ECBFF"> nginx</span></span></code></pre>
+<h3 id="517-创建网络">5.1.7 创建网络</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> create</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> overlay</span><span style="color:#9ECBFF"> MyOverlayNetwork</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> create</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> bridge</span><span style="color:#9ECBFF"> MyBridgeNetwork</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> network</span><span style="color:#9ECBFF"> create</span><span style="color:#79B8FF"> -d</span><span style="color:#9ECBFF"> overlay</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--subnet=192.168.0.0/16 </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--subnet=192.170.0.0/16 </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--gateway=192.168.0.100 </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--gateway=192.170.0.100 </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--ip-range=192.168.1.0/24 </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#E1E4E8">--aux-address=</span><span style="color:#9ECBFF">"my-router=192.168.1.5"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--aux-address=</span><span style="color:#9ECBFF">"my-switch=192.168.1.6"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--aux-address=</span><span style="color:#9ECBFF">"my-printer=192.170.1.5"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">--aux-address=</span><span style="color:#9ECBFF">"my-nas=192.170.1.6"</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#E1E4E8">MyOverlayNetwork</span></span></code></pre>
+<h1 id="6-其他">6 其他</h1>
+<h2 id="61-docker-hub">6.1 Docker Hub</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Docker</th><th>语法</th><th>描述</th></tr></thead><tbody><tr><td>docker search search_word</td><td>在 docker hub 中搜索镜像。</td><td></td></tr><tr><td>docker pull user/image</td><td>从 docker hub 下载镜像。</td><td></td></tr><tr><td>docker login</td><td>向 docker hub 进行身份验证</td><td></td></tr><tr><td>docker push user/image</td><td>将镜像上传到 docker hub。</td><td></td></tr></tbody></table>
+<h2 id="62-注册表命令">6.2 注册表命令</h2>
+<h3 id="621-登录注册表">6.2.1 登录注册表</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> login</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> login</span><span style="color:#9ECBFF"> localhost:8080</span></span></code></pre>
+<h3 id="622-从注册表注销">6.2.2 从注册表注销</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> logout</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> logout</span><span style="color:#9ECBFF"> localhost:8080</span></span></code></pre>
+<h3 id="623-搜索镜像">6.2.3 搜索镜像</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> search</span><span style="color:#9ECBFF"> nginx</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> search</span><span style="color:#9ECBFF"> nginx</span><span style="color:#79B8FF"> --stars=3</span><span style="color:#79B8FF"> --no-trunc</span><span style="color:#9ECBFF"> busybox</span></span></code></pre>
+<h3 id="624-拉取镜像">6.2.4 拉取镜像</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> pull</span><span style="color:#9ECBFF"> nginx</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> pull</span><span style="color:#9ECBFF"> eon01/nginx</span><span style="color:#9ECBFF"> localhost:5000/myadmin/nginx</span></span></code></pre>
+<h3 id="625-推送镜像">6.2.5 推送镜像</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> push</span><span style="color:#9ECBFF"> eon01/nginx</span></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> push</span><span style="color:#9ECBFF"> eon01/nginx</span><span style="color:#9ECBFF"> localhost:5000/myadmin/nginx</span></span></code></pre>
+<h2 id="63-批量清理">6.3 批量清理</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>描述</th></tr></thead><tbody><tr><td>docker stop -f $(docker ps -a -q)</td><td>停止所有容器</td></tr><tr><td>docker rm -f $(docker ps -a -q)</td><td>删除所有容器</td></tr><tr><td>docker rmi -f $(docker images -q)</td><td>删除所有镜像</td></tr></tbody></table>
+<h2 id="64-容量">6.4 容量</h2>
+<h3 id="641-检查容量">6.4.1 检查容量</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> volume</span><span style="color:#9ECBFF"> ls</span></span></code></pre>
+<h3 id="642-清理未使用的容量">6.4.2 清理未使用的容量</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> docker</span><span style="color:#9ECBFF"> volume</span><span style="color:#9ECBFF"> prune</span></span></code></pre>
+<h1 id="7-参考">7 参考</h1>
+<ul>
+<li><a href="https://www.w3cschool.cn/docker/docker-vi4f3kdl.html">Docker备忘录</a></li>
+<li><a href="https://quickref.me/zh-CN/docs/docker.html">Docker备忘清单</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

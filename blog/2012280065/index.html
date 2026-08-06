@@ -1,0 +1,119 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】117 填充每个节点的下一个右侧节点指针II</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】117 填充每个节点的下一个右侧节点指针II </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#BFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
+<p>给定一个<code>二叉树</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">struct</span><span style="color:#E1E4E8"> Node {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">left;</span></span>
+<span class="line"><span style="color:#E1E4E8">    Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">right;</span></span>
+<span class="line"><span style="color:#E1E4E8">    Node </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">next;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>填充它的每个 <code>next 指针</code>，让这个指针指向其<code>下一个右侧节点</code>。如果找不到下一个右侧节点，则将 next 指针设置为 <code>NULL</code> 。</p>
+<p>初始状态下，所有<code>next 指针</code>都被设置为 <code>NULL</code> 。</p>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://assets.leetcode.com/uploads/2019/02/15/117_sample.png" alt="图A(左) 图B(右) "></p>
+<blockquote>
+<p>输入：root = [1,2,3,4,5,null,7]
+输出：[1,#,2,3,#,4,5,7,#]
+解释：给定二叉树如图 A 所示，你的函数应该填充它的每个 next 指针，以指向其下一个右侧节点，如图 B 所示。序列化输出按层序遍历顺序（由 next 指针连接），’#’ 表示每层的末尾。</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：root = []
+输出：[]</p>
+</blockquote>
+<p><strong>提示</strong></p>
+<blockquote>
+<p>树中的节点数在范围 [0, 6000] 内
+-100 &#x3C;= Node.val &#x3C;= 100</p>
+</blockquote>
+<p><strong>进阶</strong></p>
+<blockquote>
+<p>你只能使用常量级额外空间。
+使用递归解题也符合要求，本题中递归程序的隐式栈空间不计入额外空间复杂度。</p>
+</blockquote>
+<h1 id="2-解题思路">2 解题思路</h1>
+<p>本题与{%post_link ‘【LeetCode】116-填充每个节点的下一个右侧节点指针’%} 唯一区别就是，该<code>二叉树</code>不是一个<code>perfect binary tree</code>。</p>
+<blockquote>
+<p>关于<code>二叉树类型</code>，可以参考K神文章中的定义<a href="https://www.hello-algo.com/chapter_tree/binary_tree/#713">常见二叉树类型</a> ，也可参考传统教材严蔚敏和吴伟民老师编写的《数据结构（C 语言版）》。</p>
+</blockquote>
+<p>所以运用其中的深度优先（DFS）算法失了效果。但是采用BFS还是可以的。并且可以改进下遍历过程中的指针指向，不用单独再遍历每层指针，操作其nexe指向其下一个节点。</p>
+<h1 id="3-代码">3 代码</h1>
+<h2 id="31-老式bfs">3.1 老式BFS</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Node </span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">(Node </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //this tree is not a perfect binary tree, which is the biggest difference in LC116</span></span>
+<span class="line"><span style="color:#6A737D">        //BFS</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        Queue&#x3C;</span><span style="color:#F97583">Node</span><span style="color:#E1E4E8">> q </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Node tmp;</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Node</span><span style="color:#E1E4E8">> rowList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#6A737D">        //in Queue</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#6A737D">        //flag of each level</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //pop</span></span>
+<span class="line"><span style="color:#E1E4E8">            tmp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> q.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                rowList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(tmp);</span></span>
+<span class="line"><span style="color:#6A737D">                //left node in Queue</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp.left) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(tmp.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //right node in Queue</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(tmp.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //end of this row's traversal</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">rowList.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                //Populating Next Right Pointers in Each Node of this row</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> rowList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    rowList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i).next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> rowList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                rowList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(rowList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">).next </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                rowList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">                q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span><span style="color:#6A737D">//end of while</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="32-新式bfs">3.2 新式BFS</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Node </span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">(Node </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        Queue&#x3C;</span><span style="color:#F97583">Node</span><span style="color:#E1E4E8">> q </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Node tmp;</span></span>
+<span class="line"><span style="color:#6A737D">        //in Queue</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#6A737D">        //flag of each level</span></span>
+<span class="line"><span style="color:#E1E4E8">        q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            tmp </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> q.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp) {</span></span>
+<span class="line"><span style="color:#6A737D">                //the next node is the node in the queue's head</span></span>
+<span class="line"><span style="color:#E1E4E8">                tmp.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> q.</span><span style="color:#B392F0">peek</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //left node in Queue</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp.left) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(tmp.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //right node in Queue</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> tmp.right) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(tmp.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //the end of this level</span></span>
+<span class="line"><span style="color:#F97583">            else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

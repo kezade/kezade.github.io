@@ -1,0 +1,77 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】1768.交替合并字符串</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】1768.交替合并字符串 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#指针</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一问题">一、问题</h1>
+<p>给你两个字符串 <code>word1</code> 和 <code>word2</code> 。请你从 <code>word1</code> 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回合并后的字符串 。</p>
+<h1 id="二解题思路">二、解题思路</h1>
+<h2 id="1双指针">1.双指针</h2>
+<p>1）i，j分别指向字符串word<del>1</del>，word<del>2</del>;
+2）循环遍历word<del>1</del>，word<del>2</del>，只要i，j均遍历完成</p>
+<h2 id="2单指针">2.单指针</h2>
+<p>其实，只要一个指针就可以搞定，而且遍历次数最多Math.min(word<del>1</del> 的长度, word<del>2</del> 的长度)，剩下的最长那个字符串，利用String.substring(index)即可得到需要的答案。伪代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">while</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">minLength){</span></span>
+<span class="line"><span style="color:#E1E4E8">	sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word1[i]);</span></span>
+<span class="line"><span style="color:#E1E4E8">	sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word2[i]);</span></span>
+<span class="line"><span style="color:#E1E4E8">	i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">word1.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">	sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word1.</span><span style="color:#B392F0">substring</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">word2.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">	sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word2.</span><span style="color:#B392F0">substring</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="三代码">三、代码</h1>
+<h2 id="1双指针-1">1.双指针</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">mergeAlternately</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">word1</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">word2</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> m </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> word1.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> word2.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> j </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        StringBuilder ans </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> StringBuilder</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> m </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> j </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> n) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> m) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                ans.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word1.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#F97583">                ++</span><span style="color:#E1E4E8">i;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (j </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> n) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                ans.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word2.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(j));</span></span>
+<span class="line"><span style="color:#F97583">                ++</span><span style="color:#E1E4E8">j;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> ans.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">作者：力扣官方题解</span></span>
+<span class="line"><span style="color:#6A737D">链接：https://leetcode.cn/problems/merge-strings-alternately/solutions/1913930/jiao-ti-he-bing-zi-fu-chuan-by-leetcode-ac4ih/</span></span>
+<span class="line"><span style="color:#6A737D">来源：力扣（LeetCode）</span></span>
+<span class="line"><span style="color:#6A737D">著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span></code></pre>
+<h2 id="2单指针-1">2.单指针</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">mergeAlternately</span><span style="color:#E1E4E8">(String word1, String word2) {</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> i</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    StringBuilder sb</span><span style="color:#F97583">=new</span><span style="color:#B392F0"> StringBuilder</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> minLength</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">Math.</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(word1.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">(), word2.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">minLength){</span></span>
+<span class="line"><span style="color:#E1E4E8">        sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word1.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">        sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word2.</span><span style="color:#B392F0">charAt</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">        i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">word1.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">        sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word1.</span><span style="color:#B392F0">substring</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8">(i</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">word2.</span><span style="color:#B392F0">length</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">        sb.</span><span style="color:#B392F0">append</span><span style="color:#E1E4E8">(word2.</span><span style="color:#B392F0">substring</span><span style="color:#E1E4E8">(i));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> sb.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}  </span></span></code></pre>
+<h2 id="复杂度分析">复杂度分析</h2>
+<ul>
+<li>
+<p>时间复杂度：O(m+n)，其中 m 和 n 分别是字符串 word<del>1</del> 和 word<del>2</del> 的长度。</p>
+</li>
+<li>
+<p>空间复杂度：O(1)或 O(m+n)。如果使用的语言支持可修改的字符串，那么空间复杂度为 O(1)，否则为 O(m+n)，比如java。注意这里不计入返回值需要的空间。</p>
+</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

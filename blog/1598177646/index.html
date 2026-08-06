@@ -1,0 +1,104 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Hexo】Github博客内容管理解决方案 - netlifycms</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Hexo】Github博客内容管理解决方案 - netlifycms </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/8/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Hexo</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>本文转自<a href="https://elfgzp.cn/2020/03/21/%E4%B8%BA%E4%BD%A0%E7%9A%84-github-%E5%8D%9A%E5%AE%A2%E5%8A%A0%E4%B8%AA-cms-%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86.html">Github 博客内容管理解决方案</a></p>
+<p>在使用 Github 作为博客很长一段时间在发愁，主要是有以下几个痛点：</p>
+<ul>
+<li>每次写文章都要打开编辑器，感觉自己不是在写文章而是在写代码</li>
+<li>写完只是想打个草稿，都要用 git 提交以下更改，更像写代码了</li>
+<li>不能随时随地的编辑，有时候我想用 ipad 修改点什么都不可以</li>
+</ul>
+<p>由于以上几个痛点，每次写 Blog 感觉自己都需要费很大的力气，还不如自己写个笔记就过去了。</p>
+<p>但是有些好的东西总是要分享出来才会有价值啊，于是我开始寻找 Github Blog 的 CMS 解决方案。</p>
+<p>先来一张效果图。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/elfgzp_admin.gif" alt="blog_admin"></p>
+<h1 id="1-netlifycms-与-jekyll-admin-的对比">1 <code>netlifycms</code> 与 <code>jekyll-admin</code> 的对比</h1>
+<p>刚开始我找到的是 <code>jekyll-admin</code> 这款 <code>jekyll</code> 的 <code>CMS</code>，因为本人用的是 <code>jekyll</code>。但是发现这款 <code>jeklly</code> 还需要一台服务器，也就是他编辑的只是服务器上的文件。</p>
+<p>当初选择使用Github作为Blog就是想在没有个人服务器的情况下Blog依然能工作。虽然目前是利用 CI 部署在自己的服务器上方便国内的搜索引擎爬虫进行爬取，目的是优化SEO，提高国内的访问速度。但是还是想要一个不需要自己部署后端的<code>CMS</code>。</p>
+<p>于是我就找到了<code>netlifycms</code>，经过配置完后我大概了解了他的工作原理。</p>
+<p>首先你的 CMS admin 页面是跟你博客一起部署在 Github 上面的，admin 的权限则是通过 <code>Github OAuth</code> 来控制的。在你修改了页面之后，会通过 js 提交给 <code>netlify</code>，<code>netlify</code> 会通过 <code>Github OAuth</code> 获取的权限来在你修改了文章之后帮你做 <code>git commit</code> 的操作，大概的原理图如下。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/netlifycms.png" alt="netlifycms"></p>
+<p>废话不多说，我们跟着官方文档开始吧。</p>
+<h1 id="2-为你的博客添加-netlifycms">2 为你的博客添加 netlifycms</h1>
+<p>由于本人用的是 jeklly 博客，文章中的演示部分均为 jeklly。当然 netlifycms 不只支持 jeklly，还支持很多其他类型的 Blog。如果是其他类型的 Blog 可以参考官方文档的 Guides，不过应该都是大同小异的，不过建议对比本片文章来配置，如何创建 Oauth 应用可以参考本文，因为官方文档没有讲的太详细。</p>
+<p>当然开始之前你需要有一个已经部署好的博客，没有部署好的可以参考 jeklly 的部署指引文档。</p>
+<h2 id="21-增加-adminindexhtml-文件">2.1 增加 <code>admin/index.html</code> 文件</h2>
+<p>创建一个 <code>admin/index.html</code> 在你的仓库根目录下，这个文件内容看起来像这样。注意官方文档中并没有添加 <code>netlify-identity-widget.js</code> 这个 js ，这个是用来校验你的身份的，需要加上。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#6A737D">&#x3C;!-- admin/index.html --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;!</span><span style="color:#85E89D">DOCTYPE</span><span style="color:#B392F0"> html</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">html</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">head</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">meta</span><span style="color:#B392F0"> charset</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"utf-8"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">meta</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"viewport"</span><span style="color:#B392F0"> content</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"width=device-width, initial-scale=1.0"</span><span style="color:#E1E4E8"> /></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">script</span><span style="color:#B392F0"> src</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"https://identity.netlify.com/v1/netlify-identity-widget.js"</span><span style="color:#E1E4E8">>&#x3C;/</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">title</span><span style="color:#E1E4E8">>Content Manager&#x3C;/</span><span style="color:#85E89D">title</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;/</span><span style="color:#85E89D">head</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">body</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!-- Include the script that builds the page and powers Netlify CMS --></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">script</span><span style="color:#B392F0"> src</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"</span><span style="color:#E1E4E8">>&#x3C;/</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;/</span><span style="color:#85E89D">body</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">html</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>可以参考我的仓库文件，<a href="https://github.com/elfgzp/elfgzp.cn/blob/master/admin/index.html">https://github.com/elfgzp/elfgzp.cn/blob/master/admin/index.html</a></p>
+<p>然后在你的首页的 index.html 的 header 增加一段 js 代码。这段代码的作用是在你登录你的 cms admin 页面之后，netlify-identity-widget.js 会将你重定向到首页，然后这段代码会把你带回 admin 页面。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="html"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">header</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">  &#x3C;!-- ... --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (window.netlifyIdentity) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    window.netlifyIdentity.</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"init"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">user</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">user) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        window.netlifyIdentity.</span><span style="color:#B392F0">on</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"login"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#E1E4E8">            document.location.href </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "/admin/"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    });</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">script</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">header</span><span style="color:#E1E4E8">></span></span></code></pre>
+<h2 id="22-增加一个-adminconfigyml-文件">2.2 增加一个 <code>admin/config.yml</code> 文件</h2>
+<p>同样在仓库根目录下创建一个 <code>admin/config.yml</code> 文件，这个文件内容看起来是这样。注意官方文档中的 <code>backend:name</code> 是 <code>git-gateway</code> ，我们需要修改成 <code>github</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yml"><code><span class="line"><span style="color:#85E89D">backend</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">github</span></span>
+<span class="line"><span style="color:#85E89D">  branch</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">master</span><span style="color:#6A737D"> # 默认是 master 分支</span></span>
+<span class="line"><span style="color:#85E89D">media_folder</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'assets/uploads'</span></span>
+<span class="line"><span style="color:#85E89D">collections</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'blog'</span></span>
+<span class="line"><span style="color:#85E89D">    label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'Blog'</span></span>
+<span class="line"><span style="color:#85E89D">    folder</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">'_posts/'</span></span>
+<span class="line"><span style="color:#85E89D">    fields</span><span style="color:#E1E4E8">: </span><span style="color:#6A737D"># 这里这些字段对应到你写文章的 markdown 上方的一些文章属性 widget 的配置可以参考官方文档的 widget 部分</span></span>
+<span class="line"><span style="color:#E1E4E8">      - {</span><span style="color:#85E89D">label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Layout"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"layout"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">widget</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"hidden"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">default</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"post"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">      - {</span><span style="color:#85E89D">label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Title"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"title"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">widget</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"string"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">tagname</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"h1"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">      - {</span><span style="color:#85E89D">label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Date"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"date"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">widget</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"datetime"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">format</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"YYYY-MM-DD hh:mm:ss"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">      - {</span><span style="color:#85E89D">label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Tags"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"tags"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">widget</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"string"</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">      - {</span><span style="color:#85E89D">label</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Body"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"body"</span><span style="color:#E1E4E8">, </span><span style="color:#85E89D">widget</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"markdown"</span><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>可以参考我的仓库文件，<a href="https://github.com/elfgzp/elfgzp.cn/blob/master/admin/config.yml">https://github.com/elfgzp/elfgzp.cn/blob/master/admin/config.yml</a></p>
+<h2 id="23-在-netlify-配置好你的仓库">2.3 在 netlify 配置好你的仓库</h2>
+<p>在使用 Github 账号登录了 netlify 后，点击 「New site from Git」，如果搜索不到的话记得给你的 netlify 授权访问你的仓库。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/create_a_new_site.png" alt="create_a_new_site"></p>
+<p>跟着指引创建，注意 deploy 这个部分如果你有别的 CI 可以将他的 build command 去掉。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/create_a_new_site_2.png" alt="create_a_new_site_2"></p>
+<p>创建完成后，你就会在你的网站列表里面看到你的网站了。如果你有自己的域名，需要到 Site Settings > Domain Management 设置你的个人域名。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/domain_management.png" alt="domain_management"></p>
+<h2 id="24-配置-oauth-app">2.4 配置 <code>Oauth App</code></h2>
+<p>上面几个步骤完成后，将修改 push 到仓库，你已经可以在你的 admin 页面看到一些东西了。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/login.png" alt="login"></p>
+<p>但是这个时候你点击登录肯定是登录不了的，我们还需要配置一个 <code>Oauth App</code>。</p>
+<p>首先打开你的 Github 页面，依次按步骤 <code>Settings</code> > <code>Developer settings</code> > <code>Oauth Apps</code> > <code>New Oauth App</code>。</p>
+<p>按照下图填好你的 Blog 信息，注意 Authorization callback URL 需要填 <a href="https://api.netlify.com/auth/done%E3%80%82">https://api.netlify.com/auth/done。</a></p>
+<p><img src="https://elfgzp.cn/assets/uploads/oauth_app_1.png" alt="oauth_app_1"></p>
+<p>然后复制好你的 <code>Oauth Client ID</code> 和 <code>Oauth Client Secret</code>。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/oauth_app_2.png" alt="oauth_app_2"></p>
+<p>打开 netlify到 <code>Site Settings</code> > <code>Access control</code> > <code>Oauth - install provider</code>，将复制的信息粘贴进去。</p>
+<p><img src="https://elfgzp.cn/assets/uploads/oauth_app_3.png" alt="oauth_app_3"></p>
+<p>完成上面的步骤就大功告成了，你就可以登录你的 Blog Admin 管理你的文章了。</p>
+<h1 id="3-使用技巧">3 使用技巧</h1>
+<p>这里有一些使用的技巧想分享一下。</p>
+<h2 id="31-新建一个-cms-分支用来打草稿">3.1 新建一个 CMS 分支用来打草稿</h2>
+<p>因为本人加了 CI 所以 push 到 master 之后就会更新了，这样就不能打草稿了，所以我开了一个 cms 的分支。文章保存后都会 commit 到这个分支上，等你需要发布的时候在提交 PR 到 master。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yml"><code><span class="line"><span style="color:#85E89D">backend</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">github</span></span>
+<span class="line"><span style="color:#85E89D">  branch</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">cms</span><span style="color:#6A737D"> # 默认是 master 分支</span></span></code></pre>
+<h2 id="32-markdown-效果预览">3.2 Markdown 效果预览</h2>
+<p>netlifycms 的 Markdown 预览非常的丑，我直接把他关了，代替预览的方案就是切换编辑框的 Rich Text 和 Markdown 模式。</p>
+<h2 id="33-在文章中添加图片">3.3 在文章中添加图片</h2>
+<p>肯定有读者注意到了在增加了 <code>![]()</code> 的 Markdown 图片标签后，切换到 <code>Rich Text</code> 就可以选择上传图片了。</p>
+<h1 id="4-总结">4 总结</h1>
+<p>以上就是为 Github 增加 CMS 的解决方案，如果有什么问题或者有更好的解决方案，可以在下方留言。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

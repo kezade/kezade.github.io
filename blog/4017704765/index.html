@@ -1,0 +1,1530 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【JVM学习】7.JVM调优</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【JVM学习】7.JVM调优 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/10/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#JVM</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#JVM调优</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>本章将主要介绍调优工具及各自的使用方法，最后给出实战案例。</p>
+<h1 id="2-工具">2 工具</h1>
+<h2 id="21-jdk工具">2.1 JDK工具</h2>
+<p>假如你自己手动安装过JDK，那一定不会对下表中的工具感到陌生。比如用的最多的<code>java</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JDK-Tools-in-Windows.png" alt="Windows下的JDK工具集合"></p>
+<p>不同平台，其对应的名字相差无几，只是后缀名不同。比如我自己的MAC OS版本：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/JDK-Tools-in-MacOS.png" alt="MacOS下的JDK工具集合"></p>
+<p>在 Linux 中，一般自带了<code>OpenJdk</code>，一般情况下 <code>JPS</code> 等命令不能用，要么选择去安装 JPS 等插件，要么把 <code>OpenJdk</code> 卸载，去重新安装 Oracle 的 JDK，我推荐后者。</p>
+<blockquote>
+<p>PS：本机JDK版本：<code>1.8.0_181</code></p>
+</blockquote>
+<h3 id="211-jps">2.1.1 jps</h3>
+<ul>
+<li>作用：列出当前机器上正在运行的虚拟机进程。</li>
+<li>参数：
+<ul>
+<li><code>-q</code>：仅显示进程</li>
+<li><code>-m</code>：输出主函数传入的参数</li>
+<li><code>-l</code>：输出应用程序主类完整 <code>package</code> 名称或 <code>jar</code> 完整名称</li>
+<li><code>-v</code>：列出 <code>jvm</code> 参数，如：<code>-Xms1024m -Xmx1024m</code> 是启动<code>IDEA</code>指定的 jvm 参数</li>
+</ul>
+</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>1892  -Xms1024m -Xmx1024m -XX:ReservedCodeCacheSize=512m -XX:+IgnoreUnrecognizedVMOptions -XX:+UseG1GC -XX:SoftRefLRUPolicyMSPerMB=50 -XX:CICompilerCount=2 -XX:+HeapDumpOnOutOfMemoryError</span></span></code></pre>
+<h3 id="212-jstat">2.1.2 jstat</h3>
+<ul>
+<li>作用：用于监视虚拟机各种<code>运行状态信息</code>的命令行工具。它可以显示本地或者远程虚拟机进程中的<code>类装载</code>、<code>内存</code>、<code>垃圾收集</code>、<code>JIT 编译</code>等运行数据。是无<code>GUI</code>界面时的首选。</li>
+<li>参数：
+<ul>
+<li><code>-class</code>：类加载统计。
+<ul>
+<li>Loaded：加载class的数量</li>
+<li>Bytes：所占用空间大小</li>
+<li>Unloaded：未加载数量</li>
+<li>Bytes：未加载占用空间</li>
+<li>Time：时间</li>
+</ul>
+</li>
+<li><code>-compiler</code>：编译统计
+<ul>
+<li>Compiled：编译数量。</li>
+<li>Failed：失败数量</li>
+<li>Invalid：不可用数量</li>
+<li>Time：时间</li>
+<li>FailedType：失败类型</li>
+<li>FailedMethod：失败的方法</li>
+</ul>
+</li>
+<li><code>-gc</code> (GC 堆状态)</li>
+<li><code>-gccapacity</code> (各区大小)</li>
+<li><code>-gccause</code> (最近一次 GC 统计和原因)</li>
+<li><code>-gcnew</code> (新区统计)</li>
+<li><code>-gcnewcapacity</code> (新区大小)</li>
+<li><code>-gcold</code> (老区统计)</li>
+<li><code>-gcoldcapacity</code> (老区大小)</li>
+<li><code>-gcpermcapacity</code> (永久区大小)</li>
+<li><code>-gcutil</code> (GC 统计汇总)</li>
+</ul>
+</li>
+</ul>
+<p>比如：<code>jstat -gc &#x3C;pid></code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[zyxelva@MacBook-Pro 15:58:19 ~/Documents/MyGit/JVM]$ jstat -gc 2085</span></span>
+<span class="line"><span> S0C       S1C       S0U    S1U      EC       EU            OC            OU       MC         MU        CCSC   CCSU   YGC  YGCT  FGC  FGCT     GCT   </span></span>
+<span class="line"><span>10752.0 29184.0  0.0    0.0   476160.0 141011.1  167936.0   60198.8   98496.0 93078.6 13440.0 12512.2   16    0.825   4       0.809    1.634</span></span></code></pre>
+<p>各字段意义如下表所示：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>字段</th><th>含义</th></tr></thead><tbody><tr><td>S0C</td><td>survivor0区的总容量</td></tr><tr><td>S1C</td><td>survivor1区的总容量</td></tr><tr><td>S0U</td><td>survivor0区已使用的容量</td></tr><tr><td>S1U</td><td>survivor1区已使用的容量</td></tr><tr><td>EC</td><td>Eden区的总容量</td></tr><tr><td>EU</td><td>Eden区已使用的容量</td></tr><tr><td>OC</td><td>Old区的总容量</td></tr><tr><td>OU</td><td>Old区已使用的容量</td></tr><tr><td>MC</td><td>Metaspace的总容量</td></tr><tr><td>MU</td><td>Metaspace已使用的容量</td></tr><tr><td>CCSC</td><td>压缩类空间容量</td></tr><tr><td>CCSU</td><td>压缩类空间已使用的容量</td></tr><tr><td>YGC</td><td>新生代垃圾回收次数</td></tr><tr><td>YGCT</td><td>新生代垃圾回收时间</td></tr><tr><td>FGC</td><td>Full GC次数</td></tr><tr><td>FGCT</td><td>Full GC时间</td></tr><tr><td>GCT</td><td>垃圾回收总消耗时间</td></tr></tbody></table>
+<p>其他带参数命令的字段意义，可参考<a href="https://blog.csdn.net/maosijunzi/article/details/46049117">java高分局之jstat命令使用</a>.</p>
+<h3 id="213-jmap">2.1.3 jmap</h3>
+<ul>
+<li>作用：用于生成<code>堆转储快照</code>(一般称为 <code>heapdump</code> 或 <code>dump 文件</code>)；查询 <code>finalize 执行队列</code>、<code>Java 堆</code>和<code>永久代</code>的详细信息，如<code>空间使用率</code>、<code>当前用的是哪种垃圾收集器</code>等。</li>
+<li>参数：
+<ul>
+<li><code>-heap &#x3C;pid></code>：打印 heap 的概要信息，GC 使用的算法，heap的配置及wise heap 的使用情况。</li>
+<li><code>-histo:live &#x3C;pid></code>：打印<code>每个 class 的实例数目</code>，<code>内存占用</code>，<code>类全名信息</code>；如果 <code>live</code> 子参数加上后，只统计<code>活的</code>对象数量。</li>
+<li><code>-dump &#x3C;pid></code>：生成的堆转储快照。一般这么用：<code>jmap -dump:live,format=b,file=heap.bin &#x3C;pid></code>.</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>PS：<code>jmap</code> 有不少功能在 <code>Windows</code> 平台下都是受限的，除了生成 dump 文件的 <code>-dump</code> 选项和用于查看每个类的实例、空间占用统计的<code>-histo</code> 选项在所有操作系统都提供之外，其余选项都只能在 <code>Linux/Solaris</code> 下使用。
+本机系统为<code>macOS Catalina 10.15.7</code>，玩不了这个命令，据百度、Google说，要升级到至少9才能用。我特么…</p>
+</blockquote>
+<p>借用别人的机子来解释下各个字段的意思。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jmap-heap.png" alt="jmap-heap">
+例：<code>jmap -heap 15756</code></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Heap Configuration: ##堆配置情况，也就是 JVM 参数配置的结果[平常说的 tomcat 配置 JVM 参数，就是在配置这些] </span></span>
+<span class="line"><span>    MinHeapFreeRatio = 40 ##最小堆使用比例</span></span>
+<span class="line"><span>    MaxHeapFreeRatio = 70 ##最大堆可用比例      </span></span>
+<span class="line"><span>    MaxHeapSize = 2147483648 (2048.0MB) ##最大堆空间大小</span></span>
+<span class="line"><span>    NewSize = 268435456 (256.0MB) ##新生代分配大小 </span></span>
+<span class="line"><span>    MaxNewSize = 268435456 (256.0MB) ##最大可新生代分配大小</span></span>
+<span class="line"><span>    OldSize = 5439488 (5.1875MB) ##老年代大小 </span></span>
+<span class="line"><span>    NewRatio = 2 ##新生代比例</span></span>
+<span class="line"><span>    SurvivorRatio  = 8 ##新生代与 suvivor 的比例 </span></span>
+<span class="line"><span>    PermSize = 134217728 (128.0MB) ##perm区永久代大小</span></span>
+<span class="line"><span>    MaxPermSize = 134217728 (128.0MB) ##最大可分配 perm 区，也就是永久代大小      </span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>Heap Usage: ##堆使用情况【堆内存实际的使用情况】</span></span>
+<span class="line"><span>  New Generation (Eden + 1 Survivor Space): ##新生代(伊甸区 Eden 区 + 幸存区 survior(1+2)空间) </span></span>
+<span class="line"><span>      capacity = 241631232 (230.4375MB) ##伊甸区容量</span></span>
+<span class="line"><span>      used = 77776272 (74.17323303222656MB) ##已经使用大小 </span></span>
+<span class="line"><span>      free = 163854960 (156.26426696777344MB) ##剩余容量 </span></span>
+<span class="line"><span>      32.188004570534986% used ##使用比例</span></span>
+<span class="line"><span>  Eden Space: ##伊甸区 </span></span>
+<span class="line"><span>      capacity = 214827008 (204.875MB) ##伊甸区容量</span></span>
+<span class="line"><span>      used = 74442288 (70.99369812011719MB) ##伊甸区使用</span></span>
+<span class="line"><span>      free = 140384720 (133.8813018798828MB) ##伊甸区当前剩余容量 </span></span>
+<span class="line"><span>      34.65220164496263% used ##伊甸区使用情况 </span></span>
+<span class="line"><span>  From Space: ##survior1 区 </span></span>
+<span class="line"><span>      capacity = 26804224 (25.5625MB) ##survior1 区容量</span></span>
+<span class="line"><span>      used = 3333984 (3.179534912109375MB) ##surviror1 区已使用情况</span></span>
+<span class="line"><span>      free = 23470240 (22.382965087890625MB) ##surviror1 区剩余容量 </span></span>
+<span class="line"><span>      12.43827838477995% used ##survior1 区使用比例</span></span>
+<span class="line"><span>  To Space: ##survior2 区 </span></span>
+<span class="line"><span>      capacity = 26804224 (25.5625MB) ##survior2 区容量</span></span>
+<span class="line"><span>      used = 0 (0.0MB) ##survior2 区已使用情况</span></span>
+<span class="line"><span>      free = 26804224 (25.5625MB) ##survior2 区剩余容量 </span></span>
+<span class="line"><span>      0.0% used ## survior2 区使用比例</span></span>
+<span class="line"><span>  PS Old Generation: ##老年代使用情况 </span></span>
+<span class="line"><span>      capacity = 1879048192 (1792.0MB) ##老年代容量</span></span>
+<span class="line"><span>      used = 30847928 (29.41887664794922MB) ##老年代已使用容量 </span></span>
+<span class="line"><span>      free = 1848200264 (1762.5811233520508MB) ##老年代剩余容量 </span></span>
+<span class="line"><span>      1.6416783843721663% used ##老年代使用比例</span></span></code></pre>
+<h3 id="214-jhat">2.1.4 jhat</h3>
+<ul>
+<li>作用：分析 <code>jmap</code> 生成的 <code>dump</code>。</li>
+<li>参数：</li>
+</ul>
+<p>常和<code>jmap</code>配合，命令<code>jhat [options] &#x3C;heap-dump-file-name></code>，比如：利用<code>jmap</code>生成了文件名为<code>heapDump</code>的<code>dump</code>日志，</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>HollisMacBook-Air:apaas hollis$ jhat heapDump</span></span>
+<span class="line"><span>Reading from heapDump...</span></span>
+<span class="line"><span>Dump file created Thu Jan 21 18:59:51 CST 2016</span></span>
+<span class="line"><span>Snapshot read, resolving...</span></span>
+<span class="line"><span>Resolving 341297 objects...</span></span>
+<span class="line"><span>Chasing references, expect 68 dots....................................................................</span></span>
+<span class="line"><span>Eliminating duplicate references....................................................................</span></span>
+<span class="line"><span>Snapshot resolved.</span></span>
+<span class="line"><span>Started HTTP server on port 7000</span></span>
+<span class="line"><span>Server is ready.</span></span></code></pre>
+<p>使用<code>jhat命令</code>，就启动了一个<code>http服务</code>，端口是<code>7000</code>，然后在访问<code>http://localhost:7000/</code>。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jhat-dump-web.png" alt="jhat界面"></p>
+<h3 id="215-jstack">2.1.5 jstack</h3>
+<ul>
+<li>作用：用于生成虚拟机当前时刻的线程快照。</li>
+<li>参数：</li>
+</ul>
+<blockquote>
+<p>线程快照就是当前虚拟机内每一条线程正在执行的<code>方法堆栈的集合</code>，生成线程快照的<strong>主要目的</strong>是<code>定位线程出现长时间停顿的原因</code>，如线程间死锁、死循环、请求外部资源导致的长时间等待等都是导致线程长时间停顿的常见原因。一般来说 <code>jstack</code> 主要是用来排查<code>是否有死锁的情况</code>。</p>
+</blockquote>
+<h3 id="216-jinfo">2.1.6 jinfo</h3>
+<ul>
+<li>作用：实时查看和调整虚拟机运行参数。</li>
+<li>参数：
+<ul>
+<li><code>–sysprops &#x3C;pid></code>：可以查看由<code>System.getProperties()</code>取得的参数</li>
+<li><code>–flag &#x3C;pid></code>：未被显式指定的参数的系统默认值</li>
+<li><code>–flags &#x3C;pid></code>：注意 <code>s</code>，显示虚拟机的参数</li>
+</ul>
+</li>
+</ul>
+<h3 id="217-命令行工具总结">2.1.7 命令行工具总结</h3>
+<ul>
+<li>生产服务器推荐开启：
+<ul>
+<li><code>-XX:-HeapDumpOnOutOfMemoryError</code>：默认关闭，建议开启，在 <code>java.lang.OutOfMemoryError</code> 异常出现时，输出一个 <code>dump 文件</code>，记录当时的堆内存快照。</li>
+<li><code>-XX:HeapDumpPath=./java_pid&#x3C;pid>.hprof</code>：用来设置堆内存快照的存储文件路径，默认是java进程启动位置。</li>
+</ul>
+</li>
+<li>调优之前开启、调优之后关闭：
+<ul>
+<li><code>-XX:+PrintGC</code>：调试跟踪之打印简单的 GC 信息参数</li>
+<li><code>-XX:+PrintGCDetails</code>, <code>+XX:+PrintGCTimeStamps</code>：打印详细的 GC 信息</li>
+<li><code>-Xlogger:logpath</code>：设置 gc 的日志路，如: <code>-Xlogger:log/gc.log</code>， 将 <code>gc.log</code> 的路径设置到<code>当前目录的 log 目录下</code>。将 GC 的日志独立写入日志文件，将 GC 日志与系统业务日志进行了分离，方便开发人员进行追踪分析。</li>
+</ul>
+</li>
+<li>考虑使用：
+<ul>
+<li><code>-XX:+PrintHeapAtGC</code>：打印推信息，获取 Heap 在每次垃圾回收前后的使用状况。</li>
+<li><code>-XX:+TraceClassLoading</code>：在系统控制台信息中看到 class 加载的过程和具体的 class 信息，可用以分析类的加载顺序以及是否可进行精简操作。</li>
+<li><code>-XX:+DisableExplicitGC</code>：禁止在运行期显式地调用<code>System.gc()</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="22-可视化工具">2.2 可视化工具</h2>
+<h3 id="221-jconsole">2.2.1 Jconsole</h3>
+<blockquote>
+<p>“A JMX-compliant graphical tool for monitoring a Java virtual machine. It can monitor both local and remote JVMs. It can also monitor and manage an application.”
+意思很直白，就是一个<code>JMX编译而成的监控JVM的图形化工具</code>。</p>
+</blockquote>
+<p>举例：先启动一个Java应用，我这里启动了一个Eureka注册中心，单节点。然后找到Java安装目录下的<code>bin</code>目录，双击<code>jconsole</code>，默认会打开<code>新建连接</code>页面，选中刚刚启动的<code>Eureka</code>即可，界面如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jconsole-for-eureka.png" alt="jconsole界面"></p>
+<p>通过切换tab，可以查看你所需要的东西，比如
+内存：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jconsole-memory.png" alt="jconsole界面之内存"></p>
+<p>线程：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jconsole-thread.png" alt="jconsole界面之线程"></p>
+<p>类：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jconsole-class.png" alt="jconsole界面之类"></p>
+<p>VM概要：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jconsole-VM-overview.png" alt="jconsole界面之线程"></p>
+<h3 id="222-jvisualvm">2.2.2 jvisualvm</h3>
+<p>启动方式同上。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jvisualvm.png" alt="jvisualvm界面"></p>
+<p>一般来说，这个工具是<code>本机调试用</code>，一般生产上来说，你一般是用不了的(除非启用远程连接)。</p>
+<p>监视：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jvisualvm-monitor.png" alt="jvisualvm界面之监视">
+其中，<code>堆dump</code>类似于<code>jmap</code>。</p>
+<p>线程：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jvisualvm-thread.png" alt="jvisualvm界面之线程">
+其中，<code>线程Dump</code>类似于<code>jstack</code>工具中的栈跟踪。</p>
+<p>抽样器：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jvisualvm-sample.png" alt="jvisualvm界面之抽样器"></p>
+<p>profiler：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/jvisualvm-profiler.png" alt="jvisualvm界面之profiler"></p>
+<h2 id="23-arthas">2.3 Arthas</h2>
+<p>Arthas 是一款线上监控诊断产品，通过全局视角实时查看应用 load、内存、gc、线程的状态信息，并能在不修改应用代码的情况下，对业务问题进行诊断，包括查看方法调用的出入参、异常，监测方法执行耗时，类加载信息等，大大提升线上问题排查效率。</p>
+<h3 id="231-安装">2.3.1 安装</h3>
+<p>参见<a href="https://arthas.aliyun.com/doc/install-detail.html">官网文档</a>.</p>
+<blockquote>
+<p>本机采用手动下载jar包和启动文件<code>as.sh</code>方式。</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[zyxelva@172-104-123-96 10:56:11 ~/Documents/Arthas]$ ./as.sh</span></span>
+<span class="line"><span>Arthas script version: 3.6.9</span></span>
+<span class="line"><span>[INFO] JAVA_HOME: /Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home</span></span>
+<span class="line"><span>Found existing java process, please choose one and input the serial number of the process, eg : 1. Then hit ENTER.</span></span>
+<span class="line"><span>* [1]: 1219 com.taeyeon.adminclient.AdminServerApplication</span></span>
+<span class="line"><span>  [2]: 2196 org.jetbrains.jps.cmdline.Launcher</span></span>
+<span class="line"><span>  [3]: 1149</span></span>
+<span class="line"><span>  [4]: 1181 com.taeyeon.eureka.SpringCloudEurekaApplication</span></span>
+<span class="line"><span>4</span></span>
+<span class="line"><span>Arthas home: /Users/zyxelva/.arthas/lib/3.6.9/arthas</span></span>
+<span class="line"><span>Calculating attach execution time...</span></span>
+<span class="line"><span>Attaching to 1181 using version /Users/zyxelva/.arthas/lib/3.6.9/arthas...</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>real	0m1.963s</span></span>
+<span class="line"><span>user	0m0.399s</span></span>
+<span class="line"><span>sys	0m0.049s</span></span>
+<span class="line"><span>Attach success.</span></span>
+<span class="line"><span>telnet connecting to arthas server... current timestamp is 1689044193</span></span>
+<span class="line"><span>Trying 127.0.0.1...</span></span>
+<span class="line"><span>Connected to localhost.</span></span>
+<span class="line"><span>Escape character is '^]'.</span></span>
+<span class="line"><span>  ,---.  ,------. ,--------.,--.  ,--.  ,---.   ,---.</span></span>
+<span class="line"><span> /  O  \ |  .--. ''--.  .--'|  '--'  | /  O  \ '   .-'</span></span>
+<span class="line"><span>|  .-.  ||  '--'.'   |  |   |  .--.  ||  .-.  |`.  `-.</span></span>
+<span class="line"><span>|  | |  ||  |\  \    |  |   |  |  |  ||  | |  |.-'    |</span></span>
+<span class="line"><span>`--' `--'`--' '--'   `--'   `--'  `--'`--' `--'`-----'</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>wiki       https://arthas.aliyun.com/doc</span></span>
+<span class="line"><span>tutorials  https://arthas.aliyun.com/doc/arthas-tutorials.html</span></span>
+<span class="line"><span>version    3.6.9</span></span>
+<span class="line"><span>main_class com.taeyeon.eureka.SpringCloudEurekaApplication</span></span>
+<span class="line"><span>pid        1181</span></span>
+<span class="line"><span>time       2023-07-11 10:56:32</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>[arthas@1181]$</span></span></code></pre>
+<p>启动后，首先会让你选择<code>attach</code>一个进程，这里同样监控<code>eureka</code>实例，即<code>pid</code>为<code>1181</code>的那个。接下来通过介绍各个命令参数来使用arthas。</p>
+<blockquote>
+<p>如果想在浏览器使用命令玩转arthas，也可用在启动后，通过访问<code>http://127.0.0.1:8563/</code>，使用<code>Web Console</code>。也可以填入 IP，<code>远程连接</code>其它机器上的 arthas。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Web-Console.png" alt="Web Console"></p>
+<h3 id="232-入门">2.3.2 入门</h3>
+<h4 id="2321-dashboard">2.3.2.1 dashboard</h4>
+<p>输入<code>dashboard</code>，按<code>回车/enter</code>，会展示当前<code>attach</code>进程的信息，按ctrl+c可以中断执行。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/arthas-dashboard.png" alt="dashboard"></p>
+<blockquote>
+<p>当运行在 <code>Ali-tomcat</code> 时，会显示当前 <code>tomcat</code> 的实时信息，如 HTTP 请求的 qps, rt, 错误数, 线程池信息等等。</p>
+</blockquote>
+<p>更多详情，可参阅<a href="https://arthas.aliyun.com/doc/dashboard.html">dashboard官方文档</a>.</p>
+<h4 id="2322-thread">2.3.2.2 Thread</h4>
+<p>这个命令和 <code>jstack</code> 很相似，但是功能更加强大，主要是<code>查看当前 JVM 的线程堆栈信息</code>，同时可以结合使用 <code>thread –b</code> 来进行<code>死锁的排查</code>。</p>
+<p>参数解释：</p>
+<ul>
+<li><code>-n</code>：指定最忙的前 n 个线程并打印堆栈</li>
+<li><code>-b</code>：找出阻塞当前线程的线程</li>
+<li><code>-i</code>：指定 cpu 占比统计的采样间隔，单位为<code>毫秒</code></li>
+</ul>
+<p>例1：查看当前最忙的前 N 个线程并打印堆栈：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>$ thread -n 3</span></span>
+<span class="line"><span>"C1 CompilerThread0" [Internal] cpuUsage=1.63% deltaTime=3ms time=1170ms</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>"arthas-command-execute" Id=23 cpuUsage=0.11% deltaTime=0ms time=401ms RUNNABLE</span></span>
+<span class="line"><span>    at java.management@11.0.7/sun.management.ThreadImpl.dumpThreads0(Native Method)</span></span>
+<span class="line"><span>    at java.management@11.0.7/sun.management.ThreadImpl.getThreadInfo(ThreadImpl.java:466)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.command.monitor200.ThreadCommand.processTopBusyThreads(ThreadCommand.java:199)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.command.monitor200.ThreadCommand.process(ThreadCommand.java:122)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.shell.command.impl.AnnotatedCommandImpl.process(AnnotatedCommandImpl.java:82)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.shell.command.impl.AnnotatedCommandImpl.access$100(AnnotatedCommandImpl.java:18)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.shell.command.impl.AnnotatedCommandImpl$ProcessHandler.handle(AnnotatedCommandImpl.java:111)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.shell.command.impl.AnnotatedCommandImpl$ProcessHandler.handle(AnnotatedCommandImpl.java:108)</span></span>
+<span class="line"><span>    at com.taobao.arthas.core.shell.system.impl.ProcessImpl$CommandProcessTask.run(ProcessImpl.java:385)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.util.concurrent.FutureTask.run(FutureTask.java:264)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)</span></span>
+<span class="line"><span>    at java.base@11.0.7/java.lang.Thread.run(Thread.java:834)</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>"VM Periodic Task Thread" [Internal] cpuUsage=0.07% deltaTime=0ms time=584ms</span></span>
+<span class="line"><span></span></span></code></pre>
+<p>例2：当没有参数时，显示第一页线程的信息：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[arthas@1181]$ thread</span></span>
+<span class="line"><span>Threads Total: 65, NEW: 0, RUNNABLE: 25, BLOCKED: 0, WAITING: 19, TIMED_WAITING: 11, TERMINATED: 0, Internal threads: 10              </span></span>
+<span class="line"><span>ID    NAME                             GROUP            PRIORITY   STATE      %CPU       DELTA_TIME  TIME       INTERRUPTE DAEMON     </span></span>
+<span class="line"><span>-1    C1 CompilerThread2               -                -1         -          1.16       0.002       0:8.016    false      true       </span></span>
+<span class="line"><span>130   arthas-command-execute           system           5          RUNNABLE   0.47       0.000       0:0.024    false      true       </span></span>
+<span class="line"><span>54    Eureka-CacheFillTimer            main             5          TIMED_WAIT 0.1        0.000       0:0.244    false      true       </span></span>
+<span class="line"><span>-1    VM Periodic Task Thread          -                -1         -          0.08       0.000       0:6.228    false      true       </span></span>
+<span class="line"><span>42    Catalina-utility-2               main             1          TIMED_WAIT 0.05       0.000       0:0.843    false      false      </span></span>
+<span class="line"><span>-1    C2 CompilerThread1               -                -1         -          0.05       0.000       0:0.235    false      true       </span></span>
+<span class="line"><span>-1    C2 CompilerThread0               -                -1         -          0.02       0.000       0:0.238    false      true       </span></span>
+<span class="line"><span>41    Catalina-utility-1               main             1          WAITING    0.02       0.000       0:0.864    false      false      </span></span>
+<span class="line"><span>2     Reference Handler                system           10         WAITING    0.0        0.000       0:0.293    false      true       </span></span>
+<span class="line"><span>3     Finalizer                        system           8          WAITING    0.0        0.000       0:0.031    false      true       </span></span>
+<span class="line"><span>4     Signal Dispatcher                system           9          RUNNABLE   0.0        0.000       0:0.000    false      true       </span></span>
+<span class="line"><span>13    RMI TCP Accept-0                 system           5          RUNNABLE   0.0        0.000       0:0.054    false      true       </span></span>
+<span class="line"><span>14    Attach Listener                  system           9          RUNNABLE   0.0        0.000       0:0.886    false      true       </span></span>
+<span class="line"><span>16    RMI Scheduler(0)                 system           5          WAITING    0.0        0.000       0:0.011    false      true       </span></span>
+<span class="line"><span>106   arthas-timer                     system           9          WAITING    0.0        0.000       0:0.000    false      true       </span></span>
+<span class="line"><span>109   arthas-NettyHttpTelnetBootstrap- system           5          RUNNABLE   0.0        0.000       0:0.029    false      true       </span></span>
+<span class="line"><span>110   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.018    false      true       </span></span>
+<span class="line"><span>111   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.002    false      true       </span></span>
+<span class="line"><span>112   arthas-shell-server              system           9          TIMED_WAIT 0.0        0.000       0:0.008    false      true       </span></span>
+<span class="line"><span>113   arthas-session-manager           system           9          TIMED_WAIT 0.0        0.000       0:0.004    false      true       </span></span>
+<span class="line"><span>114   arthas-UserStat                  system           9          WAITING    0.0        0.000       0:0.000    false      true       </span></span>
+<span class="line"><span>116   arthas-NettyHttpTelnetBootstrap- system           5          RUNNABLE   0.0        0.000       0:0.084    false      true       </span></span>
+<span class="line"><span>117   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.106    false      true       </span></span>
+<span class="line"><span>118   arthas-TermServer-1-1            system           5          RUNNABLE   0.0        0.000       0:0.004    false      true       </span></span>
+<span class="line"><span>119   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.009    false      true       </span></span>
+<span class="line"><span>120   arthas-TermServer-1-2            system           5          RUNNABLE   0.0        0.000       0:0.011    false      true       </span></span>
+<span class="line"><span>121   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.007    false      true       </span></span>
+<span class="line"><span>122   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.009    false      true       </span></span>
+<span class="line"><span>123   arthas-TermServer-1-3            system           5          RUNNABLE   0.0        0.000       0:0.003    false      true       </span></span>
+<span class="line"><span>124   arthas-NettyWebsocketTtyBootstra system           5          RUNNABLE   0.0        0.000       0:0.008    false      true       </span></span>
+<span class="line"><span>[arthas@1181]$ </span></span></code></pre>
+<blockquote>
+<p>更多介绍，参阅<a href="https://arthas.aliyun.com/doc/thread.html">thread官方文档</a>.</p>
+</blockquote>
+<h4 id="2323-jvm">2.3.2.3 jvm</h4>
+<p>查看当前 JVM 信息.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>[arthas@1181]$ jvm</span></span>
+<span class="line"><span> RUNTIME                                                                                                                              </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> MACHINE-NAME                          1181@172-104-123-96.ip.linodeusercontent.com                                                   </span></span>
+<span class="line"><span> JVM-START-TIME                        2023-07-11 09:27:13                                                                            </span></span>
+<span class="line"><span> MANAGEMENT-SPEC-VERSION               1.2                                                                                            </span></span>
+<span class="line"><span> SPEC-NAME                             Java Virtual Machine Specification                                                             </span></span>
+<span class="line"><span> SPEC-VENDOR                           Oracle Corporation                                                                             </span></span>
+<span class="line"><span> SPEC-VERSION                          1.8                                                                                            </span></span>
+<span class="line"><span> VM-NAME                               Java HotSpot(TM) 64-Bit Server VM                                                              </span></span>
+<span class="line"><span> VM-VENDOR                             Oracle Corporation                                                                             </span></span>
+<span class="line"><span> VM-VERSION                            25.181-b13                                                                                     </span></span>
+<span class="line"><span> INPUT-ARGUMENTS                       -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:50075,suspend=y,server=n                  </span></span>
+<span class="line"><span>                                       -XX:TieredStopAtLevel=1                                                                        </span></span>
+<span class="line"><span>                                       -Xverify:none                                                                                  </span></span>
+<span class="line"><span>                                       -Dspring.output.ansi.enabled=always                                                            </span></span>
+<span class="line"><span>                                       -javaagent:/Users/zyxelva/Library/Caches/JetBrains/IntelliJIdea2021.3/captureAgent/debugger-ag </span></span>
+<span class="line"><span>                                       ent.jar                                                                                        </span></span>
+<span class="line"><span>                                       -Dcom.sun.management.jmxremote                                                                 </span></span>
+<span class="line"><span>                                       -Dspring.jmx.enabled=true                                                                      </span></span>
+<span class="line"><span>                                       -Dspring.liveBeansView.mbeanDomain                                                             </span></span>
+<span class="line"><span>                                       -Dspring.application.admin.enabled=true                                                        </span></span>
+<span class="line"><span>                                       -Dfile.encoding=UTF-8                                                                          </span></span>
+<span class="line"><span> CLASS-PATH                            /Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/charsets.jar:/Library </span></span>
+<span class="line"><span>                                       /Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/deploy.jar:/Library/Java/Java </span></span>
+<span class="line"><span>                                       VirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/ext/cldrdata.jar:/Library/Java/JavaVirt </span></span>
+<span class="line"><span>                                       ualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/ext/dnsns.jar:/Library/Java/JavaVirtualMach </span></span>
+<span class="line"><span>                                       ines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/ext/jaccess.jar:/Library/Java/JavaVirtualMachines/ </span></span>
+<span class="line"><span>                                       jdk1.8.0_181.jdk/Contents/Home/jre/lib/ext/jfxrt.jar:/Library/Java/JavaVirtualMachines/jdk1.8. </span></span>
+<span class="line"><span>                                       0_181.jdk/Contents/Home/jre/lib/ext/localedata.jar:此处省略一万字符                                                                         </span></span>
+<span class="line"><span> BOOT-CLASS-PATH                       /Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/resources.jar:/Librar </span></span>
+<span class="line"><span>                                       y/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVir </span></span>
+<span class="line"><span>                                       tualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/sunrsasign.jar:/Library/Java/JavaVirtualMa </span></span>
+<span class="line"><span>                                       chines/jdk1.8.0_181.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1. </span></span>
+<span class="line"><span>                                       8.0_181.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/C </span></span>
+<span class="line"><span>                                       ontents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/ </span></span>
+<span class="line"><span>                                       Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home/jre/clas </span></span>
+<span class="line"><span>                                       ses:/Users/zyxelva/Library/Caches/JetBrains/IntelliJIdea2021.3/captureAgent/debugger-agent.jar </span></span>
+<span class="line"><span> LIBRARY-PATH                          /Users/zyxelva/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensio </span></span>
+<span class="line"><span>                                       ns:/System/Library/Java/Extensions:/usr/lib/java:.                                             </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> CLASS-LOADING                                                                                                                        </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> LOADED-CLASS-COUNT                    30462                                                                                          </span></span>
+<span class="line"><span> TOTAL-LOADED-CLASS-COUNT              30485                                                                                          </span></span>
+<span class="line"><span> UNLOADED-CLASS-COUNT                  23                                                                                             </span></span>
+<span class="line"><span> IS-VERBOSE                            false                                                                                          </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> COMPILATION                                                                                                                          </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> NAME                                  HotSpot 64-Bit Tiered Compilers                                                                </span></span>
+<span class="line"><span> TOTAL-COMPILE-TIME                    23630                                                                                          </span></span>
+<span class="line"><span> [time (ms)]                                                                                                                          </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> GARBAGE-COLLECTORS                                                                                                                   </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> PS Scavenge                           name : PS Scavenge                                                                             </span></span>
+<span class="line"><span> [count/time (ms)]                     collectionCount : 25                                                                           </span></span>
+<span class="line"><span>                                       collectionTime : 984                                                                           </span></span>
+<span class="line"><span> PS MarkSweep                          name : PS MarkSweep                                                                            </span></span>
+<span class="line"><span> [count/time (ms)]                     collectionCount : 12                                                                           </span></span>
+<span class="line"><span>                                       collectionTime : 2333                                                                          </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> MEMORY-MANAGERS                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> CodeCacheManager                      Code Cache                                                                                     </span></span>
+<span class="line"><span> Metaspace Manager                     Metaspace                                                                                      </span></span>
+<span class="line"><span>                                       Compressed Class Space                                                                         </span></span>
+<span class="line"><span> PS Scavenge                           PS Eden Space                                                                                  </span></span>
+<span class="line"><span>                                       PS Survivor Space                                                                              </span></span>
+<span class="line"><span> PS MarkSweep                          PS Eden Space                                                                                  </span></span>
+<span class="line"><span>                                       PS Survivor Space                                                                              </span></span>
+<span class="line"><span>                                       PS Old Gen                                                                                     </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> MEMORY                                                                                                                               </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> HEAP-MEMORY-USAGE                     init : 134217728(128.0 MiB)                                                                    </span></span>
+<span class="line"><span> [memory in bytes]                     used : 277785000(264.9 MiB)                                                                    </span></span>
+<span class="line"><span>                                       committed : 1059061760(1010.0 MiB)                                                             </span></span>
+<span class="line"><span>                                       max : 1908932608(1.8 GiB)                                                                      </span></span>
+<span class="line"><span> NO-HEAP-MEMORY-USAGE                  init : 2555904(2.4 MiB)                                                                        </span></span>
+<span class="line"><span> [memory in bytes]                     used : 198825896(189.6 MiB)                                                                    </span></span>
+<span class="line"><span>                                       committed : 208535552(198.9 MiB)                                                               </span></span>
+<span class="line"><span>                                       max : -1(-1 B)                                                                                 </span></span>
+<span class="line"><span> PENDING-FINALIZE-COUNT                0                                                                                              </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> OPERATING-SYSTEM                                                                                                                     </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> OS                                    Mac OS X                                                                                       </span></span>
+<span class="line"><span> ARCH                                  x86_64                                                                                         </span></span>
+<span class="line"><span> PROCESSORS-COUNT                      4                                                                                              </span></span>
+<span class="line"><span> LOAD-AVERAGE                          2.37109375                                                                                     </span></span>
+<span class="line"><span> VERSION                               10.15.7                                                                                        </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> THREAD                                                                                                                               </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> COUNT                                 55                                                                                             </span></span>
+<span class="line"><span> DAEMON-COUNT                          51                                                                                             </span></span>
+<span class="line"><span> PEAK-COUNT                            56                                                                                             </span></span>
+<span class="line"><span> STARTED-COUNT                         120                                                                                            </span></span>
+<span class="line"><span> DEADLOCK-COUNT                        0                                                                                              </span></span>
+<span class="line"><span>                                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> FILE-DESCRIPTOR                                                                                                                      </span></span>
+<span class="line"><span>--------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span class="line"><span> MAX-FILE-DESCRIPTOR-COUNT             10240                                                                                          </span></span>
+<span class="line"><span> OPEN-FILE-DESCRIPTOR-COUNT            273                                                                                            </span></span>
+<span class="line"><span>                                           </span></span></code></pre>
+<h4 id="2324-jad">2.3.2.4 Jad</h4>
+<p>反编译指定已加载类的源码。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">[arthas@1181]$ jad com.taeyeon.eureka.SpringCloudEurekaApplication</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">ClassLoader:                                                                                                                          </span></span>
+<span class="line"><span style="color:#6A737D"> +-sun.misc.Launcher$AppClassLoader@18b4aac2</span></span>
+<span class="line"><span style="color:#6A737D"> +-sun.misc.Launcher$ExtClassLoader@1df82230                                                                                         </span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">Location:                                                                                                                             </span></span>
+<span class="line"><span style="color:#6A737D">/Users/zyxelva/Documents/xxx/xxx/spring-boot-interview-eureka/target/classes/                                                 </span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span>
+<span class="line"><span style="color:#6A737D">       /*</span></span>
+<span class="line"><span style="color:#6A737D">        * Decompiled with CFR.</span></span>
+<span class="line"><span style="color:#6A737D">        */</span></span>
+<span class="line"><span style="color:#F97583">       package</span><span style="color:#E1E4E8"> com.taeyeon.eureka;</span></span>
+<span class="line"><span style="color:#E1E4E8">       </span></span>
+<span class="line"><span style="color:#F97583">       import</span><span style="color:#E1E4E8"> org.slf4j.Logger;</span></span>
+<span class="line"><span style="color:#F97583">       import</span><span style="color:#E1E4E8"> org.slf4j.LoggerFactory;</span></span>
+<span class="line"><span style="color:#F97583">       import</span><span style="color:#E1E4E8"> org.springframework.boot.SpringApplication;</span></span>
+<span class="line"><span style="color:#F97583">       import</span><span style="color:#E1E4E8"> org.springframework.boot.autoconfigure.SpringBootApplication;</span></span>
+<span class="line"><span style="color:#F97583">       import</span><span style="color:#E1E4E8"> org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;</span></span>
+<span class="line"><span style="color:#E1E4E8">       </span></span>
+<span class="line"><span style="color:#E1E4E8">       @</span><span style="color:#F97583">SpringBootApplication</span></span>
+<span class="line"><span style="color:#E1E4E8">       @</span><span style="color:#F97583">EnableEurekaServer</span></span>
+<span class="line"><span style="color:#F97583">       public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> SpringCloudEurekaApplication</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">           private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Logger log </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> LoggerFactory.</span><span style="color:#B392F0">getLogger</span><span style="color:#E1E4E8">(SpringCloudEurekaApplication.class);</span></span>
+<span class="line"><span style="color:#E1E4E8">       </span></span>
+<span class="line"><span style="color:#F97583">           public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">/*18*/</span><span style="color:#E1E4E8">         log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"------------------------SpringCloudEurekaApplication 开始启动------------------------"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">/*19*/</span><span style="color:#E1E4E8">         SpringApplication.</span><span style="color:#B392F0">run</span><span style="color:#E1E4E8">(SpringCloudEurekaApplication.class, args);</span></span>
+<span class="line"><span style="color:#6A737D">/*20*/</span><span style="color:#E1E4E8">         log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"------------------------SpringCloudEurekaApplication 启动成功------------------------"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">           }</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//Affect(row-cnt:2) cost in 1454 ms.</span></span></code></pre>
+<h3 id="233-命令汇总">2.3.3 命令汇总</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>命令</th><th>介绍</th></tr></thead><tbody><tr><td>dashboard</td><td>当前系统的实时数据面板</td></tr><tr><td>thread</td><td>查看当前 JVM 的线程堆栈信息</td></tr><tr><td>watch</td><td>方法执行数据观测</td></tr><tr><td>trace</td><td>方法内部调用路径，并输出方法路径上的每个节点上耗时</td></tr><tr><td>stack</td><td>输出当前方法被调用的调用路径</td></tr><tr><td>tt</td><td>方法执行数据的时空隧道，记录下指定方法每次调用的入参和返回信息，并能对这些不同的时间下调用进行观测</td></tr><tr><td>monitor</td><td>方法执行监控</td></tr><tr><td>jvm</td><td>查看当前 JVM 信息</td></tr><tr><td>vmoption</td><td>查看，更新 JVM 诊断相关的参数</td></tr><tr><td>sc</td><td>查看 JVM 已加载的类信息</td></tr><tr><td>sm</td><td>查看已加载类的方法信息</td></tr><tr><td>jad</td><td>反编译指定已加载类的源码</td></tr><tr><td>classloader</td><td>查看 classloader 的继承树，urls，类加载信息</td></tr><tr><td>heapdump</td><td>类似 jmap 命令的 heap dump 功能</td></tr></tbody></table>
+<blockquote>
+<p>更多命令使用，参阅<a href="https://arthas.aliyun.com/doc/commands.html">命令列表</a>.</p>
+</blockquote>
+<h1 id="3-调优">3 调优</h1>
+<h2 id="31-内存优化">3.1 内存优化</h2>
+<h3 id="311-ab压测">3.1.1 AB压测</h3>
+<p>压测工具<code>AB</code>(Apache Bench)测试工具是 Apache 提供的一款测试工具，具有简单易上手的特点，在测试 Web 服务时非常实用。</p>
+<p>ab 一般都是在 Linux 上用。安装非常简单，只需要在 Linux 系统中输入 <code>yum -y install httpd-tools</code> 命令，就可以了。</p>
+<blockquote>
+<p>本机macOS自带了，所以，怎么安装，请自行Google。</p>
+</blockquote>
+<p>安装成功后，输入 ab 命令，可以看到以下信息：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 09:58:45 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab</span></span>
+<span class="line"><span style="color:#B392F0">ab:</span><span style="color:#9ECBFF"> wrong</span><span style="color:#9ECBFF"> number</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> arguments</span></span>
+<span class="line"><span style="color:#B392F0">Usage:</span><span style="color:#9ECBFF"> ab</span><span style="color:#E1E4E8"> [options] [http[s]://]hostname[:port]/path</span></span>
+<span class="line"><span style="color:#B392F0">Options</span><span style="color:#9ECBFF"> are:</span></span>
+<span class="line"><span style="color:#B392F0">    -n</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF">     Number</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> perform</span></span>
+<span class="line"><span style="color:#B392F0">    -c</span><span style="color:#9ECBFF"> concurrency</span><span style="color:#9ECBFF">  Number</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> multiple</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> make</span><span style="color:#9ECBFF"> at</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> time</span></span>
+<span class="line"><span style="color:#B392F0">    -t</span><span style="color:#9ECBFF"> timelimit</span><span style="color:#9ECBFF">    Seconds</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> max.</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> spend</span><span style="color:#9ECBFF"> on</span><span style="color:#9ECBFF"> benchmarking</span></span>
+<span class="line"><span style="color:#B392F0">                    This</span><span style="color:#9ECBFF"> implies</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 50000</span></span>
+<span class="line"><span style="color:#B392F0">    -s</span><span style="color:#9ECBFF"> timeout</span><span style="color:#9ECBFF">      Seconds</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> max.</span><span style="color:#9ECBFF"> wait</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> each</span><span style="color:#9ECBFF"> response</span></span>
+<span class="line"><span style="color:#B392F0">                    Default</span><span style="color:#9ECBFF"> is</span><span style="color:#79B8FF"> 30</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">    -b</span><span style="color:#9ECBFF"> windowsize</span><span style="color:#9ECBFF">   Size</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> TCP</span><span style="color:#9ECBFF"> send/receive</span><span style="color:#9ECBFF"> buffer,</span><span style="color:#9ECBFF"> in</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">    -B</span><span style="color:#9ECBFF"> address</span><span style="color:#9ECBFF">      Address</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> bind</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> when</span><span style="color:#9ECBFF"> making</span><span style="color:#9ECBFF"> outgoing</span><span style="color:#9ECBFF"> connections</span></span>
+<span class="line"><span style="color:#B392F0">    -p</span><span style="color:#9ECBFF"> postfile</span><span style="color:#9ECBFF">     File</span><span style="color:#9ECBFF"> containing</span><span style="color:#9ECBFF"> data</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> POST.</span><span style="color:#9ECBFF"> Remember</span><span style="color:#9ECBFF"> also</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> set</span><span style="color:#79B8FF"> -T</span></span>
+<span class="line"><span style="color:#B392F0">    -u</span><span style="color:#9ECBFF"> putfile</span><span style="color:#9ECBFF">      File</span><span style="color:#9ECBFF"> containing</span><span style="color:#9ECBFF"> data</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> PUT.</span><span style="color:#9ECBFF"> Remember</span><span style="color:#9ECBFF"> also</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> set</span><span style="color:#79B8FF"> -T</span></span>
+<span class="line"><span style="color:#B392F0">    -T</span><span style="color:#9ECBFF"> content-type</span><span style="color:#9ECBFF"> Content-type</span><span style="color:#9ECBFF"> header</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> use</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> POST/PUT</span><span style="color:#9ECBFF"> data,</span><span style="color:#9ECBFF"> eg.</span></span>
+<span class="line"><span style="color:#B392F0">                    'application/x-www-form-urlencoded'</span></span>
+<span class="line"><span style="color:#B392F0">                    Default</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> 'text/plain'</span></span>
+<span class="line"><span style="color:#B392F0">    -v</span><span style="color:#9ECBFF"> verbosity</span><span style="color:#9ECBFF">    How</span><span style="color:#9ECBFF"> much</span><span style="color:#9ECBFF"> troubleshooting</span><span style="color:#9ECBFF"> info</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> print</span></span>
+<span class="line"><span style="color:#B392F0">    -w</span><span style="color:#9ECBFF">              Print</span><span style="color:#9ECBFF"> out</span><span style="color:#9ECBFF"> results</span><span style="color:#9ECBFF"> in</span><span style="color:#9ECBFF"> HTML</span><span style="color:#9ECBFF"> tables</span></span>
+<span class="line"><span style="color:#B392F0">    -i</span><span style="color:#9ECBFF">              Use</span><span style="color:#9ECBFF"> HEAD</span><span style="color:#9ECBFF"> instead</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> GET</span></span>
+<span class="line"><span style="color:#B392F0">    -x</span><span style="color:#9ECBFF"> attributes</span><span style="color:#9ECBFF">   String</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> insert</span><span style="color:#9ECBFF"> as</span><span style="color:#9ECBFF"> table</span><span style="color:#9ECBFF"> attributes</span></span>
+<span class="line"><span style="color:#B392F0">    -y</span><span style="color:#9ECBFF"> attributes</span><span style="color:#9ECBFF">   String</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> insert</span><span style="color:#9ECBFF"> as</span><span style="color:#9ECBFF"> tr</span><span style="color:#9ECBFF"> attributes</span></span>
+<span class="line"><span style="color:#B392F0">    -z</span><span style="color:#9ECBFF"> attributes</span><span style="color:#9ECBFF">   String</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> insert</span><span style="color:#9ECBFF"> as</span><span style="color:#9ECBFF"> td</span><span style="color:#9ECBFF"> or</span><span style="color:#9ECBFF"> th</span><span style="color:#9ECBFF"> attributes</span></span>
+<span class="line"><span style="color:#B392F0">    -C</span><span style="color:#9ECBFF"> attribute</span><span style="color:#9ECBFF">    Add</span><span style="color:#9ECBFF"> cookie,</span><span style="color:#9ECBFF"> eg.</span><span style="color:#9ECBFF"> 'Apache=1234'.</span><span style="color:#E1E4E8"> (repeatable)</span></span>
+<span class="line"><span style="color:#B392F0">    -H</span><span style="color:#9ECBFF"> attribute</span><span style="color:#9ECBFF">    Add</span><span style="color:#9ECBFF"> Arbitrary</span><span style="color:#9ECBFF"> header</span><span style="color:#9ECBFF"> line,</span><span style="color:#9ECBFF"> eg.</span><span style="color:#9ECBFF"> 'Accept-Encoding: gzip'</span></span>
+<span class="line"><span style="color:#B392F0">                    Inserted</span><span style="color:#9ECBFF"> after</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> normal</span><span style="color:#9ECBFF"> header</span><span style="color:#9ECBFF"> lines.</span><span style="color:#E1E4E8"> (repeatable)</span></span>
+<span class="line"><span style="color:#B392F0">    -A</span><span style="color:#9ECBFF"> attribute</span><span style="color:#9ECBFF">    Add</span><span style="color:#9ECBFF"> Basic</span><span style="color:#9ECBFF"> WWW</span><span style="color:#9ECBFF"> Authentication,</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> attributes</span></span>
+<span class="line"><span style="color:#B392F0">                    are</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> colon</span><span style="color:#9ECBFF"> separated</span><span style="color:#9ECBFF"> username</span><span style="color:#9ECBFF"> and</span><span style="color:#9ECBFF"> password.</span></span>
+<span class="line"><span style="color:#B392F0">    -P</span><span style="color:#9ECBFF"> attribute</span><span style="color:#9ECBFF">    Add</span><span style="color:#9ECBFF"> Basic</span><span style="color:#9ECBFF"> Proxy</span><span style="color:#9ECBFF"> Authentication,</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> attributes</span></span>
+<span class="line"><span style="color:#B392F0">                    are</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> colon</span><span style="color:#9ECBFF"> separated</span><span style="color:#9ECBFF"> username</span><span style="color:#9ECBFF"> and</span><span style="color:#9ECBFF"> password.</span></span>
+<span class="line"><span style="color:#B392F0">    -X</span><span style="color:#9ECBFF"> proxy:port</span><span style="color:#9ECBFF">   Proxyserver</span><span style="color:#9ECBFF"> and</span><span style="color:#9ECBFF"> port</span><span style="color:#9ECBFF"> number</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> use</span></span>
+<span class="line"><span style="color:#B392F0">    -V</span><span style="color:#9ECBFF">              Print</span><span style="color:#9ECBFF"> version</span><span style="color:#9ECBFF"> number</span><span style="color:#9ECBFF"> and</span><span style="color:#9ECBFF"> exit</span></span>
+<span class="line"><span style="color:#B392F0">    -k</span><span style="color:#9ECBFF">              Use</span><span style="color:#9ECBFF"> HTTP</span><span style="color:#9ECBFF"> KeepAlive</span><span style="color:#9ECBFF"> feature</span></span>
+<span class="line"><span style="color:#B392F0">    -d</span><span style="color:#9ECBFF">              Do</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> show</span><span style="color:#9ECBFF"> percentiles</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> table.</span></span>
+<span class="line"><span style="color:#B392F0">    -S</span><span style="color:#9ECBFF">              Do</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> show</span><span style="color:#9ECBFF"> confidence</span><span style="color:#9ECBFF"> estimators</span><span style="color:#9ECBFF"> and</span><span style="color:#9ECBFF"> warnings.</span></span>
+<span class="line"><span style="color:#B392F0">    -q</span><span style="color:#9ECBFF">              Do</span><span style="color:#9ECBFF"> not</span><span style="color:#9ECBFF"> show</span><span style="color:#9ECBFF"> progress</span><span style="color:#9ECBFF"> when</span><span style="color:#9ECBFF"> doing</span><span style="color:#9ECBFF"> more</span><span style="color:#9ECBFF"> than</span><span style="color:#79B8FF"> 150</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">    -l</span><span style="color:#9ECBFF">              Accept</span><span style="color:#9ECBFF"> variable</span><span style="color:#9ECBFF"> document</span><span style="color:#9ECBFF"> length</span><span style="color:#E1E4E8"> (use </span><span style="color:#9ECBFF">this</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> dynamic</span><span style="color:#9ECBFF"> pages</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">    -g</span><span style="color:#9ECBFF"> filename</span><span style="color:#9ECBFF">     Output</span><span style="color:#9ECBFF"> collected</span><span style="color:#9ECBFF"> data</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> gnuplot</span><span style="color:#9ECBFF"> format</span><span style="color:#9ECBFF"> file.</span></span>
+<span class="line"><span style="color:#B392F0">    -e</span><span style="color:#9ECBFF"> filename</span><span style="color:#9ECBFF">     Output</span><span style="color:#9ECBFF"> CSV</span><span style="color:#9ECBFF"> file</span><span style="color:#9ECBFF"> with</span><span style="color:#9ECBFF"> percentages</span><span style="color:#9ECBFF"> served</span></span>
+<span class="line"><span style="color:#B392F0">    -r</span><span style="color:#9ECBFF">              Don't exit on socket receive errors.</span></span>
+<span class="line"><span style="color:#9ECBFF">    -m method       Method name</span></span>
+<span class="line"><span style="color:#9ECBFF">    -h              Display usage information (this message)</span></span>
+<span class="line"><span style="color:#9ECBFF">    -I              Disable TLS Server Name Indication (SNI) extension</span></span>
+<span class="line"><span style="color:#9ECBFF">    -Z ciphersuite  Specify SSL/TLS cipher suite (See openssl ciphers)</span></span>
+<span class="line"><span style="color:#9ECBFF">    -f protocol     Specify SSL/TLS protocol</span></span>
+<span class="line"><span style="color:#9ECBFF">                    (TLS1, TLS1.1, TLS1.2 or ALL)</span></span>
+<span class="line"><span style="color:#9ECBFF">    -E certfile     Specify optional client certificate chain and private key</span></span></code></pre>
+<ul>
+<li>测试Get请求：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">ab</span><span style="color:#79B8FF"> -c</span><span style="color:#79B8FF"> 10</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 100</span><span style="color:#9ECBFF"> http://www.test.api.com/test/login?userName=test</span><span style="color:#E1E4E8">&#x26;password</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">test</span></span></code></pre>
+<ul>
+<li>测试Post请求：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">ab</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 100</span><span style="color:#79B8FF"> -c</span><span style="color:#79B8FF"> 10</span><span style="color:#79B8FF"> -p</span><span style="color:#9ECBFF"> 'post.txt'</span><span style="color:#79B8FF"> -T</span><span style="color:#9ECBFF"> 'application/x-www-form-urlencoded'</span><span style="color:#9ECBFF"> 'http://test.api.com/test/register'</span></span></code></pre>
+<p>其中，<code>post.txt</code>存放了该接口的参数，格式为：<code>usernanme=test&#x26;password=test&#x26;sex=1</code>。</p>
+<ul>
+<li>参数的含义：
+<ul>
+<li><code>-n</code>：总请求次数(最小默认为 1);</li>
+<li><code>-c</code>：并发次数(最小默认为 1 且不能大于总请求次数，例如：10 个请求，10 个并发，实际就是 1 人请求 1 次);</li>
+<li><code>-p</code>：post 参数文档路径(<code>-p</code>和<code>-T</code>参数要配合使用);</li>
+<li><code>-T</code>：header 头内容类型(<strong>此处切记是大写英文字母 T</strong>);</li>
+</ul>
+</li>
+<li>性能指标参考：
+<ul>
+<li><code>Requests per second</code>：吞吐率，指某个并发用户数下单位时间内处理的请求数;</li>
+<li><code>Time per request</code>：上面的是用户平均请求等待时间，指处理完成所有请求数所花费的时间 /(总请求数 / 并发用户数);</li>
+<li><code>Time per request</code>：下面的是服务器平均请求处理时间，指处理完成所有请求数所花费的时间 / 总请求数;</li>
+<li><code>Percentage of the requests served within a certain time</code>：每秒请求时间分布情况，指在整个请求中，每个请求的时间长度的分布情况，例如有 50% 的请求 响应在 8ms 内，66% 的请求响应在 10ms 内，说明有 16% 的请求在 8ms~10ms 之间。</li>
+</ul>
+</li>
+</ul>
+<h3 id="312-jvm-内存分配的调优案例">3.1.2 JVM 内存分配的调优案例</h3>
+<p>本人的<code>老苹果</code>快8年了，扛不住10万的并发了，这里只是抛砖引玉，模拟一万并发，各位看官不要唏嘘mac的性能哈。</p>
+<h4 id="3121-测试接口">3.1.2.1 测试接口</h4>
+<p>以下代码为待压测的接口：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RequestMapping</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">value</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "/neo"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">RestController</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ApiController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  @</span><span style="color:#F97583">GetMapping</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/heap"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">  public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">test</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    List&#x3C;</span><span style="color:#F97583">Byte</span><span style="color:#E1E4E8">[]> list </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">Byte</span><span style="color:#E1E4E8">[]>();</span></span>
+<span class="line"><span style="color:#F97583">    Byte</span><span style="color:#E1E4E8">[] b </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> Byte</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">1024</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 1024</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">    list.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(b);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> "success"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h4 id="3122-样例">3.1.2.2 样例</h4>
+<p>对应用服务进行压力测试，模拟不同并发用户数下的服务的响应情况：</p>
+<ul>
+<li>10 个并发用户/1万请求量(总)：<code>ab -c 10 -n 10000 http://127.0.0.1:8088/neo/heap</code></li>
+<li>100 个并发用户/1万请求量(总)：<code>ab -c 100 -n 10000 http://127.0.0.1:8088/neo/heap</code></li>
+<li>1000 个并发用户/1万请求量(总)：<code>ab -c 1000 -n 10000 http://127.0.0.1:8088/neo/heap</code></li>
+</ul>
+<h4 id="3123-监控">3.1.2.3 监控</h4>
+<ul>
+<li>GC 监控
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">  jstat</span><span style="color:#79B8FF"> -gc</span><span style="color:#79B8FF"> 1816</span><span style="color:#79B8FF"> 5000</span><span style="color:#79B8FF"> 20</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17}'</span></span></code></pre>
+其中，<code>1816</code>为应用进程ID。
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 10:28:15 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jps</span></span>
+<span class="line"><span style="color:#B392F0">1816</span><span style="color:#9ECBFF"> spring-boot-interview-api-gateway.jar</span></span>
+<span class="line"><span style="color:#B392F0">1755</span><span style="color:#9ECBFF"> Jps</span></span></code></pre>
+</li>
+<li>堆监控
+在默认不配置 JVM 堆内存大小的情况下，JVM 根据<code>默认值</code>来配置当前内存大小。 我们可以通过以下命令来查看堆内存配置的默认值：
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 10:30:12 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ java -XX:+PrintFlagsFinal -version </span><span style="color:#F97583">|</span><span style="color:#B392F0"> grep</span><span style="color:#9ECBFF"> HeapSize</span></span>
+<span class="line"><span style="color:#B392F0">  uintx</span><span style="color:#9ECBFF"> ErgoHeapSizeLimit</span><span style="color:#9ECBFF">                         =</span><span style="color:#79B8FF"> 0</span><span style="color:#9ECBFF">                                   {product}</span></span>
+<span class="line"><span style="color:#B392F0">  uintx</span><span style="color:#9ECBFF"> HeapSizePerGCThread</span><span style="color:#9ECBFF">                       =</span><span style="color:#79B8FF"> 87241520</span><span style="color:#9ECBFF">                            {product}</span></span>
+<span class="line"><span style="color:#B392F0">  uintx</span><span style="color:#9ECBFF"> InitialHeapSize</span><span style="color:#9ECBFF">                          :=</span><span style="color:#79B8FF"> 134217728</span><span style="color:#9ECBFF">                           {product}</span></span>
+<span class="line"><span style="color:#B392F0">  uintx</span><span style="color:#9ECBFF"> LargePageHeapSizeThreshold</span><span style="color:#9ECBFF">                =</span><span style="color:#79B8FF"> 134217728</span><span style="color:#9ECBFF">                           {product}</span></span>
+<span class="line"><span style="color:#B392F0">  uintx</span><span style="color:#9ECBFF"> MaxHeapSize</span><span style="color:#9ECBFF">                              :=</span><span style="color:#79B8FF"> 2147483648</span><span style="color:#9ECBFF">                          {product}</span></span>
+<span class="line"><span style="color:#B392F0">java</span><span style="color:#9ECBFF"> version</span><span style="color:#9ECBFF"> "1.8.0_181"</span></span>
+<span class="line"><span style="color:#B392F0">Java(TM</span><span style="color:#E1E4E8">) SE Runtime Environment (</span><span style="color:#B392F0">build</span><span style="color:#9ECBFF"> 1.8.0_181-b13</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Java</span><span style="color:#9ECBFF"> HotSpot</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">TM</span><span style="color:#E1E4E8">) </span><span style="color:#9ECBFF">64-Bit</span><span style="color:#9ECBFF"> Server</span><span style="color:#9ECBFF"> VM</span><span style="color:#E1E4E8"> (build </span><span style="color:#9ECBFF">25.181-b13,</span><span style="color:#9ECBFF"> mixed</span><span style="color:#9ECBFF"> mode</span><span style="color:#E1E4E8">)</span></span></code></pre>
+可以看出，这台机器上启动的 JVM 默认<code>最大堆内存</code>大约为 2GB，初始化大小大约为 130MB。</li>
+</ul>
+<h4 id="3124-压测结果">3.1.2.4 压测结果</h4>
+<h5 id="31241-10-个并发用户1万请求量总">3.1.2.4.1 10 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">  [zyxelva@Taeyeons-MacBook-Pro 10:43:36 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]</span><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ab</span><span style="color:#79B8FF"> -c</span><span style="color:#79B8FF"> 10</span><span style="color:#79B8FF"> -n</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">  This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">  Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">  Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">  Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">  Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">  Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">  Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      10</span></span>
+<span class="line"><span style="color:#B392F0">  Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   14.078</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">  Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">  Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">  Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">  HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">  Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    710.30</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">  Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       14.078</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">  Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.408</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">  Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          96.42</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">  Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    4</span><span style="color:#79B8FF">   4.3</span><span style="color:#79B8FF">      4</span><span style="color:#79B8FF">     271</span></span>
+<span class="line"><span style="color:#B392F0">  Processing:</span><span style="color:#79B8FF">     2</span><span style="color:#79B8FF">    9</span><span style="color:#79B8FF">  13.5</span><span style="color:#79B8FF">      8</span><span style="color:#79B8FF">     390</span></span>
+<span class="line"><span style="color:#B392F0">  Waiting:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    7</span><span style="color:#79B8FF">  13.0</span><span style="color:#79B8FF">      6</span><span style="color:#79B8FF">     390</span></span>
+<span class="line"><span style="color:#B392F0">  Total:</span><span style="color:#79B8FF">          3</span><span style="color:#79B8FF">   13</span><span style="color:#79B8FF">  13.9</span><span style="color:#79B8FF">     12</span><span style="color:#79B8FF">     390</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span></span>
+<span class="line"><span style="color:#B392F0">  Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">     12</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">     13</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">     14</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">     15</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">     16</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">     19</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">     25</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">     39</span></span>
+<span class="line"><span style="color:#B392F0">  100%</span><span style="color:#79B8FF">    390</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 10:47:54 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 1816 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">79</span><span style="color:#79B8FF"> 0.625</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 0.912</span></span>
+<span class="line"><span style="color:#B392F0">80</span><span style="color:#79B8FF"> 0.625</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 0.912</span></span>
+<span class="line"><span style="color:#B392F0">111</span><span style="color:#79B8FF"> 0.890</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.177</span></span>
+<span class="line"><span style="color:#B392F0">139</span><span style="color:#79B8FF"> 1.100</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.387</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span>
+<span class="line"><span style="color:#B392F0">141</span><span style="color:#79B8FF"> 1.119</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.287</span><span style="color:#79B8FF"> 1.406</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在710.3/秒左右</li>
+<li>JVM服务器平均请求处理时间1.408ms左右</li>
+<li>JVM服务器发生了141次YGC，耗时1.119秒，还有3次FGC，0.287秒左右，加在一起GC耗时1.406秒.</li>
+</ul>
+<h5 id="31242-100-个并发用户1万请求量总">3.1.2.4.2 100 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 10:49:49 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 100 -n 10000 http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      100</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   10.264</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    974.30</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       102.638</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.026</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          132.25</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">              min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">   36</span><span style="color:#79B8FF">  18.4</span><span style="color:#79B8FF">     37</span><span style="color:#79B8FF">     194</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">     4</span><span style="color:#79B8FF">   66</span><span style="color:#79B8FF">  22.7</span><span style="color:#79B8FF">     63</span><span style="color:#79B8FF">     233</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">        1</span><span style="color:#79B8FF">   47</span><span style="color:#79B8FF">  19.9</span><span style="color:#79B8FF">     46</span><span style="color:#79B8FF">     208</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">          6</span><span style="color:#79B8FF">  102</span><span style="color:#79B8FF">  29.8</span><span style="color:#79B8FF">    104</span><span style="color:#79B8FF">     289</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">    104</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">    113</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">    118</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">    120</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">    130</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">    144</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">    161</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">    212</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">    289</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 10:49:41 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 1816 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">79</span><span style="color:#79B8FF">        1.149</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    1.702</span></span>
+<span class="line"><span style="color:#B392F0">79</span><span style="color:#79B8FF">        1.149</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    1.702</span></span>
+<span class="line"><span style="color:#B392F0">79</span><span style="color:#79B8FF">        1.149</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    1.702</span></span>
+<span class="line"><span style="color:#B392F0">97</span><span style="color:#79B8FF">        1.282</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    1.834</span></span>
+<span class="line"><span style="color:#B392F0">123</span><span style="color:#79B8FF">      1.459</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.011</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span>
+<span class="line"><span style="color:#B392F0">142</span><span style="color:#79B8FF">      1.567</span><span style="color:#79B8FF">   6</span><span style="color:#79B8FF">       0.553</span><span style="color:#79B8FF">    2.119</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在974.30/秒左右</li>
+<li>JVM服务器平均请求处理时间1.026ms左右</li>
+<li>JVM服务器发生了142多次YGC，耗时1.567秒，还有6次FGC，0.553秒左右，加在一起GC耗时2.12秒.</li>
+</ul>
+<p>#####3.1.2.4.3 1000 个并发用户/1万请求量(总)</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 10:49:49 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 1000 -n 10000 http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      1000</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   8.364</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    1262.37</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       78.638</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       0.786</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          169.25</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">                    min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    1</span><span style="color:#79B8FF">    0.6</span><span style="color:#79B8FF">      1</span><span style="color:#79B8FF">       8</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">    1</span><span style="color:#79B8FF">    78</span><span style="color:#79B8FF">  85.0</span><span style="color:#79B8FF">    53</span><span style="color:#79B8FF">     1006</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">         1</span><span style="color:#79B8FF">   77</span><span style="color:#79B8FF">   84.8</span><span style="color:#79B8FF">    52</span><span style="color:#79B8FF">     1005</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">             1</span><span style="color:#79B8FF">   79</span><span style="color:#79B8FF">   85.0</span><span style="color:#79B8FF">    54</span><span style="color:#79B8FF">     1006</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">    54</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">    69</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">    83</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">    95</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">    152</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">    260</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">    386</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">    458</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">   1006</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<h5 id="31244-结果分析">3.1.2.4.4 结果分析</h5>
+<ul>
+<li>GC 频率：高频的<code>Full GC</code>会给系统带来非常大的性能消耗，虽然<code>Minor GC</code>相对<code>Full GC</code>来说好了许多，但过多的<code>Minor GC</code>仍会给系统带来压力。</li>
+<li>内存：这里的内存指的是<code>堆内存大小</code>，堆内存又分为<code>年轻代内存</code>和<code>老年代内存</code>。堆内存不足，会增加<code>Minor GC</code>，影响系统性能。</li>
+<li>吞吐量：频繁的 GC 将会引起线程的上下文切换，增加系统的性能开销，从而影响每次处理的线程请求，最终导致系统的吞吐量下降。</li>
+<li>延时：JVM 的 GC 持续时间也会影响到每次请求的响应时间。</li>
+</ul>
+<h3 id="313-调优方案">3.1.3 调优方案</h3>
+<h4 id="3131-调整方案一">3.1.3.1 调整方案一</h4>
+<p><code>调整堆内存空间减少GC</code>，通过分析，堆内存基本被用完了，而且存在大量<code>Minor GC</code>和<code>Full GC</code>，这意味着我们的堆内存严重不足，这个时候我们需要调大堆内存空间。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#6A737D"># 堆空间加大到 3.0G</span></span>
+<span class="line"><span style="color:#B392F0">java</span><span style="color:#79B8FF"> -jar</span><span style="color:#79B8FF"> -Xms3000m</span><span style="color:#79B8FF"> -Xmx3000m</span><span style="color:#9ECBFF"> spring-boot-interview-api-gateway.jar</span></span></code></pre>
+<h5 id="31311-10-个并发用户1万请求量总">3.1.3.1.1 10 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 14:43:53 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 10 -n 10000 http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      10</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   10.096</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    990.53</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       10.096</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.010</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          134.46</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">              min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    3</span><span style="color:#79B8FF">   3.4</span><span style="color:#79B8FF">      3</span><span style="color:#79B8FF">     213</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">     1</span><span style="color:#79B8FF">    6</span><span style="color:#79B8FF">   6.3</span><span style="color:#79B8FF">      6</span><span style="color:#79B8FF">     217</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    5</span><span style="color:#79B8FF">   4.0</span><span style="color:#79B8FF">      4</span><span style="color:#79B8FF">     213</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">          2</span><span style="color:#79B8FF">   10</span><span style="color:#79B8FF">   7.3</span><span style="color:#79B8FF">      9</span><span style="color:#79B8FF">     222</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">      9</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">     10</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">     11</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">     12</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">     13</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">     14</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">     16</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">     18</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">    222</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 14:43:48 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 3757 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">131</span><span style="color:#79B8FF"> 1.011</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.122</span></span>
+<span class="line"><span style="color:#B392F0">139</span><span style="color:#79B8FF"> 1.049</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.160</span></span>
+<span class="line"><span style="color:#B392F0">161</span><span style="color:#79B8FF"> 1.152</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.263</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span>
+<span class="line"><span style="color:#B392F0">173</span><span style="color:#79B8FF"> 1.219</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.111</span><span style="color:#79B8FF"> 1.330</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在990.53/秒左右</li>
+<li>JVM服务器平均请求处理时间1.010ms左右</li>
+<li>JVM服务器发生了173次YGC，耗时1.219秒，还有2次FGC，0.111秒左右，加在一起GC耗时1.33秒.</li>
+</ul>
+<h5 id="31312-100-个并发用户1万请求量总">3.1.3.1.2 100 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 14:19:07 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 100 -n 10000 http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      100</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   13.893</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    719.80</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       138.927</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.389</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          97.71</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">                    min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">   44</span><span style="color:#79B8FF">  24.3</span><span style="color:#79B8FF">     46</span><span style="color:#79B8FF">     211</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">    4</span><span style="color:#79B8FF">   93</span><span style="color:#79B8FF">  45.9</span><span style="color:#79B8FF">     84</span><span style="color:#79B8FF">     479</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">        1</span><span style="color:#79B8FF">   67</span><span style="color:#79B8FF">  43.6</span><span style="color:#79B8FF">     60</span><span style="color:#79B8FF">     477</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">            5</span><span style="color:#79B8FF">  137</span><span style="color:#79B8FF">  44.5</span><span style="color:#79B8FF">    130</span><span style="color:#79B8FF">     481</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">    130</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">    142</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">    150</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">    154</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">    176</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">    200</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">    282</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">    348</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">    481</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 14:20:18 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 3757 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">2</span><span style="color:#79B8FF">           0.026</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.137</span></span>
+<span class="line"><span style="color:#B392F0">2</span><span style="color:#79B8FF">           0.026</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.137</span></span>
+<span class="line"><span style="color:#B392F0">20</span><span style="color:#79B8FF">         0.436</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.547</span></span>
+<span class="line"><span style="color:#B392F0">37</span><span style="color:#79B8FF">         0.568</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.679</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span>
+<span class="line"><span style="color:#B392F0">47</span><span style="color:#79B8FF">         0.622</span><span style="color:#79B8FF">   2</span><span style="color:#79B8FF">     0.111</span><span style="color:#79B8FF"> 0.733</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在719.8/秒左右</li>
+<li>JVM服务器平均请求处理时间1.389ms左右</li>
+<li>JVM服务器发生了47多次YGC，耗时1.622秒，还有2次FGC，0.111秒左右，加在一起GC耗时0.733秒.</li>
+</ul>
+<h5 id="31313-1000-个并发用户1万请求量总">3.1.3.1.3 1000 个并发用户/1万请求量(总)</h5>
+<h4 id="3132-调整方案二">3.1.3.2 调整方案二</h4>
+<p>增大新生代比例，新生代内部比例：8:1:1</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">java</span><span style="color:#79B8FF"> -jar</span><span style="color:#79B8FF"> -Xms3000m</span><span style="color:#79B8FF"> -Xmx3000m</span><span style="color:#79B8FF"> -Xmn2000m</span><span style="color:#79B8FF"> -XX:SurvivorRatio=8</span><span style="color:#9ECBFF"> spring-boot-interview-api-gateway.jar</span></span></code></pre>
+<h5 id="31321-10-个并发用户1万请求量总">3.1.3.2.1 10 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 15:01:53 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 10 -n 10000 http://127.0.0.1:8088/neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">This</span><span style="color:#9ECBFF"> is</span><span style="color:#9ECBFF"> ApacheBench,</span><span style="color:#9ECBFF"> Version</span><span style="color:#79B8FF"> 2.3</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">$Revision</span><span style="color:#9ECBFF">:</span><span style="color:#79B8FF"> 1879490</span><span style="color:#E1E4E8"> $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      10</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   13.771</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    726.15</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       13.771</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.377</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          98.57</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">              min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    4</span><span style="color:#79B8FF">   4.4</span><span style="color:#79B8FF">      4</span><span style="color:#79B8FF">     277</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">     1</span><span style="color:#79B8FF">    9</span><span style="color:#79B8FF">  15.1</span><span style="color:#79B8FF">      7</span><span style="color:#79B8FF">     281</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">    7</span><span style="color:#79B8FF">  15.2</span><span style="color:#79B8FF">      5</span><span style="color:#79B8FF">     277</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">          2</span><span style="color:#79B8FF">   13</span><span style="color:#79B8FF">  15.3</span><span style="color:#79B8FF">     11</span><span style="color:#79B8FF">     285</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">     11</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">     12</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">     13</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">     13</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">     15</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">     19</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">     42</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">     73</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">    285</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 15:03:07 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 4057 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">24</span><span style="color:#79B8FF"> 0.534</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.656</span></span>
+<span class="line"><span style="color:#B392F0">25</span><span style="color:#79B8FF"> 0.556</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.678</span></span>
+<span class="line"><span style="color:#B392F0">34</span><span style="color:#79B8FF"> 0.615</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.737</span></span>
+<span class="line"><span style="color:#B392F0">42</span><span style="color:#79B8FF"> 0.662</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.785</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span>
+<span class="line"><span style="color:#B392F0">44</span><span style="color:#79B8FF"> 0.675</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 0.797</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在726.15/秒左右</li>
+<li>JVM服务器平均请求处理时间1.377ms左右</li>
+<li>JVM服务器发生了44次YGC，耗时0.675秒，还有2次FGC，0.122秒左右，加在一起GC耗时0.8秒.</li>
+</ul>
+<h5 id="31322-100-个并发用户1万请求量总">3.1.3.2.2 100 个并发用户/1万请求量(总)</h5>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 15:13:11 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ ab -c 100 -n 10000 http://127.0.0.1:8088/neo/heapThis is ApacheBench, Version 2.3 </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">$Revision: 1879490 $</span><span style="color:#F97583">></span></span>
+<span class="line"><span style="color:#B392F0">Copyright</span><span style="color:#79B8FF"> 1996</span><span style="color:#9ECBFF"> Adam</span><span style="color:#9ECBFF"> Twiss,</span><span style="color:#9ECBFF"> Zeus</span><span style="color:#9ECBFF"> Technology</span><span style="color:#9ECBFF"> Ltd,</span><span style="color:#9ECBFF"> http://www.zeustech.net/</span></span>
+<span class="line"><span style="color:#B392F0">Licensed</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF"> The</span><span style="color:#9ECBFF"> Apache</span><span style="color:#9ECBFF"> Software</span><span style="color:#9ECBFF"> Foundation,</span><span style="color:#9ECBFF"> http://www.apache.org/</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Benchmarking</span><span style="color:#79B8FF"> 127.0.0.1</span><span style="color:#E1E4E8"> (be </span><span style="color:#9ECBFF">patient</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 1000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 2000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 3000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 4000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 5000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 6000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 7000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 8000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 9000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Completed</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"><span style="color:#B392F0">Finished</span><span style="color:#79B8FF"> 10000</span><span style="color:#9ECBFF"> requests</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Software:</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Hostname:</span><span style="color:#79B8FF">        127.0.0.1</span></span>
+<span class="line"><span style="color:#B392F0">Server</span><span style="color:#9ECBFF"> Port:</span><span style="color:#79B8FF">            8088</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Path:</span><span style="color:#9ECBFF">          /neo/heap</span></span>
+<span class="line"><span style="color:#B392F0">Document</span><span style="color:#9ECBFF"> Length:</span><span style="color:#79B8FF">        7</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Concurrency</span><span style="color:#9ECBFF"> Level:</span><span style="color:#79B8FF">      100</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> taken</span><span style="color:#9ECBFF"> for</span><span style="color:#9ECBFF"> tests:</span><span style="color:#79B8FF">   13.431</span><span style="color:#9ECBFF"> seconds</span></span>
+<span class="line"><span style="color:#B392F0">Complete</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">      10000</span></span>
+<span class="line"><span style="color:#B392F0">Failed</span><span style="color:#9ECBFF"> requests:</span><span style="color:#79B8FF">        0</span></span>
+<span class="line"><span style="color:#B392F0">Total</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">      1390000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">HTML</span><span style="color:#9ECBFF"> transferred:</span><span style="color:#79B8FF">       70000</span><span style="color:#9ECBFF"> bytes</span></span>
+<span class="line"><span style="color:#B392F0">Requests</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> second:</span><span style="color:#79B8FF">    744.56</span><span style="color:#E1E4E8"> [#/sec] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       134.308</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Time</span><span style="color:#9ECBFF"> per</span><span style="color:#9ECBFF"> request:</span><span style="color:#79B8FF">       1.343</span><span style="color:#E1E4E8"> [ms] (</span><span style="color:#B392F0">mean,</span><span style="color:#9ECBFF"> across</span><span style="color:#9ECBFF"> all</span><span style="color:#9ECBFF"> concurrent</span><span style="color:#9ECBFF"> requests</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">Transfer</span><span style="color:#9ECBFF"> rate:</span><span style="color:#79B8FF">          101.07</span><span style="color:#E1E4E8"> [Kbytes/sec] received</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Connection</span><span style="color:#9ECBFF"> Times</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">              min</span><span style="color:#9ECBFF">  mean[+/-sd]</span><span style="color:#9ECBFF"> median</span><span style="color:#9ECBFF">   max</span></span>
+<span class="line"><span style="color:#B392F0">Connect:</span><span style="color:#79B8FF">        0</span><span style="color:#79B8FF">   35</span><span style="color:#79B8FF">  18.4</span><span style="color:#79B8FF">     36</span><span style="color:#79B8FF">     119</span></span>
+<span class="line"><span style="color:#B392F0">Processing:</span><span style="color:#79B8FF">     4</span><span style="color:#79B8FF">   98</span><span style="color:#79B8FF"> 202.7</span><span style="color:#79B8FF">     58</span><span style="color:#79B8FF">    2008</span></span>
+<span class="line"><span style="color:#B392F0">Waiting:</span><span style="color:#79B8FF">        1</span><span style="color:#79B8FF">   81</span><span style="color:#79B8FF"> 203.3</span><span style="color:#79B8FF">     44</span><span style="color:#79B8FF">    1976</span></span>
+<span class="line"><span style="color:#B392F0">Total:</span><span style="color:#79B8FF">          7</span><span style="color:#79B8FF">  133</span><span style="color:#79B8FF"> 201.7</span><span style="color:#79B8FF">     98</span><span style="color:#79B8FF">    2059</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">Percentage</span><span style="color:#9ECBFF"> of</span><span style="color:#9ECBFF"> the</span><span style="color:#9ECBFF"> requests</span><span style="color:#9ECBFF"> served</span><span style="color:#9ECBFF"> within</span><span style="color:#9ECBFF"> a</span><span style="color:#9ECBFF"> certain</span><span style="color:#9ECBFF"> time</span><span style="color:#E1E4E8"> (ms)</span></span>
+<span class="line"><span style="color:#B392F0">  50%</span><span style="color:#79B8FF">     98</span></span>
+<span class="line"><span style="color:#B392F0">  66%</span><span style="color:#79B8FF">    116</span></span>
+<span class="line"><span style="color:#B392F0">  75%</span><span style="color:#79B8FF">    132</span></span>
+<span class="line"><span style="color:#B392F0">  80%</span><span style="color:#79B8FF">    140</span></span>
+<span class="line"><span style="color:#B392F0">  90%</span><span style="color:#79B8FF">    163</span></span>
+<span class="line"><span style="color:#B392F0">  95%</span><span style="color:#79B8FF">    186</span></span>
+<span class="line"><span style="color:#B392F0">  98%</span><span style="color:#79B8FF">    787</span></span>
+<span class="line"><span style="color:#B392F0">  99%</span><span style="color:#79B8FF">   1667</span></span>
+<span class="line"><span style="color:#B392F0"> 100%</span><span style="color:#79B8FF">   2059</span><span style="color:#E1E4E8"> (longest </span><span style="color:#9ECBFF">request</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>GC情况：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@172-104-123-96 15:14:38 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">]$ jstat -gc 4057 5000 20 </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> '{print $13,$14,$15,$16,$17 }'</span></span>
+<span class="line"><span style="color:#B392F0">YGC</span><span style="color:#9ECBFF"> YGCT</span><span style="color:#9ECBFF"> FGC</span><span style="color:#9ECBFF"> FGCT</span><span style="color:#9ECBFF"> GCT</span></span>
+<span class="line"><span style="color:#B392F0">130</span><span style="color:#79B8FF"> 10.348</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 10.470</span></span>
+<span class="line"><span style="color:#B392F0">131</span><span style="color:#79B8FF"> 10.348</span><span style="color:#79B8FF"> 2</span><span style="color:#79B8FF"> 0.122</span><span style="color:#79B8FF"> 10.470</span></span>
+<span class="line"><span style="color:#B392F0">136</span><span style="color:#79B8FF"> 11.977</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 12.953</span></span>
+<span class="line"><span style="color:#B392F0">147</span><span style="color:#79B8FF"> 12.923</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 13.900</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span>
+<span class="line"><span style="color:#B392F0">151</span><span style="color:#79B8FF"> 13.261</span><span style="color:#79B8FF"> 3</span><span style="color:#79B8FF"> 0.976</span><span style="color:#79B8FF"> 14.237</span></span></code></pre>
+<p>测试结果显示：</p>
+<ul>
+<li>用户的吞吐量大于在744.56/秒左右</li>
+<li>JVM服务器平均请求处理时间1.343ms左右</li>
+<li>JVM服务器发生了151次YGC，耗时13.261秒，还有3次FGC，0.976秒左右，加在一起GC耗时14.237秒.</li>
+</ul>
+<h3 id="314-总结">3.1.4 总结</h3>
+<p>本次测试只能做个参考，让大家理解下平时开发人员是怎样用AB来进行压测的，其他工具还有jmeter；另外，由于本机为笔记本，性能着实有限，实际开发过程中，应该利用单独的测试机，尽可能地避免其他因素干扰。这样做出来的结果才值得参考。</p>
+<p>这里给出之前上课时，老师给的结果，他的机子比较牛，测试的是10万请求。仅供参考！</p>
+<table border="0" cellpadding="0" cellspacing="0" width="674" style="border-collapse:collapse;table-layout:fixed;width:505pt">
+ <colgroup><col width="136" style="mso-width-source:userset;mso-width-alt:4352;width:102pt">
+ <col width="87" style="mso-width-source:userset;mso-width-alt:2773;width:65pt">
+ <col width="143" style="mso-width-source:userset;mso-width-alt:4565;width:107pt">
+ <col width="151" style="mso-width-source:userset;mso-width-alt:4821;width:113pt">
+ <col width="157" style="mso-width-source:userset;mso-width-alt:5034;width:118pt">
+ </colgroup><tbody><tr height="52" style="height:39.0pt">
+  <td height="52" class="xl65" width="136" style="height:39.0pt;width:102pt">VM参数配置</td>
+  <td class="xl65" width="87" style="border-left:none;width:65pt">性能指标</td>
+  <td class="xl65" width="143" style="border-left:none;width:143pt">10 个并发/10万总请求</td>
+  <td class="xl65" width="151" style="border-left:none;width:151pt">100 个并发/10万总请求</td>
+  <td class="xl65" width="157" style="border-left:none;width:157pt">1000 个并发/10万总请求</td>
+ </tr>
+ <tr height="35" style="height:26.0pt">
+  <td rowspan="3" height="122" class="xl66" width="136" style="height:91.0pt;border-top:none;width:102pt">
+    默认:<br>
+    最大堆内存为 480MB，<br>
+    初始化大小为 32MB。<br>
+    Eden 区 103m<br>
+    From、To 3~4M<br>
+    OLd =18</td>
+  <td class="xl66" width="87" style="border-top:none;border-left:none;width:65pt">吞吐量<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">1426/s<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">1262/s<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">1145/s<br></td>
+ </tr>
+ <tr height="52" style="height:39.0pt">
+  <td height="52" class="xl66" width="87" style="height:39.0pt;border-top:none;border-left:none;width:65pt">平均处理时间<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">0.7ms<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">0.8ms<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">0.8ms<br></td>
+ </tr>
+ <tr height="35" style="height:26.0pt">
+  <td height="35" class="xl66" width="87" style="height:26.0pt;border-top:none;border-left:none;width:65pt">GC 耗时<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">17s<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">33s<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">42s<br></td>
+ </tr>
+ <tr height="35" style="height:26.0pt">
+  <td rowspan="3" height="122" class="xl66" width="136" style="height:91.0pt;border-top:none;width:102pt">
+    最大堆内存为 1.5G，<br>
+    初始化大小为 1.5G<br>
+    Eden 区 375m<br>
+    From、To 62M<br>
+    OLd =1000M</td>
+  <td class="xl66" width="87" style="border-top:none;border-left:none;width:65pt">吞吐量<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">1205/s<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">989/s<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">749/s<br></td>
+ </tr>
+ <tr height="52" style="height:39.0pt">
+  <td height="52" class="xl66" width="87" style="height:39.0pt;border-top:none;border-left:none;width:65pt">平均处理时间<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">0.83ms<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">1.01ms<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">1.3ms<br></td>
+ </tr>
+ <tr height="35" style="height:26.0pt">
+  <td height="35" class="xl66" width="87" style="height:26.0pt;border-top:none;border-left:none;width:65pt">GC 耗时<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">34s<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">52s<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">75s<br></td>
+ </tr>
+ <tr height="35" style="height:26.0pt">
+  <td rowspan="2" height="87" class="xl66" width="136" style="height:65.0pt;border-top:none;width:102pt">
+    最大堆内存为 1.5G，<br>
+    初始化大小为 1.5G<br>
+    Eden 区 800m</td>
+  <td class="xl66" width="87" style="border-top:none;border-left:none;width:65pt">吞吐量<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">1780/s<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">1927/s<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">1657/s<br></td>
+ </tr>
+ <tr height="52" style="height:39.0pt">
+  <td height="52" class="xl66" width="87" style="height:39.0pt;border-top:none;border-left:none;width:65pt">平均处理时间<br></td>
+  <td class="xl66" width="143" style="border-top:none;border-left:none;width:107pt">0.56ms<br></td>
+  <td class="xl66" width="151" style="border-top:none;border-left:none;width:113pt">0.51ms<br></td>
+  <td class="xl66" width="157" style="border-top:none;border-left:none;width:118pt">0.6ms<br></td>
+ </tr>
+</tbody></table>
+<p>一般情况下，高并发业务场景中，需要一个比较大的<code>堆空间</code>，而默认参数情况下，堆空间不会很大。所以我们有必要进行调整。</p>
+<p><strong>但是不要单纯的调整堆的总大小，要调整新生代和老年代的比例，以及 Eden 区还有 From 区、To 区的比例</strong>。 所以在我们上述的测试中，调整方案二（不是我的，是老师的方案），得到结果是最好的。在三种测试情况下都能够有非常好的性能指标，同时 GC 耗时相对控制也较好。</p>
+<ul>
+<li>对于调整方案一，就是单纯地加大堆空间，里面的比例不适合高并发场景，反而导致堆空间变大，没有明显减少 GC 的次数，但是每次 GC 需要检索对象的堆空间更大，所以 GC 耗时更长。</li>
+<li>而方案二：调整为一个很大的新生代和一个较小的老年代。原因是<strong>这样可以尽可能回收掉大部分短期对象，减少中期的对象，而老年代尽存放长期存活对象</strong>。</li>
+</ul>
+<p>由于新生代空间较小，Eden 区很快被填满，就会导致频繁 Minor GC，因此我们可以通过增大新生代空间来降低 Minor GC 的频率。详见3.2.2.1节。</p>
+<h3 id="314-推荐策略">3.1.4 推荐策略</h3>
+<h4 id="3141-新生代大小选择">3.1.4.1 新生代大小选择</h4>
+<ul>
+<li><code>响应时间优先的应用</code>：尽可能设大，直到接近系统的最低响应时间限制(根据实际情况选择)。在此种情况下，新生代收集发生的频率也是最小的。同时，减少到达老年代的对象。</li>
+<li><code>吞吐量优先的应用</code>：尽可能地设置大，可能到达<code>Gbit</code>的程度。因为对响应时间没有要求，垃圾收集可以并行进行，一般适合8CPU以上的应用。</li>
+<li><code>避免设置过小</code>：当新生代设置过小时会导致：
+<ul>
+<li>MinorGC 次数更加频繁</li>
+<li>可能导致<code>Minor GC</code>对象直接进入老年代，如果此时老年代满了，会触发Full GC。</li>
+</ul>
+</li>
+</ul>
+<h4 id="3142-老年代大小选择">3.1.4.2 老年代大小选择</h4>
+<ul>
+<li><code>响应时间优先的应用</code>：老年代使用并发收集器，所以其大小需要小心设置，一般要考虑并发会话率和会话持续时间等一些参数。如果堆设置小了，可以会造成内存碎片，高回收频率以及应用暂停而使用传统的标记清除方式;如果堆大了，则需要较长的收集时间。最优化的方案，一般需要参考以下数据获得：并发垃圾收集信息、持久代并发收集次数、传统GC信息、花在新生代和老年代回收上的时间比例。</li>
+<li><code>吞吐量优先的应用</code>：一般吞吐量优先的应用都有一个很大的新生代和一个较小的老年代。原因是，这样可以尽可能回收掉大部分短期对象，减少中期的对象，而老年代尽存放长期存活对象。</li>
+</ul>
+<h2 id="32-gc优化">3.2 GC优化</h2>
+<h3 id="321-gc性能衡量指标">3.2.1 GC性能衡量指标</h3>
+<h4 id="3211-内存占用">3.2.1.1 内存占用</h4>
+<p>垃圾回收过程，收集器也需要占用一定空间的内存，它是指为保证垃圾收集能够顺利高效地进行而存储的额外信息。比如<code>CMS</code>和<code>G1</code>中的<code>RSet</code>(详见{%post_link ‘【JVM学习】5-HostSpot的细节’ 2.4节%})，特别是<code>G1</code>，根据经验，<code>G1</code>至少要耗费大约相当于<code>Java堆容量10%至20%</code>的额外内存来维持收集器工作。</p>
+<p>随着计算机硬件的发展、性能的提升，我们越来越能容忍收集器多占用一点点内存；</p>
+<p>硬件性能增长，对软件系统的处理能力是有直接助益的，硬件的规格和性能越高，也有助于降低收集器运行时对应用程序的影响，换句话说，吞吐量会更高。</p>
+<h4 id="3212-吞吐量">3.2.1.2 吞吐量</h4>
+<p>这里的衡量吞吐量是指<code>应用程序所花费的时间</code>和<code>系统总运行时间</code>的<code>比值</code>。我们可以按照这个公式来计算 GC 的吞吐量：</p>
+<blockquote>
+<p><code>系统总运行时间</code> = <code>应用程序耗时</code> + <code>GC 耗时</code>。
+如果系统运行了 <code>100 分钟</code>，GC 耗时 <code>1 分钟</code>，则系统吞吐量为 <code>99%</code>。
+GC 的吞吐量一般<code>不能低于 95%</code>。</p>
+</blockquote>
+<h4 id="3213-延迟">3.2.1.3 延迟</h4>
+<p>现阶段GC越来越看重延迟时间，假如一个垃圾收集器<code>Stop the World</code>太长，显然对于应用或者用户来说是比较难受的。就如同打游戏，内存就那么大，假如要清理一些垃圾而要暂停游戏一下，恐怕砸手机的心都有。</p>
+<p>特别的，如同<code>3.2.1.1节</code>提到的，硬件性能增长，虽然吞吐量上去了，内存占用影响降低了，但对于延迟来说，反而是负面影响增大了。虚拟机要回收完整的<code>1TB</code>的堆内 存，毫无疑问要比回收<code>1GB</code>的堆内存耗费更多时间。</p>
+<p>对于<code>串行收集器</code>而言，停顿时间可能会比较长；而使用<code>并发收集器</code>，由于垃圾收集器和应用程序交替运行，程序的停顿时间就会变短，但其效率很可能不如独占垃圾收集器，系统的吞吐量也很可能会降低。</p>
+<p>下图中，<code>浅色阶段</code>表示<strong>必须</strong>挂起用户线程，<code>深色</code>则表示收集器线程与用户线程是<code>并发</code>工作的。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/GC-Concurrency-Overview.png" alt="各收集器并发情况一览"></p>
+<p>由图可见：</p>
+<ul>
+<li>在<code>CMS</code>和<code>G1</code>之前的全部收集器，其工作的所有步骤都会产生<code>Stop The World</code>式的停顿；</li>
+<li><code>CMS</code>和<code>G1</code>分别使用<code>增量更新</code>和<code>原始快照</code>(见{%post_link ‘【JVM学习】5-HostSpot的细节’ 2.2节%})技术，实现了<code>标记阶段的并发</code>，不会因管理的堆内存变大，要标记的对象变多而导致停顿时间随之增长。但是对于<code>标记阶段之后</code>的处理，仍未得到妥善解决。
+<ul>
+<li><code>CMS</code>使用<code>标记-清除</code>算法，虽然避免了整理阶段收集器带来的停顿，但是<code>清除算法</code>不论如何优化改进，在设计原理上避免不了<code>空间碎片</code>的产生，随着空间碎片不断淤积最终依然逃不过<code>Stop The World</code>的命运。</li>
+<li><code>G1</code>虽然可以按更小的粒度进行回收，从而抑制<code>整理阶段</code>出现时间过长地停顿，但毕竟也还是要暂停的。</li>
+</ul>
+</li>
+<li>最后的两款收集器，<code>Shenandoah</code>和<code>ZGC</code>，几乎整个工作过程<code>全部都是并发的</code>，只有<code>初始标记</code>、<code>最终标记</code>这些阶段有短暂地停顿，这部分停顿的时间基本上是固定的，与<code>堆的容量</code>、<code>堆中对象的数量</code><strong>没有</strong>正比例关系。实际上，它们都可以在任意可管理的堆容量下，实现垃圾收集的停顿都<code>不超过十毫秒</code>这种以前听起来是天方夜谭、匪夷所思的目标。</li>
+</ul>
+<h4 id="3214-垃圾回收频率">3.2.1.4 垃圾回收频率</h4>
+<p>通常垃圾回收的频率越低越好，<code>增大堆内存空间</code>可以有效降低垃圾回收发生的频率，但同时也意味着堆积的回收对象越多，最终也会增加回收时的<code>停顿时间</code>。所以我们需要适当地增大堆内存空间，保证正常的垃圾回收频率即可。</p>
+<h3 id="322-gc调优策略">3.2.2 GC调优策略</h3>
+<h4 id="3221-降低-minor-gc-频率">3.2.2.1 降低 Minor GC 频率</h4>
+<p>由于新生代空间较小，Eden 区很快被填满，就会导致频繁 <code>Minor GC</code>，因此我们可以通过<code>增大新生代空间</code>来降低 Minor GC 的频率。</p>
+<blockquote>
+<p><code>单次 Minor GC 时间</code>是由两部分组成：<code>T1</code>(扫描新生代)和 <code>T2</code>(复制存活对象)。</p>
+</blockquote>
+<ul>
+<li>情况 1：假设一个对象在 Eden 区的存活时间为 <code>500ms</code>，Minor GC 的时间间隔是 <code>300ms</code>，因为这个对象<code>存活时间>间隔时间</code>，那么正常情况下，Minor GC 的时间为：<code>T1+T2</code>。</li>
+<li>情况 2：当我们<code>增大新生代空间</code>，Minor GC 的时间间隔可能会扩大到 <code>600ms</code>，此时一个存活 <code>500ms</code> 的对象就会在 Eden 区中被回收掉，此时就不存在复制存活对象了，所以再发生 Minor GC 的时间为：<code>T1*2(空间大了)+T2*0</code>
+可见，扩容后，Minor GC 时增加了 <code>T1</code>，但省去了 <code>T2</code> 的时间。</li>
+</ul>
+<p>在 JVM 中，<code>复制对象的成本</code>要<strong>远高于</strong><code>扫描成本</code>。如果在堆内存中存在较多的长期存活的对象，此时增加年轻代空间，反而会增加 Minor GC 的时间。如果堆中的短期对象很多，那么扩容新生代，单次 Minor GC 时间不会显著增加。因此，<code>单次 Minor GC 时间</code>更多取决于 <code>GC 后存活对象的数量</code>，而非 Eden 区的大小。</p>
+<h4 id="3222-降低-full-gc-频率">3.2.2.2 降低 Full GC 频率</h4>
+<p>由于<code>堆内存空间不足</code>或<code>老年代对象太多</code>，会触发 <code>Full GC</code>，频繁的 Full GC 会带来上下文切换，增加系统的性能开销。 常用措施有：</p>
+<ul>
+<li><code>减少创建大对象</code>：在平常的业务场景中，我们一次性从数据库中查询出一个大对象用于 web 端显示。比如，一次性查询出 60 个字段的业务操作，这种大对象如果超过年轻代最大对象阈值，会被直接创建在老年代；即使被创建在了年轻代，由于年轻代的内存空间有限，通过 Minor GC 之后也会进入到老年代。这种大对象很容易产生较多的 Full GC。</li>
+<li><code>增大堆内存空间</code>：在堆内存不足的情况下，增大堆内存空间，且设置初始化堆内存为最大堆内存，也可以降低 Full GC 的频率。</li>
+</ul>
+<h4 id="3223-选择合适的gc收集器">3.2.2.3 选择合适的GC收集器</h4>
+<p>如果要求每次操作的响应时间必须在 <code>500ms</code> 以内。这个时候我们一般会选择响应速度较快的 GC 收集器，</p>
+<ul>
+<li>堆内存比较小的情况下(&#x3C;6G)选择 <code>CMS</code>收集器</li>
+<li>堆内存比较大的情况下(>8G)<code>G1</code>收集器.</li>
+</ul>
+<h2 id="33-预估调优">3.3 预估调优</h2>
+<h3 id="331-调优分类">3.3.1 调优分类</h3>
+<h4 id="3311-jvm-预调优">3.3.1.1 JVM 预调优</h4>
+<p>包括<code>业务场景设定</code>、<code>无监控不优化</code>（要压测），具体步骤可拆分为：</p>
+<ul>
+<li>计算内存需求：并不是分配的内存越大越好，越大虽然可能对吞吐量或者内存吃紧带来正面影响，但响应时间（延迟）却不一定了。</li>
+</ul>
+<blockquote>
+<p>虚拟机栈的大小在高并发情况下可以变小。
+元空间(方法区)保险起见还是设定一个最大的值(默认情况下元空间是没有大小限制的)，一般限定<code>几百 M</code> 就够用了.</p>
+</blockquote>
+<ul>
+<li>选定 CPU</li>
+<li>选择合适的垃圾收集器</li>
+<li>设定新生代大小、分代年龄</li>
+<li>设定日志参数</li>
+</ul>
+<h4 id="3312-优化-jvm-运行环境慢卡顿等">3.3.1.2 优化 JVM 运行环境(慢、卡顿等)</h4>
+<p>一般造成 JVM 卡或者慢的原因无非两个部分，一个是 CPU 占用过高，一个是内存占用过高。所以这个时候需要我们进行问题的排查，进行具体的故障分析。</p>
+<h4 id="3313-解决-jvm-中的问题oom-等">3.3.1.3 解决 JVM 中的问题(OOM 等)</h4>
+<p>比如<code>栈溢出</code>、<code>堆溢出</code>、<code>方法区溢出</code>、<code>本机直接内存溢出</code>等。</p>
+<blockquote>
+<p>前面两节的<code>内存优化</code>与 <code>GC 优化</code>主要就是做的第一种（3.3.1.1节）和第二种（3.3.1.2节）工作。</p>
+</blockquote>
+<h1 id="4-实战">4 实战</h1>
+<p>有空再搞。</p>
+<h1 id="5-总结">5 总结</h1>
+<ul>
+<li>具体问题具体分析，实事求是：GC 调优是个很复杂、很细致的过程，要根据实际情况调整，不同的机器、不同的应用、不同的性能要求调优的手段都是不同的，这些都需要大家平时去积累，去观察，去实践。</li>
+<li>明确调优思路：<code>测试</code> - <code>分析</code> - <code>调优</code>三步走。</li>
+<li>任何调优都需要结合场景，明确已知问题和性能目标，<code>不能为了调优而调优</code>，以免引入新的 Bug，带来风险和弊端。</li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

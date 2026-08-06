@@ -1,0 +1,294 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】代理阶段</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】代理阶段 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一mybatis-的接口层">一、Mybatis 的接口层</h1>
+<h2 id="1sqlsession">1.SqlSession</h2>
+<p>sqlSession总结
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312101600300.png" alt="&#x22;图1&#x22;">
+总之一句话：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/**</span></span>
+<span class="line"><span> * The primary Java interface for working with MyBatis.</span></span>
+<span class="line"><span> * Through this interface you can execute commands, get mappers and manage transactions.</span></span>
+<span class="line"><span> *</span></span>
+<span class="line"><span> * @author Clinton Begin</span></span>
+<span class="line"><span> */</span></span></code></pre>
+<p>翻译过来，就是：对外访问统一的接口，通过这些接口，完成读写命令，获取映射和管理事务。</p>
+<p>UML：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102149880.png" alt="&#x22;图2&#x22;">
+SqlSession查询接口嵌套关系
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312102442855.png" alt="&#x22;SqlSession查询接口嵌套关系&#x22;"></p>
+<h2 id="2sqlsessionfactory">2.SqlSessionFactory</h2>
+<p>SqlSessionFactory与SqlSession关系UML图
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312103052478.png" alt="&#x22;SqlSessionFactory与SqlSession关系UML图&#x22;">
+SqlSessionFactory 使用工厂模式创建SqlSession，其默认的实现类为DefaultSqlSessionFactory，其中获取SqlSession 的核心方法为openSessionFromDataSource(ExecutorType, TransactionIsolationLevel, boolean)，在这个方法中从configuration 中获取的TransactionFactory 是典型的策略模式的应用。运行期，TransactionFactory 接口的实现，是由配置文件配置决定的，可配置选项包括：JDBC、Managed，可根据需求灵活的替换TransactionFactory 的实现。</p>
+<h1 id="二binding-模块分析">二、binding 模块分析</h1>
+<h2 id="0mybatis两种编程模型">0.MyBatis两种编程模型</h2>
+<p>(1) 使用mapper接口编程，就可以访问数据库；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#6A737D">// 程序员喜欢的风格</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> quickStart</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">    // 2.获取sqlSession</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 3.获取对应mapper</span></span>
+<span class="line"><span style="color:#E1E4E8">    TUserMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">getMapper</span><span style="color:#E1E4E8">(TUserMapper.class);</span></span>
+<span class="line"><span style="color:#6A737D">    // 4.执行查询语句并返回单条数据</span></span>
+<span class="line"><span style="color:#E1E4E8">    TUser user </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mapper.</span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>(2) 使用sqlsession对外提供数据库的访问；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#6A737D">// 原始风格，ibatis编程模型 本质分析</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> originalOperation</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">    // 2.获取sqlSession</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 3.执行查询语句并返回结果</span></span>
+<span class="line"><span style="color:#E1E4E8">    TUser user </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">selectOne</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"com.taeyeon.mybatis.mapper.TUserMapper.selectByPrimaryKey"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(user.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>可以比较以下两种编程风格，发现，直接使用SqlSession 进行数据库开发存在代码可读性差、可维护性差的问题，所以我们很少使用，而是使用Mapper接口的方式进行数据库的开发。实现的基础涉及配置文件的解读以及动态代理的运用。</p>
+<h2 id="1核心类">1.核心类</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312105114200.png" alt="&#x22;图3&#x22;"></p>
+<h2 id="2运行流程">2.运行流程</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312105706612.png" alt="&#x22;图4&#x22;"></p>
+<h1 id="三举个栗子">三、举个栗子</h1>
+<p>demo如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#6A737D">// 程序员喜欢的风格</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> quickStart</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">    // 2.获取sqlSession</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 3.获取对应mapper</span></span>
+<span class="line"><span style="color:#E1E4E8">    TUserMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">getMapper</span><span style="color:#E1E4E8">(TUserMapper.class);</span></span>
+<span class="line"><span style="color:#6A737D">    // 4.执行查询语句并返回单条数据</span></span>
+<span class="line"><span style="color:#E1E4E8">    TUser user </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mapper.</span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="1打开一个会话">1.打开一个会话</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<h2 id="2defaultsqlsessionfactory">2.DefaultSqlSessionFactory</h2>
+<p>有两个实现类，主要看DefaultSqlSessionFactory.
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031211034090.png" alt="&#x22;图5&#x22;"></p>
+<p>点进去看看openSession的方法内容</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> SqlSession </span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#B392F0"> openSessionFromDataSource</span><span style="color:#E1E4E8">(configuration.</span><span style="color:#B392F0">getDefaultExecutorType</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>关键瞧瞧openSessionFromDataSource这个方法干了什么。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 从数据源获取数据库连接</span></span>
+<span class="line"><span style="color:#6A737D">  *</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> execType</span><span style="color:#6A737D">   执行类型，ExecutorType主要有三种类型：SIMPLE, REUSE, BATCH，默认是SIMPLE，都在枚举类ExecutorType里面</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> level</span><span style="color:#6A737D">      事务隔离级别，都在枚举类TransactionIsolationLevel中定义</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> autoCommit</span><span style="color:#6A737D"> 是否自动提交，主要是事务提交的设置</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> SqlSession</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> private</span><span style="color:#E1E4E8"> SqlSession </span><span style="color:#B392F0">openSessionFromDataSource</span><span style="color:#E1E4E8">(ExecutorType execType, TransactionIsolationLevel level, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> autoCommit) {</span></span>
+<span class="line"><span style="color:#E1E4E8">   Transaction tx </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">   try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">   	//获取mybatis配置文件中的environment对象</span></span>
+<span class="line"><span style="color:#F97583">     final</span><span style="color:#E1E4E8"> Environment environment </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">getEnvironment</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">     //从environment获取transactionFactory对象</span></span>
+<span class="line"><span style="color:#F97583">     final</span><span style="color:#E1E4E8"> TransactionFactory transactionFactory </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getTransactionFactoryFromEnvironment</span><span style="color:#E1E4E8">(environment);</span></span>
+<span class="line"><span style="color:#6A737D">     //创建事务对象</span></span>
+<span class="line"><span style="color:#E1E4E8">     tx </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> transactionFactory.</span><span style="color:#B392F0">newTransaction</span><span style="color:#E1E4E8">(environment.</span><span style="color:#B392F0">getDataSource</span><span style="color:#E1E4E8">(), level, autoCommit);</span></span>
+<span class="line"><span style="color:#6A737D">     //根据配置创建executor</span></span>
+<span class="line"><span style="color:#F97583">     final</span><span style="color:#E1E4E8"> Executor executor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">newExecutor</span><span style="color:#E1E4E8">(tx, execType);</span></span>
+<span class="line"><span style="color:#6A737D">     //创建DefaultSqlSession</span></span>
+<span class="line"><span style="color:#F97583">     return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultSqlSession</span><span style="color:#E1E4E8">(configuration, executor, autoCommit);</span></span>
+<span class="line"><span style="color:#E1E4E8">   } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">     // may have fetched a connection so lets call close()</span></span>
+<span class="line"><span style="color:#B392F0">     closeTransaction</span><span style="color:#E1E4E8">(tx);</span></span>
+<span class="line"><span style="color:#F97583">     throw</span><span style="color:#E1E4E8"> ExceptionFactory.</span><span style="color:#B392F0">wrapException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error opening session.  Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">   } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">     ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>重点看看新创建的执行器和DefaultSqlSession。</p>
+<h2 id="3newexecutor">3.newExecutor</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Executor </span><span style="color:#B392F0">newExecutor</span><span style="color:#E1E4E8">(Transaction transaction, ExecutorType executorType) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    executorType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> executorType </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> defaultExecutorType </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> executorType;</span></span>
+<span class="line"><span style="color:#E1E4E8">    executorType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> executorType </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> ExecutorType.SIMPLE </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> executorType;</span></span>
+<span class="line"><span style="color:#E1E4E8">    Executor executor;</span></span>
+<span class="line"><span style="color:#6A737D">    //BatchExecutor、SimpleExecutor和CachingExecutor三者之一</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (ExecutorType.BATCH </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> executorType) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      executor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BatchExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, transaction);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (ExecutorType.REUSE </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> executorType) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      executor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ReuseExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, transaction);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      executor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SimpleExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, transaction);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //如果有&#x3C;cache>节点，通过装饰器，添加二级缓存的能力</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (cacheEnabled) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      executor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CachingExecutor</span><span style="color:#E1E4E8">(executor);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //通过interceptorChain遍历所有的插件为executor增强，添加插件的功能</span></span>
+<span class="line"><span style="color:#E1E4E8">    executor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (Executor) interceptorChain.</span><span style="color:#B392F0">pluginAll</span><span style="color:#E1E4E8">(executor);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> executor;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<h2 id="4defaultsqlsession">4.DefaultSqlSession</h2>
+<p>再去瞄下DefaultSqlSession干了啥。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> DefaultSqlSession</span><span style="color:#E1E4E8">(Configuration configuration, Executor executor, </span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> autoCommit) {</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.configuration </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration;</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.executor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> executor;</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.dirty </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#79B8FF">  this</span><span style="color:#E1E4E8">.autoCommit </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> autoCommit;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>DefaultSqlSession实现了SqlSession的方法。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312111811946.png" alt="&#x22;图6&#x22;">
+当执行以下代码时，调用的其实就是DefaultSqlSession类的selectOne方法（最终调用该类下的selectList方法）：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> T </span><span style="color:#B392F0">selectOne</span><span style="color:#E1E4E8">(String statement, Object parameter) {</span></span>
+<span class="line"><span style="color:#6A737D">  // Popular vote was to return null on 0 results and throw exception on too many.</span></span>
+<span class="line"><span style="color:#E1E4E8">  List&#x3C;</span><span style="color:#F97583">T</span><span style="color:#E1E4E8">> list </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#B392F0">selectList</span><span style="color:#E1E4E8">(statement, parameter);</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (list.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (list.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> TooManyResultsException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Expected one result (or null) to be returned by selectOne(), but found: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0"> selectList</span><span style="color:#E1E4E8">(String statement, Object parameter, RowBounds rowBounds) {</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //从configuration中获取要执行的sql语句的配置信息</span></span>
+<span class="line"><span style="color:#E1E4E8">    MappedStatement ms </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">getMappedStatement</span><span style="color:#E1E4E8">(statement);</span></span>
+<span class="line"><span style="color:#6A737D">    //通过executor执行语句，并返回指定的结果集</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> executor.</span><span style="color:#B392F0">query</span><span style="color:#E1E4E8">(ms, </span><span style="color:#B392F0">wrapCollection</span><span style="color:#E1E4E8">(parameter), rowBounds, Executor.NO_RESULT_HANDLER);</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#E1E4E8"> ExceptionFactory.</span><span style="color:#B392F0">wrapException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error querying database.  Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="5executor">5.Executor</h2>
+<p>先大致了解下Executor的类继承关系。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312112927579.png" alt="&#x22;图7&#x22;">
+所以，我们重点看看这段代码的奥秘。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">return</span><span style="color:#E1E4E8"> executor.</span><span style="color:#B392F0">query</span><span style="color:#E1E4E8">(ms, </span><span style="color:#B392F0">wrapCollection</span><span style="color:#E1E4E8">(parameter), rowBounds, Executor.NO_RESULT_HANDLER);</span></span></code></pre>
+<p>先看BaseExecutor.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0"> query</span><span style="color:#E1E4E8">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {</span></span>
+<span class="line"><span style="color:#6A737D">//获取sql语句信息，包括占位符，参数等信息</span></span>
+<span class="line"><span style="color:#E1E4E8">  BoundSql boundSql </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ms.</span><span style="color:#B392F0">getBoundSql</span><span style="color:#E1E4E8">(parameter);</span></span>
+<span class="line"><span style="color:#6A737D">  //拼装缓存的key值，这里后续讲讲key的生成规则</span></span>
+<span class="line"><span style="color:#E1E4E8">  CacheKey key </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createCacheKey</span><span style="color:#E1E4E8">(ms, parameter, rowBounds, boundSql);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#B392F0"> query</span><span style="color:#E1E4E8">(ms, parameter, rowBounds, resultHandler, key, boundSql);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">SuppressWarnings</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"unchecked"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0"> query</span><span style="color:#E1E4E8">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {</span></span>
+<span class="line"><span style="color:#E1E4E8">  ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resource</span><span style="color:#E1E4E8">(ms.</span><span style="color:#B392F0">getResource</span><span style="color:#E1E4E8">()).</span><span style="color:#B392F0">activity</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"executing a query"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">object</span><span style="color:#E1E4E8">(ms.</span><span style="color:#B392F0">getId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (closed) {</span><span style="color:#6A737D">//检查当前executor是否关闭</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ExecutorException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Executor was closed."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (queryStack </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> ms.</span><span style="color:#B392F0">isFlushCacheRequired</span><span style="color:#E1E4E8">()) {</span><span style="color:#6A737D">//非嵌套查询，并且FlushCache配置为true，则需要清空一级缓存</span></span>
+<span class="line"><span style="color:#B392F0">    clearLocalCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  List&#x3C;</span><span style="color:#F97583">E</span><span style="color:#E1E4E8">> list;</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    queryStack</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span><span style="color:#6A737D">//查询层次加一</span></span>
+<span class="line"><span style="color:#E1E4E8">    list </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> resultHandler </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> (List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8">) localCache.</span><span style="color:#B392F0">getObject</span><span style="color:#E1E4E8">(key) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span><span style="color:#6A737D">//查询以及缓存</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (list </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  	 //针对调用存储过程的结果处理</span></span>
+<span class="line"><span style="color:#B392F0">      handleLocallyCachedOutputParameters</span><span style="color:#E1E4E8">(ms, key, parameter, boundSql);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  	 //缓存未命中，从数据库加载数据</span></span>
+<span class="line"><span style="color:#E1E4E8">      list </span><span style="color:#F97583">=</span><span style="color:#B392F0"> queryFromDatabase</span><span style="color:#E1E4E8">(ms, parameter, rowBounds, resultHandler, key, boundSql);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    queryStack</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (queryStack </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (DeferredLoad deferredLoad </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> deferredLoads) {</span><span style="color:#6A737D">//延迟加载处理</span></span>
+<span class="line"><span style="color:#E1E4E8">      deferredLoad.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // issue #601</span></span>
+<span class="line"><span style="color:#E1E4E8">    deferredLoads.</span><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (configuration.</span><span style="color:#B392F0">getLocalCacheScope</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> LocalCacheScope.STATEMENT) {</span><span style="color:#6A737D">//如果当前sql的一级缓存配置为STATEMENT，查询完既清空一集缓存</span></span>
+<span class="line"><span style="color:#6A737D">      // issue #482</span></span>
+<span class="line"><span style="color:#B392F0">      clearLocalCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> list;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>我们先看缓存未命中的部分，即queryFromDatabase方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//真正访问数据库获取结果的方法</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0"> queryFromDatabase</span><span style="color:#E1E4E8">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {</span></span>
+<span class="line"><span style="color:#E1E4E8">  List&#x3C;</span><span style="color:#F97583">E</span><span style="color:#E1E4E8">> list;</span></span>
+<span class="line"><span style="color:#E1E4E8">  localCache.</span><span style="color:#B392F0">putObject</span><span style="color:#E1E4E8">(key, EXECUTION_PLACEHOLDER);</span><span style="color:#6A737D">//在缓存中添加占位符</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //调用抽象方法doQuery，方法查询数据库并返回结果，可选的实现包括：simple、reuse、batch</span></span>
+<span class="line"><span style="color:#E1E4E8">    list </span><span style="color:#F97583">=</span><span style="color:#B392F0"> doQuery</span><span style="color:#E1E4E8">(ms, parameter, rowBounds, resultHandler, boundSql);</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    localCache.</span><span style="color:#B392F0">removeObject</span><span style="color:#E1E4E8">(key);</span><span style="color:#6A737D">//在缓存中删除占位符</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  localCache.</span><span style="color:#B392F0">putObject</span><span style="color:#E1E4E8">(key, list);</span><span style="color:#6A737D">//将真正的结果对象添加到一级缓存</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (ms.</span><span style="color:#B392F0">getStatementType</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> StatementType.CALLABLE) {</span><span style="color:#6A737D">//如果是调用存储过程</span></span>
+<span class="line"><span style="color:#E1E4E8">    localOutputParameterCache.</span><span style="color:#B392F0">putObject</span><span style="color:#E1E4E8">(key, parameter);</span><span style="color:#6A737D">//缓存输出类型结果参数</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> list;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其最终调用SimpleExecutor的doQuery方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#6A737D">//查询的实现</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0"> doQuery</span><span style="color:#E1E4E8">(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Statement stmt </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //获取configuration对象</span></span>
+<span class="line"><span style="color:#E1E4E8">    Configuration configuration </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ms.</span><span style="color:#B392F0">getConfiguration</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //创建StatementHandler对象，</span></span>
+<span class="line"><span style="color:#E1E4E8">    StatementHandler handler </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">newStatementHandler</span><span style="color:#E1E4E8">(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);</span></span>
+<span class="line"><span style="color:#6A737D">    //StatementHandler对象创建stmt,并使用parameterHandler对占位符进行处理</span></span>
+<span class="line"><span style="color:#E1E4E8">    stmt </span><span style="color:#F97583">=</span><span style="color:#B392F0"> prepareStatement</span><span style="color:#E1E4E8">(handler, ms.</span><span style="color:#B392F0">getStatementLog</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">    //通过statementHandler对象调用ResultSetHandler将结果集转化为指定对象返回</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> handler.</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0">query</span><span style="color:#E1E4E8">(stmt, resultHandler);</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">    closeStatement</span><span style="color:#E1E4E8">(stmt);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>看看doQuery方法的内部执行步骤：
+（1）获取配置信息对象。
+（2）通过配置对象获取一个新的StatementHandler，该类主要用来处理一次SQL操作。
+（3）预处理StatementHandler对象，得到Statement对象。
+（4）传入Statement和结果处理对象，通过StatementHandler的query方法来执行SQL，并对执行结果进行处理。</p>
+<p>先看看newStatementHandler干了啥。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> StatementHandler </span><span style="color:#B392F0">newStatementHandler</span><span style="color:#E1E4E8">(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {</span></span>
+<span class="line"><span style="color:#6A737D">	//创建RoutingStatementHandler对象，实际由statmentType来指定真实的StatementHandler来实现</span></span>
+<span class="line"><span style="color:#E1E4E8">	StatementHandler statementHandler </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RoutingStatementHandler</span><span style="color:#E1E4E8">(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);</span></span>
+<span class="line"><span style="color:#6A737D">	//加入插件</span></span>
+<span class="line"><span style="color:#E1E4E8">  statementHandler </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (StatementHandler) interceptorChain.</span><span style="color:#B392F0">pluginAll</span><span style="color:#E1E4E8">(statementHandler);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> statementHandler;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>瞧瞧StatementHandler的小弟们。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114334576.png" alt="&#x22;图8&#x22;">
+总结下StatementHandler是干啥的，以及它的小弟们分别能干啥。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210312114441395.png" alt="&#x22;图9&#x22;"></p>
+<p>再看看prepare干了啥。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">stmt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> handler.</span><span style="color:#B392F0">prepare</span><span style="color:#E1E4E8">(connection, transaction.</span><span style="color:#B392F0">getTimeout</span><span style="color:#E1E4E8">());</span></span></code></pre>
+<p>主要是BaseStatementHandler干活儿.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#6A737D">//使用模板模式，定义了获取Statement的步骤，其子类实现实例化Statement的具体的方式；</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Statement </span><span style="color:#B392F0">prepare</span><span style="color:#E1E4E8">(Connection connection, Integer transactionTimeout) throws SQLException {</span></span>
+<span class="line"><span style="color:#E1E4E8">  ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sql</span><span style="color:#E1E4E8">(boundSql.</span><span style="color:#B392F0">getSql</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">  Statement statement </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //通过不同的子类实例化不同的Statement，分为三类：simple(statement)、prepare(prepareStatement)、callable(CallableStatementHandler)</span></span>
+<span class="line"><span style="color:#E1E4E8">    statement </span><span style="color:#F97583">=</span><span style="color:#B392F0"> instantiateStatement</span><span style="color:#E1E4E8">(connection);</span></span>
+<span class="line"><span style="color:#6A737D">    //设置超时时间</span></span>
+<span class="line"><span style="color:#B392F0">    setStatementTimeout</span><span style="color:#E1E4E8">(statement, transactionTimeout);</span></span>
+<span class="line"><span style="color:#6A737D">    //设置数据集大小</span></span>
+<span class="line"><span style="color:#B392F0">    setFetchSize</span><span style="color:#E1E4E8">(statement);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> statement;</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (SQLException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">    closeStatement</span><span style="color:#E1E4E8">(statement);</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">    closeStatement</span><span style="color:#E1E4E8">(statement);</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ExecutorException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error preparing statement.  Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>最后执行query方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">handler.</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">E</span><span style="color:#F97583">></span><span style="color:#B392F0">query</span><span style="color:#E1E4E8">(stmt, resultHandler);</span></span></code></pre>
+<p>获得结果集。（这里面有结果集的处理，后续再讲。）</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

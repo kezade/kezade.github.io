@@ -1,0 +1,217 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】3.RocketMQ的存储设计</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】3.RocketMQ的存储设计 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/17/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#DDD</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#存储结构</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>自5.0开始，RocketMQ开始用DDD思想划分，包括Topic、Message、Queue、Producer、Consumer、ConsumerGroup、Subscription等。这些概念已经在{%post_link ‘【RocketMQ学习】1-基础知识’ ‘基础知识’%}一文中有做介绍。</p>
+<p>本章主要学习和介绍RocketMQ的存储设计。</p>
+<h1 id="2-领域模型">2 领域模型</h1>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/rocketmq-ddd-model.png" alt="RocketMQ领域模型"></p>
+<h1 id="3-存储">3 存储</h1>
+<h2 id="31-存储文件">3.1 存储文件</h2>
+<p>一般位于<code>broker</code>的<code>store/</code>之下，其包含的文件、目录如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[root@1ef139d74985 store]# ll /home/rocketmq/store/</span></span>
+<span class="line"><span style="color:#B392F0">total</span><span style="color:#79B8FF"> 24</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF"> 1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF">    0</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:36</span><span style="color:#9ECBFF"> abort</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF"> 1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:52</span><span style="color:#9ECBFF"> checkpoint</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 2</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:37</span><span style="color:#9ECBFF"> commitlog</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 2</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:53</span><span style="color:#9ECBFF"> config</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 6</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:39</span><span style="color:#9ECBFF"> consumequeue</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 2</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 4096</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:37</span><span style="color:#9ECBFF"> index</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF"> 1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF">    4</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:36</span><span style="color:#9ECBFF"> lock</span></span></code></pre>
+<p>其中：</p>
+<ul>
+<li><code>commitLog</code>：消息存储目录</li>
+<li><code>config</code>：运行期间一些配置信息</li>
+<li><code>consumerqueue</code>：消息消费队列存储目录</li>
+<li><code>index</code>：消息索引文件存储目录</li>
+<li><code>abort</code>：如果存在改文件则Broker非正常关闭</li>
+<li><code>checkpoint</code>：文件检查点，存储CommitLog文件最后一次刷盘时间戳、<code>consumerqueue</code>最后一次刷盘时间，<code>index</code>索引文件最后一次刷盘时间戳。</li>
+</ul>
+<h2 id="32-存储结构">3.2 存储结构</h2>
+<p>RocketMQ 消息的存储是由<code>ConsumeQueue</code>和<code>CommitLog</code>配合完成的，消息真正的物理存储文件是<code>CommitLog</code>，<code>ConsumeQueue</code>是消息的逻辑队列，类似数据库的<code>索引文件</code>，存储的是指向物理存储的地址。</p>
+<blockquote>
+<p>每个 Topic 下的每个 Message Queue 都有一个对应的<code>ConsumeQueue文件</code>。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-store-structure.png" alt="消息的存储结构"></p>
+<ul>
+<li><code>CommitLog</code>：存储消息的元数据</li>
+<li><code>ConsumerQueue</code>：存储消息在<code>CommitLog</code>的索引</li>
+<li><code>IndexFile</code>：为了消息查询提供了一种通过<code>key</code>或<code>时间区间</code>来查询消息的方法，这种通过<code>IndexFile</code>来查找消息的方法不影响发送与消费消息的主流程。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-relationship.png" alt="消息在文件中的关联"></li>
+</ul>
+<h3 id="321-commitlog">3.2.1 CommitLog</h3>
+<p><code>CommitLog</code>以<strong>物理文件</strong>的方式存放，每台Broker上的<code>CommitLog</code>被本机器所有<code>ConsumeQueue</code>共享，文件地址：<code>${user.home}\store\${commitlog}\${fileName}</code>。</p>
+<p>在<code>CommitLog</code>中，一个消息的存储长度是<code>不固定的</code>，RocketMQ采取一些机制，尽量向<code>CommitLog</code>中<strong>顺序写</strong>，但是<strong>随机读</strong>。CommitLog文件默认大小为<code>1G</code>，可通过在broker置文件中设置<code>mappedFileSizeCommitLog</code>属性来改变默认大小。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[root@1ef139d74985 store]# ll -alh commitlog/</span></span>
+<span class="line"><span style="color:#B392F0">total</span><span style="color:#9ECBFF"> 12K</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 2</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> 4.0K</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:37</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF"> 6</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> 4.0K</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:37</span><span style="color:#9ECBFF"> ..</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF">    1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> 1.0G</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:39</span><span style="color:#79B8FF"> 00000000000000000000</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF">    1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> 1.0G</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:37</span><span style="color:#79B8FF"> 00000000001073741824</span></span></code></pre>
+<p><code>CommitLog</code>文件存储的逻辑视图如下，每条消息的<code>前面 4 个字节</code>存储该条消息的总长度。但是一个消息的存储长度是不固定的。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/CommitLog-view.png" alt="CommitLog文件存储示意图"></p>
+<p>每个<code>CommitLog文件</code>的大小为<code>1G</code>，一般情况下第一个<code>CommitLog</code>的起始偏移量为<code>0</code>，第二个<code>CommitLog</code>的起始偏移量为<code>1073741824</code>(1G=1073741824byte)。</p>
+<blockquote>
+<p>为什么使用的是1G?——MMAP 使用时必须实现指定好内存映射的大小，mmap 在 Java 中一次只能映射 1.5~2G 的文件内存，其中RocketMQ 中限制了单文件1G来避免这个问题。</p>
+</blockquote>
+<p>文件名，长度为<code>20位</code>，左边补零，剩余为<code>起始偏移量</code></p>
+<p>每台Rocket只会往一个<code>CommitLog</code>文件中写，写完一个接着写下一个。</p>
+<p><code>indexFile</code>和<code>ComsumerQueue</code>中都有消息对应的物理偏移量，通过物理偏移量就可以计算出该消息位于哪个<code>CommitLog</code>文件上。</p>
+<h3 id="322-consumequeue">3.2.2 ConsumeQueue</h3>
+<p><code>ConsumeQueue</code>是消息的<code>逻辑队列</code>，类似数据库的索引文件，存储的是指向物理存储的地址。每个Topic下的每个MessageQueue都有一个对应的<code>ConsumeQueue</code>文件，文件地址在<code>${$storeRoot}\consumequeue\${topicName}\${queueld}\${fileName}</code>。</p>
+<p>如下，Topic为<code>TOPIC_DELAY</code>的<code>ConsumeQueue</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[root@1ef139d74985 store]# ll consumequeue/TOPIC_DELAY/3/00000000000000000000</span></span>
+<span class="line"><span style="color:#B392F0">-rw-r--r--</span><span style="color:#79B8FF"> 1</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#9ECBFF"> rocketmq</span><span style="color:#79B8FF"> 6000000</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 17</span><span style="color:#9ECBFF"> 10:39</span><span style="color:#9ECBFF"> consumequeue/TOPIC_DELAY/3/00000000000000000000</span></span></code></pre>
+<p><code>ConsumeQueue</code>中存储的是<code>消息条目</code>，为了加速<code>ConsumeQueue</code>消息条目的检索速度与节省磁盘空间，每一个<code>ConsumeQueue</code>条目<strong>不会</strong>存储消息的全量信息，消息条目如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/msg-item-view.png" alt="消息条目示意图"></p>
+<p><code>ConsumeQueue</code>即为<code>CommitLog</code>文件的索引文件，其构建机制是当消息到达<code>CommitLog文件</code>后由专门的线程产生消息转发任务，从而构建消息消费队列文件(ConsumeQueue)与下文提到的索引文件。</p>
+<blockquote>
+<p>存储机制这样设计有以下几个好处：</p>
+<ul>
+<li>CommitLog顺序写，可以大大提高写入效率。(实际上，磁盘有时候会比你想象的快很多，有时候也比你想象的慢很多，关键在如何使用，使用得当，磁盘的速度完全可以匹配上网络的数据传输速度。目前的高性能磁盘，<strong>顺序写速度</strong>可以达到<code>600MB/s</code>，超过了一般网卡的传输速度，这是磁盘比想象的快的地方；但是磁盘<strong>随机写的速度</strong>只有大概<code>100KB/s</code>，和顺序写的性能相差6000倍!)</li>
+<li>虽然是随机读，但是利用操作系统的<code>page cache机制</code>，可以批量地从磁盘读取，作为cache存到内存中，加速后续的读取速度。</li>
+<li>为了保证完全的顺序写，需要ConsumeQueue这个中间结构，因为ConsumeQueue里只存偏移量信息，所以尺寸是有限的，在实际情况中，大部分的ConsumeQueue能够被全部读入内存，所以这个中间结构的操作速度很快，可以认为是内存读取的速度。此外为了保证CommitLog和ConsumeQueue的一致性，CommitLog里存储了<code>ConsumeQueues</code>、<code>MessageKey</code>、<code>Tag</code>等所有信息，即使ConsumeQueue丢失，也可以通过CommitLog完全恢复出来。</li>
+</ul>
+</blockquote>
+<h3 id="323-indexfile">3.2.3 IndexFile</h3>
+<p>RocketMQ还支持通过<code>MessageID</code>或者<code>MessageKey</code>来查询消息。</p>
+<p>使用ID查询时，因为ID就是用<code>broker + offset</code>生成的(这里msgId指的是服务端的)，所以很容易就找到对应的<code>CommitLog文件</code>来读取消息。</p>
+<p>但是对于用<code>MessageKey</code>来查询消息，RocketMQ则通过构建一个<code>index</code>来提高读取速度。</p>
+<p><code>index</code>存的是<code>索引文件</code>，这个文件用来加快消息查询的速度。消息消费队列RocketMQ专门为消息订阅构建的索引文件，提高根据主题与消息检索消息的速度，使用<code>Hash索引</code>机制，具体是Hash槽与Hash冲突的<code>链表结构</code>。(这里不做过多解释)</p>
+<h3 id="325-config">3.2.5 Config</h3>
+<p>config文件夹中存储着Topic和Consumer等相关信息。主题和消费者群组相关的信息就存在在此。</p>
+<ul>
+<li><code>topics.json</code>：topic配置属性</li>
+<li><code>subscriptionGroup.json</code>：消息消费组配置信息。</li>
+<li><code>delayOffset.json</code>：延时消息队列拉取进度。</li>
+<li><code>consumerOffset.json</code>：集群消费模式消息消进度。</li>
+<li><code>consumerFilter.json</code>：主题消息过滤信息。</li>
+</ul>
+<h3 id="326-其他">3.2.6 其他</h3>
+<ul>
+<li><code>abort</code>：如果存在<code>abort文件</code>说明Broker非正常关闭，该文件默认启动时创建，正常退出之前删除；</li>
+<li><code>checkpoint</code>：文件检测点，存储<code>CommitLog文件最后一次刷盘时间戳</code>、<code>ConsumeQueue最后一次刷盘时间</code>、<code>index索引文件最后一次刷盘时间戳</code>。</li>
+</ul>
+<h1 id="4-过期文件删除">4 过期文件删除</h1>
+<p>由于 RocketMQ 操作CommitLog，ConsumeQueue文件是基于<code>内存映射机制</code>，并在启动的时候会加载CommitLog，ConsumeQueue目录下的所有文件，为了避免内存与磁盘的浪费，不可能将消息永久存储在消息服务器上，所以需要引入一种机制来删除已过期的文件。</p>
+<h2 id="41-两个过程">4.1 两个过程</h2>
+<ul>
+<li>清理消息存储文件（CommitLog文件）</li>
+<li>清理消息消费队列文件（ConsumeQueue文件）</li>
+</ul>
+<blockquote>
+<p>消息消费队列文件与消息存储文件<strong>共用一套过期文件机制</strong>。</p>
+</blockquote>
+<p>RocketMQ 清除过期文件的方法是：如果<code>非当前写文件</code>在一定时间间隔内没有再次被更新，则认为是过期文件，可以被删除， RocketMQ 不会关注这个文件上的消息是否全部被消费。默认每个文件的过期时间为<code>72 小时</code>(不同版本的默认值不同，这里以 4.7.0 为例) ，通过在 Broker 配置文件中设置 <code>fileReservedTime</code>来改变过期时间，单位为<code>小时</code>。</p>
+<blockquote>
+<p><code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中可以找到<code>fileReservedTime</code>的默认值。</p>
+</blockquote>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> fileReservedTime </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 72</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>触发文件清除操作的是一个<code>定时任务</code>，而且只有定时任务，文件过期删除定时任务的<code>周期</code>由该删除决定，默认<code>每 10s 执行一次</code>。如下源码所示：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#E1E4E8"> org.apache.rocketmq.store;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMessageStore</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MessageStore</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addScheduleTask</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                DefaultMessageStore.this.</span><span style="color:#B392F0">cleanFilesPeriodically</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 60</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageStoreConfig.</span><span style="color:#B392F0">getCleanResourceInterval</span><span style="color:#E1E4E8">(), TimeUnit.MILLISECONDS);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其中<code>this.messageStoreConfig.getCleanResourceInterval()</code>同样位于<code>org.apache.rocketmq.store.config.MessageStoreConfig</code>中，其默认值源码中是这样子的：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// Resource reclaim interval</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> cleanResourceInterval </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 10000</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h2 id="42-过期判断">4.2 过期判断</h2>
+<p>除了上述中的<code>fileReservedTime</code>参数，另外还有其他两个配置参数：</p>
+<ul>
+<li><code>deletePhysicFilesInterval</code>：删除物理文件的时间间隔(默认是<code>100ms</code>)，在一次定时任务触发时，可能会有多个物理文件超过过期时间可被删除，因此删除一个文件后需要间隔 <code>deletePhysicFilesInterval</code> 这个时间再删除另外一个文件，由于删除文件是一个非常耗费 <code>I/O</code> 的操作，会引起消息插入消费的延迟(相比于正常情况下)，所以<strong>不建议直接删除所有过期文件</strong>。</li>
+<li><code>destroyMapedFileIntervalForcibly</code>：在删除文件时，如果该文件还被线程引用，此时会阻止此次删除操作，同时将该文件标记不可用并且纪录当前时间戳，该参数表示<strong>文件在第一次删除拒绝后，文件保存的最大时间</strong>，在此时间内一直会被拒绝删除，当超过这个时间时，会将引用每次减少 1000，直到引用<code>小于等于 0</code> 为止，即可删除该文件。</li>
+</ul>
+<h2 id="43-删除条件">4.3 删除条件</h2>
+<ul>
+<li>指定删除文件的时间点， RocketMQ 通过<code>deleteWhen</code>设置一天的固定时间执行一次。删除过期文件操作， 默认为<code>凌晨4 点</code>。</li>
+<li>磁盘空间是否充足，如果磁盘空间不充足(<code>DiskSpaceCleanForciblyRatio</code>，磁盘空间强制删除文件水位，默认是85)，会触发过期文件删除操作。</li>
+</ul>
+<h1 id="5-零拷贝">5 零拷贝</h1>
+<p>指计算机执行操作时，CPU 不需要先将数据从某处内存复制到另一个特定区域。这种技术通常用于通过网络传输文件时节省 <code>CPU 周期</code>和<code>内存带宽</code>。</p>
+<h2 id="51-作用">5.1 作用</h2>
+<ul>
+<li>可以减少数据拷贝和共享总线操作的次数，消除传输数据在存储器之间不必要的中间拷贝次数，从而有效地提高数据传输效率；</li>
+<li>减少了用户进程地址空间和内核地址空间之间因为<code>上下文切换</code>而带来的开销。</li>
+</ul>
+<blockquote>
+<p>没有说不需要拷贝，只是说减少冗余、或者说是减少<strong>不必要</strong>的拷贝。
+使用了零拷贝技术的组件：Kafka、Netty、Rocketmq、Nginx、Apache。</p>
+</blockquote>
+<h2 id="52-原理及流程">5.2 原理及流程</h2>
+<p>在讲解零拷贝之前，先说说传统数据传送的机制和流程，后面就很直观地有了对比，非常容易找到零拷贝与其的改进之处，还有优势。</p>
+<h3 id="521-传统数据传送机制">5.2.1 传统数据传送机制</h3>
+<p>上图。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/traditional-data-flow.png" alt="传统数据传送流程"></p>
+<p>其4次拷贝流程如下：</p>
+<ul>
+<li>第一次：将磁盘文件，读取到<code>操作系统内核缓冲区</code>；</li>
+<li>第二次：将内核缓冲区的数据，copy 到<code>应用程序的buffer</code>；</li>
+<li>第三步：将应用程序buffer中的数据，copy 到<code>socket 网络发送缓冲区</code>(属于操作系统内核的缓冲区)；</li>
+<li>第四次：将socket buffer 的数据，copy 到<code>网卡</code>，由网卡进行网络传输。</li>
+</ul>
+<p>传统的数据传送所消耗的成本：<code>4 次拷贝</code>，<code>4 次上下文切换</code>，其中，4 次拷贝中两次是<code>DMA copy</code>，两次是<code>CPU copy</code>。</p>
+<blockquote>
+<p>Tips: DMA，Direct Memory Access，即<code>直接内存访问</code>。其本质上是一块主板上独立的芯片，允许<code>外设设备</code>和<code>内存存储器</code>之间直接进行<code>IO数据传输</code>，其过程<strong>不需要CPU的参与</strong>。</p>
+</blockquote>
+<h3 id="522-mmap-内存映射--write">5.2.2 mmap 内存映射 + write</h3>
+<p>上图。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/mmap-write.png" alt="零拷贝之mmap+write"></p>
+<p><code>硬盘上文件的位置</code>和<code>应用程序缓冲区</code>(application buffers)进行映射(一一对应关系)，由于 <code>mmap()</code>将文件直接映射到用户空间，所以实际文件读取时根据这个映射关系，<strong>直接</strong>将文件从硬盘拷贝到用户空间，只进行了<code>一次数据拷贝</code>，不再有文件内容从硬盘拷贝到内核空间的一个缓冲区。</p>
+<p>mmap 内存映射将会经历<code>3 次拷贝</code>: <code>1 次 cpu copy</code>，<code>2 次 DMA copy</code>; 以及 <code>4 次上下文切换</code>。</p>
+<h4 id="5221-rocketmq-源码中的-mmap-运用">5.2.2.1 RocketMQ 源码中的 MMAP 运用</h4>
+<p>RocketMQ 源码中，使用<code>MappedFile</code>这个类进行<code>MMAP</code>的映射。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MappedFile</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ReferenceResource</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //前后省略部分代码</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> MappedFile</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">fileName</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> fileSize</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#B392F0">        init</span><span style="color:#E1E4E8">(fileName, fileSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">fileName</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> fileSize</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fileName;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> fileSize;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.file </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> File</span><span style="color:#E1E4E8">(fileName);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.fileFromOffset </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Long.</span><span style="color:#B392F0">parseLong</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">        ensureDirOK</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file.</span><span style="color:#B392F0">getParent</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            // NIO</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.fileChannel </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RandomAccessFile</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.file, </span><span style="color:#9ECBFF">"rw"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">getChannel</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //Maps a region of this channel's file directly into memory.</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.mappedByteBuffer </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileChannel.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">(MapMode.READ_WRITE, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, fileSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">            TOTAL_MAPPED_VIRTUAL_MEMORY.</span><span style="color:#B392F0">addAndGet</span><span style="color:#E1E4E8">(fileSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">            TOTAL_MAPPED_FILES.</span><span style="color:#B392F0">incrementAndGet</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            ok </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (FileNotFoundException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to create file "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileName, e);</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IOException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Failed to map file "</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileName, e);</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#E1E4E8"> e;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">ok </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.fileChannel </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.fileChannel.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="523-sendfilelinux-21">5.2.3 sendFile(Linux 2.1)</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/sendFile.png" alt="零拷贝之sendFile"></p>
+<p>整个过程经历<code>3 次拷贝</code>，<code>1 次CPU copy</code>，<code>2 次DMA copy</code>。</p>
+<h3 id="524-sendfile--scattergatherlinux-24">5.2.4 sendFile + scatter/gather(Linux 2.4)</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/sendFile-scatter-and-gather.png" alt="零拷贝之sendFile + scatter/gather"></p>
+<p>整个过程经历<code>2次上下文切换</code>以及<code>2次数据拷贝</code>。</p>
+<h3 id="525-splicelinux-26">5.2.5 splice(linux 2.6)</h3>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/splice.png" alt="零拷贝之splice"></p>
+<p>不需要硬件支持；不再限定于socket上，实现两个普通文件之间的数据零拷贝。</p>
+<p>整个过程经历<code>0 次cpu copy</code>，<code>2 次DMA copy</code>。</p>
+<p>局限性体现在：它的两个文件描述符参数中<strong>有一个必须</strong>是<code>管道设备</code>。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

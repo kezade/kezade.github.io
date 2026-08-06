@@ -1,0 +1,133 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】94.二叉树的中序遍历</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】94.二叉树的中序遍历 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/29/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给定一个二叉树的根节点 root ，返回 它的 <strong>中序</strong> 遍历 。</p>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/7c55ac8a6fe7df8e5a4939e503566cb5.jpeg" alt="图1"></p>
+<blockquote>
+<p>输入：root = [1,null,2,3]
+输出：[1,3,2]</p>
+</blockquote>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入：root = []
+输出：[]</p>
+</blockquote>
+<h2 id="示例-3">示例 3</h2>
+<blockquote>
+<p>输入：root = [1]
+输出：[1]</p>
+</blockquote>
+<p><strong>提示</strong>：</p>
+<ul>
+<li>树中节点数目在范围 [0, 100] 内</li>
+<li>-100 &#x3C;= Node.val &#x3C;= 100</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<h2 id="21-递归">2.1 递归</h2>
+<p>类似{%post_link ‘二叉树的前序遍历’%}，中序遍历规则为 左-根-右，只要对前序遍历-递归稍作调整，即可实现；</p>
+<p><strong>复杂度分析</strong></p>
+<ul>
+<li>
+<p>时间复杂度：O(n)，其中 n 为二叉树节点的个数。二叉树的遍历中每个节点会被访问一次且只会被访问一次。</p>
+</li>
+<li>
+<p>空间复杂度：O(n)。空间复杂度取决于递归的栈深度，而栈深度在二叉树为一条链的情况下会达到 O(n) 的级别。</p>
+</li>
+</ul>
+<h2 id="22-迭代栈">2.2 迭代（栈）</h2>
+<p>若利用栈（迭代思想），则需要调整下入栈顺序，遍历顺序
+1）先遍历根节点，入栈
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/346ead11b93d1e268442d3268d22c544.png" alt="图2">
+2）循环遍历左子树
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/c423efbaa00943b29c58b1a55e20e802.png" alt="图3">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/795f1e51a84546e874987a7ac8425e7f.png" alt="图4">
+3）到达最左边，出栈，遍历该节点右子树，入栈，没有的话，再出栈该节点的根节点，比如目前节点是4，右子树没有了，出栈根节点2
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/37ff491c7c271fb4f326cc57a74f4122.png" alt="图5">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/7aa96355593a980611f6c2298e71009b.png" alt="图6">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/431308dd45151de979645577be90e040.png" alt="图7">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/f62bc4615e0da03a3e45d9a64acd158b.png" alt="图8"></p>
+<p>4）根节点的左子树遍历完毕，开始遍历1的右子树，先出栈根节点1，同理遍历右子树
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/75966ba0cf835e89054d0fd5c4824a56.png" alt="图9"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/b28df401f758e0b0c558c52f5ef1b08c.png" alt="图10">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/ad63fdcac27c54c96ad5c202f804e81f.png" alt="图11">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/6dfe1efa71dc1da0ff6b115bbeb46f2f.png" alt="图12">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/db58b8ed3cdde4808ecc14551cd02fd5.png" alt="图13">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/ac29b2347b8098dc63cd4be6e7496bc2.png" alt="图14">
+<strong>复杂度分析</strong></p>
+<ul>
+<li>
+<p>时间复杂度：O(n)，其中 n 为二叉树节点的个数。二叉树的遍历中每个节点会被访问一次且只会被访问一次。</p>
+</li>
+<li>
+<p>空间复杂度：O(n)。空间复杂度取决于栈深度，而栈深度在二叉树为一条链的情况下会达到 O(n) 的级别。</p>
+</li>
+</ul>
+<h1 id="3代码">3.代码</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/*</span></span>
+<span class="line"><span style="color:#6A737D"> * public class TreeNode {</span></span>
+<span class="line"><span style="color:#6A737D"> *   int val = 0;</span></span>
+<span class="line"><span style="color:#6A737D"> *   TreeNode left = null;</span></span>
+<span class="line"><span style="color:#6A737D"> *   TreeNode right = null;</span></span>
+<span class="line"><span style="color:#6A737D"> *   public TreeNode(int val) {</span></span>
+<span class="line"><span style="color:#6A737D"> *     this.val = val;</span></span>
+<span class="line"><span style="color:#6A737D"> *   }</span></span>
+<span class="line"><span style="color:#6A737D"> * }</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Solution</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 递归</span></span>
+<span class="line"><span style="color:#6A737D">     *</span></span>
+<span class="line"><span style="color:#6A737D">     * 递归算法</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> root</span><span style="color:#6A737D"> TreeNode类</span></span>
+<span class="line"><span style="color:#6A737D">     * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> int整型一维数组</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[] </span><span style="color:#B392F0">inorderTraversal2</span><span style="color:#E1E4E8"> (TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> list </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ArrayList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">        inorderTraversal2</span><span style="color:#E1E4E8">(list, root);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">stream</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">mapToInt</span><span style="color:#E1E4E8">(Integer</span><span style="color:#F97583">::</span><span style="color:#E1E4E8">valueOf).</span><span style="color:#B392F0">toArray</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> inorderTraversal2</span><span style="color:#E1E4E8"> (List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">list</span><span style="color:#E1E4E8">, TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> root) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#B392F0">        inorderTraversal2</span><span style="color:#E1E4E8">(list, root.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">        list.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(root.val);</span></span>
+<span class="line"><span style="color:#B392F0">        inorderTraversal2</span><span style="color:#E1E4E8">(list, root.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">    非递归算法</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[] </span><span style="color:#B392F0">inorderTraversal</span><span style="color:#E1E4E8"> (TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (root </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#F97583"> new</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">> list </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode cur </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#E1E4E8">        Stack&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">> stack </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> Stack&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        TreeNode top </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (cur </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">stack.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //把左节点所有左节点入栈</span></span>
+<span class="line"><span style="color:#F97583">            while</span><span style="color:#E1E4E8"> (cur </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                stack.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(cur);</span></span>
+<span class="line"><span style="color:#E1E4E8">                cur </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cur.left;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            //出栈</span></span>
+<span class="line"><span style="color:#E1E4E8">            top </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> stack.</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            list.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(top.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">            cur </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> top.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> size </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8">[] arr </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">[size];</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> size; i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            arr[i] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> list.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> arr;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

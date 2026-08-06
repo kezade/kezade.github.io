@@ -1,0 +1,698 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】5.源码之NameServer和Broker启动</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】5.源码之NameServer和Broker启动 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>7/21/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-准备">1 准备</h1>
+<p>JDK：1.8.0_181
+Maven：apache-maven-3.5.3
+RocketMQ：4.8.0（官网目前最新版本是5.1.3），参见 <a href="https://rocketmq.apache.org/zh/docs/quickStart/01quickstart/">快速指南</a> ，各版本源码及二进制执行文件下载参见 <a href="https://archive.apache.org/dist/rocketmq/">这里下载</a>
+环境变量：<code>ROCKETMQ_HOME=/Users/zyxelva/Documents/rocketmq-all-4.8.0-bin-release</code></p>
+<h1 id="2-源码学习流程">2 源码学习流程</h1>
+<h2 id="21-rocketmq源码包结构说明">2.1 RocketMQ源码包结构说明</h2>
+<ul>
+<li><code>broker</code>：主要的业务逻辑，消息收发，主从同步，page cache</li>
+<li><code>client</code>：客户端接口，比如生产者和消费者</li>
+<li><code>example</code>：示例，比如生产者和消费者</li>
+<li><code>common</code>：公用数据结构等等</li>
+<li><code>distribution</code>：编译模块，编译输出等</li>
+<li><code>fliter</code>：进行Broker过滤的不感兴趣的消息传输，减小带宽压力</li>
+<li><code>logappender</code>、<code>logging</code>：日志相关</li>
+<li><code>namesrv</code>：Namesrver服务，用于服务协调</li>
+<li><code>openmessaging</code>：对外提供服务</li>
+<li><code>remoting</code>：远程调用接口，封装Netty底层通信</li>
+<li><code>srvutil</code>：提供-些公用的工具方法，比如解析命令行参数</li>
+<li><code>store</code>：消息存储</li>
+<li><code>tools</code>：管理工具，比如有名的<code>mqadmin</code>工具</li>
+</ul>
+<h2 id="22-流程">2.2 流程</h2>
+<ul>
+<li>{%post_link ‘【RocketMQ学习】5-源码之NameServer和Broker启动’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】6-源码之Remoting’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】7-源码之Producer’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】8-源码之Consumer’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】9-源码之Store’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】10-源码之堆外内存’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】11-源码之事务消息’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】12-源码之数据同步及异步机制’ %}</li>
+<li>{%post_link ‘【RocketMQ学习】13-源码之消息过滤与重试’ %}</li>
+</ul>
+<h1 id="3-打包与部署">3 打包与部署</h1>
+<p>使用如下命令对源码进行编译：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">mvn</span><span style="color:#79B8FF"> -Prelease-all</span><span style="color:#79B8FF"> -DskipTests</span><span style="color:#9ECBFF"> clean</span><span style="color:#9ECBFF"> install</span><span style="color:#79B8FF"> -U</span><span style="color:#79B8FF"> -e</span><span style="color:#79B8FF"> -Dcheckstyle.skip=true</span></span></code></pre>
+<p>编译成功最后会输出如下内容，所有模块的编译结果都是SUCCESS状态：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[INFO] ------------------------------------------------------------------------</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] Reactor Summary:</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] </span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] Apache RocketMQ 4.8.0 4.8.0 ........................ SUCCESS [  </span><span style="color:#79B8FF">3.571</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-logging 4.8.0 ............................. SUCCESS [  </span><span style="color:#79B8FF">3.588</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-remoting 4.8.0 ............................ SUCCESS [  </span><span style="color:#79B8FF">2.614</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-common 4.8.0 .............................. SUCCESS [  </span><span style="color:#79B8FF">5.597</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-client 4.8.0 .............................. SUCCESS [  </span><span style="color:#79B8FF">4.363</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-store 4.8.0 ............................... SUCCESS [  </span><span style="color:#79B8FF">2.325</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-srvutil 4.8.0 ............................. SUCCESS [  </span><span style="color:#79B8FF">0.487</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-filter 4.8.0 .............................. SUCCESS [  </span><span style="color:#79B8FF">1.247</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-acl 4.8.0 ................................. SUCCESS [  </span><span style="color:#79B8FF">1.070</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-broker 4.8.0 .............................. SUCCESS [  </span><span style="color:#79B8FF">2.547</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-tools 4.8.0 ............................... SUCCESS [  </span><span style="color:#79B8FF">1.913</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-namesrv 4.8.0 ............................. SUCCESS [  </span><span style="color:#79B8FF">1.072</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-logappender 4.8.0 ......................... SUCCESS [  </span><span style="color:#79B8FF">1.358</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-test 4.8.0 ................................ SUCCESS [  </span><span style="color:#79B8FF">1.649</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-openmessaging 4.8.0 ....................... SUCCESS [  </span><span style="color:#79B8FF">0.831</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-example 4.8.0 ............................. SUCCESS [  </span><span style="color:#79B8FF">1.081</span><span style="color:#E1E4E8"> s]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] rocketmq-distribution 4.8.0 4.8.0 .................. SUCCESS [01:19 min]</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] ------------------------------------------------------------------------</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] BUILD SUCCESS</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] ------------------------------------------------------------------------</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] Total time: 01:55 min</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] Finished at: 2023-07-21T11:12:38+08:00</span></span>
+<span class="line"><span style="color:#E1E4E8">[INFO] ------------------------------------------------------------------------</span></span>
+<span class="line"></span></code></pre>
+<p>然后在<code>distribution/target/</code>目录下，可以看到编译打包好的可分发包：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 11:33:56 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">/Downloads/rocketmq-all-4.8.0-source-release]$ ls distribution/target/</span></span>
+<span class="line"><span style="color:#B392F0">archive-tmp</span><span style="color:#9ECBFF">                     rocketmq-4.8.0</span><span style="color:#9ECBFF">                  rocketmq-4.8.0.zip</span></span>
+<span class="line"><span style="color:#B392F0">maven-shared-archive-resources</span><span style="color:#9ECBFF">  rocketmq-4.8.0.tar.gz</span></span>
+<span class="line"></span></code></pre>
+<p>而<code>distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/</code>即为可以用以启动RocketMQ的文件目录：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva@Taeyeons-MacBook-Pro 12:01:47 </span><span style="color:#F97583">~</span><span style="color:#E1E4E8">/Downloads/rocketmq-all-4.8.0-source-release]$ ll distribution/target/rocketmq-4.8.0/rocketmq-4.8.0/</span></span>
+<span class="line"><span style="color:#B392F0">total</span><span style="color:#79B8FF"> 64</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">   9</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   288B</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 21</span><span style="color:#9ECBFF"> 11:12</span><span style="color:#9ECBFF"> .</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">   3</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">    96B</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 21</span><span style="color:#9ECBFF"> 11:12</span><span style="color:#9ECBFF"> ..</span></span>
+<span class="line"><span style="color:#B392F0">-rw-rw-r--</span><span style="color:#79B8FF">   1</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">    17K</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  8</span><span style="color:#79B8FF">  2020</span><span style="color:#9ECBFF"> LICENSE</span></span>
+<span class="line"><span style="color:#B392F0">-rw-rw-r--</span><span style="color:#79B8FF">   1</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   1.3K</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  8</span><span style="color:#79B8FF">  2020</span><span style="color:#9ECBFF"> NOTICE</span></span>
+<span class="line"><span style="color:#B392F0">-rw-rw-r--</span><span style="color:#79B8FF">   1</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   5.0K</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  8</span><span style="color:#79B8FF">  2020</span><span style="color:#9ECBFF"> README.md</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">   7</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   224B</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 21</span><span style="color:#9ECBFF"> 11:12</span><span style="color:#9ECBFF"> benchmark</span></span>
+<span class="line"><span style="color:#B392F0">drwxrwxr-x</span><span style="color:#79B8FF">  30</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   960B</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  8</span><span style="color:#79B8FF">  2020</span><span style="color:#9ECBFF"> bin</span></span>
+<span class="line"><span style="color:#B392F0">drwxrwxr-x</span><span style="color:#79B8FF">  12</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   384B</span><span style="color:#9ECBFF"> Dec</span><span style="color:#79B8FF">  8</span><span style="color:#79B8FF">  2020</span><span style="color:#9ECBFF"> conf</span></span>
+<span class="line"><span style="color:#B392F0">drwxr-xr-x</span><span style="color:#79B8FF">  36</span><span style="color:#9ECBFF"> zyxelva</span><span style="color:#9ECBFF">  staff</span><span style="color:#9ECBFF">   1.1K</span><span style="color:#9ECBFF"> Jul</span><span style="color:#79B8FF"> 21</span><span style="color:#9ECBFF"> 11:12</span><span style="color:#9ECBFF"> lib</span></span>
+<span class="line"></span></code></pre>
+<p>当然如果要上传到服务器，可以采用已经打包好的文件：<code>rocketmq-4.8.0.zip</code>.</p>
+<blockquote>
+<p>之所以要源码打包部署，是为了后面源码阅读，通过打印些必要的日志，完成源码的追踪学习。具体的部署流程可以参考<a href="https://rocketmq.apache.org/zh/docs/deploymentOperations/01deploy">官网</a> 。</p>
+</blockquote>
+<h1 id="4-nameserver启动流程">4 NameServer启动流程</h1>
+<h2 id="41-概览">4.1 概览</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/NameServer-Startup-Flow.png" alt="NameServer启动流程"></p>
+<p>核心方法：NamesrvStartup 类中<code>main()</code>-><code>main0</code>-> <code>createNamesrvController</code>-><code>start()</code> -> <code>initialize()</code></p>
+<h2 id="42-步骤">4.2 步骤</h2>
+<h3 id="421-解析配置文件填充nameserverconfignettyserverconfig属性值并创建namesrvcontroller">4.2.1 解析配置文件，填充<code>NameServerConfig</code>、<code>NettyServerConfig</code>属性值，并创建<code>NamesrvController</code></h3>
+<p><code>NamesrvController</code>类中<code>createNamesrvController</code>方法如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NamesrvStartup</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> InternalLogger log;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> Properties properties </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> CommandLine commandLine </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">        main0</span><span style="color:#E1E4E8">(args);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#B392F0">main0</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //一、创建 NamesrvController</span></span>
+<span class="line"><span style="color:#E1E4E8">            NamesrvController controller </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createNamesrvController</span><span style="color:#E1E4E8">(args);</span></span>
+<span class="line"><span style="color:#6A737D">            //二、初始化NamesrvController，再启动</span></span>
+<span class="line"><span style="color:#B392F0">            start</span><span style="color:#E1E4E8">(controller);</span></span>
+<span class="line"><span style="color:#E1E4E8">            String tip </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "The Name Server boot success. serializeType="</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> RemotingCommand.</span><span style="color:#B392F0">getSerializeTypeConfigInThisServer</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(tip);</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"%s%n"</span><span style="color:#E1E4E8">, tip);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> controller;</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.</span><span style="color:#B392F0">exit</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#B392F0">createNamesrvController</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> IOException, JoranException {</span></span>
+<span class="line"><span style="color:#6A737D">        //。。。。。。省略代码</span></span>
+<span class="line"><span style="color:#6A737D">        //创建 NamesrvConfig</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> NamesrvConfig namesrvConfig </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NamesrvConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //创建 NettyServerConfig</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> NettyServerConfig nettyServerConfig </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NettyServerConfig</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置 NameServer 监听端口</span></span>
+<span class="line"><span style="color:#E1E4E8">        nettyServerConfig.</span><span style="color:#B392F0">setListenPort</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">9876</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        // 解析启动参数 -c 后面的东东，比如生产上一般要指定broker.conf的配置路径，还有就是本地调试Broker的时候需要-c 指定配置的路径</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (commandLine.</span><span style="color:#B392F0">hasOption</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'c'</span><span style="color:#E1E4E8">)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            String file </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> commandLine.</span><span style="color:#B392F0">getOptionValue</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'c'</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (file </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                InputStream in </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BufferedInputStream</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> FileInputStream</span><span style="color:#E1E4E8">(file));</span></span>
+<span class="line"><span style="color:#E1E4E8">                properties </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Properties</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                properties.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">(in);</span></span>
+<span class="line"><span style="color:#E1E4E8">                MixAll.</span><span style="color:#B392F0">properties2Object</span><span style="color:#E1E4E8">(properties, namesrvConfig);</span></span>
+<span class="line"><span style="color:#E1E4E8">                MixAll.</span><span style="color:#B392F0">properties2Object</span><span style="color:#E1E4E8">(properties, nettyServerConfig);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                namesrvConfig.</span><span style="color:#B392F0">setConfigStorePath</span><span style="color:#E1E4E8">(file);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"load config properties file OK, %s%n"</span><span style="color:#E1E4E8">, file);</span></span>
+<span class="line"><span style="color:#E1E4E8">                in.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //解析启动参数 -p后面的东东</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (commandLine.</span><span style="color:#B392F0">hasOption</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">'p'</span><span style="color:#E1E4E8">)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            InternalLogger console </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> InternalLoggerFactory.</span><span style="color:#B392F0">getLogger</span><span style="color:#E1E4E8">(LoggerName.NAMESRV_CONSOLE_NAME);</span></span>
+<span class="line"><span style="color:#E1E4E8">            MixAll.</span><span style="color:#B392F0">printObjectProperties</span><span style="color:#E1E4E8">(console, namesrvConfig);</span></span>
+<span class="line"><span style="color:#E1E4E8">            MixAll.</span><span style="color:#B392F0">printObjectProperties</span><span style="color:#E1E4E8">(console, nettyServerConfig);</span></span>
+<span class="line"><span style="color:#6A737D">            //如果开启-p，则RocketMQ真的只会打印参数列表，不会启动nameserver</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.</span><span style="color:#B392F0">exit</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        MixAll.</span><span style="color:#B392F0">properties2Object</span><span style="color:#E1E4E8">(ServerUtil.</span><span style="color:#B392F0">commandLine2Properties</span><span style="color:#E1E4E8">(commandLine), namesrvConfig);</span></span>
+<span class="line"><span style="color:#6A737D">        //需要启动前配置好 RocketMQ 的安装目录 ROCKETMQ_HOME</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> namesrvConfig.</span><span style="color:#B392F0">getRocketmqHome</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.out.</span><span style="color:#B392F0">printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Please set the %s variable in your environment to match the location of the RocketMQ installation%n"</span><span style="color:#E1E4E8">, MixAll.ROCKETMQ_HOME_ENV);</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.</span><span style="color:#B392F0">exit</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        LoggerContext lc </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (LoggerContext) LoggerFactory.</span><span style="color:#B392F0">getILoggerFactory</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        JoranConfigurator configurator </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> JoranConfigurator</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        configurator.</span><span style="color:#B392F0">setContext</span><span style="color:#E1E4E8">(lc);</span></span>
+<span class="line"><span style="color:#E1E4E8">        lc.</span><span style="color:#B392F0">reset</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //logback日志文件</span></span>
+<span class="line"><span style="color:#E1E4E8">        configurator.</span><span style="color:#B392F0">doConfigure</span><span style="color:#E1E4E8">(namesrvConfig.</span><span style="color:#B392F0">getRocketmqHome</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "/conf/logback_namesrv.xml"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        log </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> InternalLoggerFactory.</span><span style="color:#B392F0">getLogger</span><span style="color:#E1E4E8">(LoggerName.NAMESRV_LOGGER_NAME);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        MixAll.</span><span style="color:#B392F0">printObjectProperties</span><span style="color:#E1E4E8">(log, namesrvConfig);</span></span>
+<span class="line"><span style="color:#E1E4E8">        MixAll.</span><span style="color:#B392F0">printObjectProperties</span><span style="color:#E1E4E8">(log, nettyServerConfig);</span></span>
+<span class="line"><span style="color:#6A737D">        //创建 NamesrvController</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> NamesrvController controller </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NamesrvController</span><span style="color:#E1E4E8">(namesrvConfig, nettyServerConfig);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // remember all configs to prevent discard</span></span>
+<span class="line"><span style="color:#E1E4E8">        controller.</span><span style="color:#B392F0">getConfiguration</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">registerConfig</span><span style="color:#E1E4E8">(properties);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> controller;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //。。。。。。省略代码</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>如果你要查看<code>NameServer</code>的各种参数，直接在启动个参数中送入<code>-p</code>就可以打印这个<code>NameServer</code>的所有的参数信息。(以IDEA为例)
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/print-namesrv-params.png" alt="打印NameServer参数配置"></p>
+<p>打印结果：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">13:58:27.674</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - rocketmqHome</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/Documents/rocketmq-all-4.8.0-bin-release</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.732</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - kvConfigPath</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/namesrv/kvConfig.json</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.734</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - configStorePath</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">/Users/zyxelva/namesrv/namesrv.properties</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.735</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - productEnvName</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">center</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.737</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - clusterTest</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">false</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.737</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - orderMessageEnable</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">false</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.739</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - listenPort</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">9876</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverWorkerThreads</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">8</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverCallbackExecutorThreads</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">0</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverSelectorThreads</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">3</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverOnewaySemaphoreValue</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">256</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverAsyncSemaphoreValue</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">64</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverChannelMaxIdleTimeSeconds</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">120</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverSocketSndBufSize</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">65535</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverSocketRcvBufSize</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">65535</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - serverPooledByteBufAllocatorEnable</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">true</span></span>
+<span class="line"><span style="color:#B392F0">13:58:27.740</span><span style="color:#E1E4E8"> [main] INFO  RocketmqNamesrvConsole - useEpollNativeSelector</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">false</span></span></code></pre>
+<h3 id="422-初始化">4.2.2 初始化</h3>
+<p>即在<code>NamesrvController</code>实例创建后，初始化相关信息，包括配置文件保存路径加载、NettyRemotingServer创建、线程池创建，最重要是两个定时任务创建和启动：</p>
+<ul>
+<li>每隔<code>10s</code>扫描一次Broker，移除不活跃的Broker</li>
+<li>每隔<code>10min</code>打印一次KV配置</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NamesrvStartup</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#FFAB70">controller</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> controller) {</span></span>
+<span class="line"><span style="color:#F97583">            throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IllegalArgumentException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"NamesrvController is null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //三、初始化 NamesrvController</span></span>
+<span class="line"><span style="color:#F97583">        boolean</span><span style="color:#E1E4E8"> initResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> controller.</span><span style="color:#B392F0">initialize</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">initResult) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            controller.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            System.</span><span style="color:#B392F0">exit</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">-</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //四、先在JVM关闭前注册钩子，关闭NettyServer、线程池、定时任务</span></span>
+<span class="line"><span style="color:#E1E4E8">        Runtime.</span><span style="color:#B392F0">getRuntime</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">addShutdownHook</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> ShutdownHookThread</span><span style="color:#E1E4E8">(log, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> Callable&#x3C;</span><span style="color:#F97583">Void</span><span style="color:#E1E4E8">>() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#E1E4E8"> Void </span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">                controller.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }));</span></span>
+<span class="line"><span style="color:#6A737D">        //五、启动</span></span>
+<span class="line"><span style="color:#E1E4E8">        controller.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> controller;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NamesrvController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> initialize</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //加载KV配置</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.kvConfigManager.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //创建NettyRemotingServer实例</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.remotingServer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NettyRemotingServer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.nettyServerConfig, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.brokerHousekeepingService);</span></span>
+<span class="line"><span style="color:#6A737D">        //线程池创建</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.remotingExecutor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Executors.</span><span style="color:#B392F0">newFixedThreadPool</span><span style="color:#E1E4E8">(nettyServerConfig.</span><span style="color:#B392F0">getServerWorkerThreads</span><span style="color:#E1E4E8">(), </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ThreadFactoryImpl</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"RemotingExecutorThread_"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">        //向NettyRemotingServer注册NamesrvController和线程池</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //每隔10s扫描一次为活跃Broker</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                NamesrvController.this.routeInfoManager.</span><span style="color:#B392F0">scanNotActiveBroker</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, TimeUnit.SECONDS);</span></span>
+<span class="line"><span style="color:#6A737D">        //每隔10min打印一次KV配置</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                NamesrvController.this.kvConfigManager.</span><span style="color:#B392F0">printAllPeriodically</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, TimeUnit.MINUTES);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">       //。。。。。。省略代码</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="423-在jvm进程关闭之前先将线程池关闭及时释放资源再启动">4.2.3 在JVM进程关闭之前，先将线程池关闭，及时释放资源。再启动。</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NamesrvStartup</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> NamesrvController </span><span style="color:#FFAB70">controller</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#6A737D">        //此处省略一万字</span></span>
+<span class="line"><span style="color:#6A737D">        //四、先在JVM关闭前注册钩子，关闭NettyServer、线程池、定时任务</span></span>
+<span class="line"><span style="color:#E1E4E8">        Runtime.</span><span style="color:#B392F0">getRuntime</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">addShutdownHook</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> ShutdownHookThread</span><span style="color:#E1E4E8">(log, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> Callable&#x3C;</span><span style="color:#F97583">Void</span><span style="color:#E1E4E8">>() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#E1E4E8"> Void </span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">                controller.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }));</span></span>
+<span class="line"><span style="color:#6A737D">        //五、启动</span></span>
+<span class="line"><span style="color:#E1E4E8">        controller.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> controller;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="43-时序图">4.3 时序图</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-NameServer-Startup-Flow.png" alt="NameServer启动流程时序图"></p>
+<h1 id="5-broker启动流程">5 Broker启动流程</h1>
+<h2 id="51-概览">5.1 概览</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Broker-Startup-Flow.png" alt="Broker启动流程"></p>
+<h2 id="52-时序图">5.2 时序图</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Broker-Startup-Flow.png" alt="Broker启动时序图">
+大致流程与NameServer相差无几，这里主要讲讲<code>Broker注册</code>、<code>Broker删除</code>、<code>路由发现</code>。</p>
+<h2 id="53-broker注册路由注册">5.3 Broker注册(路由注册)</h2>
+<p>RocketMQ路由注册是通过<code>Broker与NameServer的心跳功能</code>实现的。</p>
+<p>Broker启动时向集群中<strong>所有的</strong>NameServer发送心跳信息，<code>每隔30s</code>向集群中所有NameServer发送<code>心跳包</code>，NameServer收到心跳包时会更新<code>brokerLiveTable</code>缓存中BrokerLiveInfo的<code>lastUpdateTimeStamp</code>信息，然后NameServer<code>每隔10s</code>扫描<code>brokerLiveTable</code>，如果<code>连续120S</code>没有收到心跳包，NameServer将移除Broker的路由信息同时关闭Socket连接。</p>
+<h3 id="531-brokercontrollerstart">5.3.1 BrokerController#start()</h3>
+<p>定位到<code>BrokerController#start()</code>方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> BrokerController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#6A737D">        //......省略各种start()</span></span>
+<span class="line"><span style="color:#E1E4E8">        </span></span>
+<span class="line"><span style="color:#6A737D">        //开启DLedger多副本主从切换</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">messageStoreConfig.</span><span style="color:#B392F0">isEnableDLegerCommitLog</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">            //开启事务状态回查处理器</span></span>
+<span class="line"><span style="color:#B392F0">            startProcessorByHa</span><span style="color:#E1E4E8">(messageStoreConfig.</span><span style="color:#B392F0">getBrokerRole</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">            //处理从节点的元数据同步</span></span>
+<span class="line"><span style="color:#B392F0">            handleSlaveSynchronize</span><span style="color:#E1E4E8">(messageStoreConfig.</span><span style="color:#B392F0">getBrokerRole</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerBrokerAll</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //broker每隔30s向NameServer发送心跳包</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    //注意这里第二个入参为false，即不是oneway方式发送</span></span>
+<span class="line"><span style="color:#E1E4E8">                    BrokerController.this.</span><span style="color:#B392F0">registerBrokerAll</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, brokerConfig.</span><span style="color:#B392F0">isForceRegister</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"registerBrokerAll Exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }, </span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 10</span><span style="color:#E1E4E8">, Math.</span><span style="color:#B392F0">max</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">10000</span><span style="color:#E1E4E8">, Math.</span><span style="color:#B392F0">min</span><span style="color:#E1E4E8">(brokerConfig.</span><span style="color:#B392F0">getRegisterNameServerPeriod</span><span style="color:#E1E4E8">(), </span><span style="color:#79B8FF">60000</span><span style="color:#E1E4E8">)), TimeUnit.MILLISECONDS);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //.......</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>主要跟踪<code>registerBrokerAll()</code>。依次经历<code>BrokerController#registerBrokerAll</code>-><code>BrokerController#doRegisterBrokerAll</code>-><code>BrokerOuterAPI#registerBrokerAll</code></p>
+<h3 id="532-brokerouterapiregisterbrokerall">5.3.2 BrokerOuterAPI#registerBrokerAll()</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> BrokerOuterAPI</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">RegisterBrokerResult</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">registerBrokerAll</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">clusterName</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">brokerAddr</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">brokerName</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> brokerId</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">haServerAddr</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#E1E4E8"> TopicConfigSerializeWrapper </span><span style="color:#FFAB70">topicConfigWrapper</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">filterServerList</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> oneway</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> timeoutMills</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                        final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> compressed</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">RegisterBrokerResult</span><span style="color:#E1E4E8">> registerBrokerResultList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> CopyOnWriteArrayList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> nameServerAddressList </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.remotingClient.</span><span style="color:#B392F0">getNameServerAddressList</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (nameServerAddressList </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> nameServerAddressList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            //心跳包格式：</span></span>
+<span class="line"><span style="color:#6A737D">            //1.头部：brokerAddr、brokerId、brokerName、clusterName、haServerAddr、compressed</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> RegisterBrokerRequestHeader requestHeader </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RegisterBrokerRequestHeader</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setBrokerAddr</span><span style="color:#E1E4E8">(brokerAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setBrokerId</span><span style="color:#E1E4E8">(brokerId);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setBrokerName</span><span style="color:#E1E4E8">(brokerName);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setClusterName</span><span style="color:#E1E4E8">(clusterName);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setHaServerAddr</span><span style="color:#E1E4E8">(haServerAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setCompressed</span><span style="color:#E1E4E8">(compressed);</span></span>
+<span class="line"><span style="color:#6A737D">            //2.请求体：主题配置、过滤服务器配置、CRC32校验和</span></span>
+<span class="line"><span style="color:#E1E4E8">            RegisterBrokerBody requestBody </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RegisterBrokerBody</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestBody.</span><span style="color:#B392F0">setTopicConfigSerializeWrapper</span><span style="color:#E1E4E8">(topicConfigWrapper);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestBody.</span><span style="color:#B392F0">setFilterServerList</span><span style="color:#E1E4E8">(filterServerList);</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">[] body </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> requestBody.</span><span style="color:#B392F0">encode</span><span style="color:#E1E4E8">(compressed);</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> bodyCrc32 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> UtilAll.</span><span style="color:#B392F0">crc32</span><span style="color:#E1E4E8">(body);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestHeader.</span><span style="color:#B392F0">setBodyCrc32</span><span style="color:#E1E4E8">(bodyCrc32);</span></span>
+<span class="line"><span style="color:#E1E4E8">            </span></span>
+<span class="line"><span style="color:#6A737D">            //使用CountDownLatch向多个NameServer发起注册</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> CountDownLatch countDownLatch </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> CountDownLatch</span><span style="color:#E1E4E8">(nameServerAddressList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">            for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String namesrvAddr </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> nameServerAddressList) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                brokerOuterExecutor.</span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">                        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                            //多线程注册</span></span>
+<span class="line"><span style="color:#E1E4E8">                            RegisterBrokerResult result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> registerBroker</span><span style="color:#E1E4E8">(namesrvAddr, oneway, timeoutMills, requestHeader, body);</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (result </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                registerBrokerResultList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(result);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"register broker[{}]to name server {} OK"</span><span style="color:#E1E4E8">, brokerId, namesrvAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"registerBroker Exception, {}"</span><span style="color:#E1E4E8">, namesrvAddr, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            countDownLatch.</span><span style="color:#B392F0">countDown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                });</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                countDownLatch.</span><span style="color:#B392F0">await</span><span style="color:#E1E4E8">(timeoutMills, TimeUnit.MILLISECONDS);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (InterruptedException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> registerBrokerResultList;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> RegisterBrokerResult </span><span style="color:#B392F0">registerBroker</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">namesrvAddr</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> oneway</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> int</span><span style="color:#FFAB70"> timeoutMills</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> RegisterBrokerRequestHeader </span><span style="color:#FFAB70">requestHeader</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> byte</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">body</span></span>
+<span class="line"><span style="color:#E1E4E8">    ) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> RemotingCommandException, MQBrokerException, RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,</span></span>
+<span class="line"><span style="color:#E1E4E8">            InterruptedException {</span></span>
+<span class="line"><span style="color:#6A737D">        //构建注册实体，注册代号：RequestCode.REGISTER_BROKER</span></span>
+<span class="line"><span style="color:#E1E4E8">        RemotingCommand request </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingCommand.</span><span style="color:#B392F0">createRequestCommand</span><span style="color:#E1E4E8">(RequestCode.REGISTER_BROKER, requestHeader);</span></span>
+<span class="line"><span style="color:#E1E4E8">        request.</span><span style="color:#B392F0">setBody</span><span style="color:#E1E4E8">(body);</span></span>
+<span class="line"><span style="color:#6A737D">        //不会走这里，因为oneway为false</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (oneway) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                //发起注册</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.remotingClient.</span><span style="color:#B392F0">invokeOneway</span><span style="color:#E1E4E8">(namesrvAddr, request, timeoutMills);</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (RemotingTooMuchRequestException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                // Ignore</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        //走这里</span></span>
+<span class="line"><span style="color:#E1E4E8">        RemotingCommand response </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.remotingClient.</span><span style="color:#B392F0">invokeSync</span><span style="color:#E1E4E8">(namesrvAddr, request, timeoutMills);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //...............</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Broker注册至NameServer，是一个客户端请求操作，会走<code>NettyRemotingClient#invokeSync()</code>，实际上的处理类是<code>NettyRemotingAbstract</code>负责公共的发送动作（也包括接收动作）。</p>
+<h3 id="533-nettyserverhandlerchannelread0">5.3.3 NettyServerHandler#channelRead0()</h3>
+<p>由于是Netty负责网络这块，因而在服务端，通过<code>NettyRemotingServer</code>进行接收，Handler为其内置类<code>NettyServerHandler</code>，如同上述所说，实际为<code>NettyRemotingAbstract</code>去处理。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">ChannelHandler</span><span style="color:#E1E4E8">.Sharable</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> NettyServerHandler</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> SimpleChannelInboundHandler</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">RemotingCommand</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> channelRead0</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, RemotingCommand </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#6A737D">            //NettyRemotingAbstract#processMessageReceived</span></span>
+<span class="line"><span style="color:#B392F0">            processMessageReceived</span><span style="color:#E1E4E8">(ctx, msg);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h3 id="534-nettyremotingabstractprocessrequestcommand">5.3.4 NettyRemotingAbstract#processRequestCommand()</h3>
+<p>定位到<code>NettyRemotingAbstract</code>的<code>processRequestCommand()</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NettyRemotingAbstract</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> processRequestCommand</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#FFAB70">cmd</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> Pair&#x3C;</span><span style="color:#F97583">NettyRequestProcessor</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ExecutorService</span><span style="color:#E1E4E8">> matched </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processorTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(cmd.</span><span style="color:#B392F0">getCode</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> Pair&#x3C;</span><span style="color:#F97583">NettyRequestProcessor</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ExecutorService</span><span style="color:#E1E4E8">> pair </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> matched </span><span style="color:#F97583">?</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.defaultRequestProcessor </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> matched;</span></span>
+<span class="line"><span style="color:#6A737D">        //.............</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>还记得NameSrvController注册的处理器吗？</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> NamesrvController</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> initialize</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //加载KV配置</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.kvConfigManager.</span><span style="color:#B392F0">load</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //创建NettyRemotingServer实例</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.remotingServer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NettyRemotingServer</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.nettyServerConfig, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.brokerHousekeepingService);</span></span>
+<span class="line"><span style="color:#6A737D">        //线程池创建</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.remotingExecutor </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Executors.</span><span style="color:#B392F0">newFixedThreadPool</span><span style="color:#E1E4E8">(nettyServerConfig.</span><span style="color:#B392F0">getServerWorkerThreads</span><span style="color:#E1E4E8">(), </span><span style="color:#F97583">new</span><span style="color:#B392F0"> ThreadFactoryImpl</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"RemotingExecutorThread_"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">        //就是这里。。。。。向NettyRemotingServer注册NamesrvController和线程池</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerProcessor</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //..............</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>其最终注册的就是<code>DefaultRequestProcessor</code>类型。因而<code>NameServer</code>处理<code>Broker注册</code>的任务就归它管了。</p>
+<h3 id="535-defaultrequestprocessorprocessrequest">5.3.5 DefaultRequestProcessor#processRequest()</h3>
+<p>然后定位到<code>DefaultRequestProcessor#processRequest()</code>，根据注册代号即可找到<code>NameServer</code>处理<code>Broker</code>注册请求：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultRequestProcessor</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> AsyncNettyRequestProcessor</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> NettyRequestProcessor</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#B392F0">processRequest</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                          RemotingCommand </span><span style="color:#FFAB70">request</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> RemotingCommandException {</span></span>
+<span class="line"><span style="color:#6A737D">        //............</span></span>
+<span class="line"><span style="color:#F97583">        switch</span><span style="color:#E1E4E8"> (request.</span><span style="color:#B392F0">getCode</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.PUT_KV_CONFIG</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">putKVConfig</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.GET_KV_CONFIG</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">getKVConfig</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.DELETE_KV_CONFIG</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">deleteKVConfig</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.QUERY_DATA_VERSION</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#B392F0"> queryBrokerTopicConfig</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#6A737D">            //判断是注册Broker信息</span></span>
+<span class="line"><span style="color:#F97583">            case</span><span style="color:#E1E4E8"> RequestCode.REGISTER_BROKER</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">                Version brokerVersion </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> MQVersion.</span><span style="color:#B392F0">value2Version</span><span style="color:#E1E4E8">(request.</span><span style="color:#B392F0">getVersion</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                //这里用于组装注册请求实体</span></span>
+<span class="line"><span style="color:#6A737D">                //版本高于3.0.11，由此注册broker，我的版本4.8.0，因此从此进</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (brokerVersion.</span><span style="color:#B392F0">ordinal</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> MQVersion.Version.V3_0_11.</span><span style="color:#B392F0">ordinal</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerBrokerWithFilterServer</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    //版本低于3.0.11，注册Broker信息</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">registerBroker</span><span style="color:#E1E4E8">(ctx, request);</span></span>
+<span class="line"><span style="color:#E1E4E8">                };</span></span>
+<span class="line"><span style="color:#6A737D">                //....................</span></span>
+<span class="line"><span style="color:#F97583">            default:</span></span>
+<span class="line"><span style="color:#F97583">                break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="536-nameserverrouteinfomanagerregisterbroker">5.3.6 NameServer.RouteInfoManager#registerBroker()</h3>
+<p>虽然有版本区分，但最终走的都是<code>NameServer.RouteInfoManager#registerBroker()</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RouteInfoManager</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> InternalLogger log </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> InternalLoggerFactory.</span><span style="color:#B392F0">getLogger</span><span style="color:#E1E4E8">(LoggerName.NAMESRV_LOGGER_NAME);</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> static</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> BROKER_CHANNEL_EXPIRED_TIME </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 60</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">    //读写锁</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ReadWriteLock lock </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ReentrantReadWriteLock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* topic */</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">QueueData</span><span style="color:#E1E4E8">>> topicQueueTable;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* brokerName */</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">BrokerData</span><span style="color:#E1E4E8">> brokerAddrTable;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* clusterName */</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* brokerName */</span><span style="color:#E1E4E8">>> clusterAddrTable;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* brokerAddr */</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">BrokerLiveInfo</span><span style="color:#E1E4E8">> brokerLiveTable;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#6A737D">/* brokerAddr */</span><span style="color:#E1E4E8">, List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">></span><span style="color:#6A737D">/* Filter Server */</span><span style="color:#E1E4E8">> filterServerTable;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //注册Broker核心方法</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> RegisterBrokerResult </span><span style="color:#B392F0">registerBroker</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">clusterName</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">brokerAddr</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">brokerName</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#F97583"> long</span><span style="color:#FFAB70"> brokerId</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">haServerAddr</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> TopicConfigSerializeWrapper </span><span style="color:#FFAB70">topicConfigWrapper</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">filterServerList</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> Channel </span><span style="color:#FFAB70">channel</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        RegisterBrokerResult result </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RegisterBrokerResult</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                //注册路由信息使用写锁</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.lock.</span><span style="color:#B392F0">writeLock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lockInterruptibly</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //维护clusterAddrTable</span></span>
+<span class="line"><span style="color:#E1E4E8">                Set&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> brokerNames </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.clusterAddrTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(clusterName);</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> brokerNames) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    brokerNames </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> HashSet&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.clusterAddrTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(clusterName, brokerNames);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">                brokerNames.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(brokerName);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                boolean</span><span style="color:#E1E4E8"> registerFirst </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">                //维护brokerAddrTable</span></span>
+<span class="line"><span style="color:#E1E4E8">                BrokerData brokerData </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerAddrTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(brokerName);</span></span>
+<span class="line"><span style="color:#6A737D">                //第一次注册,则创建brokerData</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> brokerData) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    registerFirst </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    brokerData </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BrokerData</span><span style="color:#E1E4E8">(clusterName, brokerName, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> HashMap&#x3C;</span><span style="color:#F97583">Long</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>());</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.brokerAddrTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(brokerName, brokerData);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                //非第一次注册,更新Broker</span></span>
+<span class="line"><span style="color:#E1E4E8">                Map&#x3C;</span><span style="color:#F97583">Long</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> brokerAddrsMap </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerData.</span><span style="color:#B392F0">getBrokerAddrs</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                //Switch slave to master: first remove &#x3C;1, IP:PORT> in namesrv, then add &#x3C;0, IP:PORT></span></span>
+<span class="line"><span style="color:#6A737D">                //The same IP:PORT must only have one record in brokerAddrTable</span></span>
+<span class="line"><span style="color:#E1E4E8">                Iterator&#x3C;Entry&#x3C;</span><span style="color:#F97583">Long</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">>> it </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerAddrsMap.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">iterator</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                while</span><span style="color:#E1E4E8"> (it.</span><span style="color:#B392F0">hasNext</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    Entry&#x3C;</span><span style="color:#F97583">Long</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> item </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> it.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> brokerAddr </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> brokerAddr.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(item.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">()) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> brokerId </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> item.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        it.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                String oldAddr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerData.</span><span style="color:#B392F0">getBrokerAddrs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(brokerId, brokerAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">                registerFirst </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> registerFirst </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> oldAddr);</span></span>
+<span class="line"><span style="color:#6A737D">                //维护topicQueueTable</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> !=</span><span style="color:#E1E4E8"> topicConfigWrapper</span></span>
+<span class="line"><span style="color:#F97583">                        &#x26;&#x26;</span><span style="color:#E1E4E8"> MixAll.MASTER_ID </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> brokerId) {</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">isBrokerTopicConfigChanged</span><span style="color:#E1E4E8">(brokerAddr, topicConfigWrapper.</span><span style="color:#B392F0">getDataVersion</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">                            ||</span><span style="color:#E1E4E8"> registerFirst) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        ConcurrentMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">TopicConfig</span><span style="color:#E1E4E8">> tcTable </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#E1E4E8">                                topicConfigWrapper.</span><span style="color:#B392F0">getTopicConfigTable</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (tcTable </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                            for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">TopicConfig</span><span style="color:#E1E4E8">> entry </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> tcTable.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">                                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">createAndUpdateQueueData</span><span style="color:#E1E4E8">(brokerName, entry.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                BrokerLiveInfo prevBrokerLiveInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerLiveTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(brokerAddr,</span></span>
+<span class="line"><span style="color:#F97583">                        new</span><span style="color:#B392F0"> BrokerLiveInfo</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                                System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                topicConfigWrapper.</span><span style="color:#B392F0">getDataVersion</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                channel,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                haServerAddr));</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> prevBrokerLiveInfo) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"new broker registered, {} HAServer: {}"</span><span style="color:#E1E4E8">, brokerAddr, haServerAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (filterServerList </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (filterServerList.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.filterServerTable.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(brokerAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.filterServerTable.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(brokerAddr, filterServerList);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (MixAll.MASTER_ID </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> brokerId) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    String masterAddr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerData.</span><span style="color:#B392F0">getBrokerAddrs</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(MixAll.MASTER_ID);</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (masterAddr </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        BrokerLiveInfo brokerLiveInfo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerLiveTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(masterAddr);</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (brokerLiveInfo </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            result.</span><span style="color:#B392F0">setHaServerAddr</span><span style="color:#E1E4E8">(brokerLiveInfo.</span><span style="color:#B392F0">getHaServerAddr</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                            result.</span><span style="color:#B392F0">setMasterAddr</span><span style="color:#E1E4E8">(masterAddr);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.lock.</span><span style="color:#B392F0">writeLock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"registerBroker Exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="54-broker删除路由删除">5.4 Broker删除(路由删除)</h2>
+<p>Broker<code>每隔30s</code>向NameServer发送一个心跳包，<code>心跳包</code>包含：</p>
+<ul>
+<li><code>BrokerId</code></li>
+<li><code>Broker地址</code></li>
+<li><code>Broker名称</code></li>
+<li><code>Broker所属集群名称</code></li>
+<li><code>Broker关联的FilterServer列表</code>。</li>
+</ul>
+<p>但是如果Broker宕机，NameServer无法收到心跳包，此时NameServer如何来剔除这些失效的Broker呢？</p>
+<p>NameServer会<code>每隔10s</code>扫描<code>brokerLiveTable</code>状态表(见4.2.2 初始化)，如果BrokerLiveInfo的<code>lastUpdateTimestamp</code>的时间戳距当前时间<code>超过120s</code>，则认为Broker失效，移除该Broker，关闭与Broker连接，同时更新<code>topicQueueTable</code>、<code>brokerAddrTable</code>、<code>brokerLiveTable</code>、<code>filterServerTable</code>。</p>
+<p>RocketMQ有<code>两个触发点</code>来删除路由信息：</p>
+<ul>
+<li>NameServer定期扫描<code>brokerLiveTable</code>检测上次心跳包与当前系统的时间差，如果时间超过120s，则需要移除broker。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//NamesrvController#initialize()</span></span>
+<span class="line"><span style="color:#6A737D">    //每隔10s扫描一次为活跃Broker</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                NamesrvController.this.routeInfoManager.</span><span style="color:#B392F0">scanNotActiveBroker</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, TimeUnit.SECONDS);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//RouteInfoManager#scanNotActiveBroker()</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RouteInfoManager</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //超过120s，则认为Broker失效</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> scanNotActiveBroker</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //获得brokerLiveTable</span></span>
+<span class="line"><span style="color:#E1E4E8">        Iterator&#x3C;Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">BrokerLiveInfo</span><span style="color:#E1E4E8">>> it </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.brokerLiveTable.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">iterator</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //遍历brokerLiveTable</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (it.</span><span style="color:#B392F0">hasNext</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">BrokerLiveInfo</span><span style="color:#E1E4E8">> next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> it.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            long</span><span style="color:#E1E4E8"> last </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> next.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getLastUpdateTimestamp</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //如果收到心跳包的时间距当时时间是否超过120s</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> ((last </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> BROKER_CHANNEL_EXPIRED_TIME) </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                //关闭连接</span></span>
+<span class="line"><span style="color:#E1E4E8">                RemotingUtil.</span><span style="color:#B392F0">closeChannel</span><span style="color:#E1E4E8">(next.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getChannel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                //移除broker</span></span>
+<span class="line"><span style="color:#E1E4E8">                it.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"The broker channel expired, {} {}ms"</span><span style="color:#E1E4E8">, next.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">(), BROKER_CHANNEL_EXPIRED_TIME);</span></span>
+<span class="line"><span style="color:#6A737D">                //维护路由表（更新路由表）</span></span>
+<span class="line"><span style="color:#79B8FF">                this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">onChannelDestroy</span><span style="color:#E1E4E8">(next.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">(), next.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getChannel</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li>Broker在正常关闭的情况下，会执行<code>unregisterBrokerAll</code>指令。请求代号：<code>UNREGISTER_BROKER</code></li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//BrokerController#shutdown()</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> shutdown</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">unregisterBrokerAll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>这两种方式路由删除的方法都是一样的，就是从相关路由表中删除与该broker相关的信息。</p>
+<h2 id="55-路由发现">5.5 路由发现</h2>
+<p>RocketMQ路由发现是<code>非实时的</code>，当Topic路由出现变化后，NameServer<strong>不会主动</strong>推送给客户端，而是由客户端<code>定时拉取</code>主题最新的路由。</p>
+<p>这里，<code>客户端</code>是指<code>生产者</code>和<code>消费者</code>，他两都持有<code>MQClientInstance</code>实例(单例)，客户端启动时，会开启定时任务，如下图<code>定时任务一</code>：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-MQClientInstance-Task.png" alt="MQClientInstance的4个定时任务"></p>
+<p>其会向NameServer发起代号为<code>GET_ROUTEINFO_BY_TOPIC</code>的请求，获取最新的路由信息。</p>
+<p>而在NameServer端，通过其启动时注册的处理器<code>DefaultRequestProcessor</code>，处理客户端发来的请求：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultRequestProcessor</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> RemotingCommand </span><span style="color:#B392F0">getRouteInfoByTopic</span><span style="color:#E1E4E8">(ChannelHandlerContext ctx,</span></span>
+<span class="line"><span style="color:#E1E4E8">        RemotingCommand request) throws RemotingCommandException {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> RemotingCommand response </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> RemotingCommand.</span><span style="color:#B392F0">createResponseCommand</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> GetRouteInfoRequestHeader requestHeader </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (GetRouteInfoRequestHeader) request.</span><span style="color:#B392F0">decodeCommandCustomHeader</span><span style="color:#E1E4E8">(GetRouteInfoRequestHeader.class);</span></span>
+<span class="line"><span style="color:#6A737D">        //调用RouteInfoManager的方法,从路由表topicQueueTable、brokerAddrTable、filterServerTable中分别填充TopicRouteData的List&#x3C;QueueData>、List&#x3C;BrokerData>、filterServer</span></span>
+<span class="line"><span style="color:#E1E4E8">        TopicRouteData topicRouteData </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.namesrvController.</span><span style="color:#B392F0">getRouteInfoManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">pickupTopicRouteData</span><span style="color:#E1E4E8">(requestHeader.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">        //如果找到主题对应你的路由信息并且该主题为顺序消息，则从NameServer KVConfig中获取关于顺序消息相关的配置填充路由信息</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (topicRouteData </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.namesrvController.</span><span style="color:#B392F0">getNamesrvConfig</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isOrderMessageEnable</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                String orderTopicConf </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#79B8FF">                    this</span><span style="color:#E1E4E8">.namesrvController.</span><span style="color:#B392F0">getKvConfigManager</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getKVConfig</span><span style="color:#E1E4E8">(NamesrvUtil.NAMESPACE_ORDER_TOPIC_CONFIG,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        requestHeader.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                topicRouteData.</span><span style="color:#B392F0">setOrderTopicConf</span><span style="color:#E1E4E8">(orderTopicConf);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            byte</span><span style="color:#E1E4E8">[] content </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> topicRouteData.</span><span style="color:#B392F0">encode</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setBody</span><span style="color:#E1E4E8">(content);</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.SUCCESS);</span></span>
+<span class="line"><span style="color:#E1E4E8">            response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> response;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        response.</span><span style="color:#B392F0">setCode</span><span style="color:#E1E4E8">(ResponseCode.TOPIC_NOT_EXIST);</span></span>
+<span class="line"><span style="color:#E1E4E8">        response.</span><span style="color:#B392F0">setRemark</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"No topic route info in name server for the topic: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> requestHeader.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">            +</span><span style="color:#E1E4E8"> FAQUrl.</span><span style="color:#B392F0">suggestTodo</span><span style="color:#E1E4E8">(FAQUrl.APPLY_TOPIC_URL));</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> response;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h1 id="6-总结">6 总结</h1>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/broker-health-check.png" alt="broker检测机制流程"></p>
+<p>NameServer存储信息：</p>
+<ul>
+<li><code>topicQueueTable</code>：Topic消息队列路由信息，消息发送时根据路由表进行负载均衡；</li>
+<li><code>brokerAddrTable</code>：Broker基础信息，包括brokerName、所属集群名称、主备Broker地址；</li>
+<li><code>clusterAddrTable</code>：Broker集群信息，存储集群中所有Broker名称；</li>
+<li><code>brokerLiveTable</code>：Broker状态信息，NameServer每次收到心跳包是会替换该信息；</li>
+<li><code>filterServerTable</code>：Broker上的FilterServer列表，用于类模式消息过滤；</li>
+</ul>
+<blockquote>
+<p>NameServer的存储实现基于<code>内存</code>（HashMap），NameServer<strong>并不会</strong>持久化路由信息，持久化的重任是交给Broker来完成。</p>
+</blockquote> </div> </article>  <!-- </div>
+    </main> --> </body></html>

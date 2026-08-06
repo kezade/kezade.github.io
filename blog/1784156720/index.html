@@ -1,0 +1,200 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Docker学习】4.与Dockerfile优化有关的5个小技巧</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Docker学习】4.与Dockerfile优化有关的5个小技巧 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>1/18/2024</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Docker</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Dockerfile</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-使用精简的alpine镜像">1 使用精简的alpine镜像</h1>
+<p>如果不做特殊指定，一般docker内运行的Linux系统均为全功能的镜像，占据着大量的磁盘空间，而一般开发者部署的应用不会超过几百兆，甚至前端应用只有几十KB。</p>
+<p>因而我们需要一种精简过后的Linux系统，只需要应用基本的环境即可。这就是alpine的作用。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>alpine</span></span>
+<span class="line"><span>美 [ˈælˌpaɪn] 英 [ˈælpaɪn]</span></span>
+<span class="line"><span>adj.高山的；（尤指中欧）阿尔卑斯山的</span></span>
+<span class="line"><span>n.高山植物</span></span>
+<span class="line"><span>网络：阿尔派；阿尔派恩；阿尔派公司</span></span></code></pre>
+<p>这里取的意思为<code>高山植物</code>，意为只需要很少的资源就能存活的植物。对于alpine系统，其实就是裁减掉不必要的功能，只需要必要的功能的系统就可以满足应用的运行环境问题。</p>
+<p>假设某一应用需要node(version 18)，可通过构建后的应用镜像启动，观察其所占空间大小。</p>
+<p>构建文件如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18</span></span>
+<span class="line"><span style="color:#6A737D">#.......以下省略</span></span></code></pre>
+<p>构建后，镜像信息如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/none-alpine-linux.jpg" alt="原生Linux构建的镜像"></p>
+<p>大小占用1.45G！</p>
+<p>点进去看看构建详情，发现Linux版本为debian，其为Linux发型版本中的其中一个，另外熟悉的还有CentOS，Ubuntu，RedHat等。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/none-alpine-linux-info.jpg" alt="原生Linux构建的镜像详情"></p>
+<p>而采用alpine的构建文件如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"><span style="color:#6A737D">#以下命令省略</span></span></code></pre>
+<p>构建后，发现少了900M！
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/alpine-linux.jpg" alt="alpine构建的镜像"></p>
+<p>点进去看看：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/alpine-linux-info.jpg" alt="alpine构建的镜像详情"></p>
+<p>简直太Amazing啦！</p>
+<h1 id="2-使用多阶段构建">2 使用多阶段构建</h1>
+<p>先给出一下dockerfile：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /app</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> package.json</span></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm config set registry https://registry.npmmirror.com</span></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm install</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> ..</span></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm run build</span></span>
+<span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> 3000</span></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"node"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"./dist/mani.js"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>有的同学可能会说：为什么先复制<code>package.json</code>进去，安装依赖之后再复制其他文件，直接全部复制进去不就行了？</p>
+<p>这里就要说说docker的分层存储原理了。</p>
+<p>Dockerfile内的每一行指令都是一层，会被docker缓存起来，如果下次build时某一层未发生变化，就不会执行该层的指令，只会从变化的那一层开始构建。
+比如，如果上述文件中的<code>package.json</code>未发生变动，则下面的<code>npm install</code>就不会执行。如果从一开始就直接一个命令全部复制进去，则只要包内的任一文件发生变动，都必须从头开始，没有充分发挥出docker的缓存功能。</p>
+<p>还是以上面的前端项目的构建过程来进行证明，看看docker的缓存到底能使构建过程有多快，加快了多少倍。</p>
+<p>构建命令：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> dockerfile-test:second</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>分层的构建速度:
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer.jpg" alt="分层的构建速度"></p>
+<p>修改README.MD文件：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-modify.jpg" alt="修改文件"></p>
+<p>重新build：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-rebuild.jpg" alt="重新构建"></p>
+<p>通过图中<code>CACHED</code>字眼，我们证明了没有变化的layer，docker直接通过缓存跳过，没有经过<code>npm install</code>，花费了25秒。请暂时记住这个时间。</p>
+<p>现在，我们来更改下<code>package.json</code>，看看经过<code>npm install</code>的话，耗时多少。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-package-modify.jpg" alt="修改package.json"></p>
+<p>再次构建：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-build-after-modifying.jpg" alt="修改package.json后构建"></p>
+<p>如果读者亲自实践下，可以看到，docker在构建到<code>npm install</code>那里时停留了很长时间，由于<code>package.json</code>发生了更改，导致docker构建从<code>COPY package.json</code>开始了。</p>
+<p>整个耗时是之前25的三倍！！！</p>
+<p>另外，通过分层构建这种技术，我们还可以对构建的镜像就行瘦身，因为构建后的镜像，我们只需要./dist及其运行时需要的相关依赖即可，并不需要那些比如源码、构建时的依赖等这些东西的。</p>
+<p>修改后的dockerfile文件如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14 </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> build-stage</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /app</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> package.json .</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm install</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> . .</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm run build</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># production stage</span></span>
+<span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14 </span><span style="color:#F97583">as</span><span style="color:#E1E4E8"> production-stage</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> --from=build-stage /app/dist /app</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> --from=build-stage /app/package.json /app/package.json</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /app</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">RUN</span><span style="color:#E1E4E8"> npm install --production</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">EXPOSE</span><span style="color:#E1E4E8"> 3000</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"node"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/app/main.js"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>其中，<code>FROM node:18-alpine3.14 as build-stage</code>中，<code>as</code>后面跟着的是本次构建的阶段的别名。</p>
+<p><code>COPY --from=xxx</code>可以从上个阶段复制文件过来。</p>
+<p>然后 npm install 的时候添加<code>--production</code>，这样只会安装<code>dependencies</code>的依赖。<code>docker build</code>之后，只会留下最后一个阶段的镜像。</p>
+<p>也就是说，最终构建出来的镜像里是<code>没有源码的</code>，有的只是<code>dist的文件</code>和<code>运行时依赖</code>。这样镜像就会小很多。</p>
+<p>本次构建，我们打上标签<code>third</code>。<code>-f</code>是指定 Dockerfile 的名字。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> dockerfile-test:third</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> 222.Dockerfile</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>构建：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-build-after-optimization.jpg" alt="优化后的dockerfile构建过程"></p>
+<p>然后 desktop 里看下构建出来的镜像：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-layer-build-after-optimization2.jpg" alt="优化后的dockerfile构建镜像大小"></p>
+<p>体积整整小了250M!!! Amazing!!!</p>
+<h1 id="3-使用arg灵活构建">3 使用ARG灵活构建</h1>
+<p>上一章节，我们介绍了ARG、ENV的使用、优缺点以及各自的作用范围。通过ARG给定的变量，如果在构建时传入，后续通过查看镜像<code>docker history</code>可以轻松检查ARG定义的对应变量值。</p>
+<p><code>ARG</code>是构建时的参数，<code>ENV</code>是运行时的变量。通过构建时传入参数，然后在构建后的镜像启动后能够使用该参数，可通过ARG传值，然后赋给ENV定义的变量得以实现。</p>
+<p>假设现有如下js文件，打印参数<code>aaa</code>、<code>bbb</code>的值。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(process.env.aaa);</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(process.env.bbb);</span></span></code></pre>
+<p>运行一下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> aaa</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8"> bbb</span><span style="color:#F97583">=</span><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#B392F0">node</span><span style="color:#9ECBFF"> ./test.js</span></span></code></pre>
+<p>结果：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ </span><span style="color:#F97583">export</span><span style="color:#E1E4E8"> aaa</span><span style="color:#F97583">=</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8"> bbb</span><span style="color:#F97583">=</span><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#E1E4E8">[zyxelva]$ node ./test.js </span></span>
+<span class="line"><span style="color:#B392F0">1</span></span>
+<span class="line"><span style="color:#B392F0">2</span></span></code></pre>
+<p>然后我们写个dockerfile，文件名是<code>333.Dockerfile</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">ARG</span><span style="color:#E1E4E8"> aaa</span></span>
+<span class="line"><span style="color:#F97583">ARG</span><span style="color:#E1E4E8"> bbb</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">WORKDIR</span><span style="color:#E1E4E8"> /app</span></span>
+<span class="line"><span style="color:#6A737D">#拷贝test.js至目录app下</span></span>
+<span class="line"><span style="color:#F97583">COPY</span><span style="color:#E1E4E8"> ./test.js .</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">ENV</span><span style="color:#E1E4E8"> aaa=${aaa} \</span></span>
+<span class="line"><span style="color:#E1E4E8">    bbb=${bbb}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"node"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"/app/test.js"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>使用<code>ARG</code>声明构建参数，使用<code>${xxx}</code>来取，然后用<code>ENV</code>声明环境变量。</p>
+<p>构建的时候传入构建参数：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> --build-arg</span><span style="color:#9ECBFF"> aaa=</span><span style="color:#79B8FF">3</span><span style="color:#79B8FF"> --build-arg</span><span style="color:#9ECBFF"> bbb=</span><span style="color:#79B8FF">4</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> arg-test</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> 333.Dockerfile</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>通过<code>--build-arg xxx=yyy</code>传入 ARG 参数的值。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-arg-env.jpg" alt="开始构建"></p>
+<p>点击查看镜像详情，可以看到 ARG 已经被替换为具体的值了：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-arg-env2.jpg" alt="查看镜像详情"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/docker-arg-env3.jpg" alt="查看镜像详情2"></p>
+<p>run起来：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> run</span><span style="color:#79B8FF">  --name</span><span style="color:#9ECBFF"> fourth-container</span><span style="color:#9ECBFF"> arg-test</span></span></code></pre>
+<p>结果：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run  --name fourth-container arg-test</span></span>
+<span class="line"><span style="color:#B392F0">3</span></span>
+<span class="line"><span style="color:#B392F0">4</span></span></code></pre>
+<p>可以看到容器内拿到的环境变量就是<code>ENV</code>设置的。</p>
+<p>灵活使用 ARG，可以增加 dockerfile 的灵活性。</p>
+<h1 id="4-cmd结合entrypoint">4 CMD结合ENTRYPOINT</h1>
+<p><code>CMD</code>与<code>ENTRYPOINT</code>非常相似，在上一章节中有所提及。这里举例子证实一下：
+写个<code>444.Dockerfile</code>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"echo"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"光光"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"到此一游"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>然后build：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> cmd-test</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> 444.Dockerfile</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>run一下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run cmd-test</span></span>
+<span class="line"><span style="color:#B392F0">光光</span><span style="color:#9ECBFF"> 到此一游</span></span></code></pre>
+<p><code>CMD</code>是可以被重写的，这是与<code>ENTRYPOINT</code>最大的区别。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run cmd-test echo </span><span style="color:#9ECBFF">"东东"</span></span>
+<span class="line"><span style="color:#B392F0">东东</span></span></code></pre>
+<p>若换成命令<code>ENTRYPOINT</code>，我们再试试，看看结果。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"echo"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"光光"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"到此一游"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>build一下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> cmd-test</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> 444.Dockerfile</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>run起来：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run cmd-test echo </span><span style="color:#9ECBFF">"东东"</span></span>
+<span class="line"><span style="color:#B392F0">光光</span><span style="color:#9ECBFF"> 到此一游</span><span style="color:#9ECBFF"> echo</span><span style="color:#9ECBFF"> 东东</span></span></code></pre>
+<p>可以看到，现在dockerfile里<code>ENTRYPOINT</code>的命令依然执行了。</p>
+<p>docker run 传入的参数作为了 echo 的额外参数。</p>
+<p>一般还是 CMD 用的多点，可以灵活修改启动命令。</p>
+<p>其实 ENTRYPOINT 和 CMD 是可以结合使用的。</p>
+<p>比如这样：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="dockerfile"><code><span class="line"><span style="color:#F97583">FROM</span><span style="color:#E1E4E8"> node:18-alpine3.14</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">ENTRYPOINT</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"echo"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"光光"</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">CMD</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"到此一游"</span><span style="color:#E1E4E8">]</span></span></code></pre>
+<p>docker build：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#B392F0">docker</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -t</span><span style="color:#9ECBFF"> cmd-test</span><span style="color:#79B8FF"> -f</span><span style="color:#9ECBFF"> 444.Dockerfile</span><span style="color:#9ECBFF"> .</span></span></code></pre>
+<p>docker run:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="shell"><code><span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run cmd-test</span></span>
+<span class="line"><span style="color:#B392F0">光光</span><span style="color:#9ECBFF"> 到此一游</span></span>
+<span class="line"><span style="color:#E1E4E8">[zyxelva]$ docker run cmd-test 66666</span></span>
+<span class="line"><span style="color:#B392F0">光光</span><span style="color:#79B8FF"> 66666</span></span></code></pre>
+<p>当没传参数的时候，执行的是<code>ENTRYPOINT + CMD</code>组合的命令，而传入参数的时候，只有<code>CMD</code>部分会被覆盖。</p>
+<p>这就起到了默认值的作用。</p>
+<p>所以，用<code>ENTRYPOINT + CMD</code>的方式更加灵活。</p>
+<h1 id="5-copy-vs-add">5 COPY vs ADD</h1>
+<p>这里不再赘述，主要区别还是针对打包压缩的文件处理方式，ADD就可以自动解压。一般情况下，还是用 COPY 居多。</p>
+<h1 id="6-总结">6 总结</h1>
+<p>Dockerfile 有挺多技巧：</p>
+<ul>
+<li>使用 alpine 的镜像，而不是默认的 linux 镜像，可以极大减小镜像体积，比如<code>node:18-alpine3.14</code>这种</li>
+<li>使用多阶段构建，比如一个阶段来执行 build，一个阶段把文件复制过去，跑起服务来，最后只保留最后一个阶段的镜像。这样使镜像内只保留运行需要的文件以及 dependencies。</li>
+<li>使用 ARG 增加构建灵活性，ARG 可以在 docker build 时通过 —build-arg xxx=yyy 传入，在 dockerfile 中生效，可以使构建过程更灵活。如果是想定义运行时可以访问的变量，可以通过 ENV 定义环境变量，值使用 ARG 传入。</li>
+<li>CMD 和 ENTRYPOINT 都可以指定容器跑起来之后运行的命令，CMD 可以被覆盖，而 ENTRYPOINT 不可以，两者结合使用可以实现参数默认值的功能。</li>
+<li>ADD 和 COPY 都可以复制文件到容器内，但是 ADD 处理 tar.gz 的时候，还会做一下解压。
+灵活使用这些技巧，可以让你的 Dockerfile 更加灵活、性能更好。</li>
+</ul>
+<p>参考：</p>
+<ul>
+<li><a href="https://juejin.cn/post/7248145094600900669#heading-2">掌握这 5 个技巧，让你的 Dockerfile 像个大师！</a></li>
+</ul> </div> </article>  <!-- </div>
+    </main> --> </body></html>

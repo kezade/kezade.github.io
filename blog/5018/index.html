@@ -1,0 +1,209 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Spring源码学习】Spring Bean实例化-循环依赖</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Spring源码学习】Spring Bean实例化-循环依赖 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Spring</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一什么是循环依赖">一、什么是循环依赖</h1>
+<p>如果类A存在属性类B，而类B也有属性类A，那么当进行属性的依赖注入时，就会出现A还未完成创建，又由于在创建B的过程中又发生创建A的过程，造成了死循环，最终导致<strong>循环依赖</strong>。类似代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> A</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> B b;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> B</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> A a;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><strong>循环依赖只会出现在单例实例无参构造函数实例化情况下</strong>。有参构造函数的加@Autowired 的方式循环依赖是直接报错的，多例的循环依赖也是直接报错的。接下来我会通过源代码一一说明。</p>
+<h1 id="二循环依赖的步骤">二、循环依赖的步骤</h1>
+<p>前面几章中，我重点跟了Spring Bean的实例化源码过程，总结一下就是：</p>
+<ul>
+<li>{%post_link ‘【Spring源码学习】Spring-Bean实例化过程-创建Bean实例’%}</li>
+<li>{%post_link ‘【Spring源码学习】Spring-Bean实例化过程-依赖属性注入’%}</li>
+<li>{%post_link ‘【Spring源码学习】Spring-Bean实例化过程-初始化’%}</li>
+</ul>
+<p>循环依赖步骤：</p>
+<ul>
+<li>A 类无参构造函数实例化后，设置三级缓存</li>
+<li>A 类populateBean 进行依赖注入，这里触发了B 类属性的getBean 操作</li>
+<li>B 类无参构造函数实例化后，设置三级缓存</li>
+<li>B 类populateBean 进行依赖注入，这里触发了A 类属性的getBean 操作</li>
+<li>A 类之前正在实例化，singletonsCurrentlyInCreation 集合中有已经有这个A 类了，三级缓存里面也有了，所以这时候是从三级缓存中拿到的提前暴露的A 实例，该实例还没有进行B 类属性的依赖注入的，B 类属性为空，具体通过
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">Object sharedInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSingleton</span><span style="color:#E1E4E8">(beanName);</span></span></code></pre>
+这个方法(先从一级缓存中拿，再从二级缓存中拿，如果还拿不到，并且允许bean提前暴露则从三级缓存中拿到对象工厂，从工厂中拿到对象成功后，升级到二级缓存，并删除三级缓存。再有别的类引用的话，就从二级缓存中进行取)</li>
+<li>B 类拿到了A 的提前暴露实例注入到A 类属性中了</li>
+<li>B 类实例化已经完成，B 类的实例化是由A 类实例化中B 属性的依赖注入触发的getBean 操作进行的，现在B已经实例化，所以A 类中B 属性就可以完成依赖注入了，这时候A 类B 属性已经有值了。</li>
+<li>B 类A 属性指向的就是A 类实例堆空间，所以这时候B 类A 属性也会有值了。</li>
+</ul>
+<h1 id="三为什么有参构造函数的加autowired-的方式循环依赖是直接报错的">三、为什么有参构造函数的加@Autowired 的方式循环依赖是直接报错的？</h1>
+<p>首先说明一点，构造方法的执行顺序是在依赖注入属性之前的。</p>
+<ol>
+<li>创建bean 的实例是在方法createBeanInstance(beanName, mbd, args)中通过无参或注解@Autowired 有参构造函数实例化进行的。</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//AbstractAutowireCapableBeanFactory</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">doCreateBean</span><span style="color:#E1E4E8">(String beanName, RootBeanDefinition mbd, @</span><span style="color:#F97583">Nullable</span><span style="color:#F97583"> Object</span><span style="color:#E1E4E8">[] args)</span></span>
+<span class="line"><span style="color:#E1E4E8">		throws BeanCreationException {</span></span>
+<span class="line"><span style="color:#6A737D">	// Instantiate the bean.</span></span>
+<span class="line"><span style="color:#E1E4E8">	BeanWrapper instanceWrapper </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		instanceWrapper </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.factoryBeanInstanceCache.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (instanceWrapper </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">		//创建实例,,重点看，重要程度：5</span></span>
+<span class="line"><span style="color:#E1E4E8">		instanceWrapper </span><span style="color:#F97583">=</span><span style="color:#B392F0"> createBeanInstance</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object bean </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> instanceWrapper.</span><span style="color:#B392F0">getWrappedInstance</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">	Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> beanType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> instanceWrapper.</span><span style="color:#B392F0">getWrappedClass</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (beanType </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> NullBean.class) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		mbd.resolvedTargetType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> beanType;</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Allow post-processors to modify the merged bean definition.</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//......省略部分代码</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	// Eagerly cache singletons to be able to resolve circular references</span></span>
+<span class="line"><span style="color:#6A737D">	// even when triggered by lifecycle interfaces like BeanFactoryAware.</span></span>
+<span class="line"><span style="color:#6A737D">	//是否单例bean提前暴露</span></span>
+<span class="line"><span style="color:#F97583">	boolean</span><span style="color:#E1E4E8"> earlySingletonExposure </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.allowCircularReferences </span><span style="color:#F97583">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#B392F0">			isSingletonCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName));</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (earlySingletonExposure) {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">			logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Eagerly caching bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">					"' to allow for resolving potential circular references"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		//这里着重理解，对理解循环依赖帮助非常大，重要程度 5   添加三级缓存</span></span>
+<span class="line"><span style="color:#B392F0">		addSingletonFactory</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#B392F0"> getEarlyBeanReference</span><span style="color:#E1E4E8">(beanName, mbd, bean));</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Initialize the bean instance.</span></span>
+<span class="line"><span style="color:#E1E4E8">	Object exposedObject </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> bean;</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//ioc di，依赖注入的核心方法，该方法必须看，重要程度：5</span></span>
+<span class="line"><span style="color:#B392F0">		populateBean</span><span style="color:#E1E4E8">(beanName, mbd, instanceWrapper);</span></span>
+<span class="line"><span style="color:#6A737D">		//bean 实例化+ioc依赖注入完以后的调用，非常重要，重要程度：5</span></span>
+<span class="line"><span style="color:#E1E4E8">		exposedObject </span><span style="color:#F97583">=</span><span style="color:#B392F0"> initializeBean</span><span style="color:#E1E4E8">(beanName, exposedObject, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//......省略部分代码</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Register bean as disposable.</span></span>
+<span class="line"><span style="color:#F97583">	try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		//注册bean销毁时的类DisposableBeanAdapter</span></span>
+<span class="line"><span style="color:#B392F0">		registerDisposableBeanIfNecessary</span><span style="color:#E1E4E8">(beanName, bean, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	catch</span><span style="color:#E1E4E8"> (BeanDefinitionValidationException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCreationException</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">				mbd.</span><span style="color:#B392F0">getResourceDescription</span><span style="color:#E1E4E8">(), beanName, </span><span style="color:#9ECBFF">"Invalid destruction signature"</span><span style="color:#E1E4E8">, ex);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> exposedObject;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ol start="2">
+<li>createBeanInstance 方法执行完毕之后才会判断是否是单例bean 提前暴漏从而为实例化的bean 添加三级缓存singletonFactories</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//是否单例bean提前暴露:单例、支持循环依赖、是正在创建的实例</span></span>
+<span class="line"><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> earlySingletonExposure </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.allowCircularReferences </span><span style="color:#F97583">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#B392F0">		isSingletonCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName));</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (earlySingletonExposure) {</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">		logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Eagerly caching bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">				"' to allow for resolving potential circular references"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	//这里着重理解，对理解循环依赖帮助非常大，重要程度 5   添加三级缓存</span></span>
+<span class="line"><span style="color:#B392F0">	addSingletonFactory</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#B392F0"> getEarlyBeanReference</span><span style="color:#E1E4E8">(beanName, mbd, bean));</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>默认情况下，支持循环依赖，默认都是单例，而正在创建的实例条件是在AbstractAutowireCapableBeanFactory.doCreateBean()的调用方，AbstractBeanFactory.deGetBean()发起的</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (mbd.</span><span style="color:#B392F0">isSingleton</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	sharedInstance </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSingleton</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#B392F0"> createBean</span><span style="color:#E1E4E8">(beanName, mbd, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		catch</span><span style="color:#E1E4E8"> (BeansException </span><span style="color:#FFAB70">ex</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">			// Explicitly remove instance from singleton cache: It might have been put there</span></span>
+<span class="line"><span style="color:#6A737D">			// eagerly by the creation process, to allow for circular reference resolution.</span></span>
+<span class="line"><span style="color:#6A737D">			// Also remove any beans that received a temporary reference to the bean.</span></span>
+<span class="line"><span style="color:#B392F0">			destroySingleton</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#F97583">			throw</span><span style="color:#E1E4E8"> ex;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	});</span></span>
+<span class="line"><span style="color:#6A737D">	//该方法是FactoryBean接口的调用入口</span></span>
+<span class="line"><span style="color:#E1E4E8">	bean </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getObjectForBeanInstance</span><span style="color:#E1E4E8">(sharedInstance, name, beanName, mbd);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>点进去看看getSingleton().
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210420120240865.png" alt="&#x22;在这里插入图片描述&#x22;"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> beforeSingletonCreation</span><span style="color:#E1E4E8">(String beanName) {</span></span>
+<span class="line"><span style="color:#6A737D">	//把beanName添加到singletonsCurrentlyInCreation Set容器中，在这个集合里面的bean都是正在实例化的bean</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.inCreationCheckExclusions.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(beanName) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.singletonsCurrentlyInCreation.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>创建完毕后，会把提前暴露的实例存放至三级缓存中</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//DefaultSingletonBeanRegistry</span></span>
+<span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addSingletonFactory</span><span style="color:#E1E4E8">(String beanName, ObjectFactory</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> singletonFactory) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	Assert.</span><span style="color:#B392F0">notNull</span><span style="color:#E1E4E8">(singletonFactory, </span><span style="color:#9ECBFF">"Singleton factory must not be null"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">	synchronized</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.singletonObjects) {</span></span>
+<span class="line"><span style="color:#6A737D">		//如果一级缓存不存在</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.singletonObjects.</span><span style="color:#B392F0">containsKey</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#6A737D">			//设置三级缓存</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.singletonFactories.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(beanName, singletonFactory);</span></span>
+<span class="line"><span style="color:#6A737D">			//删除二级缓存</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.earlySingletonObjects.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#79B8FF">			this</span><span style="color:#E1E4E8">.registeredSingletons.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>如果有参构造函数的有@Autowired ，那么在执行createBeanInstance 方法时，参数为引用类型会再次触发getBean操作。由于之前的bean 的实例化尚未完成，三级缓存中也没法获取到，所以就继续走之前第一次实例化进入的getSingleton 方法，此方法中的beforeSingletonCreation 会校验该bean 是否正在实例化。如果是有参构造函数的有@Autowired的循环依赖的话，则这里的第二个判断为false，因为第一次类A已经在里面了，就会抛异常。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> beforeSingletonCreation</span><span style="color:#E1E4E8">(String beanName) {</span></span>
+<span class="line"><span style="color:#6A737D">	//把beanName添加到singletonsCurrentlyInCreation Set容器中，在这个集合里面的bean都是正在实例化的bean</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.inCreationCheckExclusions.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(beanName) </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.singletonsCurrentlyInCreation.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">		throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(String beanName) {</span></span>
+<span class="line"><span style="color:#79B8FF">	super</span><span style="color:#E1E4E8">(beanName,</span></span>
+<span class="line"><span style="color:#9ECBFF">			"Requested bean is currently in creation: Is there an unresolvable circular reference?"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>而对于多例的循环依赖问题，在这里就会抛异常了</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//AbstractBeanFactory</span></span>
+<span class="line"><span style="color:#6A737D">//如果是scope 是Prototype的，校验是否有出现循环依赖，如果有则直接报错</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">isPrototypeCurrentlyInCreation</span><span style="color:#E1E4E8">(beanName)) {</span></span>
+<span class="line"><span style="color:#F97583">	throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BeanCurrentlyInCreationException</span><span style="color:#E1E4E8">(beanName);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>如果是通过属性加@Autowired 方式进行循环依赖，在进行populateBean 属性依赖注入之前就会把bean 放入三级缓存中，从而进行populateBean 操作时触发getBean 时就可以直接从三级缓存中取就可以了。</p>
+<p>总结下三级缓存各自的功能：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th align="left">缓存</th><th align="left">说明</th></tr></thead><tbody><tr><td align="left">singletonObjects</td><td align="left">第一级缓存，存放可用的成品Bean。</td></tr><tr><td align="left">earlySingletonObjects</td><td align="left">第二级缓存，存放半成品的Bean，半成品的Bean是已创建对象，但是未注入属性和初始化。用以解决循环依赖。</td></tr><tr><td align="left">singletonFactories</td><td align="left">第三级缓存，存的是Bean工厂对象，用来生成半成品的Bean并放入到二级缓存中。用以解决循环依赖。</td></tr></tbody></table>
+<h1 id="四二级缓存能否解决循环依赖">四、二级缓存能否解决循环依赖</h1>
+<ol>
+<li>若没有第二级缓存，若有多次依赖某一对象，则每次都需要从三级缓存中创建该对象，失去了单例的意义。（我要的就是单例，你给我来多例，逗我呢？）</li>
+<li>若没有第三级缓存，对于一般的对象循环依赖问题可以得到解决。那么就得去改写 AbstractAutowireCapableBeanFactory 的 doCreateBean 的方法了。</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//添加到三级缓存</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (earlySingletonExposure) {</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8"> (logger.</span><span style="color:#B392F0">isTraceEnabled</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    logger.</span><span style="color:#B392F0">trace</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Eagerly caching bean '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> beanName </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">      "' to allow for resolving potential circular references"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#B392F0">   addSingletonFactory</span><span style="color:#E1E4E8">(beanName, () </span><span style="color:#F97583">-></span><span style="color:#B392F0"> getEarlyBeanReference</span><span style="color:#E1E4E8">(beanName, mbd, bean));</span></span>
+<span class="line"><span style="color:#6A737D">   //从三级缓存中取出立刻放入二级缓存</span></span>
+<span class="line"><span style="color:#B392F0">   getSingleton</span><span style="color:#E1E4E8">(beanName, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
+<p>但是，对于AOP代理对象的生成，会违背Spring总体实例化对象的流程，因为代理对象是在初始化bean完全之后，进行该bean的代理。即：
+Spring结合AOP跟Bean的生命周期，是在Bean创建完全之后通过AnnotationAwareAspectJAutoProxyCreator这个后置处理器来完成的，在这个后置处理的postProcessAfterInitialization方法中对初始化后的Bean完成AOP代理。</p>
+<p>若没有第三级缓存，则创建完bean，就得立马创建代理对象，违背了Spring设计原则。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】404. 左叶子之和</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】404. 左叶子之和 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/1/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二叉树</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数据结构</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#算法</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Java</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#BFS</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#DFS</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1问题">1.问题</h1>
+<p>给定二叉树的根节点 root ，返回所有左叶子之和。</p>
+<h2 id="示例-1">示例 1</h2>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/1c8275a05ba44dd4938411125d5f47dc.png" alt="&#x22;图1&#x22;"></p>
+<blockquote>
+<p>输入: root = [3,9,20,null,null,15,7]<br>
+输出: 24</p>
+</blockquote>
+<p>解释: 在这个二叉树中，有两个左叶子，分别是 9 和 15，所以返回 24</p>
+<h2 id="示例-2">示例 2</h2>
+<blockquote>
+<p>输入: root = [1]
+输出: 0</p>
+</blockquote>
+<p><strong>提示</strong>:</p>
+<ul>
+<li>节点数在 [1, 1000] 范围内</li>
+<li>-1000 &#x3C;= Node.val &#x3C;= 1000</li>
+</ul>
+<h1 id="2解题思路">2.解题思路</h1>
+<h2 id="21-递归">2.1 递归</h2>
+<p>按照题目描述，我们需要遍历每个树节点，对于目标值，我们需要判定某个节点是否是需要的，既要判定是叶子节点，又要判定是左边的叶子节点，因而对于和的组成，进行分类谈论，如下：
+1）节点为null，返回；
+2）该节点左子树不为空，且为叶子节点，sum+=该节点的value；否则递归左子树；
+3）该节点右子树不为空，这里又要分类：
+3.1）右子树为叶子节点，不是题目需要的值的组成部分；
+3.2）右子树的子节点，只要左右其中一个不为空，继续递归。</p>
+<p>伪代码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//sumOfLeftLeaves(TreeNode root)为计算root所有左叶子节点的和的函数。</span></span>
+<span class="line"><span style="color:#F97583">int</span><span style="color:#B392F0"> sumOfLeftLeaves</span><span style="color:#E1E4E8">(TreeNode root){</span></span>
+<span class="line"><span style="color:#6A737D">	//节点为null</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> root 为null</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">	//左子树</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> root.left 不为null</span></span>
+<span class="line"><span style="color:#6A737D">		//root.left为叶子节点</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8">(root.left为叶子节点){</span></span>
+<span class="line"><span style="color:#E1E4E8">			sum</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">root.left.val;</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		//否则，继续递归左子树</span></span>
+<span class="line"><span style="color:#F97583">		else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			sum</span><span style="color:#F97583">+=</span><span style="color:#B392F0">sumOfLeftLeaves</span><span style="color:#E1E4E8">(root.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">	</span></span>
+<span class="line"><span style="color:#6A737D">	//右子树</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> root.right 不为null</span></span>
+<span class="line"><span style="color:#6A737D">		//只要不是叶子节点，继续递归</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> root.right 不是叶子节点</span></span>
+<span class="line"><span style="color:#E1E4E8">		 sum</span><span style="color:#F97583">+=</span><span style="color:#B392F0">sumOfLeftLeaves</span><span style="color:#E1E4E8">(root.right);</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>而判定是否是叶子节点，代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//判定是叶子节点</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> isLeaf</span><span style="color:#E1E4E8">(TreeNode node){</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">node.left </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#79B8FF"> null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">node.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="22-改进的递归">2.2 改进的递归</h2>
+<p>上述递归流程，过程是清晰明了的，但判定逻辑有点复杂，对于题目已知的条件，我们只需要抓重点，<strong>左叶子节点的和</strong>，其他都放在递归算法里了。
+详细代码，见第3节代码。</p>
+<h2 id="23-bfs">2.3 BFS</h2>
+<p>前面讨论的算法，遍历路径类似前序遍历，先根节点，再左右子节点，本质思想还是深度优先（DFS）。在二叉树遍历系列文章中，我们可以利用层序遍历，同样可以解决本章问题，其思想还是广度优先算法（BFS）。</p>
+<h1 id="3代码">3.代码</h1>
+<h2 id="31-递归算法">3.1 递归算法</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sumOfLeftLeaves2</span><span style="color:#E1E4E8">(TreeNode root) {</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">root){</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#F97583">   int</span><span style="color:#E1E4E8"> sum</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">root.left){</span></span>
+<span class="line"><span style="color:#6A737D">       //左子树为叶子节点，直接加上，否则继续递归左子树</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">isLeaf</span><span style="color:#E1E4E8">(root.left)){</span></span>
+<span class="line"><span style="color:#E1E4E8">           sum</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">root.left.val;</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">           sum</span><span style="color:#F97583">+=</span><span style="color:#B392F0">sumOfLeftLeaves</span><span style="color:#E1E4E8">(root.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#6A737D">   //右子树只要不为空，且至少存在一个节点（不管是左还是右）</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">root.right){</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#B392F0">isLeaf</span><span style="color:#E1E4E8">(root.right)){</span></span>
+<span class="line"><span style="color:#E1E4E8">           sum</span><span style="color:#F97583">+=</span><span style="color:#B392F0">sumOfLeftLeaves</span><span style="color:#E1E4E8">(root.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#F97583">   return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="32-改进的递归">3.2 改进的递归</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">int</span><span style="color:#E1E4E8"> sum</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sumOfLeftLeaves</span><span style="color:#E1E4E8">(TreeNode root) {</span></span>
+<span class="line"><span style="color:#B392F0">    dfs</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> dfs</span><span style="color:#E1E4E8">(TreeNode root){</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">root){</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //是左叶子节点</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">root.left </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#B392F0"> isLeaf</span><span style="color:#E1E4E8">(root.left)){</span></span>
+<span class="line"><span style="color:#E1E4E8">        sum</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">root.left.val;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //继续遍历左右子树</span></span>
+<span class="line"><span style="color:#B392F0">    dfs</span><span style="color:#E1E4E8">(root.left);</span></span>
+<span class="line"><span style="color:#B392F0">    dfs</span><span style="color:#E1E4E8">(root.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="33-广度优先算法">3.3 广度优先算法</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> sumOfLeftLeaves</span><span style="color:#E1E4E8">(TreeNode root) {</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">root){</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#F97583">   int</span><span style="color:#E1E4E8"> sum</span><span style="color:#F97583">=</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">   //队列</span></span>
+<span class="line"><span style="color:#E1E4E8">   Queue&#x3C;</span><span style="color:#F97583">TreeNode</span><span style="color:#E1E4E8">> q</span><span style="color:#F97583">=new</span><span style="color:#E1E4E8"> LinkedList&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">   q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(root);</span></span>
+<span class="line"><span style="color:#E1E4E8">   TreeNode node;</span></span>
+<span class="line"><span style="color:#6A737D">   //遍历队列</span></span>
+<span class="line"><span style="color:#F97583">   while</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()){</span></span>
+<span class="line"><span style="color:#E1E4E8">       node</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">q.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">==</span><span style="color:#E1E4E8">node){</span></span>
+<span class="line"><span style="color:#F97583">           continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#6A737D">       //左叶子节点</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">null</span><span style="color:#F97583">!=</span><span style="color:#E1E4E8">node.left </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#B392F0"> isLeaf</span><span style="color:#E1E4E8">(node.left)){</span></span>
+<span class="line"><span style="color:#E1E4E8">           sum</span><span style="color:#F97583">+=</span><span style="color:#E1E4E8">node.left.val;</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">       q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(node.left);</span></span>
+<span class="line"><span style="color:#E1E4E8">       q.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(node.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#F97583">   return</span><span style="color:#E1E4E8"> sum;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+    </main> --> </body></html>

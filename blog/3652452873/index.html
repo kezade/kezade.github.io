@@ -1,0 +1,107 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【考研数学】8.4空间直线及其方程</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【考研数学】8.4空间直线及其方程 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>1/9/2025</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#考研</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#数学</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#空间直线方程</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-空间直线的一般方程">1 空间直线的一般方程</h1>
+<p>两平面的交线</p>
+<span class="katex-error" title="ParseError: KaTeX parse error: Expected &#x27;EOF&#x27;, got &#x27;\end&#x27; at position 43: …B_2y+C_2z+D=0 
+\̲e̲n̲d̲{cases}$$
+
+
+# 2…" style="color:#cc0000">A_1x+B_1y+C_1z+D=0\\ 
+A_2x+B_2y+C_2z+D=0 
+\end{cases}$$
+
+
+# 2 空间直线的对称式（点向式）方程
+直线的方向向量：$\overrightarrow{s}=(m,n,p)$
+直线上的一点：$M_0(x_0,y_0,z_0)$
+对称式方程：
+$$\frac{x-x_0}{m}=\frac{y-y_0}{n}=\frac{z-z_0}{p}$$
+
+# 3 空间直线的参数方程
+由对称式方程：
+$$\frac{x-x_0}{m}=\frac{y-y_0}{n}=\frac{z-z_0}{p}=t$$
+得其参数方程：
+$$\begin{cases}
+x=x_0+mt\\
+y=y_0+nt\\
+z=z_0+pt
+\end{cases}$$
+
+# 4 两直线的夹角
+直线$L_1$方向向量：$\overrightarrow{s_1}=(m_1,n_1,p_1)$,
+直线$L_2$方向向量：$\overrightarrow{s_2}=(m_2,n_2,p_2)$,
+夹角 $\phi \in [0,\frac{\pi}{2}]$
+> $cos \phi = \frac{\|\overrightarrow{s_1} \cdot \overrightarrow{s_2}\|}{\|\overrightarrow{s_1}\| \cdot \|\overrightarrow{s_2}\|} = \frac{\|m_1m_2+n_1n_2+p_1p_2\|}{\sqrt{m_1^2+n_1^2+p_1^2} \cdot \sqrt{m_2^2+n_2^2+p_2^2}}$
+
+# 5 两直线垂直
+$m_1m_2+n_1n_2+p_1p_2=0$
+
+# 6 两直线平行或重合
+$\frac{m_1}{m_2}=\frac{n_1}{n_2}=\frac{p_1}{p_2}$
+
+# 7 直线与平面的夹角
+$\phi \in [0,\frac{\pi}{2}]$
+直线的方向向量：$\overrightarrow{s}=(m,n,p)$
+
+> $cos \theta = sin \phi = \frac{\|Am+Bn+Cp\|}{\sqrt{A^2+B^2+C^2} \cdot \sqrt{m^2+n^2+p^2}}$
+
+# 8 平面束
+## 8.1 定义
+通过定直线的所有平面的全体。
+
+设直线L由以下方程组确定：
+$$\begin{cases}
+A_1x+B_1y+C_1z+D=0\\
+A_2x+B_2y+C_2z+D=0
+\end{cases}$$
+
+其中，$A_1,B_1,C_1$与$A_2,B_2,C_2$不成比例，建立三元一次方程组
+$$A_1x+B_1y+C_1z+D_1+\lambda(A_2x+B_2y+C_2z+D_2)=0$$
+其表示通过直线L的所有平面。
+
+# 9 点到直线的距离
+设$M_0(x_0,y_0,z_0)$为直线L外任一点，$M(x_1,y_1,z_1)$为L上任一点，且L的方向向量$\overrightarrow{s}=(m,n,p)$,
+则$M_0$到直线L的距离d：
+>$d=\frac{\|\overrightarrow{M_0M} \times \vec{s}\| }{\|\vec{s}\| }$
+
+其中，$\|\overrightarrow{M_0M} \times \vec{s}\|$ 表示以$\overrightarrow{M_0M}$, $\vec{s}$为边的平行四边形的面积。
+
+# 10 点到平面的距离
+设$M_1(x_1,y_1,z_1)$为平面$\Pi$以外任一点，平面$\Pi$的方程为：
+$$Ax+By+Cz+D=0$$
+则，$M_1$到平面$\Pi$的距离公式：
+>$d=\frac{\|Ax_1+By_1+Cz_1+D\|}{\sqrt{A^2+B^2+C^2}}$
+
+## 10.1 证明一
+
+![点到平面的距离](https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/math_line.png)
+
+任取平面$\Pi$上一点$M_0(x_0,y_0,z_0)$，则其满足平面的方程
+$$Ax_0+By_0+Cz_0+D=0$$
+则$M_1$到平面$\Pi$的距离d即向量$\vec{M_0M_1}$在平面$\Pi$的法向量$\vec{n}$的投影大小。也就是：
+>$d=Prj_{\vec{n}}\overrightarrow{M_0M_1}=\|\overrightarrow{M_0M_1}\|\cos\phi=\frac{\|\overrightarrow{M_0M_1} \cdot \vec{n}\|}{\|\vec{n}\|}=\frac{\|A(x_0-x_1)+B(y_0-y_1)+C(z_0-z_1)\|}{\sqrt{A^2+B^2+C^2}}$
+
+由于$Ax_0+By_0+Cz_0+D=0$，从而推出
+$$d=\frac{|Ax_1+By_1+Cz_1+D|}{\sqrt{A^2+B^2+C^2}}$$
+
+## 10.2 证明二
+通过求出$M_1$在平面$\Pi$的投影点$M_2$，然后算出$\|\overrightarrow{M_2M_1}\|$即可。
+
+先求过$M_1$且垂直于平面$\Pi$的直线参数方程：
+$$\begin{cases}
+x=x_1+At\\
+y=y_1+Bt\\
+z=z_1+Ct
+\end{cases}$$
+
+则$M_1$在平面$\Pi$的投影点$M_2$需要满足平面的方程：
+$$A(x_1+At)+B(y_1+Bt)+C(z_1+Ct)+D=0$$
+
+即
+$$t=-\frac{Ax_1+By_1+Cz_1+D}{A^2+B^2+C^2}$$
+
+再者，
+$$d=|\overrightarrow{M_2M_1}|=\sqrt{(At)^2+(Bt)^2+(Ct)^2}=|t|\sqrt{A^2+B^2+C^2}$$
+
+将t带入上式即得：
+>$d=\frac{\|Ax_1+By_1+Cz_1+D\|}{\sqrt{A^2+B^2+C^2}}$</span> </div> </article>  <!-- </div>
+    </main> --> </body></html>

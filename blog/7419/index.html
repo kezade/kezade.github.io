@@ -1,0 +1,210 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】参数解析</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】参数解析 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#SQL</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一几种入参形式">一、几种入参形式</h1>
+<p>这里只分析带有入参的方法。</p>
+<h2 id="1单个入参">1.单个入参</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">UserInfo </span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(String id);</span></span></code></pre>
+<h2 id="2多个入参">2.多个入参</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">UserInfo</span><span style="color:#F97583">></span><span style="color:#B392F0"> getByOpenIdAndUsername2</span><span style="color:#E1E4E8">(@</span><span style="color:#F97583">Param</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"openid"</span><span style="color:#E1E4E8">) String openId, @</span><span style="color:#F97583">Param</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"username"</span><span style="color:#E1E4E8">) String username);</span></span></code></pre>
+<h2 id="3入参为实体对象">3.入参为实体对象</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">UserInfo</span><span style="color:#F97583">></span><span style="color:#B392F0"> getByOpenIdAndUsername3</span><span style="color:#E1E4E8">(UserInfo userInfo);</span></span></code></pre>
+<h2 id="4入参为map">4.入参为Map</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">UserInfo</span><span style="color:#F97583">></span><span style="color:#B392F0"> getByOpenIdAndUsername</span><span style="color:#E1E4E8">(Map</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">String, Object</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> params);</span></span></code></pre>
+<h1 id="二mybatis执行入口">二、mybatis执行入口</h1>
+<p>还是以之前的一个例子来进入我们今天的正题。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#6A737D">// 快速入门</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> quickStart</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">    //--------------------第二阶段---------------------------</span></span>
+<span class="line"><span style="color:#6A737D">    // 2.获取sqlSession</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 3.获取对应mapper</span></span>
+<span class="line"><span style="color:#E1E4E8">    UserInfoMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">getMapper</span><span style="color:#E1E4E8">(UserInfoMapper.class);</span></span>
+<span class="line"><span style="color:#6A737D">    //--------------------第三阶段---------------------------</span></span>
+<span class="line"><span style="color:#6A737D">    // 4.执行查询语句并返回单条数据</span></span>
+<span class="line"><span style="color:#E1E4E8">    UserInfo user </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mapper.</span><span style="color:#B392F0">selectByPrimaryKey</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"1"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(user);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>当我们执行到这一行时，</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">UserInfoMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">getMapper</span><span style="color:#E1E4E8">(UserInfoMapper.class);</span></span></code></pre>
+<p>通过调试我们可以看到，这个mapper其实是通过MapperProxy代理执行的。我们拿到的其实就是个动态代理对象。如下图：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210314204651483.png" alt="&#x22;&#x22;">
+当我们执行查询时，进入MapperProxy动态代理过程。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031420510518.png" alt="&#x22;&#x22;">
+最终交由MapperMethod类的execute()方法执行，源代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//三步翻译在此完成</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">execute</span><span style="color:#E1E4E8">(SqlSession sqlSession, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">[] args) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  Object result;</span></span>
+<span class="line"><span style="color:#6A737D">  //第一步 根据sql语句类型以及接口返回的参数选择调用不同的方法</span></span>
+<span class="line"><span style="color:#F97583">  switch</span><span style="color:#E1E4E8"> (command.</span><span style="color:#B392F0">getType</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#E1E4E8"> INSERT</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  	Object param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">convertArgsToSqlCommandParam</span><span style="color:#E1E4E8">(args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> rowCountResult</span><span style="color:#E1E4E8">(sqlSession.</span><span style="color:#B392F0">insert</span><span style="color:#E1E4E8">(command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">(), param));</span></span>
+<span class="line"><span style="color:#F97583">      break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#E1E4E8"> UPDATE</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      Object param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">convertArgsToSqlCommandParam</span><span style="color:#E1E4E8">(args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> rowCountResult</span><span style="color:#E1E4E8">(sqlSession.</span><span style="color:#B392F0">update</span><span style="color:#E1E4E8">(command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">(), param));</span></span>
+<span class="line"><span style="color:#F97583">      break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#E1E4E8"> DELETE</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      Object param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">convertArgsToSqlCommandParam</span><span style="color:#E1E4E8">(args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> rowCountResult</span><span style="color:#E1E4E8">(sqlSession.</span><span style="color:#B392F0">delete</span><span style="color:#E1E4E8">(command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">(), param));</span></span>
+<span class="line"><span style="color:#F97583">      break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#E1E4E8"> SELECT</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (method.</span><span style="color:#B392F0">returnsVoid</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">hasResultHandler</span><span style="color:#E1E4E8">()) {</span><span style="color:#6A737D">//返回值为void</span></span>
+<span class="line"><span style="color:#B392F0">        executeWithResultHandler</span><span style="color:#E1E4E8">(sqlSession, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (method.</span><span style="color:#B392F0">returnsMany</span><span style="color:#E1E4E8">()) {</span><span style="color:#6A737D">//返回值为集合或者数组</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> executeForMany</span><span style="color:#E1E4E8">(sqlSession, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (method.</span><span style="color:#B392F0">returnsMap</span><span style="color:#E1E4E8">()) {</span><span style="color:#6A737D">//返回值为map</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> executeForMap</span><span style="color:#E1E4E8">(sqlSession, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (method.</span><span style="color:#B392F0">returnsCursor</span><span style="color:#E1E4E8">()) {</span><span style="color:#6A737D">//返回值为游标</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">=</span><span style="color:#B392F0"> executeForCursor</span><span style="color:#E1E4E8">(sqlSession, args);</span></span>
+<span class="line"><span style="color:#E1E4E8">      } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span><span style="color:#6A737D">//处理返回为单一对象的情况</span></span>
+<span class="line"><span style="color:#6A737D">        //通过参数解析器解析解析参数</span></span>
+<span class="line"><span style="color:#E1E4E8">        Object param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">convertArgsToSqlCommandParam</span><span style="color:#E1E4E8">(args);</span><span style="color:#6A737D">//第三步翻译，将入参转化成Map</span></span>
+<span class="line"><span style="color:#E1E4E8">        result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">selectOne</span><span style="color:#E1E4E8">(command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">(), param);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (method.</span><span style="color:#B392F0">returnsOptional</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span></span>
+<span class="line"><span style="color:#E1E4E8">            (result </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">method.</span><span style="color:#B392F0">getReturnType</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(result.</span><span style="color:#B392F0">getClass</span><span style="color:#E1E4E8">()))) {</span></span>
+<span class="line"><span style="color:#E1E4E8">          result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> OptionalUtil.</span><span style="color:#B392F0">ofNullable</span><span style="color:#E1E4E8">(result);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#F97583">      break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    case</span><span style="color:#E1E4E8"> FLUSH</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#E1E4E8">      result </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">flushStatements</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">      break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    default:</span></span>
+<span class="line"><span style="color:#F97583">      throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BindingException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Unknown execution method for: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (result </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getReturnType</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isPrimitive</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">method.</span><span style="color:#B392F0">returnsVoid</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BindingException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Mapper method '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> command.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">        +</span><span style="color:#9ECBFF"> " attempted to return null from a method with a primitive return type ("</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getReturnType</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ")."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> result;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>所以，本章参数解析的过程，我们重点关注这个方法即可，这个方法就是convertArgsToSqlCommandParam。它其实是方法的参数解析器ParamNameResolver的getNamedParams()方法完成的。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210314205954450.png" alt="&#x22;&#x22;">
+而这个ParamNameResolver则是在MapperProxy获取mapperMethod时（先不说从cache中取）进行初始化的，
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210314211304810.png" alt="&#x22;&#x22;">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210314211424528.png" alt="&#x22;&#x22;">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210314211600469.png" alt="&#x22;&#x22;">
+而ParamNameResolver实例化时，主要工作就是进行初步的映射关系存储，其字段names是一个SortedMap，存储了参数名的顺序映射。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;p></span></span>
+<span class="line"><span style="color:#6A737D">   * The key is the index and the value is the name of the parameter.&#x3C;br /></span></span>
+<span class="line"><span style="color:#6A737D">   * The name is obtained from {@link Param} if specified. When {@link Param} is not specified,</span></span>
+<span class="line"><span style="color:#6A737D">   * the parameter index is used. Note that this index could be different from the actual index</span></span>
+<span class="line"><span style="color:#6A737D">   * when the method has special parameters (i.e. {@link RowBounds} or {@link ResultHandler}).</span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;/p></span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;ul></span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;li>aMethod(@Param("M") int a, @Param("N") int b) -&#x26;gt; {{0, "M"}, {1, "N"}}&#x3C;/li></span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;li>aMethod(int a, int b) -&#x26;gt; {{0, "0"}, {1, "1"}}&#x3C;/li></span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;li>aMethod(int a, RowBounds rb, int b) -&#x26;gt; {{0, "0"}, {2, "1"}}&#x3C;/li></span></span>
+<span class="line"><span style="color:#6A737D">   * &#x3C;/ul></span></span>
+<span class="line"><span style="color:#6A737D">   */</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> SortedMap&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> names;</span></span></code></pre>
+<p>继续看getNamedParams（）方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//将多个参数封装成MAP</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">getNamedParams</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">[] args) {</span></span>
+<span class="line"><span style="color:#F97583">  final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> paramCount </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> names.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (args </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> paramCount </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">hasParamAnnotation </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> paramCount </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> args[names.</span><span style="color:#B392F0">firstKey</span><span style="color:#E1E4E8">()];</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    final</span><span style="color:#E1E4E8"> Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">> param </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ParamMap&#x3C;>();</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (Map.Entry&#x3C;</span><span style="color:#F97583">Integer</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">String</span><span style="color:#E1E4E8">> entry </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> names.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      param.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(entry.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">(), args[entry.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">()]);</span></span>
+<span class="line"><span style="color:#6A737D">      // add generic param names (param1, param2, ...)</span></span>
+<span class="line"><span style="color:#F97583">      final</span><span style="color:#E1E4E8"> String genericParamName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> GENERIC_NAME_PREFIX </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> String.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(i </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">      // ensure not to overwrite parameter named with @Param</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">names.</span><span style="color:#B392F0">containsValue</span><span style="color:#E1E4E8">(genericParamName)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        param.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(genericParamName, args[entry.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">()]);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">      i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> param;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>本例子中，由于无@Param注解，所以在第二个else if那里就返回了。</p>
+<h1 id="三参数解析流程">三、参数解析流程</h1>
+<p>以下面的代码为例，其他形式的入参大同小异。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Test</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> testManyParamQuery</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    // 2.获取sqlSession</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSession sqlSession </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSessionFactory.</span><span style="color:#B392F0">openSession</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    // 3.获取对应mapper</span></span>
+<span class="line"><span style="color:#E1E4E8">    UserInfoMapper mapper </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlSession.</span><span style="color:#B392F0">getMapper</span><span style="color:#E1E4E8">(UserInfoMapper.class);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String username </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "zyx"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    String openId </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "zyxelva"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 第一种方式使用map</span></span>
+<span class="line"><span style="color:#E1E4E8">    Map&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">> params </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> HashMap&#x3C;>();</span></span>
+<span class="line"><span style="color:#E1E4E8">    params.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"username"</span><span style="color:#E1E4E8">, username);</span></span>
+<span class="line"><span style="color:#E1E4E8">    params.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"openid"</span><span style="color:#E1E4E8">, openId);</span></span>
+<span class="line"><span style="color:#E1E4E8">    List&#x3C;</span><span style="color:#F97583">UserInfo</span><span style="color:#E1E4E8">> list1 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mapper.</span><span style="color:#B392F0">getByUsernameAndOpenId</span><span style="color:#E1E4E8">(params);</span></span>
+<span class="line"><span style="color:#E1E4E8">    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(list1);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>对应的mapper.xml方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">select</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"getByUsernameAndOpenId"</span><span style="color:#B392F0"> resultMap</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"BaseResultMap"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">   select</span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">include</span><span style="color:#B392F0"> refid</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"Base_Column_List"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    from user_info </span></span>
+<span class="line"><span style="color:#E1E4E8">    where username=#{username} and openid=#{openid}</span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">select</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>我们从方法</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">List&#x3C;</span><span style="color:#F97583">UserInfo</span><span style="color:#E1E4E8">> list1 </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mapper.</span><span style="color:#B392F0">getByUsernameAndOpenId</span><span style="color:#E1E4E8">(params);</span></span></code></pre>
+<p>开始断点调试。我们看到，进入到了MapperProxy的动态代理过程。直接进入mapperMethod.execute(sqlSession, args);</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315111605602.png" alt="&#x22;&#x22;">
+来到MapperMethod中的execute方法中。由于我们的例子是查询操作，故进入Select。又例子的返回类型是List,故进入第二个if语句中。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315111929562.png" alt="&#x22;&#x22;">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315112106406.png" alt="&#x22;&#x22;">
+进入方法executeForMany(). 没有分页，所以进入else语句中。而convertArgsToSqlCommandParam方法我们在二中已经分析了，这里不再具体梳理。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315112219141.png" alt="&#x22;&#x22;">
+进入DefaultSQLSession的selectList方法中。可以看下statement实际形式是namespace+id，就可以从MappedStatement中获取。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315112604497.png" alt="&#x22;&#x22;">
+而MappedStatement也有很多信息，主要是<select>标签以及该节点其他重要的属性。
+
+而sql的实际执行者，则为Executor. 代理对象执行方法被拦截器拦截，执行以下方法。
+
+先看看getBoundSql干了啥：
+
+
+进入RawSqlSource,因例子的sql无${},无动态SQL节点。
+
+先看看RawSqlSource的构造方法，看看#{}是怎么替换成?的，发现主要是SqlSourceBuilder在干活儿。
+
+
+主要看GenericTokenParser.parse().该方法主要完成占位符的定位工作，然后把占位符的替换工作交给与其关联的 TokenHandler 处理.
+
+TokenHandler有四个小弟，
+
+BindingTokenParser：该对象的handleToken方法会取出占位符中的变量，然后使用该变量作为键去上下文环境中寻找对应的值。之后，会用找到的值替换占位符。因此，该对象可以完成占位符的替换工作；
+DynamicCheckerTokenParser：该对象的 handleToken 方法会置位成员属性isDynamic。因此该对象可以记录自身是否遇到过占位符。
+ParameterMappingTokenHandler：将DynamicSqlSource和RawSqlSource中的“#{}”符号替换掉，从而将他们转化为StaticSqlSource；
+VariableTokenHandler：handleToken方法中传入输入参数后，该方法会以输入参数为键尝试从variables属性中寻找对应的值返回。
+
+到此BoundSql的解析过程基本结束。getBoundSql方法执行完后，我们再看看一级缓存的key生成策略。
+
+
+可以看出，cacheKey由namespace的id,分页参数，sql语句，入参以及节点的信息组成。
+回到查询过程，实际执行的方法为
+
+而首次查询不会进入if语句，调用BaseExecutor的方法：
+
+本地缓存没有结果，故需要查询数据库，进入queryFromDatabase().
+
+doQuery()则调用的为SimpleExecutor的方法。
+
+看看newStatementHandler()。
+
+
+由于我们的例子当中sql带有#{}，故进入PREPARED，生成PreparedStatementHandler。
+执行完语句后，放入一级缓存。
+
+后续就是结果映射执行过程，这里不再赘述，后续跟上。
+四、总结
+本章主要讲述了mybatis参数解析的过程，重点跟踪了执行sql时，变量占位符${}以及参数占位符#{}的替换和解析过程。实际开发过程中，要注意这两者的区别，能用#{}的地方尽量用#。而${}主要用于order by语句、原生jdbc、表名作参数。</select></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【RocketMQ学习】15.源码之顺序消息</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【RocketMQ学习】15.源码之顺序消息 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>8/18/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#RocketMQ源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#顺序消息</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#三把锁</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-demo">1 demo</h1>
+<h2 id="11-producer">1.1 Producer</h2>
+<p>根据不同订单id的取模，把不同订单的消息分配到不同的MessageQueue，把相同订单消息分配到相同的MessageQueue。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ProducerInOrder</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQProducer producer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQProducer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"OrderProducer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"localhost:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        String</span><span style="color:#E1E4E8">[] tags </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[]{</span><span style="color:#9ECBFF">"TagA"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagC"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagD"</span><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">        // 订单列表</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Order</span><span style="color:#E1E4E8">> orderList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ProducerInOrder</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">buildOrders</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        Date date </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Date</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        SimpleDateFormat sdf </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SimpleDateFormat</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"yyyy-MM-dd HH:mm:ss"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        String dateStr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sdf.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(date);</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> orderList.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">(); i</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 加个时间前缀</span></span>
+<span class="line"><span style="color:#E1E4E8">            String body </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> dateStr </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " Order:"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> orderList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i);</span></span>
+<span class="line"><span style="color:#E1E4E8">            Message msg </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Message</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"PartOrder"</span><span style="color:#E1E4E8">, tags[i </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> tags.length], </span><span style="color:#9ECBFF">"KEY"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> i, body.</span><span style="color:#B392F0">getBytes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            SendResult sendResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> producer.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                    msg,</span></span>
+<span class="line"><span style="color:#F97583">                    new</span><span style="color:#B392F0"> MessageQueueSelector</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                        public</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#B392F0">select</span><span style="color:#E1E4E8">(List&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">mqs</span><span style="color:#E1E4E8">, Message </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">, Object </span><span style="color:#FFAB70">arg</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                            //根据订单id选择发送queue</span></span>
+<span class="line"><span style="color:#E1E4E8">                            Long id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (Long) arg;</span></span>
+<span class="line"><span style="color:#F97583">                            long</span><span style="color:#E1E4E8"> index </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> id </span><span style="color:#F97583">%</span><span style="color:#E1E4E8"> mqs.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                            return</span><span style="color:#E1E4E8"> mqs.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">((</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">) index);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    },</span></span>
+<span class="line"><span style="color:#6A737D">                    //订单id</span></span>
+<span class="line"><span style="color:#E1E4E8">                    orderList.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(i).</span><span style="color:#B392F0">getOrderId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"SendResult status:%s, queueId:%d, body:%s"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                    sendResult.</span><span style="color:#B392F0">getSendStatus</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    sendResult.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                    body));</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        producer.</span><span style="color:#B392F0">shutdown</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 订单</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> static</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> orderId;</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#E1E4E8"> String desc;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> long</span><span style="color:#B392F0"> getOrderId</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> orderId;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">long</span><span style="color:#FFAB70"> orderId</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.orderId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> orderId;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">getDesc</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#E1E4E8"> desc;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> setDesc</span><span style="color:#E1E4E8">(String </span><span style="color:#FFAB70">desc</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.desc </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> desc;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#E1E4E8"> String </span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#9ECBFF"> "Order{"</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">                    "orderId="</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> orderId </span><span style="color:#F97583">+</span></span>
+<span class="line"><span style="color:#9ECBFF">                    ", desc='"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> desc </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> '</span><span style="color:#79B8FF">\'</span><span style="color:#9ECBFF">'</span><span style="color:#F97583"> +</span></span>
+<span class="line"><span style="color:#9ECBFF">                    '}'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 生成模拟订单数据  3个订单   每个订单4个状态</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">Order</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">buildOrders</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">Order</span><span style="color:#E1E4E8">> orderList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">Order</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        Order orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406001L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"创建"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406002L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"创建"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406001L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"付款"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406003L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"创建"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406002L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"付款"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406003L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"付款"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406002L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"推送"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406003L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"推送"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406002L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"完成"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406001L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"推送"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406003L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"完成"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Order</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setOrderId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">20210406001L</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderDemo.</span><span style="color:#B392F0">setDesc</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"完成"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        orderList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(orderDemo);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> orderList;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="12-consumer">1.2 Consumer</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ConsumerInOrder</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        DefaultMQPushConsumer consumer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DefaultMQPushConsumer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"OrderConsumer"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">setNamesrvAddr</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"localhost:9876"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">        /*</span></span>
+<span class="line"><span style="color:#6A737D">         * 设置Consumer第一次启动，默认从队列尾部开始消费CONSUME_FROM_LAST_OFFSET&#x3C;br></span></span>
+<span class="line"><span style="color:#6A737D">         * 如果非第一次启动，那么按照上次消费的位置继续消费</span></span>
+<span class="line"><span style="color:#6A737D">         */</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">setConsumeFromWhere</span><span style="color:#E1E4E8">(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">subscribe</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"PartOrder"</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"TagA || TagC || TagD"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">registerMessageListener</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> MessageListenerOrderly</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Random random </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Random</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#E1E4E8"> ConsumeOrderlyStatus </span><span style="color:#B392F0">consumeMessage</span><span style="color:#E1E4E8">(List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">msgs</span><span style="color:#E1E4E8">, ConsumeOrderlyContext </span><span style="color:#FFAB70">context</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                context.</span><span style="color:#B392F0">setAutoCommit</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (MessageExt msg </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> msgs) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 可以看到每个queue有唯一的consume线程来消费, 订单对每个queue(分区)有序</span></span>
+<span class="line"><span style="color:#E1E4E8">                    System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"consumeThread="</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> Thread.</span><span style="color:#B392F0">currentThread</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "queueId="</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">getQueueId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> ", content:"</span><span style="color:#F97583"> +</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> String</span><span style="color:#E1E4E8">(msg.</span><span style="color:#B392F0">getBody</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    //模拟业务逻辑处理中...</span></span>
+<span class="line"><span style="color:#E1E4E8">                    TimeUnit.MILLISECONDS.</span><span style="color:#B392F0">sleep</span><span style="color:#E1E4E8">(random.</span><span style="color:#B392F0">nextInt</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">300</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    e.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                    //这个点要注意：意思是先等一会，一会儿再处理这批消息，而不是放到重试队列里</span></span>
+<span class="line"><span style="color:#F97583">                    return</span><span style="color:#E1E4E8"> ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> ConsumeOrderlyStatus.SUCCESS;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        });</span></span>
+<span class="line"><span style="color:#E1E4E8">        consumer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Consumer Started."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h1 id="2-有序">2 有序</h1>
+<h2 id="21-全局顺序消息">2.1 全局顺序消息</h2>
+<ul>
+<li>对于指定的同一个topic，为其分配一个消息队列，使用一个生产者，所有消息都按照<code>FIFO</code>的顺序进行发布和消费；</li>
+<li>适用于性能要求不高，对数据有严格一致性发布和消费的场景。</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Global-Order-Msg.png" alt="全局顺序消息"></p>
+<h2 id="22-分区顺序消息">2.2 分区顺序消息</h2>
+<ul>
+<li>对于指定的同一个topic，所有消息根据<code>Sharding Key</code>进行区块分区。同一个分区内的消息会严格按照<code>FIFO</code>顺序进行发布和消费。而<code>Sharding Key</code>是顺序消息中用来区分不同区的关键字，和普通消息中key不是同一个概念；</li>
+<li>适用于对性能要求高，在同一个区块中要求FIFO进行发布和消费的场景。</li>
+</ul>
+<blockquote>
+<p>例如以<code>订单编号</code>或者<code>订单ID</code>为<code>Sharding Key</code>，在同一个订单内需要严格保证消费顺序。但不同订单中，可能订单A先发布，再发布订单B。在消费是先消费订单B，再消费订单A也是可以的。只要订单内部是顺序执行即可。</p>
+</blockquote>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Partial-Order-Msg.png" alt="部分顺序消息"></p>
+<h2 id="23-如何保证有序">2.3 如何保证有序</h2>
+<p>Apache RocketMQ 的消息的顺序性分为两部分，<code>生产顺序性</code>和<code>消费顺序性</code>。</p>
+<h3 id="231-生产顺序性">2.3.1 生产顺序性</h3>
+<p>Apache RocketMQ 通过生产者和服务端的协议保障<code>单个生产者</code><strong>串行地</strong>发送消息，并按序存储和持久化。
+如需保证消息生产的顺序性，则必须满足以下条件：</p>
+<ul>
+<li>单一生产者：消息生产的顺序性<code>仅支持单一生产者</code>，不同生产者分布在不同的系统，即使设置相同的消息组，不同生产者之间产生的消息也无法判定其先后顺序。</li>
+<li>串行发送：Apache RocketMQ 生产者客户端支持多线程安全访问，但如果生产者使用多线程并行发送，则不同线程间产生的消息将无法判定其先后顺序。</li>
+</ul>
+<p>满足以上条件的生产者，将顺序消息发送至 Apache RocketMQ 后，会保证设置了同一消息组的消息，按照发送顺序存储在同一队列中。服务端顺序存储逻辑如下：</p>
+<ul>
+<li>相同消息组的消息按照先后顺序被存储在同一个队列。</li>
+<li>不同消息组的消息可以混合在同一个队列中，且不保证连续。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Producer-OrderRules.png" alt="生产顺序性"></li>
+</ul>
+<blockquote>
+<p>如上图所示，<code>消息组1</code>和<code>消息组4</code>的消息混合存储在<code>队列1</code>中， Apache RocketMQ保证<code>消息组1</code>中的消息<code>G1-M1</code>、<code>G1-M2</code>、<code>G1-M3</code>是按发送顺序存储，且<code>消息组4</code>的消息<code>G4-M1</code>、<code>G4-M2</code>也是按顺序存储，但<code>消息组1</code>和<code>消息组4</code>中的消息不涉及顺序关系。</p>
+</blockquote>
+<h3 id="232-消费顺序性">2.3.2 消费顺序性</h3>
+<p>Apache RocketMQ 通过消费者和服务端的协议保障消息消费严格按照存储的先后顺序来处理。</p>
+<p>如需保证消息消费的顺序性，则必须满足以下条件：</p>
+<ul>
+<li>投递顺序：Apache RocketMQ 通过客户端SDK和服务端通信协议保障消息按照服务端存储顺序投递，但业务方消费消息时需要严格按照<code>接收---处理---应答</code>的语义处理消息，避免因异步处理导致消息乱序。</li>
+<li>有限重试：Apache RocketMQ 顺序消息投递仅在<code>重试次数限定范围内</code>，即一条消息如果一直重试失败，超过最大重试次数后将不再重试，跳过这条消息消费，不会一直阻塞后续消息处理。</li>
+</ul>
+<blockquote>
+<p>对于需要严格保证消费顺序的场景，请务必设置合理的重试次数，避免参数不合理导致消息乱序。</p>
+</blockquote>
+<h1 id="3-源码追踪">3 源码追踪</h1>
+<p>看消费者，回顾下消费者启动过程，定位到<code>DefaultMQPushConsumerImpl#start()</code>方法，对于并发消费和有序消费，初始化<code>ConsumeMessageService</code>有两种对应的不同类：</p>
+<ul>
+<li>有序处理：<code>ConsumeMessageOrderlyService</code>；</li>
+<li>并发处理（无序处理）：<code>ConsumeMessageOrderlyService</code>。</li>
+</ul>
+<p>怎么决定？由你定义的消费者监听类型决定。一种是<code>MessageListenerOrderly</code>、另一种是<code>MessageListenerConcurrently</code>。</p>
+<p>在<code>DefaultMQPushConsumerImpl#start()</code>方法中，对消息监听器类型进行了判断，如果类型是<code>MessageListenerOrderly</code>表示要进行<code>顺序消费</code>，此时使用<code>ConsumeMessageOrderlyService</code>对<code>ConsumeMessageService</code>进行实例化，然后调用它的<code>start方法</code>进行启动：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Listener-Rules.png" alt="监听类型决定消费模式"></p>
+<h2 id="31-第一把锁">3.1 第一把锁</h2>
+<p>点进去看看：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ConsumeMessageOrderlyService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //只有在集群消费模式下才有效</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (MessageModel.CLUSTERING.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ConsumeMessageOrderlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">messageModel</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#6A737D">            //周期性（20s）执行加锁</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.scheduledExecutorService.</span><span style="color:#B392F0">scheduleAtFixedRate</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">lockMQPeriodically</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }, </span><span style="color:#79B8FF">1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">, ProcessQueue.REBALANCE_LOCK_INTERVAL, TimeUnit.MILLISECONDS);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> synchronized</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> lockMQPeriodically</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.stopped) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 进行加锁</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">getRebalanceImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lockAll</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>为什么集群模式下需要加锁？</p>
+<blockquote>
+<p>因为广播模式下，消息队列会分配给消费组下的每一个消费者，而在集群模式下，一个消息队列同一时刻只能被同一个消费组下的某一个消费者进行，所以在广播模式下不存在竞争关系，也就不需要对消息队列进行加锁，而在集群模式下，有可能因为<code>负载均衡</code>等原因将<code>某一个消息队列</code>分配到了<code>另外一个消费者</code>中，因此在集群模式下就要加锁，当某个消息队列被锁定时，其他的消费者不能进行消费。</p>
+</blockquote>
+<p>这<code>第一把锁</code>，就是<strong>向Broker申请消息队列的锁</strong>。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RebalanceImpl</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 消费者订阅的所有队列与处理队列映射</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ConcurrentMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ProcessQueue</span><span style="color:#E1E4E8">> processQueueTable </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ProcessQueue</span><span style="color:#E1E4E8">>(</span><span style="color:#79B8FF">64</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 第一把锁，MessageQueue锁</span></span>
+<span class="line"><span style="color:#6A737D">     * 在集群模式下，有可能因为负载均衡等原因将某一个消息队列分配到了另外一个消费者中，</span></span>
+<span class="line"><span style="color:#6A737D">     * 因此在集群模式下就要加锁，当某个消息队列被锁定时，其他的消费者不能进行消费。</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> lockAll</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">        //key为broker名称，value为broker下的消息队列</span></span>
+<span class="line"><span style="color:#E1E4E8">        HashMap&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">>> brokerMqs </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">buildProcessQueueTableByBrokerName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        Iterator&#x3C;Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">>>> it </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> brokerMqs.</span><span style="color:#B392F0">entrySet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">iterator</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (it.</span><span style="color:#B392F0">hasNext</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            Entry&#x3C;</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">, Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">>> entry </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> it.</span><span style="color:#B392F0">next</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //broker名称</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> String brokerName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">getKey</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //对应的队列集合</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">> mqs </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> entry.</span><span style="color:#B392F0">getValue</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (mqs.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 根据broker名称获取broker信息</span></span>
+<span class="line"><span style="color:#E1E4E8">            FindBrokerResult findBrokerResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">findBrokerAddressInSubscribe</span><span style="color:#E1E4E8">(brokerName, MixAll.MASTER_ID, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (findBrokerResult </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 构建加锁请求</span></span>
+<span class="line"><span style="color:#E1E4E8">                LockBatchRequestBody requestBody </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LockBatchRequestBody</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestBody.</span><span style="color:#B392F0">setConsumerGroup</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.consumerGroup);</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestBody.</span><span style="color:#B392F0">setClientId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getClientId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">                // 设置要加锁的消息队列</span></span>
+<span class="line"><span style="color:#E1E4E8">                requestBody.</span><span style="color:#B392F0">setMqSet</span><span style="color:#E1E4E8">(mqs);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 批量进行加锁，返回加锁成功的消息队列</span></span>
+<span class="line"><span style="color:#E1E4E8">                    Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">> lockOKMQSet </span><span style="color:#F97583">=</span></span>
+<span class="line"><span style="color:#79B8FF">                            this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lockBatchMQ</span><span style="color:#E1E4E8">(findBrokerResult.</span><span style="color:#B392F0">getBrokerAddr</span><span style="color:#E1E4E8">(), requestBody, </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (MessageQueue mq </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> lockOKMQSet) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        ProcessQueue processQueue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueueTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (processQueue </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">processQueue.</span><span style="color:#B392F0">isLocked</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue locked OK, Group: {} {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#6A737D">                            // 设置加锁成功标记</span></span>
+<span class="line"><span style="color:#E1E4E8">                            processQueue.</span><span style="color:#B392F0">setLocked</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            processQueue.</span><span style="color:#B392F0">setLastLockTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#6A737D">                    // 处理加锁失败的消息队列</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (MessageQueue mq </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> mqs) {</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">lockOKMQSet.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(mq)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ProcessQueue processQueue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueueTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (processQueue </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                processQueue.</span><span style="color:#B392F0">setLocked</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue locked Failed, Group: {} {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"lockBatchMQ exception, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mqs, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>在<code>RebalanceImpl#lockAll</code>方法中，首先从处理队列表中获取当前消费者订阅的<code>所有消息队列MessageQueue</code>信息，返回数据是一个MAP，<code>key</code>为<code>broker名称</code>，<code>value</code>为<code>broker下的消息队列</code>，接着对MAP进行遍历，处理每一个broker下的消息队列：</p>
+<ul>
+<li>获取broker名称，根据broker名称查找broker的相关信息；</li>
+<li>构建<code>加锁请求</code>，在请求中设置<code>要加锁的消息队列</code>，然后将请求发送给broker，表示<code>要对这些消息队列进行加锁</code>；</li>
+<li>加锁请求返回的响应结果中包含了<code>加锁成功的消息队列</code>(可能有失败的)，此时遍历加锁成功的消息队列，将消息队列对应的<code>ProcessQueue</code>中的<code>locked</code>属性置为<code>true</code>，表示该消息队列已加锁成功；</li>
+<li>处理加锁失败的消息队列，如果响应中<code>未包含</code>某个消息队列的信息，表示此消息队列<code>加锁失败</code>，需要将其对应的<code>ProcessQueue</code>对象中的<code>locked</code>属性置为<code>false</code>，表示加锁失败。</li>
+</ul>
+<h2 id="32-第二把锁">3.2 第二把锁</h2>
+<p>有了消息队列，那消费者就要着手处理消息的拉取动作。通过之前的学习，消费者拉取消息，那就要构建拉取请求，然后把获取的消息进行消费处理，反馈结果给broker。</p>
+<p>这里有两步动作：</p>
+<ul>
+<li>构建拉取请求；</li>
+<li>消费消息。</li>
+</ul>
+<p>拉取消息请求构建在<code>RebalanceImpl</code>的<code>updateProcessQueueTableInRebalance</code>方法中，拉取消息的响应结果处理在<code>PullCallback</code>的<code>onSuccess</code>方法中，接下来看下顺序消费时在这两个过程中是如何处理的。</p>
+<h3 id="321-构建拉取请求">3.2.1 构建拉取请求</h3>
+<p>上面已经知道，在使用顺序消息时，会<code>周期性</code>的对订阅的消息队列进行<code>加锁</code>，不过由于<code>负载均衡</code>等原因，有可能给当前消费者分配<code>新的消息队列</code>，此时可能还<code>未来得及</code>通过定时任务加锁，所以消费者在构建消息拉取请求前会再次进行判断，如果<code>processQueueTable</code>中之前<code>未包含</code>某个消息队列，会先调用<code>lock方法</code>进行加锁，lock方法的实现逻辑与<code>lockAll</code>基本一致，如果加锁成功构建拉取请求进行消息拉取，如果加锁失败，则跳过继续处理下一个消息队列：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> abstract</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> RebalanceImpl</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> updateProcessQueueTableInRebalance</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> String </span><span style="color:#FFAB70">topic</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">mqSet</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">                                                       final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> isOrder</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">        List&#x3C;</span><span style="color:#F97583">PullRequest</span><span style="color:#E1E4E8">> pullRequestList </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ArrayList&#x3C;</span><span style="color:#F97583">PullRequest</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"><span style="color:#6A737D">        // 遍历队列集合</span></span>
+<span class="line"><span style="color:#F97583">        for</span><span style="color:#E1E4E8"> (MessageQueue mq </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> mqSet) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 如果processQueueTable之前不包含当前的消息队列，尝试加锁</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueueTable.</span><span style="color:#B392F0">containsKey</span><span style="color:#E1E4E8">(mq)) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 如果是顺序消费，调用lock方法进行加锁，如果加锁失败不往下执行，继续处理下一个消息队列</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (isOrder </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">lock</span><span style="color:#E1E4E8">(mq)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"doRebalance, {}, add a new mq failed, {}, because lock failed"</span><span style="color:#E1E4E8">, consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#F97583">                    continue</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#6A737D">                // ... </span></span>
+<span class="line"><span style="color:#6A737D">                // 如果偏移量大于等于0</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (nextOffset </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 放入处理队列表中</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ProcessQueue pre </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueueTable.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(mq, pq);</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (pre </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"doRebalance, {}, mq already exists, {}"</span><span style="color:#E1E4E8">, consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                        // 如果之前不存在，构建PullRequest，之后对请求进行处理，进行消息拉取</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"doRebalance, {}, add a new mq, {}"</span><span style="color:#E1E4E8">, consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        PullRequest pullRequest </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PullRequest</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequest.</span><span style="color:#B392F0">setConsumerGroup</span><span style="color:#E1E4E8">(consumerGroup);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequest.</span><span style="color:#B392F0">setNextOffset</span><span style="color:#E1E4E8">(nextOffset);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequest.</span><span style="color:#B392F0">setMessageQueue</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequest.</span><span style="color:#B392F0">setProcessQueue</span><span style="color:#E1E4E8">(pq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pullRequestList.</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        changed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"doRebalance, {}, add new mq failed, {}"</span><span style="color:#E1E4E8">, consumerGroup, mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 添加消息拉取请求</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">dispatchPullRequest</span><span style="color:#E1E4E8">(pullRequestList);</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> changed;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> lock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#FFAB70">mq</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 获取broker信息</span></span>
+<span class="line"><span style="color:#E1E4E8">        FindBrokerResult findBrokerResult </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">findBrokerAddressInSubscribe</span><span style="color:#E1E4E8">(mq.</span><span style="color:#B392F0">getBrokerName</span><span style="color:#E1E4E8">(), MixAll.MASTER_ID, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (findBrokerResult </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 构建加锁请求</span></span>
+<span class="line"><span style="color:#E1E4E8">            LockBatchRequestBody requestBody </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> LockBatchRequestBody</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestBody.</span><span style="color:#B392F0">setConsumerGroup</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.consumerGroup);</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestBody.</span><span style="color:#B392F0">setClientId</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getClientId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">            // 设置要加锁的消息队列</span></span>
+<span class="line"><span style="color:#E1E4E8">            requestBody.</span><span style="color:#B392F0">getMqSet</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">add</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                // 发送加锁请求</span></span>
+<span class="line"><span style="color:#E1E4E8">                Set&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">> lockedMq </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mQClientFactory.</span><span style="color:#B392F0">getMQClientAPIImpl</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lockBatchMQ</span><span style="color:#E1E4E8">(findBrokerResult.</span><span style="color:#B392F0">getBrokerAddr</span><span style="color:#E1E4E8">(), requestBody, </span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                for</span><span style="color:#E1E4E8"> (MessageQueue mmqq </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> lockedMq) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    ProcessQueue processQueue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueueTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(mmqq);</span></span>
+<span class="line"><span style="color:#6A737D">                    // 如果加锁成功设置成功标记</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (processQueue </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        processQueue.</span><span style="color:#B392F0">setLocked</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        processQueue.</span><span style="color:#B392F0">setLastLockTimestamp</span><span style="color:#E1E4E8">(System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                boolean</span><span style="color:#E1E4E8"> lockOK </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> lockedMq.</span><span style="color:#B392F0">contains</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">info</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue lock {}, {} {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        lockOK </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> "OK"</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> "Failed"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">                        this</span><span style="color:#E1E4E8">.consumerGroup,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        mq);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8"> lockOK;</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"lockBatchMQ exception, "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> mq, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<h3 id="322-消费消息">3.2.2 消费消息</h3>
+<p>在<code>PullCallback</code>的<code>onSuccess</code>方法中可以看到，如果从Broker拉取到消息，会调用<code>ConsumeMessageService#submitConsumeRequest</code>方法将消息提交到<code>ConsumeMessageService</code>中进行消费：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> DefaultMQPushConsumerImpl</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> MQConsumerInner</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> pullMessage</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> PullRequest </span><span style="color:#FFAB70">pullRequest</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // ...</span></span>
+<span class="line"><span style="color:#6A737D">        // 拉取消息回调函数</span></span>
+<span class="line"><span style="color:#E1E4E8">        PullCallback pullCallback </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> PullCallback</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">            @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">            public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> onSuccess</span><span style="color:#E1E4E8">(PullResult </span><span style="color:#FFAB70">pullResult</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (pullResult </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">                    // 处理拉取结果</span></span>
+<span class="line"><span style="color:#E1E4E8">                    pullResult </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> DefaultMQPushConsumerImpl.this.pullAPIWrapper.</span><span style="color:#B392F0">processPullResult</span><span style="color:#E1E4E8">(pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(), pullResult,</span></span>
+<span class="line"><span style="color:#E1E4E8">                            subscriptionData);</span></span>
+<span class="line"><span style="color:#6A737D">                    // 判断拉取结果</span></span>
+<span class="line"><span style="color:#F97583">                    switch</span><span style="color:#E1E4E8"> (pullResult.</span><span style="color:#B392F0">getPullStatus</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">                        case</span><span style="color:#E1E4E8"> FOUND</span><span style="color:#F97583">:</span></span>
+<span class="line"><span style="color:#6A737D">                            // ...</span></span>
+<span class="line"><span style="color:#6A737D">                            // 如果未拉取到消息</span></span>
+<span class="line"><span style="color:#F97583">                            if</span><span style="color:#E1E4E8"> (pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                                // 将拉取请求放入到阻塞队列中再进行一次拉取</span></span>
+<span class="line"><span style="color:#E1E4E8">                                DefaultMQPushConsumerImpl.this.</span><span style="color:#B392F0">executePullRequestImmediately</span><span style="color:#E1E4E8">(pullRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                                // ...</span></span>
+<span class="line"><span style="color:#6A737D">                                // 如果拉取到消息，将消息提交到ConsumeMessageService中进行消费</span></span>
+<span class="line"><span style="color:#E1E4E8">                                DefaultMQPushConsumerImpl.this.consumeMessageService.</span><span style="color:#B392F0">submitConsumeRequest</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        pullResult.</span><span style="color:#B392F0">getMsgFoundList</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        processQueue,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        pullRequest.</span><span style="color:#B392F0">getMessageQueue</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        dispatchToConsume);</span></span>
+<span class="line"><span style="color:#6A737D">                                // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#6A737D">                        // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        };</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>前面知道顺序消费时使用的是<code>ConsumeMessageOrderlyService</code>，首先在<code>ConsumeMessageOrderlyService</code>的构造函数中可以看到初始化了一个消息消费线程池，也就是说顺序消费时也是<code>开启多线程进行消费的</code>：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ConsumeMessageOrderlyService</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> ConsumeMessageService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> ConsumeMessageOrderlyService</span><span style="color:#E1E4E8">(DefaultMQPushConsumerImpl </span><span style="color:#FFAB70">defaultMQPushConsumerImpl</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        MessageListenerOrderly </span><span style="color:#FFAB70">messageListener</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // ...</span></span>
+<span class="line"><span style="color:#6A737D">        // 设置消息消费线程池</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.consumeExecutor </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ThreadPoolExecutor</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumeThreadMin</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumeThreadMax</span><span style="color:#E1E4E8">(),</span></span>
+<span class="line"><span style="color:#79B8FF">            1000</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 60</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">            TimeUnit.MILLISECONDS,</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.consumeRequestQueue,</span></span>
+<span class="line"><span style="color:#F97583">            new</span><span style="color:#B392F0"> ThreadFactoryImpl</span><span style="color:#E1E4E8">(consumeThreadPrefix));</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.scheduledExecutorService </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Executors.</span><span style="color:#B392F0">newSingleThreadScheduledExecutor</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> ThreadFactoryImpl</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"ConsumeMessageScheduledThread_"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>接下来看<code>submitConsumeRequest</code>方法，可以看到构建了ConsumeRequest对象，将拉取的消息提交到了消息消费线程池中进行消费：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ConsumeMessageOrderlyService</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> ConsumeMessageService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">   </span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> submitConsumeRequest</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> </span><span style="color:#FFAB70">msgs</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> ProcessQueue </span><span style="color:#FFAB70">processQueue</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#FFAB70">messageQueue</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#F97583"> boolean</span><span style="color:#FFAB70"> dispathToConsume</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (dispathToConsume) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 构建ConsumeRequest</span></span>
+<span class="line"><span style="color:#E1E4E8">            ConsumeRequest consumeRequest </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ConsumeRequest</span><span style="color:#E1E4E8">(processQueue, messageQueue);</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.consumeExecutor.</span><span style="color:#B392F0">submit</span><span style="color:#E1E4E8">(consumeRequest);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p><code>ConsumeRequest</code>是<code>ConsumeMessageOrderlyService</code>的内部类，它有两个成员变量，分别为<code>MessageQueue消息队列</code>和它对应的<code>处理队列ProcessQueue对象</code>。
+在<code>run方法</code>中，对消息进行消费，处理逻辑如下：</p>
+<ul>
+<li>判断<code>ProcessQueue</code>是否被删除，如果被删除终止处理；</li>
+<li>调用<code>messageQueueLock#fetchLockObject</code>方法获取<code>消息队列的对象锁</code>（<code>第二把锁</code>），然后使用<code>synchronized</code>进行加锁。</li>
+</ul>
+<blockquote>
+<p>这里加锁的原因是因为：顺序消费使用的是线程池，可以设置多个线程同时进行消费，所以某个线程在进行消息消费的时候要对消息队列加锁，防止其他线程并发消费，破坏消息的顺序性；</p>
+</blockquote>
+<ul>
+<li>如果是<code>广播模式</code>、或者<code>当前的消息队列已经加锁成功</code>（Locked置为true）并且<code>加锁时间未过期</code>，开始对拉取的消息进行遍历：
+<ul>
+<li>如果是<code>集群模式</code>并且<code>消息队列加锁失败</code>，调用<code>tryLockLaterAndReconsume</code>稍后重新进行加锁；</li>
+<li>如果是<code>集群模式</code>并且<code>消息队列加锁时间已经过期</code>，调用<code>tryLockLaterAndReconsume</code>稍后重新进行加锁；</li>
+<li>如果<code>当前时间距离开始处理的时间</code>超过了<code>最大消费时间</code>，调用<code>submitConsumeRequestLater</code>稍后重新进行处理；</li>
+<li>获取批量消费消息个数，从<code>ProcessQueue</code>获取消息内容，如果消息获取不为空，添加<code>消息消费锁</code>（<code>第三把锁</code>），然后调用<code>messageListener#consumeMessage</code>方法进行消息消费；</li>
+</ul>
+</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ConsumeMessageOrderlyService</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> ConsumeMessageService</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    class</span><span style="color:#B392F0"> ConsumeRequest</span><span style="color:#F97583"> implements</span><span style="color:#B392F0"> Runnable</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">        // 消息队列对应的处理队列</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> ProcessQueue processQueue;</span></span>
+<span class="line"><span style="color:#6A737D">        // 消息队列</span></span>
+<span class="line"><span style="color:#F97583">        private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> MessageQueue messageQueue;</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#B392F0"> ConsumeRequest</span><span style="color:#E1E4E8">(ProcessQueue </span><span style="color:#FFAB70">processQueue</span><span style="color:#E1E4E8">, MessageQueue </span><span style="color:#FFAB70">messageQueue</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.processQueue </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> processQueue;</span></span>
+<span class="line"><span style="color:#79B8FF">            this</span><span style="color:#E1E4E8">.messageQueue </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> messageQueue;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">        public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> run</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">            // 处理队列如果已经被置为删除状态，跳过不进行处理</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"run, the message queue not be able to consume, because it's dropped. {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 获取消息队列的对象锁</span></span>
+<span class="line"><span style="color:#F97583">            final</span><span style="color:#E1E4E8"> Object objLock </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> messageQueueLock.</span><span style="color:#B392F0">fetchLockObject</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#6A737D">            // 对象消息队列的对象锁加锁</span></span>
+<span class="line"><span style="color:#F97583">            synchronized</span><span style="color:#E1E4E8"> (objLock) {</span></span>
+<span class="line"><span style="color:#6A737D">                // 如果是广播模式、或者当前的消息队列已经加锁成功并且加锁时间未过期</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (MessageModel.BROADCASTING.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ConsumeMessageOrderlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">messageModel</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">                        ||</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isLocked</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isLockExpired</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#F97583">                    final</span><span style="color:#F97583"> long</span><span style="color:#E1E4E8"> beginTime </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">boolean</span><span style="color:#E1E4E8"> continueConsume </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">; continueConsume; ) {</span></span>
+<span class="line"><span style="color:#6A737D">                        // 判断processQueue是否删除</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue not be able to consume, because it's dropped. {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        // 1.如果是集群模式并且processQueue的加锁失败</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (MessageModel.CLUSTERING.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ConsumeMessageOrderlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">messageModel</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">                                &#x26;&#x26;</span><span style="color:#F97583"> !</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isLocked</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue not locked, so consume later, {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#6A737D">                            // 稍后进行加锁</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">tryLockLaterAndReconsume</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        // 2.如果是集群模式并且消息队列加锁时间已经过期</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (MessageModel.CLUSTERING.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(ConsumeMessageOrderlyService.this.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">messageModel</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#F97583">                                &#x26;&#x26;</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isLockExpired</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue lock expired, so consume later, {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#6A737D">                            // 稍后进行加锁</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">tryLockLaterAndReconsume</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">                        long</span><span style="color:#E1E4E8"> interval </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> System.</span><span style="color:#B392F0">currentTimeMillis</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#E1E4E8"> beginTime;</span></span>
+<span class="line"><span style="color:#6A737D">                        // 3.如果当前时间距离开始处理的时间超过了最大消费时间</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (interval </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> MAX_TIME_CONSUME_CONTINUOUSLY) {</span></span>
+<span class="line"><span style="color:#6A737D">                            // 稍后重新进行处理</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">submitConsumeRequestLater</span><span style="color:#E1E4E8">(processQueue, messageQueue, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">                            break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#6A737D">                        // 批量消费消息个数</span></span>
+<span class="line"><span style="color:#F97583">                        final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> consumeBatchSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeMessageOrderlyService.this.defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumeMessageBatchMaxSize</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">                        // 获取消息内容</span></span>
+<span class="line"><span style="color:#E1E4E8">                        List&#x3C;</span><span style="color:#F97583">MessageExt</span><span style="color:#E1E4E8">> msgs </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">takeMessages</span><span style="color:#E1E4E8">(consumeBatchSize);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        defaultMQPushConsumerImpl.</span><span style="color:#B392F0">resetRetryAndNamespace</span><span style="color:#E1E4E8">(msgs, defaultMQPushConsumer.</span><span style="color:#B392F0">getConsumerGroup</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#F97583">                        if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">msgs.</span><span style="color:#B392F0">isEmpty</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">                            // ...</span></span>
+<span class="line"><span style="color:#F97583">                            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                                // 加消费锁</span></span>
+<span class="line"><span style="color:#79B8FF">                                this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">getConsumeLock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">lock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">                                if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"consumeMessage, the message queue not be able to consume, because it's dropped. {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#79B8FF">                                            this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#F97583">                                    break</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                                }</span></span>
+<span class="line"><span style="color:#6A737D">                                // 到这才开始消费消息</span></span>
+<span class="line"><span style="color:#E1E4E8">                                status </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> messageListener.</span><span style="color:#B392F0">consumeMessage</span><span style="color:#E1E4E8">(Collections.</span><span style="color:#B392F0">unmodifiableList</span><span style="color:#E1E4E8">(msgs), context);</span></span>
+<span class="line"><span style="color:#E1E4E8">                            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Throwable </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                                log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(String.</span><span style="color:#B392F0">format</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"consumeMessage exception: %s Group: %s Msgs: %s MQ: %s"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        RemotingHelper.</span><span style="color:#B392F0">exceptionSimpleDesc</span><span style="color:#E1E4E8">(e),</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        ConsumeMessageOrderlyService.this.consumerGroup,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        msgs,</span></span>
+<span class="line"><span style="color:#E1E4E8">                                        messageQueue), e);</span></span>
+<span class="line"><span style="color:#E1E4E8">                                hasException </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                            } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                                // 释放消息消费锁</span></span>
+<span class="line"><span style="color:#79B8FF">                                this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">getConsumeLock</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                            }</span></span>
+<span class="line"><span style="color:#6A737D">                            // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">getConsumerStatsManager</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">                                    .</span><span style="color:#B392F0">incConsumeRT</span><span style="color:#E1E4E8">(ConsumeMessageOrderlyService.this.consumerGroup, messageQueue.</span><span style="color:#B392F0">getTopic</span><span style="color:#E1E4E8">(), consumeRT);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                            continueConsume </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">processConsumeResult</span><span style="color:#E1E4E8">(msgs, status, context, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            continueConsume </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                    if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue.</span><span style="color:#B392F0">isDropped</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"the message queue not be able to consume, because it's dropped. {}"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue);</span></span>
+<span class="line"><span style="color:#F97583">                        return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                    ConsumeMessageOrderlyService.this.</span><span style="color:#B392F0">tryLockLaterAndReconsume</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.messageQueue, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.processQueue, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><code>MessageQueueLock</code>中使用了<code>ConcurrentHashMap</code>存储每个消息队列对应的对象锁，对象锁实际上是一个<code>Object类</code>的对象，从Map中获取消息队列的对象锁时，如果对象锁不存在，则新建一个<code>Object对象</code>，并放入Map集合中：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MessageQueueLock</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#E1E4E8"> ConcurrentMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">> mqLockTable </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Object </span><span style="color:#B392F0">fetchLockObject</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">final</span><span style="color:#E1E4E8"> MessageQueue </span><span style="color:#FFAB70">mq</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 获取消息队列对应的对象锁，也就是一个Object类型的对象</span></span>
+<span class="line"><span style="color:#E1E4E8">        Object objLock </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mqLockTable.</span><span style="color:#B392F0">get</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">null</span><span style="color:#F97583"> ==</span><span style="color:#E1E4E8"> objLock) {</span></span>
+<span class="line"><span style="color:#6A737D">            //不存在，则创建新的锁对象</span></span>
+<span class="line"><span style="color:#E1E4E8">            objLock </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Object</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            // 加入到Map中</span></span>
+<span class="line"><span style="color:#E1E4E8">            Object prevLock </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.mqLockTable.</span><span style="color:#B392F0">putIfAbsent</span><span style="color:#E1E4E8">(mq, objLock);</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (prevLock </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                objLock </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> prevLock;</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> objLock;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="33-第三把锁">3.3 第三把锁</h2>
+<p>即为<code>消息消费锁</code>。<code>ProcessQueue</code>中持有一个<code>消息消费锁</code>，消费者调用<code>consumeMessage</code>进行消息前，会添加<code>消费锁</code>，上面已经知道在处理拉取到的消息时就已经调用<code>messageQueueLock#fetchLockObject</code>方法获取消息队列的对象锁然后使用<code>synchronized</code>对其加锁，那么为什么在消费之前还要再加一个消费锁呢？</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ProcessQueue</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    // 消息消费锁</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Lock lockConsume </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ReentrantLock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> Lock </span><span style="color:#B392F0">getLockConsume</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> lockConsume;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>先看看哪些地方会调用这个东东：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-ConsumeLock-Caller.png" alt="消费锁调用者"></p>
+<p><code>removeUnnecessaryMessageQueue</code>从名字猜测是移除无用的消息队列，其归属于类<code>RebalancePushImpl</code>，而它的这个方法基本就是与负载均衡相关了。</p>
+<p>既然这里有移除消息队列的风险，那么消费的时候通过消息队列拉取消息必然要保证该队列可用，即没被删除；而删除的时候，也要保证这个队列没人用了，安全地进行删除动作。所以，上述两个动作都需要对队列先进行加锁，再进行各自的处理。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//RebalancePushImpl</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> boolean</span><span style="color:#B392F0"> removeUnnecessaryMessageQueue</span><span style="color:#E1E4E8">(MessageQueue mq, ProcessQueue pq) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">getOffsetStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">persist</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">getOffsetStore</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">removeOffset</span><span style="color:#E1E4E8">(mq);</span></span>
+<span class="line"><span style="color:#6A737D">        // 如果是顺序消费并且是集群模式</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">isConsumeOrderly</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> MessageModel.CLUSTERING.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.defaultMQPushConsumerImpl.</span><span style="color:#B392F0">messageModel</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#F97583">            try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                //加消费锁</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> (pq.</span><span style="color:#B392F0">getLockConsume</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">tryLock</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1000</span><span style="color:#E1E4E8">, TimeUnit.MILLISECONDS)) {</span></span>
+<span class="line"><span style="color:#F97583">                    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">                        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">unlockDelay</span><span style="color:#E1E4E8">(mq, pq);</span></span>
+<span class="line"><span style="color:#E1E4E8">                    } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pq.</span><span style="color:#B392F0">getLockConsume</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                    }</span></span>
+<span class="line"><span style="color:#E1E4E8">                } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">                    log.</span><span style="color:#B392F0">warn</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"[WRONG]mq is consuming, so can not unlock it, {}. maybe hanged for a while, {}"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        mq,</span></span>
+<span class="line"><span style="color:#E1E4E8">                        pq.</span><span style="color:#B392F0">getTryUnlockTimes</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">                    pq.</span><span style="color:#B392F0">incTryUnlockTimes</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#E1E4E8">            } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                log.</span><span style="color:#B392F0">error</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"removeUnnecessaryMessageQueue Exception"</span><span style="color:#E1E4E8">, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>不过在消费者在消费消息前已经对队列进行了加锁，负载均衡的时候为什么不使用<code>队列锁</code>而要使用<code>消费锁</code>？</p>
+<blockquote>
+<p>这里应该是为了<code>减小锁的粒度</code>，因为消费者在对消息队列加锁后，还进行了一系列的判断（就是<code>ConsumeRequest</code>中的1-2-3），校验都成功之后从处理队列中获取消息内容，之后才开始消费消息，如果负载均衡使用消息队列锁就要等待整个过程完成才有可能加锁成功，这样显然会降低性能，而如果使用消息消费锁，就可以减少等待的时间，并且消费者在进行消息消费前也会判断ProcessQueue是否被移除，所以只要保证consumeMessage方法在执行的过程中，ProcessQueue不被移除即可。</p>
+</blockquote>
+<h2 id="34-总结">3.4 总结</h2>
+<p>目前一共涉及了<code>三把锁</code>，它们分别对应不同的情况：</p>
+<ul>
+<li>向Broker申请的消息队列锁(<code>第一把锁</code>)
+集群模式下一个消息队列同一时刻只能被同一个消费组下的某一个消费者进行，为了避免负载均衡等原因引起的变动，消费者会向Broker发送请求对消息队列进行加锁，如果加锁成功，记录到消息队列对应的<code>ProcessQueue</code>中的<code>locked</code>变量中，它是boolean类型的：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ProcessQueue</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> volatile</span><span style="color:#F97583"> boolean</span><span style="color:#E1E4E8"> locked </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li>消费者处理拉取消息时的消息队列锁(<code>第二把锁</code>)
+消费者在处理拉取到的消息时，由于可以开启<code>多线程</code>进行处理，所以处理消息前通过<code>MessageQueueLock</code>中的<code>mqLockTable</code>获取到了消息队列对应的锁，锁住要处理的消息队列，这里加消息队列锁主要是<strong>处理多线程之间的竞争</strong>：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> MessageQueueLock</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#E1E4E8"> ConcurrentMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">> mqLockTable </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> ConcurrentHashMap&#x3C;</span><span style="color:#F97583">MessageQueue</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">Object</span><span style="color:#E1E4E8">>();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li>消息消费锁(<code>第三把锁</code>)
+消费者在调用<code>consumeMessage</code>方法之前会加消费锁，主要是为了避免在消费消息时，由于<code>负载均衡</code>等原因，<code>ProcessQueue</code>被删除：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ProcessQueue</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> Lock consumeLock </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ReentrantLock</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/RocketMQ-Consume-Locks.png" alt="顺序消费“三把锁”"></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

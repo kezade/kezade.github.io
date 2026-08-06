@@ -1,0 +1,307 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Netty学习】4.Netty的一个例子</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Netty学习】4.Netty的一个例子 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>5/22/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Netty</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-环境配置">1 环境配置</h1>
+<p>要运行起Netty Demo，主要依赖于<code>JDK</code>和<code>Maven</code>，具体怎么安装可自行Google。</p>
+<p>本机环境列表：</p>
+<blockquote>
+<p>JDK: 1.8.0_112
+Maven: 3.5.3
+IDE: IntelliJ IDEA 2021.3 (Ultimate Edition)
+OS: MacOS 10.15</p>
+</blockquote>
+<h1 id="2-demo">2 Demo</h1>
+<h2 id="21-server">2.1 Server</h2>
+<p>Server端至少需要以下组件：</p>
+<ul>
+<li>引导：<code>ServerBootstrap</code></li>
+<li>至少一个<code>ChannelHandler</code></li>
+</ul>
+<h3 id="212-serverbootstrap">2.1.2 ServerBootstrap</h3>
+<p>先上代码。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.bootstrap.ServerBootstrap;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelFuture;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelInitializer;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.EventLoopGroup;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.nio.NioEventLoopGroup;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.socket.SocketChannel;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.socket.nio.NioServerSocketChannel;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> java.net.InetSocketAddress;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * @date 2022/08/25</span></span>
+<span class="line"><span style="color:#6A737D"> * @description 基于Netty的服务器</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EchoServer</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> port;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> EchoServer</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> port</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.port </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> port;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException {</span></span>
+<span class="line"><span style="color:#F97583">        int</span><span style="color:#E1E4E8"> port </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 9999</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">        EchoServer echoServer </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EchoServer</span><span style="color:#E1E4E8">(port);</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"服务器即将启动"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">        echoServer.</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"服务器关闭"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException {</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> EchoServerHandler serverHandler </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> EchoServerHandler</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        /*线程组*/</span></span>
+<span class="line"><span style="color:#E1E4E8">        EventLoopGroup group </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NioEventLoopGroup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            /*服务端启动必备*/</span></span>
+<span class="line"><span style="color:#E1E4E8">            ServerBootstrap b </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ServerBootstrap</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            b.</span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(group)</span></span>
+<span class="line"><span style="color:#6A737D">                    /*指定使用NIO的通信模式*/</span></span>
+<span class="line"><span style="color:#E1E4E8">                    .</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">(NioServerSocketChannel.class)</span></span>
+<span class="line"><span style="color:#6A737D">                    /*指定监听端口*/</span></span>
+<span class="line"><span style="color:#E1E4E8">                    .</span><span style="color:#B392F0">localAddress</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> InetSocketAddress</span><span style="color:#E1E4E8">(port)).</span><span style="color:#B392F0">childHandler</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ChannelInitializer&#x3C;</span><span style="color:#F97583">SocketChannel</span><span style="color:#E1E4E8">>() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                        protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> initChannel</span><span style="color:#E1E4E8">(SocketChannel </span><span style="color:#FFAB70">ch</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ch.</span><span style="color:#B392F0">pipeline</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(serverHandler);</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    });</span></span>
+<span class="line"><span style="color:#6A737D">            /*异步绑定到服务器，sync()会阻塞到完成*/</span></span>
+<span class="line"><span style="color:#E1E4E8">            ChannelFuture f </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> b.</span><span style="color:#B392F0">bind</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            /*阻塞当前线程，直到服务器的ServerChannel被关闭*/</span></span>
+<span class="line"><span style="color:#E1E4E8">            f.</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">closeFuture</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            group.</span><span style="color:#B392F0">shutdownGracefully</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<ul>
+<li>新建<code>ServerBootstrap</code>实例</li>
+<li>注册<code>EventLoopGroup</code>
+上一章节中，我们提到Netty Server端一般是有两个<code>EventLoopGroup</code>，一个是<code>Boss</code>，一个是<code>Worker</code>，我们可以查看 <code>ServerBootstrap</code>的<code>group</code>方法：</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> ServerBootstrap</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> AbstractBootstrap</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">ServerBootstrap</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">ServerChannel</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> ServerBootstrap </span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(EventLoopGroup </span><span style="color:#FFAB70">group</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(group, group);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#E1E4E8"> ServerBootstrap </span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(EventLoopGroup </span><span style="color:#FFAB70">parentGroup</span><span style="color:#E1E4E8">, EventLoopGroup </span><span style="color:#FFAB70">childGroup</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        //此处省略几行代码...</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //此处省略一万个字符</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>可以看出，<code>group</code>只有一个参数时，其实<code>Boss</code>和<code>Work</code>共用一个<code>EventLoopGroup</code>。</p>
+<ul>
+<li>
+<p>注册IO的通信模式
+前面介绍<code>IO模型</code>时介绍过，这里Netty提供了以下几种：</p>
+<ul>
+<li><code>EpollServerSocketChannel</code></li>
+<li><code>NioServerSocketChannel</code></li>
+<li><code>OioServerSocketChannel</code></li>
+<li><code>KQueueServerSocketChannel</code>：这个主要是在<code>Unix</code>操作系统中，比如<code>MacOS</code>。</li>
+</ul>
+</li>
+<li>
+<p>绑定用于客户端连接使用的端口</p>
+</li>
+<li>
+<p>注册<code>ChannelHandler</code>。两种方式：</p>
+<ul>
+<li>直接注册实现了<code>ChannelHandler</code>的实例</li>
+<li>通过实现<code>ChannelInitializer</code>接口的实例注册</li>
+</ul>
+</li>
+</ul>
+<p>总结下，<code>ServerBootstrap</code>要干的事儿:</p>
+<blockquote>
+<p><code>new</code>一个<code>ServerBootstrap</code>实例
+绑定一个<code>Channel</code>，<code>Channel</code>可以是<code>OIO</code>类型的，也可以是<code>NIO</code>类型的
+绑定端口，提供给客户端链接
+注册服务于<code>Channel</code>的所有请求的<code>ChannelHandler</code>
+开启监听</p>
+</blockquote>
+<h3 id="213-channelhandler">2.1.3 ChannelHandler</h3>
+<p><code>ChannelHandler</code>是一个<code>接口族的父接口</code>，它的实现负责<code>接收并响应事件通知</code>。 在Netty 应用程序中，所有的数据处理逻辑都包含在这些核心抽象的实现中。</p>
+<p>因为你的<code>Echo 服务器</code>会<code>响应</code>传入的消息，所以它需要实现<code>ChannelInboundHandler</code> 接口，用来定义响应<code>入站事件</code>的方法。这个简单的应用程序只需要用到<code>少量的</code>这些方法，所以继承 <code>ChannelInboundHandlerAdapter</code> 类也就足够了，<code>它提供了ChannelInboundHandler</code> 的默认实现。</p>
+<p>样例代码如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.buffer.ByteBuf;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelHandler;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelHandlerContext;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelInboundHandlerAdapter;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.util.CharsetUtil;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#6A737D">//EchoServerHandler 被标注为@Shareable，所以我们可以总是使用同样的实例</span></span>
+<span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">ChannelHandler</span><span style="color:#E1E4E8">.Sharable</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EchoServerHandler</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> ChannelInboundHandlerAdapter</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> channelRead</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, Object </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        ByteBuf in </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (ByteBuf) msg;</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Server accept: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> in.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">(CharsetUtil.UTF_8));</span></span>
+<span class="line"><span style="color:#E1E4E8">        ctx.</span><span style="color:#B392F0">writeAndFlush</span><span style="color:#E1E4E8">(in);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> channelReadComplete</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">      ctx.</span><span style="color:#B392F0">writeAndFlush</span><span style="color:#E1E4E8">(Unpooled.EMPTY_BUFFER)</span></span>
+<span class="line"><span style="color:#E1E4E8">              .</span><span style="color:#B392F0">addListener</span><span style="color:#E1E4E8">(ChannelFutureListener.CLOSE);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> exceptionCaught</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, Throwable </span><span style="color:#FFAB70">cause</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        cause.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        ctx.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>我们感兴趣的方法是：</p>
+<ul>
+<li><code>channelRead()</code>：对于每个传入的消息都要调用；</li>
+<li><code>channelReadComplete()</code>：通知<code>ChannelInboundHandler</code> 最后一次对<code>channelRead()</code>的调用是当前批量读取中的<code>最后一条</code>消息；</li>
+<li><code>exceptionCaught()</code>：在<code>读取</code>操作期间，有异常抛出时会调用。</li>
+</ul>
+<blockquote>
+<p>如果不捕获异常，会发生什么呢?
+每个<code>Channel</code> 都拥有一个与之相关联的<code>ChannelPipeline</code>，其持有一个<code>ChannelHandler</code> 的<code>实例链</code>。在默认的情况下，<code>ChannelHandler</code> 会把对它的方法的调用转发给链中的<code>下一个ChannelHandler</code>。因此，如果<code>exceptionCaught()</code>方法没有被该链中的某处实现，那么所接收的异常将会被传递到<code>ChannelPipeline 的尾端</code>并被记录。为此，你的应用程序应该提供<code>至少有一个</code>实现了<code>exceptionCaught()</code>方法的<code>ChannelHandler</code>。</p>
+</blockquote>
+<h2 id="22-client">2.2 Client</h2>
+<p>老样子，先上代码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.bootstrap.Bootstrap;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.bootstrap.ServerBootstrap;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelFuture;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelInitializer;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.EventLoopGroup;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.nio.NioEventLoopGroup;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.socket.SocketChannel;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.socket.nio.NioServerSocketChannel;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.socket.nio.NioSocketChannel;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> java.net.InetSocketAddress;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * @date 2022/08/25</span></span>
+<span class="line"><span style="color:#6A737D"> * @description 基于Netty的客户端</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EchoClient</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8"> port;</span></span>
+<span class="line"><span style="color:#F97583">    private</span><span style="color:#F97583"> final</span><span style="color:#E1E4E8"> String host;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#B392F0"> EchoClient</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#FFAB70"> port</span><span style="color:#E1E4E8">, String </span><span style="color:#FFAB70">host</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.port </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> port;</span></span>
+<span class="line"><span style="color:#79B8FF">        this</span><span style="color:#E1E4E8">.host </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> host;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> start</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        //线程组</span></span>
+<span class="line"><span style="color:#E1E4E8">        EventLoopGroup group </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> NioEventLoopGroup</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //客户端启动必备</span></span>
+<span class="line"><span style="color:#E1E4E8">            Bootstrap b </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Bootstrap</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">            b.</span><span style="color:#B392F0">group</span><span style="color:#E1E4E8">(group)</span></span>
+<span class="line"><span style="color:#6A737D">                    //指定使用NIO的通信模式</span></span>
+<span class="line"><span style="color:#E1E4E8">                    .</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">(NioSocketChannel.class)</span></span>
+<span class="line"><span style="color:#6A737D">                    //指定服务器的IP地址和端口</span></span>
+<span class="line"><span style="color:#E1E4E8">                    .</span><span style="color:#B392F0">remoteAddress</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> InetSocketAddress</span><span style="color:#E1E4E8">(host, port))</span></span>
+<span class="line"><span style="color:#6A737D">                    //注册ChannelHandler</span></span>
+<span class="line"><span style="color:#E1E4E8">                    .</span><span style="color:#B392F0">handler</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> ChannelInitializer&#x3C;</span><span style="color:#F97583">SocketChannel</span><span style="color:#E1E4E8">>() {</span></span>
+<span class="line"><span style="color:#E1E4E8">                        @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">                        protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> initChannel</span><span style="color:#E1E4E8">(SocketChannel </span><span style="color:#FFAB70">ch</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">                            ch.</span><span style="color:#B392F0">pipeline</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">addLast</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> EchoClientHandler</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">                        }</span></span>
+<span class="line"><span style="color:#E1E4E8">                    });</span></span>
+<span class="line"><span style="color:#6A737D">            //异步连接到服务器，sync()会阻塞到完成</span></span>
+<span class="line"><span style="color:#E1E4E8">            ChannelFuture f </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> b.</span><span style="color:#B392F0">connect</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">            //阻塞当前线程，直到客户端的Channel被关闭</span></span>
+<span class="line"><span style="color:#E1E4E8">            f.</span><span style="color:#B392F0">channel</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">closeFuture</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            group.</span><span style="color:#B392F0">shutdownGracefully</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">sync</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> static</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[] </span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> InterruptedException {</span></span>
+<span class="line"><span style="color:#F97583">        new</span><span style="color:#B392F0"> EchoClient</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">9999</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">"127.0.0.1"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">start</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>Client端启动与Server端类似，需要以下组件：</p>
+<ul>
+<li>引导：<code>Bootstrap</code></li>
+<li>至少一个<code>ChannelHandler</code></li>
+</ul>
+<h3 id="221-bootstrap">2.2.1 Bootstrap</h3>
+<ul>
+<li>新建<code>Bootstrap</code>实例
+与Server端主要区别在于引导类是<code>Bootstrap</code>，Client端需要的是<code>Bootstrap实例</code>，且需要指定<code>Server端</code>提供的<code>地址</code>和<code>端口</code>，以便于<code>连接</code>。</li>
+<li>注册IO的通信模式</li>
+<li>指定服务器的<code>IP地址</code>和<code>端口</code></li>
+<li>注册<code>ChannelHandler</code></li>
+<li>异步<code>连接</code>到服务器</li>
+</ul>
+<h3 id="222-channelhandler">2.2.2 ChannelHandler</h3>
+<p>如同服务器，客户端将拥有一个用来处理数据的<code>ChannelInboundHandler</code>。在这个场景下，你将扩展<code>SimpleChannelInboundHandler 类</code>以处理所有必须的任务，如下代码清单所示。这要求重写下面的方法：</p>
+<ul>
+<li><code>channelActive()</code>：在到服务器的<code>连接已经建立之后</code>将被调用；</li>
+<li><code>channelRead0()</code>：当从服务器<code>接收</code>到一条消息时被调用；</li>
+<li><code>exceptionCaught()</code>：在处理过程中<code>引发异常</code>时被调用。</li>
+</ul>
+<p>实现代码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.buffer.ByteBuf;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.buffer.Unpooled;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.ChannelHandlerContext;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.channel.SimpleChannelInboundHandler;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> io.netty.util.CharsetUtil;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D"> * </span><span style="color:#F97583">@author</span><span style="color:#6A737D"> zyxelva</span></span>
+<span class="line"><span style="color:#6A737D"> * @date 2022/08/25</span></span>
+<span class="line"><span style="color:#6A737D"> * @description EchoClientHandler</span></span>
+<span class="line"><span style="color:#6A737D"> */</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> class</span><span style="color:#B392F0"> EchoClientHandler</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> SimpleChannelInboundHandler</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">ByteBuf</span><span style="color:#E1E4E8">> {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * 读取到网络数据后进行业务处理</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    protected</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> channelRead0</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, ByteBuf </span><span style="color:#FFAB70">msg</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        System.out.</span><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"client Accept"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> msg.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">(CharsetUtil.UTF_8));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    /**</span></span>
+<span class="line"><span style="color:#6A737D">     * channel活跃后，做业务处理</span></span>
+<span class="line"><span style="color:#6A737D">     */</span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> channelActive</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">throws</span><span style="color:#E1E4E8"> Exception {</span></span>
+<span class="line"><span style="color:#E1E4E8">        ctx.</span><span style="color:#B392F0">writeAndFlush</span><span style="color:#E1E4E8">(Unpooled.</span><span style="color:#B392F0">copiedBuffer</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Hello,Netty"</span><span style="color:#E1E4E8">, CharsetUtil.UTF_8));</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">    </span></span>
+<span class="line"><span style="color:#E1E4E8">    @</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#F97583">    public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> exceptionCaught</span><span style="color:#E1E4E8">(ChannelHandlerContext </span><span style="color:#FFAB70">ctx</span><span style="color:#E1E4E8">, Throwable </span><span style="color:#FFAB70">cause</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        cause.</span><span style="color:#B392F0">printStackTrace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        ctx.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<blockquote>
+<p><code>SimpleChannelInboundHandler</code> 与<code>ChannelInboundHandler</code>
+为什么我们在<code>客户端</code>使用的是<code>SimpleChannelInboundHandler</code>，而不是在<code>EchoServerHandler</code> 中所使用的<code>ChannelInboundHandlerAdapter</code> 呢？这和两个因素的相互作用有关：<strong>业务逻辑如何处理消息</strong>以及<strong>Netty 如何管理资源</strong>。
+在<code>客户端</code>，当<code>channelRead0()</code>方法完成时，你已经有了传入消息，并且已经处理完它了。当该方法返回时，<code>SimpleChannelInboundHandler</code> 负责释放指向保存该消息的<code>ByteBuf</code> 的内存引用。
+在<code>EchoServerHandler</code> 中，你仍然需要将传入消息回送给发送者，而<code>write()</code>操作是<code>异步的</code>，直到<code>channelRead()</code>方法返回后可能仍然没有完成。为此，<code>EchoServerHandler</code>扩展了<code>ChannelInboundHandlerAdapter</code>，其在这个时间点上不会释放消息。
+消息在<code>EchoServerHandler</code> 的<code>channelReadComplete()</code>方法中，当<code>writeAndFlush()</code>方法被调用时被释放。</p>
+</blockquote>
+<p>总结下Client启动流程：</p>
+<ul>
+<li>为初始化客户端，创建了一个<code>Bootstrap 实例</code>；</li>
+<li>为进行事件处理分配了一个<code>NioEventLoopGroup 实例</code>，其中事件处理包括<code>创建新的连接</code>以及<code>处理入站和出站数据</code>；</li>
+<li>为服务器连接创建了一个<code>InetSocketAddress 实例</code>；</li>
+<li>当连接被建立时，一个<code>EchoClientHandler 实例</code>会被安装到（该Channel 的）<code>ChannelPipeline</code> 中；</li>
+<li>在一切都设置完成后，调用<code>Bootstrap.connect()</code>方法<code>连接</code>到远程节点；</li>
+</ul>
+<p>完成了客户端，你便可以着手构建并测试该系统了。</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

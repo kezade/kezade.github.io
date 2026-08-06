@@ -1,0 +1,675 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【MyBatis源码学习】Sql解析</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【MyBatis源码学习】Sql解析 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>4/30/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MyBatis</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#源码</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#SQL</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="一前言">一、前言</h1>
+<p>之前我在{%post_link ‘【Mybatis源码学习】初始化阶段’%} 中重点讲述了核心配置类XMLConfigBuilder、XMLMapperBuilder、XMLStatementBuilder各自的功能。我们先熟悉下这“三剑客”，看下图即可。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315205850237.png" alt="&#x22;三剑客&#x22;">
+本章节中，我们重点跟一下XMLMapperBuilder、XMLStatementBuilder解析sql的源码过程。
+XMLMapperBuilder、XMLStatementBuilder均实现了BaseBuilder。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031521015322.png" alt="继承关系">
+XMLMapperBuilder主要功能：
+遍历mybatis中mapperLocations属性中的xml文件中每个节点的Builder，比如user.xml，内部会使用XMLStatementBuilder处理xml中的每个节点。
+XMLStatementBuilder主要功能：
+解析xml文件中各个节点，比如select,insert,update,delete节点，内部会使用XMLScriptBuilder处理节点的sql部分，遍历产生的数据会丢到Configuration的mappedStatements中。</p>
+<p>在{%post_link ‘【Mybatis源码学习】初始化阶段’%}中，我们分析了XMLConfigBuilder的主要工作流程。还是以下面的代码为例，重点分析下XMLMapperBuilder和XMLStatementBuilder解析sql的流程。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Before</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> init</span><span style="color:#E1E4E8">() throws IOException {</span></span>
+<span class="line"><span style="color:#6A737D">    //--------------------第一阶段---------------------------</span></span>
+<span class="line"><span style="color:#6A737D">    // 1.读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resource </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> "mybatis-config.xml"</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">getResourceAsStream</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#6A737D">    // 1.读取mybatis配置文件创SqlSessionFactory</span></span>
+<span class="line"><span style="color:#E1E4E8">    sqlSessionFactory </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> SqlSessionFactoryBuilder</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">(inputStream);</span></span>
+<span class="line"><span style="color:#E1E4E8">    inputStream.</span><span style="color:#B392F0">close</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>进入new SqlSessionFactoryBuilder().build(inputStream)方法，我们看看parse的方法。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135635377.png" alt="build方法">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031613571219.png" alt="parse方法">
+而我这里的mybatis-config.xml文件如下：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#E1E4E8">&#x3C;?</span><span style="color:#85E89D">xml</span><span style="color:#B392F0"> version</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"1.0"</span><span style="color:#B392F0"> encoding</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"UTF-8"</span><span style="color:#E1E4E8"> ?></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;!</span><span style="color:#F97583">DOCTYPE</span><span style="color:#79B8FF"> configuration</span><span style="color:#E1E4E8"> PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd"></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">configuration</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">properties</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"db.properties"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">settings</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">        &#x3C;!-- 设置自动驼峰转换		 --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">setting</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"mapUnderscoreToCamelCase"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#6A737D">        &#x3C;!-- 开启懒加载 --></span></span>
+<span class="line"><span style="color:#6A737D">        &#x3C;!-- 当启用时，有延迟加载属性的对象在被调用时将会完全加载任意属性。否则，每种属性将会按需要加载。默认：true --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">setting</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"aggressiveLazyLoading"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"false"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">settings</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!-- 别名定义 --></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">typeAliases</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">package</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.entity"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">typeAliases</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">plugins</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">plugin</span><span style="color:#B392F0"> interceptor</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.Interceptors.ThresholdInterceptor"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"threshold"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"10"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">plugin</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">plugin</span><span style="color:#B392F0"> interceptor</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.github.pagehelper.PageInterceptor"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"pageSizeZero"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"true"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">plugin</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">plugins</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!--配置environment环境 --></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">environments</span><span style="color:#B392F0"> default</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"development"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">        &#x3C;!-- 环境配置1，每个SqlSessionFactory对应一个环境 --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">environment</span><span style="color:#B392F0"> id</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"development"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">transactionManager</span><span style="color:#B392F0"> type</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"JDBC"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;</span><span style="color:#85E89D">dataSource</span><span style="color:#B392F0"> type</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"POOLED"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">                &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"driver"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_driver}"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">                &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"url"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_url}"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">                &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"username"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_username}"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">                &#x3C;</span><span style="color:#85E89D">property</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"password"</span><span style="color:#B392F0"> value</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"${jdbc_password}"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">            &#x3C;/</span><span style="color:#85E89D">dataSource</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;/</span><span style="color:#85E89D">environment</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">environments</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!-- 映射文件，mapper的配置文件 --></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">        &#x3C;!--直接映射到相应的mapper文件 --></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/UserInfoMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/TUserTestMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/TRoleMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/TJobHistoryMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/TPositionMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/THealthReportFemaleMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">        &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"sqlmapper/THealthReportMaleMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;/</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">configuration</span><span style="color:#E1E4E8">>  </span></span></code></pre>
+<h1 id="二xmlmapperbuilder">二、XMLMapperBuilder</h1>
+<p>对于parser.evalNode(“/configuration”)，这里我就不赘述了，重点关注parseConfiguration里面的mapperElement()方法。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316135924625.png" alt="mapperElement()方法">
+这个mapperElement()主要就是解析&#x3C;mappers>标签下的内容. 这里贴出这个方法的源码，包含注释。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 解析mappers节点，例如：</span></span>
+<span class="line"><span style="color:#6A737D">  * &#x3C;mappers></span></span>
+<span class="line"><span style="color:#6A737D">  *    &#x3C;mapper resource="com/github/yeecode/mybatisDemo/UserDao.xml"/></span></span>
+<span class="line"><span style="color:#6A737D">  *    &#x3C;package name="com.github.yeecode.mybatisDemo" /></span></span>
+<span class="line"><span style="color:#6A737D">  * &#x3C;/mappers></span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> parent</span><span style="color:#6A737D"> mappers节点</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@throws</span><span style="color:#B392F0"> Exception</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> mapperElement</span><span style="color:#E1E4E8">(XNode parent) throws Exception {</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8"> (parent </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">     for</span><span style="color:#E1E4E8"> (XNode child </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> parent.</span><span style="color:#B392F0">getChildren</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">       // 处理mappers的子节点，即mapper节点或者package节点</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">"package"</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(child.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">())) { </span><span style="color:#6A737D">// package节点</span></span>
+<span class="line"><span style="color:#6A737D">         // 取出包路径</span></span>
+<span class="line"><span style="color:#E1E4E8">         String mapperPackage </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> child.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"name"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">         // 全部加入Mappers中</span></span>
+<span class="line"><span style="color:#E1E4E8">         configuration.</span><span style="color:#B392F0">addMappers</span><span style="color:#E1E4E8">(mapperPackage);</span></span>
+<span class="line"><span style="color:#E1E4E8">       } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">         // resource、url、class这三个属性只有一个生效</span></span>
+<span class="line"><span style="color:#E1E4E8">         String resource </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> child.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resource"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">         String url </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> child.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"url"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">         String mapperClass </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> child.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"class"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">         if</span><span style="color:#E1E4E8"> (resource </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> url </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> mapperClass </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">           ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resource</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#6A737D">           // 获取文件的输入流</span></span>
+<span class="line"><span style="color:#E1E4E8">           InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">getResourceAsStream</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#6A737D">           // 使用XMLMapperBuilder解析映射文件</span></span>
+<span class="line"><span style="color:#E1E4E8">           XMLMapperBuilder mapperParser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLMapperBuilder</span><span style="color:#E1E4E8">(inputStream, configuration, resource, configuration.</span><span style="color:#B392F0">getSqlFragments</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">           mapperParser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">         } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (resource </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> url </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> mapperClass </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">           ErrorContext.</span><span style="color:#B392F0">instance</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">resource</span><span style="color:#E1E4E8">(url);</span></span>
+<span class="line"><span style="color:#6A737D">           // 从网络获得输入流</span></span>
+<span class="line"><span style="color:#E1E4E8">           InputStream inputStream </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">getUrlAsStream</span><span style="color:#E1E4E8">(url);</span></span>
+<span class="line"><span style="color:#6A737D">           // 使用XMLMapperBuilder解析映射文件</span></span>
+<span class="line"><span style="color:#E1E4E8">           XMLMapperBuilder mapperParser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLMapperBuilder</span><span style="color:#E1E4E8">(inputStream, configuration, url, configuration.</span><span style="color:#B392F0">getSqlFragments</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">           mapperParser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">         } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (resource </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> url </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> mapperClass </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">           // 配置的不是映射文件，而是映射接口</span></span>
+<span class="line"><span style="color:#E1E4E8">           Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> mapperInterface </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">classForName</span><span style="color:#E1E4E8">(mapperClass);</span></span>
+<span class="line"><span style="color:#E1E4E8">           configuration.</span><span style="color:#B392F0">addMapper</span><span style="color:#E1E4E8">(mapperInterface);</span></span>
+<span class="line"><span style="color:#E1E4E8">         } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">           throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"A mapper element may only specify a url, resource or class, but not more than one."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">         }</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>for循环里的if主要是针对&#x3C;mappers>标签下还有&#x3C;package>标签的解析。而else则是针对&#x3C;mappers>标签下还有&#x3C;mapper>标签的解析。通常，我们的&#x3C;mapper>会有三种形式，且resource、url、class这三个属性只有一个生效。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#6A737D">&#x3C;!-- 映射器 1使用类路径--></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org/mybatis/builder/AuthorMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org/mybatis/builder/BlogMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> resource</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org/mybatis/builder/PostMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">       &#x3C;!-- 2使用绝对url路径--></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> url</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"file:///var/mappers/AuthorMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> url</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"file:///var/mappers/BlogMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> url</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"file:///var/mappers/PostMapper.xml"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">      &#x3C;!-- 3使用java类名--></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.builder.AuthorMapper"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.builder.BlogMapper"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> class</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.builder.PostMapper"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">&#x3C;!-- 4自动扫描包下所有映射器 --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">  &#x3C;</span><span style="color:#85E89D">package</span><span style="color:#B392F0"> name</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"org.mybatis.builder"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mappers</span><span style="color:#E1E4E8">></span></span></code></pre>
+<p>这里关注两个方法：</p>
+<ul>
+<li>mapperParser.parse();</li>
+<li>configuration.addMapper(mapperInterface);</li>
+</ul>
+<p>它们最终的目的就是将映射器的class对象，以及其代理类设置到集合中，采用的是JDK代理。
+我们先看addMapper()做了些啥。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//将mapper接口的工厂类添加到mapper注册中心</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> &#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#F97583"> void</span><span style="color:#B392F0"> addMapper</span><span style="color:#E1E4E8">(Class</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">T</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> type) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (type.</span><span style="color:#B392F0">isInterface</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (</span><span style="color:#B392F0">hasMapper</span><span style="color:#E1E4E8">(type)) {</span></span>
+<span class="line"><span style="color:#F97583">        throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BindingException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Type "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> type </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> " is already known to the MapperRegistry."</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> loadCompleted </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  	//实例化Mapper接口的代理工程类，并将信息添加至knownMappers</span></span>
+<span class="line"><span style="color:#E1E4E8">      knownMappers.</span><span style="color:#B392F0">put</span><span style="color:#E1E4E8">(type, </span><span style="color:#F97583">new</span><span style="color:#E1E4E8"> MapperProxyFactory&#x3C;</span><span style="color:#F97583">T</span><span style="color:#E1E4E8">>(type));</span></span>
+<span class="line"><span style="color:#6A737D">      // It's important that the type is added before the parser is run</span></span>
+<span class="line"><span style="color:#6A737D">      // otherwise the binding may automatically be attempted by the</span></span>
+<span class="line"><span style="color:#6A737D">      // mapper parser. If the type is already known, it won't try.</span></span>
+<span class="line"><span style="color:#6A737D">      //解析接口上的注解信息，并添加至configuration对象</span></span>
+<span class="line"><span style="color:#E1E4E8">      MapperAnnotationBuilder parser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> MapperAnnotationBuilder</span><span style="color:#E1E4E8">(config, type);</span></span>
+<span class="line"><span style="color:#E1E4E8">      parser.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">      loadCompleted </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">finally</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">      if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">loadCompleted) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        knownMappers.</span><span style="color:#B392F0">remove</span><span style="color:#E1E4E8">(type);</span></span>
+<span class="line"><span style="color:#E1E4E8">      }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>而XMLMapperBuilder的parse()方法：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parse</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    //判断是否已经加载该配置文件</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">configuration.</span><span style="color:#B392F0">isResourceLoaded</span><span style="color:#E1E4E8">(resource)) {</span></span>
+<span class="line"><span style="color:#B392F0">        configurationElement</span><span style="color:#E1E4E8">(parser.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/mapper"</span><span style="color:#E1E4E8">));</span><span style="color:#6A737D">//处理mapper节点</span></span>
+<span class="line"><span style="color:#E1E4E8">        configuration.</span><span style="color:#B392F0">addLoadedResource</span><span style="color:#E1E4E8">(resource);</span><span style="color:#6A737D">//将mapper文件添加到configuration.loadedResources中</span></span>
+<span class="line"><span style="color:#B392F0">        bindMapperForNamespace</span><span style="color:#E1E4E8">();</span><span style="color:#6A737D">//注册mapper接口</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    //处理解析失败的ResultMap节点</span></span>
+<span class="line"><span style="color:#B392F0">    parsePendingResultMaps</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //处理解析失败的CacheRef节点</span></span>
+<span class="line"><span style="color:#B392F0">    parsePendingCacheRefs</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">    //处理解析失败的Sql语句节点</span></span>
+<span class="line"><span style="color:#B392F0">    parsePendingStatements</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>我们在看看MapperAnnotationBuilder的parse方法，该类主要是以注解的方式构建mapper，用的比较少。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 解析包含注解的接口文档</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parse</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">   String resource </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> type.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">   // 防止重复分析</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">configuration.</span><span style="color:#B392F0">isResourceLoaded</span><span style="color:#E1E4E8">(resource)) {</span></span>
+<span class="line"><span style="color:#6A737D">     // 寻找类名称对应的 resource路径下是否有 xml 配置，如果有则直接解析掉，这样就支持注解和xml一起混合使用了</span></span>
+<span class="line"><span style="color:#B392F0">     loadXmlResource</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">     // 记录资源路径</span></span>
+<span class="line"><span style="color:#E1E4E8">     configuration.</span><span style="color:#B392F0">addLoadedResource</span><span style="color:#E1E4E8">(resource);</span></span>
+<span class="line"><span style="color:#6A737D">     // 设置命名空间</span></span>
+<span class="line"><span style="color:#E1E4E8">     assistant.</span><span style="color:#B392F0">setCurrentNamespace</span><span style="color:#E1E4E8">(type.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#6A737D">     // 处理缓存</span></span>
+<span class="line"><span style="color:#B392F0">     parseCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">     parseCacheRef</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">     Method</span><span style="color:#E1E4E8">[] methods </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> type.</span><span style="color:#B392F0">getMethods</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">     for</span><span style="color:#E1E4E8"> (Method method </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> methods) {</span></span>
+<span class="line"><span style="color:#F97583">       try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">         // 排除桥接方法，桥接方法是为了匹配泛型的类型擦除而由编译器自动引入的，并非用户编写的方法，因此要排除掉。</span></span>
+<span class="line"><span style="color:#6A737D">         // issue #237</span></span>
+<span class="line"><span style="color:#F97583">         if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">method.</span><span style="color:#B392F0">isBridge</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#6A737D">           // 解析该方法</span></span>
+<span class="line"><span style="color:#B392F0">           parseStatement</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#E1E4E8">         }</span></span>
+<span class="line"><span style="color:#E1E4E8">       } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IncompleteElementException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">         // 异常方法暂存起来</span></span>
+<span class="line"><span style="color:#E1E4E8">         configuration.</span><span style="color:#B392F0">addIncompleteMethod</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">new</span><span style="color:#B392F0"> MethodResolver</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">, method));</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#6A737D">   // 处理异常的方法</span></span>
+<span class="line"><span style="color:#B392F0">   parsePendingMethods</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>关键看看parseStatement()方法，主要就是解析注解上的信息。再通过getSqlSourceFromAnnotations方法获取sqlSource.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 解析该方法，主要是解析方法上的注解信息</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> method</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> void</span><span style="color:#B392F0"> parseStatement</span><span style="color:#E1E4E8">(Method method) {</span></span>
+<span class="line"><span style="color:#6A737D">   // 通过字方法获取参数类型</span></span>
+<span class="line"><span style="color:#E1E4E8">   Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> parameterTypeClass </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getParameterType</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#6A737D">   // 获取方法的脚本语言渠道</span></span>
+<span class="line"><span style="color:#E1E4E8">   LanguageDriver languageDriver </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getLanguageDriver</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#6A737D">   // 通过注解获取SqlSource</span></span>
+<span class="line"><span style="color:#E1E4E8">   SqlSource sqlSource </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSqlSourceFromAnnotations</span><span style="color:#E1E4E8">(method, parameterTypeClass, languageDriver);</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8"> (sqlSource </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">     // 获取方法上可能存在的配置信息，配置信息由@Options注解指定</span></span>
+<span class="line"><span style="color:#E1E4E8">     Options options </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(Options.class);</span></span>
+<span class="line"><span style="color:#F97583">     final</span><span style="color:#E1E4E8"> String mappedStatementId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> type.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "."</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">     Integer fetchSize </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">     Integer timeout </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">     StatementType statementType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StatementType.PREPARED;</span></span>
+<span class="line"><span style="color:#E1E4E8">     ResultSetType resultSetType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">getDefaultResultSetType</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">     SqlCommandType sqlCommandType </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSqlCommandType</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#F97583">     boolean</span><span style="color:#E1E4E8"> isSelect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlCommandType </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> SqlCommandType.SELECT;</span></span>
+<span class="line"><span style="color:#F97583">     boolean</span><span style="color:#E1E4E8"> flushCache </span><span style="color:#F97583">=</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">isSelect;</span></span>
+<span class="line"><span style="color:#F97583">     boolean</span><span style="color:#E1E4E8"> useCache </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> isSelect;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">     KeyGenerator keyGenerator;</span></span>
+<span class="line"><span style="color:#E1E4E8">     String keyProperty </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">     String keyColumn </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">     if</span><span style="color:#E1E4E8"> (SqlCommandType.INSERT.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(sqlCommandType) </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> SqlCommandType.UPDATE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(sqlCommandType)) {</span></span>
+<span class="line"><span style="color:#6A737D">       // first check for SelectKey annotation - that overrides everything else</span></span>
+<span class="line"><span style="color:#E1E4E8">       SelectKey selectKey </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(SelectKey.class);</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (selectKey </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyGenerator </span><span style="color:#F97583">=</span><span style="color:#B392F0"> handleSelectKeyAnnotation</span><span style="color:#E1E4E8">(selectKey, mappedStatementId, </span><span style="color:#B392F0">getParameterType</span><span style="color:#E1E4E8">(method), languageDriver);</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyProperty </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> selectKey.</span><span style="color:#B392F0">keyProperty</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">       } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (options </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyGenerator </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">isUseGeneratedKeys</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> Jdbc3KeyGenerator.INSTANCE </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> NoKeyGenerator.INSTANCE;</span></span>
+<span class="line"><span style="color:#E1E4E8">       } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyGenerator </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">useGeneratedKeys</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> Jdbc3KeyGenerator.INSTANCE </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> NoKeyGenerator.INSTANCE;</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyProperty </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">keyProperty</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyColumn </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">keyColumn</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">     } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">       keyGenerator </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> NoKeyGenerator.INSTANCE;</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">     if</span><span style="color:#E1E4E8"> (options </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (FlushCachePolicy.TRUE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(options.</span><span style="color:#B392F0">flushCache</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#E1E4E8">         flushCache </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">       } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (FlushCachePolicy.FALSE.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(options.</span><span style="color:#B392F0">flushCache</span><span style="color:#E1E4E8">())) {</span></span>
+<span class="line"><span style="color:#E1E4E8">         flushCache </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">       useCache </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">useCache</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">       fetchSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">fetchSize</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">fetchSize</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> Integer.MIN_VALUE </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">fetchSize</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">//issue #348</span></span>
+<span class="line"><span style="color:#E1E4E8">       timeout </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">timeout</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">></span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">timeout</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">       statementType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">statementType</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (options.</span><span style="color:#B392F0">resultSetType</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> ResultSetType.DEFAULT) {</span></span>
+<span class="line"><span style="color:#E1E4E8">         resultSetType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> options.</span><span style="color:#B392F0">resultSetType</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">     String resultMapId </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">     ResultMap resultMapAnnotation </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(ResultMap.class);</span></span>
+<span class="line"><span style="color:#F97583">     if</span><span style="color:#E1E4E8"> (resultMapAnnotation </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">       resultMapId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> String.</span><span style="color:#B392F0">join</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">","</span><span style="color:#E1E4E8">, resultMapAnnotation.</span><span style="color:#B392F0">value</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">     } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (isSelect) {</span></span>
+<span class="line"><span style="color:#E1E4E8">       resultMapId </span><span style="color:#F97583">=</span><span style="color:#B392F0"> parseResultMap</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">     // 将获取到的信息存入 configuration</span></span>
+<span class="line"><span style="color:#E1E4E8">     assistant.</span><span style="color:#B392F0">addMappedStatement</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">         mappedStatementId,</span></span>
+<span class="line"><span style="color:#E1E4E8">         sqlSource,</span></span>
+<span class="line"><span style="color:#E1E4E8">         statementType,</span></span>
+<span class="line"><span style="color:#E1E4E8">         sqlCommandType,</span></span>
+<span class="line"><span style="color:#E1E4E8">         fetchSize,</span></span>
+<span class="line"><span style="color:#E1E4E8">         timeout,</span></span>
+<span class="line"><span style="color:#6A737D">         // ParameterMapID</span></span>
+<span class="line"><span style="color:#79B8FF">         null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">         parameterTypeClass,</span></span>
+<span class="line"><span style="color:#E1E4E8">         resultMapId,</span></span>
+<span class="line"><span style="color:#B392F0">         getReturnType</span><span style="color:#E1E4E8">(method),</span></span>
+<span class="line"><span style="color:#E1E4E8">         resultSetType,</span></span>
+<span class="line"><span style="color:#E1E4E8">         flushCache,</span></span>
+<span class="line"><span style="color:#E1E4E8">         useCache,</span></span>
+<span class="line"><span style="color:#6A737D">         // TODO gcode issue #577</span></span>
+<span class="line"><span style="color:#79B8FF">         false</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyGenerator,</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyProperty,</span></span>
+<span class="line"><span style="color:#E1E4E8">         keyColumn,</span></span>
+<span class="line"><span style="color:#6A737D">         // DatabaseID</span></span>
+<span class="line"><span style="color:#79B8FF">         null</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">         languageDriver,</span></span>
+<span class="line"><span style="color:#6A737D">         // ResultSets</span></span>
+<span class="line"><span style="color:#E1E4E8">         options </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ?</span><span style="color:#B392F0"> nullOrEmpty</span><span style="color:#E1E4E8">(options.</span><span style="color:#B392F0">resultSets</span><span style="color:#E1E4E8">()) </span><span style="color:#F97583">:</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>getSqlSourceFromAnnotations()方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 通过注解获取SqlSource对象</span></span>
+<span class="line"><span style="color:#6A737D">  * </span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> method</span><span style="color:#6A737D"> 含有注解的方法</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> parameterType</span><span style="color:#6A737D"> 参数类型</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> languageDriver</span><span style="color:#6A737D"> 语言渠道</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@return</span><span style="color:#6A737D"> SqlSource对象</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> private</span><span style="color:#E1E4E8"> SqlSource </span><span style="color:#B392F0">getSqlSourceFromAnnotations</span><span style="color:#E1E4E8">(Method method, Class</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> parameterType, LanguageDriver languageDriver) {</span></span>
+<span class="line"><span style="color:#F97583">   try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">     // 遍历寻找是否有 Select、Insert、Update、Delete四个注解之一</span></span>
+<span class="line"><span style="color:#E1E4E8">     Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> Annotation</span><span style="color:#E1E4E8">> sqlAnnotationType </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSqlAnnotationType</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#6A737D">     // 遍历寻找是否有 SelectProvider、InsertProvider、UpdateProvider、DeleteProvider 四个注解之一</span></span>
+<span class="line"><span style="color:#E1E4E8">     Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#F97583"> extends</span><span style="color:#F97583"> Annotation</span><span style="color:#E1E4E8">> sqlProviderAnnotationType </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getSqlProviderAnnotationType</span><span style="color:#E1E4E8">(method);</span></span>
+<span class="line"><span style="color:#F97583">     if</span><span style="color:#E1E4E8"> (sqlAnnotationType </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">       if</span><span style="color:#E1E4E8"> (sqlProviderAnnotationType </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">         // 两类注解不能同时使用</span></span>
+<span class="line"><span style="color:#F97583">         throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BindingException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"You cannot supply both a static SQL and SqlProvider to method named "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getName</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">       }</span></span>
+<span class="line"><span style="color:#6A737D">       // 取出Select、Insert、Update、Delete四个注解之一</span></span>
+<span class="line"><span style="color:#E1E4E8">       Annotation sqlAnnotation </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(sqlAnnotationType);</span></span>
+<span class="line"><span style="color:#6A737D">       // 取出value值</span></span>
+<span class="line"><span style="color:#F97583">       final</span><span style="color:#F97583"> String</span><span style="color:#E1E4E8">[] strings </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">String</span><span style="color:#E1E4E8">[]) sqlAnnotation.</span><span style="color:#B392F0">getClass</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getMethod</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"value"</span><span style="color:#E1E4E8">).</span><span style="color:#B392F0">invoke</span><span style="color:#E1E4E8">(sqlAnnotation);</span></span>
+<span class="line"><span style="color:#6A737D">       // 基于字符串构建SqlSource，直接注解获取SQL</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#B392F0"> buildSqlSourceFromStrings</span><span style="color:#E1E4E8">(strings, parameterType, languageDriver);</span></span>
+<span class="line"><span style="color:#E1E4E8">     } </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (sqlProviderAnnotationType </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">       // // 取出 SelectProvider、InsertProvider、UpdateProvider、DeleteProvider 四个注解之一</span></span>
+<span class="line"><span style="color:#E1E4E8">       Annotation sqlProviderAnnotation </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> method.</span><span style="color:#B392F0">getAnnotation</span><span style="color:#E1E4E8">(sqlProviderAnnotationType);</span></span>
+<span class="line"><span style="color:#6A737D">       // 根据对应的方法获取SqlSource，间接注解获取SQL</span></span>
+<span class="line"><span style="color:#F97583">       return</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> ProviderSqlSource</span><span style="color:#E1E4E8">(assistant.</span><span style="color:#B392F0">getConfiguration</span><span style="color:#E1E4E8">(), sqlProviderAnnotation, type, method);</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#F97583">     return</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">   } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">     throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Could not find value method on SQL annotation.  Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>总结下解析mapper的parse()方法有两种方式：</p>
+<ul>
+<li>XMLMapperBuilder的parse方法</li>
+<li>MapperAnnotationBuilder的parse方法</li>
+</ul>
+<p>MapperAnnotationBuilder的parse方法与XMLMapperBuilder的parse方法逻辑上略有不同，主要体现在对节点的解析上。</p>
+<p>上面只是大致分析了*mapper.java与*mapper.xml映射注册的过程，由于我们的*mapper.xml还有很多其他的xml标签，这里我们需要具体了解下其中的解析流程。还是回到XMLMapperBuilder的parse()方法。
+我们看看configurationElement()方法干了些啥。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">/**</span></span>
+<span class="line"><span style="color:#6A737D">  * 解析映射文件的下层节点</span></span>
+<span class="line"><span style="color:#6A737D">  * </span><span style="color:#F97583">@param</span><span style="color:#FFAB70"> context</span><span style="color:#6A737D"> 映射文件根节点</span></span>
+<span class="line"><span style="color:#6A737D">  */</span></span>
+<span class="line"><span style="color:#F97583"> private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> configurationElement</span><span style="color:#E1E4E8">(XNode context) {</span></span>
+<span class="line"><span style="color:#F97583">   try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    //获取mapper节点的namespace属性</span></span>
+<span class="line"><span style="color:#E1E4E8">     String namespace </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"namespace"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">     if</span><span style="color:#E1E4E8"> (namespace </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> null</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> namespace.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">)) {</span></span>
+<span class="line"><span style="color:#F97583">         throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Mapper's namespace cannot be empty"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">     }</span></span>
+<span class="line"><span style="color:#6A737D">     //设置builderAssistant的namespace属性</span></span>
+<span class="line"><span style="color:#E1E4E8">     builderAssistant.</span><span style="color:#B392F0">setCurrentNamespace</span><span style="color:#E1E4E8">(namespace);</span></span>
+<span class="line"><span style="color:#6A737D">     //解析cache-ref节点</span></span>
+<span class="line"><span style="color:#B392F0">     cacheRefElement</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"cache-ref"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">     //重点分析 ：解析cache节点----------------1-------------------二级缓存</span></span>
+<span class="line"><span style="color:#B392F0">     cacheElement</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"cache"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">     //解析parameterMap节点（已废弃）</span></span>
+<span class="line"><span style="color:#B392F0">     parameterMapElement</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNodes</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/mapper/parameterMap"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">     //重点分析 ：解析resultMap节点（基于数据结果去理解）----------------2-------------------</span></span>
+<span class="line"><span style="color:#B392F0">     resultMapElements</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNodes</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/mapper/resultMap"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">     //解析sql节点</span></span>
+<span class="line"><span style="color:#B392F0">     sqlElement</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNodes</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/mapper/sql"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">     //重点分析 ：解析select、insert、update、delete节点 ----------------3-------------------sql解析</span></span>
+<span class="line"><span style="color:#B392F0">     buildStatementFromContext</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">evalNodes</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"select|insert|update|delete"</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">   } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (Exception </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">     throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> BuilderException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Error parsing Mapper XML. The XML location is '"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> resource </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> "'. Cause: "</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> e, e);</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#E1E4E8"> }</span></span></code></pre>
+<p>重点关注这几个方法：</p>
+<ul>
+<li>cacheElement：解析&#x3C;cache>，与二级缓存有关.</li>
+<li>resultMapElements：解析&#x3C;resultMap>，结果集映射.</li>
+<li>sqlElement：解析sql节点&#x3C;sql>.</li>
+<li>buildStatementFromContext：解析&#x3C;select>、&#x3C;insert>、&#x3C;update>、&#x3C;delete>节点.</li>
+</ul>
+<p>而当前我们的UserInfoMapper如下：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316160708894.png" alt="UserInfoMapper.xml">
+接下来，我们关注buildStatementFromContext解析&#x3C;select>、&#x3C;insert>、&#x3C;update>、&#x3C;delete>标签的过程。主要就是看看XMLStatementBuilder是怎么干活儿的。</p>
+<h1 id="三xmlstatementbuilder">三、XMLStatementBuilder</h1>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//解析select、insert、update、delete节点</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> buildStatementFromContext</span><span style="color:#E1E4E8">(List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">XNode</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> list) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (configuration.</span><span style="color:#B392F0">getDatabaseId</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">        buildStatementFromContext</span><span style="color:#E1E4E8">(list, configuration.</span><span style="color:#B392F0">getDatabaseId</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#B392F0">    buildStatementFromContext</span><span style="color:#E1E4E8">(list, </span><span style="color:#79B8FF">null</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//处理所有的sql语句节点并注册至configuration对象</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> buildStatementFromContext</span><span style="color:#E1E4E8">(List</span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8">XNode</span><span style="color:#F97583">></span><span style="color:#E1E4E8"> list, String requiredDatabaseId) {</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (XNode context </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> list) {</span></span>
+<span class="line"><span style="color:#6A737D">        //创建XMLStatementBuilder 专门用于解析sql语句节点</span></span>
+<span class="line"><span style="color:#F97583">        final</span><span style="color:#E1E4E8"> XMLStatementBuilder statementParser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLStatementBuilder</span><span style="color:#E1E4E8">(configuration, builderAssistant, context, requiredDatabaseId);</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //解析sql语句节点，并将解析结果存储到 configuration 的 mappedStatements 集合中</span></span>
+<span class="line"><span style="color:#E1E4E8">            statementParser.</span><span style="color:#B392F0">parseStatementNode</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (IncompleteElementException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">            configuration.</span><span style="color:#B392F0">addIncompleteStatement</span><span style="color:#E1E4E8">(statementParser);</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>点进去看看parseStatementNode()方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parseStatementNode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    //获取sql节点的id</span></span>
+<span class="line"><span style="color:#E1E4E8">    String id </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"id"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String databaseId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"databaseId"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#B392F0">databaseIdMatchesCurrent</span><span style="color:#E1E4E8">(id, databaseId, </span><span style="color:#79B8FF">this</span><span style="color:#E1E4E8">.requiredDatabaseId)) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    /*获取sql节点的各种属性*/</span></span>
+<span class="line"><span style="color:#E1E4E8">    Integer fetchSize </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getIntAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"fetchSize"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    Integer timeout </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getIntAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"timeout"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String parameterMap </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"parameterMap"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String parameterType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"parameterType"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> parameterTypeClass </span><span style="color:#F97583">=</span><span style="color:#B392F0"> resolveClass</span><span style="color:#E1E4E8">(parameterType);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultMap </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resultMap"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resultType"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String lang </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"lang"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    LanguageDriver langDriver </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getLanguageDriver</span><span style="color:#E1E4E8">(lang);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> resultTypeClass </span><span style="color:#F97583">=</span><span style="color:#B392F0"> resolveClass</span><span style="color:#E1E4E8">(resultType);</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultSetType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resultSetType"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    StatementType statementType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> StatementType.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"statementType"</span><span style="color:#E1E4E8">, StatementType.PREPARED.</span><span style="color:#B392F0">toString</span><span style="color:#E1E4E8">()));</span></span>
+<span class="line"><span style="color:#E1E4E8">    ResultSetType resultSetTypeEnum </span><span style="color:#F97583">=</span><span style="color:#B392F0"> resolveResultSetType</span><span style="color:#E1E4E8">(resultSetType);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //根据sql节点的名称获取SqlCommandType（INSERT, UPDATE, DELETE, SELECT）</span></span>
+<span class="line"><span style="color:#E1E4E8">    String nodeName </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getNode</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">getNodeName</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlCommandType sqlCommandType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> SqlCommandType.</span><span style="color:#B392F0">valueOf</span><span style="color:#E1E4E8">(nodeName.</span><span style="color:#B392F0">toUpperCase</span><span style="color:#E1E4E8">(Locale.ENGLISH));</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> isSelect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlCommandType </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> SqlCommandType.SELECT;</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> flushCache </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getBooleanAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"flushCache"</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">isSelect);</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> useCache </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getBooleanAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"useCache"</span><span style="color:#E1E4E8">, isSelect);</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> resultOrdered </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getBooleanAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resultOrdered"</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Include Fragments before parsing</span></span>
+<span class="line"><span style="color:#6A737D">    //在解析sql语句之前先解析&#x3C;include>节点(查询的结果有哪些参数)</span></span>
+<span class="line"><span style="color:#E1E4E8">    XMLIncludeTransformer includeParser </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLIncludeTransformer</span><span style="color:#E1E4E8">(configuration, builderAssistant);</span></span>
+<span class="line"><span style="color:#E1E4E8">    includeParser.</span><span style="color:#B392F0">applyIncludes</span><span style="color:#E1E4E8">(context.</span><span style="color:#B392F0">getNode</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Parse selectKey after includes and remove them.</span></span>
+<span class="line"><span style="color:#6A737D">    //在解析sql语句之前，处理&#x3C;selectKey>子节点，并在xml节点中删除</span></span>
+<span class="line"><span style="color:#B392F0">    processSelectKeyNodes</span><span style="color:#E1E4E8">(id, parameterTypeClass, langDriver);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // Parse the SQL (pre: &#x3C;selectKey> and &#x3C;include> were parsed and removed)</span></span>
+<span class="line"><span style="color:#6A737D">    //解析sql语句是解析mapper.xml的核心，实例化sqlSource，使用sqlSource封装sql语句</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSource sqlSource </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> langDriver.</span><span style="color:#B392F0">createSqlSource</span><span style="color:#E1E4E8">(configuration, context, parameterTypeClass);</span></span>
+<span class="line"><span style="color:#6A737D">    //获取resultSets属性</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultSets </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"resultSets"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //获取主键信息keyProperty</span></span>
+<span class="line"><span style="color:#E1E4E8">    String keyProperty </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"keyProperty"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    //获取主键信息keyColumn</span></span>
+<span class="line"><span style="color:#E1E4E8">    String keyColumn </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getStringAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"keyColumn"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //根据&#x3C;selectKey>获取对应的SelectKeyGenerator的id</span></span>
+<span class="line"><span style="color:#E1E4E8">    KeyGenerator keyGenerator;</span></span>
+<span class="line"><span style="color:#E1E4E8">    String keyStatementId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> id </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> SelectKeyGenerator.SELECT_KEY_SUFFIX;</span></span>
+<span class="line"><span style="color:#E1E4E8">    keyStatementId </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> builderAssistant.</span><span style="color:#B392F0">applyCurrentNamespace</span><span style="color:#E1E4E8">(keyStatementId, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //获取keyGenerator对象，如果是insert类型的sql语句，会使用KeyGenerator接口获取数据库生产的id；</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (configuration.</span><span style="color:#B392F0">hasKeyGenerator</span><span style="color:#E1E4E8">(keyStatementId)) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyGenerator </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> configuration.</span><span style="color:#B392F0">getKeyGenerator</span><span style="color:#E1E4E8">(keyStatementId);</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        keyGenerator </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> context.</span><span style="color:#B392F0">getBooleanAttribute</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"useGeneratedKeys"</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">                configuration.</span><span style="color:#B392F0">isUseGeneratedKeys</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> SqlCommandType.INSERT.</span><span style="color:#B392F0">equals</span><span style="color:#E1E4E8">(sqlCommandType))</span></span>
+<span class="line"><span style="color:#F97583">                ?</span><span style="color:#E1E4E8"> Jdbc3KeyGenerator.INSTANCE </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> NoKeyGenerator.INSTANCE;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //通过builderAssistant实例化MappedStatement，并注册至configuration对象</span></span>
+<span class="line"><span style="color:#E1E4E8">    builderAssistant.</span><span style="color:#B392F0">addMappedStatement</span><span style="color:#E1E4E8">(id, sqlSource, statementType, sqlCommandType,</span></span>
+<span class="line"><span style="color:#E1E4E8">            fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,</span></span>
+<span class="line"><span style="color:#E1E4E8">            resultSetTypeEnum, flushCache, useCache, resultOrdered,</span></span>
+<span class="line"><span style="color:#E1E4E8">            keyGenerator, keyProperty, keyColumn, databaseId, langDriver, resultSets);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>总结下它干了哪些活儿：</p>
+<ul>
+<li>解析 &#x3C;include> 节点</li>
+<li>解析 &#x3C;selectKey> 节点</li>
+<li>解析 SQL，获取 SqlSource</li>
+<li>构建 MappedStatement 实例</li>
+</ul>
+<p>解析&#x3C;select>、&#x3C;insert>、&#x3C;update>、&#x3C;delete>这些标签的关键方法在这里</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);</span></span></code></pre>
+<p>看看这个方法的一般实现类XMLScriptBuilder.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">@</span><span style="color:#F97583">Override</span></span>
+<span class="line"><span style="color:#6A737D">//解析xml文件中的sql语句并封装成SqlSource</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> SqlSource </span><span style="color:#B392F0">createSqlSource</span><span style="color:#E1E4E8">(Configuration configuration, XNode script, Class</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> parameterType) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  XMLScriptBuilder builder </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLScriptBuilder</span><span style="color:#E1E4E8">(configuration, script, parameterType);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> builder.</span><span style="color:#B392F0">parseScriptNode</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">//解析sql脚本，返回SqlSource</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> SqlSource </span><span style="color:#B392F0">parseScriptNode</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  MixedSqlNode rootSqlNode </span><span style="color:#F97583">=</span><span style="color:#B392F0"> parseDynamicTags</span><span style="color:#E1E4E8">(context);</span></span>
+<span class="line"><span style="color:#E1E4E8">  SqlSource sqlSource </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (isDynamic) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    sqlSource </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> DynamicSqlSource</span><span style="color:#E1E4E8">(configuration, rootSqlNode);</span><span style="color:#6A737D">//动态sql的解析</span></span>
+<span class="line"><span style="color:#E1E4E8">  } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    sqlSource </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> RawSqlSource</span><span style="color:#E1E4E8">(configuration, rootSqlNode, parameterType);</span><span style="color:#6A737D">//非动态sql的解析</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#6A737D">  //实际返回的都是StaticSqlSource，可以直接让数据库执行的sql语句，包含?占位符</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> sqlSource;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>方法<code>parseDynamicTags()</code>就是真正去解析sql语句的淫儿了。当执行<code>createSqlSource()</code>方法中的<code>new XMLScriptBuilder(configuration, script, parameterType)</code>时，我们看下，它初始化了些什么东东。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316174946741.png" alt="XMLScriptBuilder构造方法">
+可以看到关键的部分，对于不同的标签，比如&#x3C;trim>、&#x3C;where>等，都有不同的处理策略。在执行parseDynamicTags()时，会判断节点是否包含一些动态标记，比如 ${} 占位符以及动态 SQL 节点等。若包含动态标记，则会将 isDynamic 设为 true。后续可根据 isDynamic 创建不同的 SqlSource。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210703601.png" alt="SqlSource"></p>
+<p>通常，我们在xml内写sql都是片段的去编写，主要语句写完了，还会有些动态标签包裹的语句，对于mybatis来说，每个片段都会解析成为一个sqlNode存起来，我们先来回忆一下sqlNode有哪些实现类。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210315210642589.png" alt="sqlNode实现类">
+这些 SqlNode 是如何生成的呢？我们看看<code>parseDynamicTags()</code>中的这段代码：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#E1E4E8">handler.</span><span style="color:#B392F0">handleNode</span><span style="color:#E1E4E8">(child, contents);</span></span></code></pre>
+<p>它有很多个实现。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/20210316180045568.png" alt="handleNode的那些实现">
+到此 SQL 语句的解析过程搞完了。但我们只是完成了xml解析为sqlSource的流程，而一般sql语句还会有一些附加属性，需要mybatis去解析出来，封装至MappedStatement当中，最终还要把它注册到configuration。回到XMLStatementBuilder的parseStatementNode()方法。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/csdn/2021031618090324.png" alt="parseStatementNode()">
+具体方法实现：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//添加MappedStatement对象</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#E1E4E8"> MappedStatement </span><span style="color:#B392F0">addMappedStatement</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#E1E4E8">    String id,</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlSource sqlSource,</span></span>
+<span class="line"><span style="color:#E1E4E8">    StatementType statementType,</span></span>
+<span class="line"><span style="color:#E1E4E8">    SqlCommandType sqlCommandType,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Integer fetchSize,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Integer timeout,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String parameterMap,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Class</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> parameterType,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultMap,</span></span>
+<span class="line"><span style="color:#E1E4E8">    Class</span><span style="color:#F97583">&#x3C;?></span><span style="color:#E1E4E8"> resultType,</span></span>
+<span class="line"><span style="color:#E1E4E8">    ResultSetType resultSetType,</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> flushCache,</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> useCache,</span></span>
+<span class="line"><span style="color:#F97583">    boolean</span><span style="color:#E1E4E8"> resultOrdered,</span></span>
+<span class="line"><span style="color:#E1E4E8">    KeyGenerator keyGenerator,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String keyProperty,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String keyColumn,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String databaseId,</span></span>
+<span class="line"><span style="color:#E1E4E8">    LanguageDriver lang,</span></span>
+<span class="line"><span style="color:#E1E4E8">    String resultSets) {</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (unresolvedCacheRef) {</span></span>
+<span class="line"><span style="color:#F97583">    throw</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> IncompleteElementException</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"Cache-ref not yet resolved"</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  id </span><span style="color:#F97583">=</span><span style="color:#B392F0"> applyCurrentNamespace</span><span style="color:#E1E4E8">(id, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  boolean</span><span style="color:#E1E4E8"> isSelect </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> sqlCommandType </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> SqlCommandType.SELECT;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  //使用建造者模式创建一个mappedStatment</span></span>
+<span class="line"><span style="color:#E1E4E8">  MappedStatement.Builder statementBuilder </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#E1E4E8"> MappedStatement.</span><span style="color:#B392F0">Builder</span><span style="color:#E1E4E8">(configuration, id, sqlSource, sqlCommandType)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">resource</span><span style="color:#E1E4E8">(resource)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">fetchSize</span><span style="color:#E1E4E8">(fetchSize)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">timeout</span><span style="color:#E1E4E8">(timeout)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">statementType</span><span style="color:#E1E4E8">(statementType)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">keyGenerator</span><span style="color:#E1E4E8">(keyGenerator)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">keyProperty</span><span style="color:#E1E4E8">(keyProperty)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">keyColumn</span><span style="color:#E1E4E8">(keyColumn)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">databaseId</span><span style="color:#E1E4E8">(databaseId)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">lang</span><span style="color:#E1E4E8">(lang)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">resultOrdered</span><span style="color:#E1E4E8">(resultOrdered)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">resultSets</span><span style="color:#E1E4E8">(resultSets)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">resultMaps</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">getStatementResultMaps</span><span style="color:#E1E4E8">(resultMap, resultType, id))</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">resultSetType</span><span style="color:#E1E4E8">(resultSetType)</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">flushCacheRequired</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">valueOrDefault</span><span style="color:#E1E4E8">(flushCache, </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">isSelect))</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">useCache</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">valueOrDefault</span><span style="color:#E1E4E8">(useCache, isSelect))</span></span>
+<span class="line"><span style="color:#E1E4E8">      .</span><span style="color:#B392F0">cache</span><span style="color:#E1E4E8">(currentCache);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  ParameterMap statementParameterMap </span><span style="color:#F97583">=</span><span style="color:#B392F0"> getStatementParameterMap</span><span style="color:#E1E4E8">(parameterMap, parameterType, id);</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (statementParameterMap </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    statementBuilder.</span><span style="color:#B392F0">parameterMap</span><span style="color:#E1E4E8">(statementParameterMap);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#6A737D">  //使用建造者模式创建一个mappedStatment</span></span>
+<span class="line"><span style="color:#E1E4E8">  MappedStatement statement </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> statementBuilder.</span><span style="color:#B392F0">build</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">  //将mappedStatment注册到configuration</span></span>
+<span class="line"><span style="color:#E1E4E8">  configuration.</span><span style="color:#B392F0">addMappedStatement</span><span style="color:#E1E4E8">(statement);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> statement;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>以上就是生成MappedStatement的过程。但是还没完，*mapper.java还没有和*mapper.xml对应的sql绑定起来。接下来就是绑定过程了。</p>
+<h1 id="四mapper-接口绑定">四、Mapper 接口绑定</h1>
+<p>返回到XMLMapperBuilder的parse()方法。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> parse</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">   //判断是否已经加载该配置文件</span></span>
+<span class="line"><span style="color:#F97583">   if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">configuration.</span><span style="color:#B392F0">isResourceLoaded</span><span style="color:#E1E4E8">(resource)) {</span></span>
+<span class="line"><span style="color:#B392F0">       configurationElement</span><span style="color:#E1E4E8">(parser.</span><span style="color:#B392F0">evalNode</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"/mapper"</span><span style="color:#E1E4E8">));</span><span style="color:#6A737D">//处理mapper节点</span></span>
+<span class="line"><span style="color:#E1E4E8">       configuration.</span><span style="color:#B392F0">addLoadedResource</span><span style="color:#E1E4E8">(resource);</span><span style="color:#6A737D">//将mapper文件添加到configuration.loadedResources中</span></span>
+<span class="line"><span style="color:#B392F0">       bindMapperForNamespace</span><span style="color:#E1E4E8">();</span><span style="color:#6A737D">//注册mapper接口</span></span>
+<span class="line"><span style="color:#E1E4E8">   }</span></span>
+<span class="line"><span style="color:#6A737D">   //处理解析失败的ResultMap节点</span></span>
+<span class="line"><span style="color:#B392F0">   parsePendingResultMaps</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">   //处理解析失败的CacheRef节点</span></span>
+<span class="line"><span style="color:#B392F0">   parsePendingCacheRefs</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">   //处理解析失败的Sql语句节点</span></span>
+<span class="line"><span style="color:#B392F0">   parsePendingStatements</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>主要关注这个方法bindMapperForNamespace().</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//注册mapper接口</span></span>
+<span class="line"><span style="color:#F97583">private</span><span style="color:#F97583"> void</span><span style="color:#B392F0"> bindMapperForNamespace</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    //获取命名空间</span></span>
+<span class="line"><span style="color:#E1E4E8">    String namespace </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> builderAssistant.</span><span style="color:#B392F0">getCurrentNamespace</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (namespace </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        Class&#x3C;</span><span style="color:#F97583">?</span><span style="color:#E1E4E8">> boundType </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">        try</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            //通过命名空间获取mapper接口的class对象</span></span>
+<span class="line"><span style="color:#E1E4E8">            boundType </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> Resources.</span><span style="color:#B392F0">classForName</span><span style="color:#E1E4E8">(namespace);</span></span>
+<span class="line"><span style="color:#E1E4E8">        } </span><span style="color:#F97583">catch</span><span style="color:#E1E4E8"> (ClassNotFoundException </span><span style="color:#FFAB70">e</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">            //ignore, bound type is not required</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> (boundType </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">configuration.</span><span style="color:#B392F0">hasMapper</span><span style="color:#E1E4E8">(boundType)) {</span><span style="color:#6A737D">//是否已经注册过该mapper接口？</span></span>
+<span class="line"><span style="color:#6A737D">                // Spring may not know the real resource name so we set a flag</span></span>
+<span class="line"><span style="color:#6A737D">                // to prevent loading again this resource from the mapper interface</span></span>
+<span class="line"><span style="color:#6A737D">                // look at MapperAnnotationBuilder#loadXmlResource</span></span>
+<span class="line"><span style="color:#6A737D">                //将命名空间添加至configuration.loadedResource集合中</span></span>
+<span class="line"><span style="color:#E1E4E8">                configuration.</span><span style="color:#B392F0">addLoadedResource</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"namespace:"</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> namespace);</span></span>
+<span class="line"><span style="color:#6A737D">                //将mapper接口添加到mapper注册中心</span></span>
+<span class="line"><span style="color:#E1E4E8">                configuration.</span><span style="color:#B392F0">addMapper</span><span style="color:#E1E4E8">(boundType);</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>绑定完正常的节点后，还要处理一些不正常的。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">//处理解析失败的ResultMap节点</span></span>
+<span class="line"><span style="color:#B392F0">parsePendingResultMaps</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">//处理解析失败的CacheRef节点</span></span>
+<span class="line"><span style="color:#B392F0">parsePendingCacheRefs</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">//处理解析失败的Sql语句节点</span></span>
+<span class="line"><span style="color:#B392F0">parsePendingStatements</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>比如这种cacheRef标签</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="xml"><code><span class="line"><span style="color:#6A737D">&#x3C;!-- 映射文件1 --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> namespace</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.dao.Mapper1"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#6A737D">    &#x3C;!-- 引用映射文件2中配置的缓存 --></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">cache-ref</span><span style="color:#B392F0"> namespace</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.dao.Mapper2"</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mapper</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#6A737D">&#x3C;!-- 映射文件2 --></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;</span><span style="color:#85E89D">mapper</span><span style="color:#B392F0"> namespace</span><span style="color:#E1E4E8">=</span><span style="color:#9ECBFF">"com.enjoylearning.mybatis.dao.Mapper2"</span><span style="color:#E1E4E8">></span></span>
+<span class="line"><span style="color:#E1E4E8">    &#x3C;</span><span style="color:#85E89D">cache</span><span style="color:#E1E4E8">/></span></span>
+<span class="line"><span style="color:#E1E4E8">&#x3C;/</span><span style="color:#85E89D">mapper</span><span style="color:#E1E4E8">></span></span>
+<span class="line"></span></code></pre>
+<p>Game over.</p> </div> </article>  <!-- </div>
+    </main> --> </body></html>

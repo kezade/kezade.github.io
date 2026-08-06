@@ -1,0 +1,142 @@
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】抖音面试：说说二维码登录的原理</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+      <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【每日一面】抖音面试：说说二维码登录的原理 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>1/23/2024</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#二维码登录</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#token</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-前言">1 前言</h1>
+<p>前几天看了<a href="https://time.geekbang.org/dailylesson/detail/100044032?utm_source=u_nav_web&#x26;utm_medium=u_nav_web&#x26;utm_term=u_nav_web">极客时间一个二维码的视频</a>，写的不错，这里总结下。</p>
+<p>在日常生活中，二维码出现在很多场景，比如<code>超市支付</code>、<code>系统登录</code>、<code>应用下载</code>等等。了解二维码的原理，可以为技术人员在技术选型时提供新的思路。对于非技术人员呢，除了解惑，还可以引导他更好地辨别生活中遇到的各种二维码，防止上当受骗。</p>
+<p>二维码，大家再熟悉不过了。购物扫个码，吃饭扫个码，坐公交也扫个码。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-pay.png" alt="支付二维码">
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-bus.png" alt="乘车码">
+在扫码的过程中，大家可能会有疑问：这二维码安全吗？会不会泄漏我的个人信息？更深度的用户还会考虑：我的系统是不是也可以搞一个二维码来推广呢？</p>
+<p>这时候就需要了解一下二维码背后的技术和逻辑了！</p>
+<p>二维码最常用的场景之一就是通过手机端应用扫描PC或者WEB端的二维码，来登录同一个系统。 比如手机微信扫码登录PC端微信，手机淘宝扫码登录PC端淘宝。 那么就让我们来看一下，二维码登录是怎么操作的！</p>
+<h1 id="2-二维码登录的本质">2 二维码登录的本质</h1>
+<p>二维码登录本质上也是一种<code>登录认证</code>方式。既然是登录认证，要做的也就两件事情：</p>
+<ul>
+<li>告诉系统我是谁</li>
+<li>向系统证明我是谁</li>
+</ul>
+<p>比如<code>账号密码登录</code>，<code>账号</code>就是告诉系统我是谁， <code>密码</code>就是向系统证明我是谁;</p>
+<p>比如<code>手机验证码登录</code>，<code>手机号</code>就是告诉系统我是谁，<code>验证码</code>就是向系统证明我是谁;</p>
+<p>那么扫码登录是怎么做到这两件事情的呢？我们一起来考虑一下。</p>
+<p>手机端应用扫PC端二维码，手机端确认后，账号就在PC端登录成功了！这里，PC端登录的账号肯定与手机端是<strong>同一个账号</strong>。不可能手机端登录的是账号A，而扫码登录以后，PC端登录的是账号B。</p>
+<p>所以，<strong>第一件事情，告诉系统我是谁</strong>，是比较清楚的！</p>
+<p>通过扫描二维码，把手机端的账号信息传递到PC端，至于是怎么传的，我们后面再说。</p>
+<p><strong>第二件事情，向系统证明我是谁</strong>。扫码登录过程中，用户并没有去输入密码，也没有输入验证码，或者其他什么码。那是怎么证明的呢？</p>
+<p>有些同学会想到，是不是扫码过程中，把密码传到了PC端呢？ 但这是不可能的。因为那样太不安全的，客户端也根本不会去存储密码。我们仔细想一下，其实手机端APP它是已经登录过的，就是说手机端是已经通过登录认证。</p>
+<p>所以说，</p>
+<blockquote>
+<p>只要扫码确认是这个手机且是这个账号操作的，其实就能<strong>间接证明我谁</strong>。</p>
+</blockquote>
+<h1 id="3-什么是二维码">3 什么是二维码？</h1>
+<p>在说明什么是二维码之前，我们先看看它的爸爸-一维码。哈哈哈</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-1Dcode.png" alt="一维码、条形码"></p>
+<p>没错，就是我们生活中商品包装上常见的<code>条形码</code>。其实际上就是一串数字，表示了该商品的序列号。</p>
+<p>那二维码其实也是类似于条形码，只不过其存储的不仅可以是数字，也可以任何字符串，只是换了张好看的皮囊。</p>
+<blockquote>
+<p>想要生成二维码，可以查查网上的导航站，或在线生成工具网站。比如，<a href="https://cli.im/">草料二维码</a>，不仅可以转二维码，也可以进行“解码”。</p>
+</blockquote>
+<h1 id="4-系统认证机制">4 系统认证机制</h1>
+<p>认识了二维码，我们了解一下移动互联网下的<code>系统认证机制</code>。</p>
+<p>前面我们说过，为了安全，手机端它是不会存储你的登录密码的。 但是在日常使用过程中，我们应该会注意到，只有在你的应用下载下来后，<strong>第一次登录</strong>的时候，才需要进行一个<code>账号密码</code>的登录， 那之后呢，即使这个应用进程被杀掉，或者手机重启，都是不需要再次输入账号密码的，它可以自动登录。</p>
+<p>其实这背后就是一套基于<code>token</code>的认证机制，我们来看一下这套机制是怎么运行的：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-token-login.png" alt="基于token的认知机制流程"></p>
+<p>简要说明下这个过程：</p>
+<ul>
+<li>账号密码登录时，客户端会将设备信息一起传递给服务端，</li>
+<li>如果账号密码校验通过，服务端会把账号与设备进行一个绑定，存在一个数据结构中，这个数据结构中包含了<code>账号 ID</code>，<code>设备 ID</code>，<code>设备类型</code>等等。</li>
+</ul>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="javascript"><code><span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> token</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    acountid: </span><span style="color:#9ECBFF">'账号ID'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    deviceid: </span><span style="color:#9ECBFF">'登录的设备ID'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    deviceType: </span><span style="color:#9ECBFF">'设备类型，如 iso,android,pc......'</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ul>
+<li>然后服务端会生成一个 token，用它来映射数据结构，这个 token 其实就是一串有着特殊意义的字符串，它的意义就在于，通过它可以找到对应的账号与设备信息。</li>
+<li>客户端得到这个 token 后，需要进行一个本地保存，每次访问系统 API 都携带上 token 与设备信息。</li>
+<li>服务端就可以通过 token 找到与它绑定的账号与设备信息，然后把绑定的设备信息与客户端每次传来的设备信息进行比较， 如果相同，那么校验通过，返回API接口响应数据， 如果不同，那就是校验不通过拒绝访问。</li>
+</ul>
+<p>从前面这个流程，我们可以看到，客户端<strong>不会也没必要</strong>保存你的密码，相反，它是保存了token。可能有些同学会想，这个token这么重要，万一被别人知道了怎么办。实际上，知道了也没有影响， 因为设备信息是唯一的，只要你的设备信息别人不知道， 别人拿其他设备来访问，验证也是不通过的。</p>
+<p>可以说，<strong>客户端登录的目的，就是获得属于自己的token</strong>。</p>
+<p>那么在扫码登录过程中，PC端是怎么获得属于自己的token呢？不可能手机端直接把自己的token给PC端用！token只能属于某个客户端私有，其他人或者是其他客户端是用不了的。在分析这个问题之前，我们有必要先梳理一下，扫描二维码登录的一般步骤是什么样的。这可以帮助我们梳理清楚整个过程。</p>
+<h1 id="5-扫描二维码登录的一般步骤">5 扫描二维码登录的一般步骤</h1>
+<h2 id="51-流程">5.1 流程</h2>
+<p>上图。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-token-login-flow.png" alt="扫描二维码登录的一般步骤"></p>
+<ul>
+<li>扫码前，手机端应用是已登录状态，PC端显示一个二维码，等待扫描;</li>
+<li>手机端打开应用，扫描PC端的二维码，扫描后，会提示”已扫描，请在手机端点击确认”;</li>
+<li>用户在手机端点击确认，确认后PC端登录就成功了.</li>
+</ul>
+<p>可以看到，二维码在中间有<code>三个状态</code>， <code>待扫描</code>，<code>已扫描待确认</code>，<code>已确认</code>。 如下所示：
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-status.png" alt="二维码登录过程中的状态"></p>
+<p>梳理下信息：</p>
+<ul>
+<li>二维码的背后它一定存在一个<strong>唯一性的ID</strong>，当二维码生成时，这个ID也一起生成，并且绑定了PC端的设备信息；</li>
+<li>手机去扫描这个二维码；</li>
+<li>二维码切换为<code>已扫描待确认</code>状态， 此时就会将账号信息与这个ID<strong>绑定</strong>；</li>
+<li>当手机端确认登录时，它就会生成PC端用于登录的<code>token</code>，并返回给PC端。</li>
+</ul>
+<p>好了，到这里，基本思路就已经清晰了，接下来我们把整个过程再具体化一下。</p>
+<h2 id="52-二维码准备">5.2 二维码准备</h2>
+<p>按二维码不同状态来看， 首先是<code>等待扫描状态</code>，用户打开PC端，切换到二维码登录界面时。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-prepare.png" alt="二维码准备">
+上述流程简要说明下：</p>
+<ul>
+<li>PC端向服务端发起请求，告诉服务端，我要生成用户登录的二维码，并且把<code>PC端设备信息</code>也传递给服务端；</li>
+<li>服务端收到请求后，它生成<code>二维码ID</code>，并将二维码ID与PC端设备信息进行<strong>绑定</strong>；</li>
+<li>然后把二维码ID返回给PC端；</li>
+<li>PC端收到二维码ID后，生成二维码并展现出来(二维码中肯定包含了ID)；</li>
+<li>为了及时知道<code>二维码的状态</code>，PC端在展现二维码后，不断的<code>轮询</code>服务端，比如每隔一秒就轮询一次，请求服务端告诉当前二维码的状态及相关信息.</li>
+</ul>
+<p>二维码已经准好了，接下来就是<code>扫描状态</code>。</p>
+<h2 id="53-扫描状态切换">5.3 扫描状态切换</h2>
+<p>上图。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-scan.png" alt="二维码扫描">
+流程如下：</p>
+<ul>
+<li>用户用手机去扫描PC端的二维码，通过二维码内容取到其中的<code>二维码ID</code>；</li>
+<li>再调用服务端API将<code>移动端的身份信息</code>与<code>二维码ID</code>一起发送给服务端；</li>
+<li>服务端接收到后，它可以将<code>身份信息</code>与<code>二维码ID</code>进行<strong>绑定</strong>，生成<code>临时token</code>。然后返回给手机端；</li>
+<li>因为PC端一直在<strong>轮询</strong>二维码状态，所以这时候二维码状态发生了改变，它就可以在界面上把二维码状态更新为<code>已扫描</code>；</li>
+</ul>
+<blockquote>
+<p>那么为什么需要返回给手机端一个临时token呢？</p>
+<p><code>临时token</code>与<code>token</code>一样，它也是一种<code>身份凭证</code>，不同的地方在于它只能用一次，用过就失效。</p>
+</blockquote>
+<p>在第三步骤中返回<code>临时token</code>，为的就是手机端在下一步操作时，可以用它作为凭证。以此确保扫码，登录这两步操作是同一部手机端发出的。</p>
+<h2 id="54-状态确认">5.4 状态确认</h2>
+<p>上图。
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-confirm.png" alt="二维码状态确认"></p>
+<ul>
+<li>手机端在接收到<code>临时token</code>后会弹出确认登录界面，用户点击确认时，手机端携带<code>临时token</code>用来调用服务端的接口，告诉服务端，<strong>我已经确认</strong>；</li>
+<li>服务端收到确认后，根据<code>二维码ID</code>绑定的<code>设备信息</code>与<code>账号信息</code>，生成用户PC端登录的<code>token</code>；</li>
+<li>这时候PC端的<strong>轮询</strong>接口，它就可以得知二维码的状态已经变成了<code>已确认</code>。并且从服务端可以获取到用户登录的<code>token</code>；</li>
+<li>到这里，登录就成功了，后端PC端就可以用token去访问服务端的资源了。</li>
+</ul>
+<p>扫码动作的基础流程都讲完了，有些细节还没有深入介绍，比如二维码的内容是什么？</p>
+<ul>
+<li>可以是二维码ID；</li>
+<li>可以是包含二维码ID的一个url地址。</li>
+</ul>
+<blockquote>
+<p>在扫码确认这一步，用户取消了怎么处理？ 这些细节都留给大家思考。</p>
+</blockquote>
+<h1 id="6-总结">6 总结</h1>
+<p><img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/qrcode-login-nature.jpeg" alt="二维码登录总结">
+我们从登陆的本质触发，探索二维码扫码登录是如何做到的：</p>
+<ul>
+<li>告诉系统我是谁；</li>
+<li>向系统证明我谁。</li>
+</ul>
+<p>在这个过程中，我们先简单讲了两个前提知识，</p>
+<ul>
+<li>一个是二维码原理；</li>
+<li>一个是基于token的认证机制。</li>
+</ul>
+<p>然后我们以二维码状态为轴，分析了这背后的逻辑:</p>
+<blockquote>
+<p>通过token认证机制与二维码状态变化来实现扫码登录.</p>
+</blockquote>
+<p>需要指出的是，前面的讲的登录流程，它适用于<code>同一个系统</code>的<code>PC端</code>，<code>WEB端</code>，<code>移动端</code>。</p>
+<p>平时我们还有另外一种场景也比较常见，那就是通过<code>第三方应用</code>来扫码登录，比如极客时间/掘金，都可以选择微信/QQ等扫码登录，那么这种通过第三方应用扫码登录又是什么原理呢？感兴趣的同学可以思考研究一下，欢迎在评论区留下你的见解。</p>
+<p>转载：<a href="https://juejin.cn/post/6940976355097985032">二维码扫码登录是什么原理</a></p> </div> </article>  <!-- </div>
+    </main> --> </body></html>
