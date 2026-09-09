@@ -1,4 +1,6 @@
-<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】post为什么会发送两次请求？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】post为什么会发送两次请求？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css">
+<style>.twikoo-load-btn[data-astro-cid-7a4jb7ne]{display:inline-block;padding:.6rem 1.8rem;background:var(--twikoo-btn-bg, #3b82f6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.95rem;transition:opacity .2s}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:hover{opacity:.85}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:disabled{opacity:.6;cursor:not-allowed}#twikoo-comment[data-astro-cid-7a4jb7ne]{margin-top:1rem;min-height:60px}
+</style></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> <a href="/footprint" class="text-apple-gray-500 hover:text-apple-gray-300 transition">脚印</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
       <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【每日一面】post为什么会发送两次请求？ </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/5/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#post请求</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#cors</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-同源策略">1 同源策略</h1>
 <p>在浏览器中，内容是很开放的，任何资源都可以接入其中，如 JavaScript 文件、图片、音频、视频等资源，甚至可以下载其他站点的可执行文件。</p>
 <p>但也不是说浏览器就是完全自由的，如果不加以控制，就会出现一些不可控的局面，例如会出现一些安全问题，如：</p>
@@ -124,5 +126,60 @@
 <li><a href="https://link.juejin.cn/?target=http%3A%2F%2Fwww.ruanyifeng.com%2Fblog%2F2016%2F04%2Fcors.html">跨域资源共享 CORS 详解</a></li>
 <li><a href="https://link.juejin.cn/?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fzh-CN%2Fdocs%2FWeb%2FHTTP%2FCORS%23%25E9%25A2%2584%25E6%25A3%2580%25E8%25AF%25B7%25E6%25B1%2582">跨源资源共享（CORS）</a></li>
 </ul>
-<p>文章转载于此，<a href="https://juejin.cn/post/7269952188927017015">京东一面：post为什么会发送两次请求？</a></p> </div> </article>  <!-- </div>
+<p>文章转载于此，<a href="https://juejin.cn/post/7269952188927017015">京东一面：post为什么会发送两次请求？</a></p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+
+  // 这些变量现在可以直接使用，已经被替换为实际值
+  const ENV_ID = envId;
+  const CDN_URL = cdnUrl;
+
+  let isLoaded = false;
+
+  function initTwikoo() {
+    if (typeof twikoo !== 'undefined') {
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo-comment',
+      });
+      isLoaded = true;
+      document.getElementById('load-comment-btn').style.display = 'none';
+      return true;
+    }
+    return false;
+  }
+
+  function loadTwikooScript() {
+    const btn = document.getElementById('load-comment-btn');
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+
+    const script = document.createElement('script');
+    script.src = CDN_URL;  // 此时 CDN_URL 是正确字符串
+    script.onload = function() {
+      if (!initTwikoo()) {
+        setTimeout(() => initTwikoo(), 300);
+      }
+    };
+    script.onerror = function() {
+      alert('评论加载失败，请刷新重试');
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+
+  document.getElementById('load-comment-btn').addEventListener('click', loadTwikooScript);
+
+  // 处理 View Transitions 重新绑定
+  document.addEventListener('astro:page-load', function() {
+    const btn = document.getElementById('load-comment-btn');
+    if (btn && !isLoaded) {
+      btn.style.display = 'block';
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+      btn.removeEventListener('click', loadTwikooScript);
+      btn.addEventListener('click', loadTwikooScript);
+    }
+  });
+})();</script>  </div> </main>  <!-- </div>
     </main> --> </body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Netty学习】9.WebSocket</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【Netty学习】9.WebSocket</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css">
+<style>.twikoo-load-btn[data-astro-cid-7a4jb7ne]{display:inline-block;padding:.6rem 1.8rem;background:var(--twikoo-btn-bg, #3b82f6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.95rem;transition:opacity .2s}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:hover{opacity:.85}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:disabled{opacity:.6;cursor:not-allowed}#twikoo-comment[data-astro-cid-7a4jb7ne]{margin-top:1rem;min-height:60px}
+</style></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> <a href="/footprint" class="text-apple-gray-500 hover:text-apple-gray-300 transition">脚印</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
       <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【Netty学习】9.WebSocket </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>6/15/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#Netty</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#服务器推送技术</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#WebSocket</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-服务器推送技术">1 服务器推送技术</h1>
 <p>就是让用户在使用网络应用的时候，不需要一遍又一遍的去<code>手动刷新</code>就可以<code>及时获得</code>更新的信息。</p>
 <p>比如视频弹幕，又比如在股票网站，往往可以看到，各种股票信息的实时刷新， 上面的这些都是基于<code>服务器推送技术</code>。</p>
@@ -103,5 +105,60 @@
 
 
 
-<table><thead><tr><th>-</th><th>Ajax短轮询</th><th>Servlet异步(长轮询)</th><th>SSE</th><th>WebSocket</th></tr></thead><tbody><tr><td>浏览器支持度</td><td>最高</td><td>很高</td><td>中（IE/Edge均不支持）</td><td>中（早期浏览器不支持）</td></tr><tr><td>实时性</td><td>最低</td><td>较高</td><td>很高</td><td>很高</td></tr><tr><td>代码实现复杂度</td><td>最低</td><td>较低</td><td>容易</td><td>最复杂</td></tr><tr><td>连接性质</td><td>短连接</td><td>长连接</td><td>长连接</td><td>长连接</td></tr><tr><td>适用</td><td>需要服务极大量或极小量的用户，实时性要求不高</td><td>准实时性的应用，比较关注浏览器的兼容性</td><td>实时，基本都是文本交互的应用</td><td>实时，需要支持多样化的用户数据类型的应用或原生程序</td></tr></tbody></table> </div> </article>  <!-- </div>
+<table><thead><tr><th>-</th><th>Ajax短轮询</th><th>Servlet异步(长轮询)</th><th>SSE</th><th>WebSocket</th></tr></thead><tbody><tr><td>浏览器支持度</td><td>最高</td><td>很高</td><td>中（IE/Edge均不支持）</td><td>中（早期浏览器不支持）</td></tr><tr><td>实时性</td><td>最低</td><td>较高</td><td>很高</td><td>很高</td></tr><tr><td>代码实现复杂度</td><td>最低</td><td>较低</td><td>容易</td><td>最复杂</td></tr><tr><td>连接性质</td><td>短连接</td><td>长连接</td><td>长连接</td><td>长连接</td></tr><tr><td>适用</td><td>需要服务极大量或极小量的用户，实时性要求不高</td><td>准实时性的应用，比较关注浏览器的兼容性</td><td>实时，基本都是文本交互的应用</td><td>实时，需要支持多样化的用户数据类型的应用或原生程序</td></tr></tbody></table> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+
+  // 这些变量现在可以直接使用，已经被替换为实际值
+  const ENV_ID = envId;
+  const CDN_URL = cdnUrl;
+
+  let isLoaded = false;
+
+  function initTwikoo() {
+    if (typeof twikoo !== 'undefined') {
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo-comment',
+      });
+      isLoaded = true;
+      document.getElementById('load-comment-btn').style.display = 'none';
+      return true;
+    }
+    return false;
+  }
+
+  function loadTwikooScript() {
+    const btn = document.getElementById('load-comment-btn');
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+
+    const script = document.createElement('script');
+    script.src = CDN_URL;  // 此时 CDN_URL 是正确字符串
+    script.onload = function() {
+      if (!initTwikoo()) {
+        setTimeout(() => initTwikoo(), 300);
+      }
+    };
+    script.onerror = function() {
+      alert('评论加载失败，请刷新重试');
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+
+  document.getElementById('load-comment-btn').addEventListener('click', loadTwikooScript);
+
+  // 处理 View Transitions 重新绑定
+  document.addEventListener('astro:page-load', function() {
+    const btn = document.getElementById('load-comment-btn');
+    if (btn && !isLoaded) {
+      btn.style.display = 'block';
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+      btn.removeEventListener('click', loadTwikooScript);
+      btn.addEventListener('click', loadTwikooScript);
+    }
+  });
+})();</script>  </div> </main>  <!-- </div>
     </main> --> </body></html>

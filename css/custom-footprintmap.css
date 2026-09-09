@@ -1,0 +1,9 @@
+#footprintMap { height: 700px !important; border-radius: 16px !important; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+.fp-custom-marker { width: 46px !important; height: 46px !important; font-size: 17px !important; border: 3px solid rgba(255,255,255,0.95) !important; box-shadow: 0 6px 16px rgba(0,0,0,0.25) !important; }
+.fp-cluster-marker { width: 64px !important; height: 64px !important; font-size: 22px !important; font-weight: 700 !important; }
+.fp-popup { width: 360px !important; border-radius: 16px !important; box-shadow: 0 20px 60px rgba(0,0,0,0.25) !important; }
+.fp-popup-title { font-size: 20px !important; font-weight: 700 !important; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.fp-category-btn { padding: 10px 18px !important; font-weight: 600 !important; border-radius: 20px !important; transition: all .3s cubic-bezier(.4,0,.2,1) !important; }
+.fp-category-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
+.fp-category-btn.active { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%) !important; color: #fff !important; }
+@media (max-width: 768px) { #footprintMap { height: 450px !important; border-radius: 12px !important; } .fp-popup { width: 300px !important; } }

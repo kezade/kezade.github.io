@@ -1,4 +1,6 @@
-<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【AP Statistics】样本方差无偏性的数学推导</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【AP Statistics】样本方差无偏性的数学推导</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css">
+<style>.twikoo-load-btn[data-astro-cid-7a4jb7ne]{display:inline-block;padding:.6rem 1.8rem;background:var(--twikoo-btn-bg, #3b82f6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.95rem;transition:opacity .2s}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:hover{opacity:.85}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:disabled{opacity:.6;cursor:not-allowed}#twikoo-comment[data-astro-cid-7a4jb7ne]{margin-top:1rem;min-height:60px}
+</style></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> <a href="/footprint" class="text-apple-gray-500 hover:text-apple-gray-300 transition">脚印</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
       <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【AP Statistics】样本方差无偏性的数学推导 </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>2/3/2026</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#统计</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#无偏估计</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="ap-statistics-样本方差无偏性的数学推导证明es2σ2es2sigma2es2σ2">AP Statistics-样本方差无偏性的数学推导（证明<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mo stretchy="false">(</mo><msup><mi>s</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">E(s^2)=\sigma^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">s</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0359em;">σ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>）</h1>
 <h2 id="推导前提与符号说明">推导前提与符号说明</h2>
 <h3 id="1-基本假设">1. 基本假设</h3>
@@ -361,5 +363,60 @@
 <ol>
 <li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi><mrow><mi mathvariant="bold-italic">E</mi><mo stretchy="false">(</mo><msubsup><mi mathvariant="bold-italic">s</mi><mi mathvariant="bold-italic">n</mi><mn mathvariant="bold">2</mn></msubsup><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mi mathvariant="bold-italic">n</mi><mo mathvariant="bold-italic">−</mo><mn mathvariant="bold">1</mn></mrow><mi mathvariant="bold-italic">n</mi></mfrac><msup><mi mathvariant="bold-italic">σ</mi><mn mathvariant="bold">2</mn></msup></mrow></mi></mrow><annotation encoding="application/x-tex">\boldsymbol{E(s_n^2)=\frac{n-1}{n}\sigma^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.1994em;vertical-align:-0.345em;"></span><span class="mord"><span class="mord"><span class="mord boldsymbol" style="margin-right:0.0545em;">E</span><span class="mopen mathbf">(</span><span class="mord"><span class="mord boldsymbol">s</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord boldsymbol mtight">n</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathbf mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mclose mathbf">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel mathbf">=</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8544em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord boldsymbol mtight">n</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4033em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord boldsymbol mtight">n</span><span class="mbin mathbf mtight">−</span><span class="mord mathbf mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mord boldsymbol" style="margin-right:0.037em;">σ</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathbf mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></span></li>
 <li>核心是样本均值自身存在波动，需要扣除<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo stretchy="false">(</mo><mover accent="true"><mi>X</mi><mo>ˉ</mo></mover><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">n(\bar{X}-\mu)^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0701em;vertical-align:-0.25em;"></span><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord accent"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8201em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span></span><span style="top:-3.2523em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1667em;"><span class="mord">ˉ</span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal">μ</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>这一项的期望</li>
-</ol> </div> </article>  <!-- </div>
+</ol> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+
+  // 这些变量现在可以直接使用，已经被替换为实际值
+  const ENV_ID = envId;
+  const CDN_URL = cdnUrl;
+
+  let isLoaded = false;
+
+  function initTwikoo() {
+    if (typeof twikoo !== 'undefined') {
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo-comment',
+      });
+      isLoaded = true;
+      document.getElementById('load-comment-btn').style.display = 'none';
+      return true;
+    }
+    return false;
+  }
+
+  function loadTwikooScript() {
+    const btn = document.getElementById('load-comment-btn');
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+
+    const script = document.createElement('script');
+    script.src = CDN_URL;  // 此时 CDN_URL 是正确字符串
+    script.onload = function() {
+      if (!initTwikoo()) {
+        setTimeout(() => initTwikoo(), 300);
+      }
+    };
+    script.onerror = function() {
+      alert('评论加载失败，请刷新重试');
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+
+  document.getElementById('load-comment-btn').addEventListener('click', loadTwikooScript);
+
+  // 处理 View Transitions 重新绑定
+  document.addEventListener('astro:page-load', function() {
+    const btn = document.getElementById('load-comment-btn');
+    if (btn && !isLoaded) {
+      btn.style.display = 'block';
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+      btn.removeEventListener('click', loadTwikooScript);
+      btn.addEventListener('click', loadTwikooScript);
+    }
+  });
+})();</script>  </div> </main>  <!-- </div>
     </main> --> </body></html>

@@ -1,4 +1,6 @@
-<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】7.Reverse Integer</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【LeetCode】7.Reverse Integer</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css">
+<style>.twikoo-load-btn[data-astro-cid-7a4jb7ne]{display:inline-block;padding:.6rem 1.8rem;background:var(--twikoo-btn-bg, #3b82f6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.95rem;transition:opacity .2s}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:hover{opacity:.85}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:disabled{opacity:.6;cursor:not-allowed}#twikoo-comment[data-astro-cid-7a4jb7ne]{margin-top:1rem;min-height:60px}
+</style></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> <a href="/footprint" class="text-apple-gray-500 hover:text-apple-gray-300 transition">脚印</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
       <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【LeetCode】7.Reverse Integer </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>1/30/2024</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#LeetCode</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#位运算</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <h1 id="1-问题">1 问题</h1>
 <p>Given a signed <code>32-bit integer x</code>, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">[</mo><mo>−</mo><msup><mn>2</mn><mn>31</mn></msup><mo separator="true">,</mo><msup><mn>2</mn><mn>31</mn></msup><mo>−</mo><mn>1</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[-2^{31},2^{31}-1]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord">−</span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">31</span></span></span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">31</span></span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">]</span></span></span></span> , then return 0.</p>
 <p><strong>Assume the environment does not allow you to store 64-bit integers (signed or unsigned).</strong></p>
@@ -66,5 +68,60 @@ Output: 21</p>
 <span class="line"><span style="color:#E1E4E8">        }</span></span>
 <span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> minusFlag </span><span style="color:#F97583">?</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> res </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> res;</span></span>
 <span class="line"><span style="color:#E1E4E8">    }</span></span>
-<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <!-- </div>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+
+  // 这些变量现在可以直接使用，已经被替换为实际值
+  const ENV_ID = envId;
+  const CDN_URL = cdnUrl;
+
+  let isLoaded = false;
+
+  function initTwikoo() {
+    if (typeof twikoo !== 'undefined') {
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo-comment',
+      });
+      isLoaded = true;
+      document.getElementById('load-comment-btn').style.display = 'none';
+      return true;
+    }
+    return false;
+  }
+
+  function loadTwikooScript() {
+    const btn = document.getElementById('load-comment-btn');
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+
+    const script = document.createElement('script');
+    script.src = CDN_URL;  // 此时 CDN_URL 是正确字符串
+    script.onload = function() {
+      if (!initTwikoo()) {
+        setTimeout(() => initTwikoo(), 300);
+      }
+    };
+    script.onerror = function() {
+      alert('评论加载失败，请刷新重试');
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+
+  document.getElementById('load-comment-btn').addEventListener('click', loadTwikooScript);
+
+  // 处理 View Transitions 重新绑定
+  document.addEventListener('astro:page-load', function() {
+    const btn = document.getElementById('load-comment-btn');
+    if (btn && !isLoaded) {
+      btn.style.display = 'block';
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+      btn.removeEventListener('click', loadTwikooScript);
+      btn.addEventListener('click', loadTwikooScript);
+    }
+  });
+})();</script>  </div> </main>  <!-- </div>
     </main> --> </body></html>

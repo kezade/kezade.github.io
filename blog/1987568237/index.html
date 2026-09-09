@@ -1,4 +1,6 @@
-<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】字节面试：加了什么锁，导致死锁的？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css"></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
+<!DOCTYPE html><!-- 在html标签直接注入CSS变量，可以正常读取变量 --><html lang="en" style="--bgLightUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/Jay.png&#34;);--bgDarkUrl:url(&#34;https://gcore.jsdelivr.net/gh/zyxelva/picgo@v3.5/images/wallpaper/43616-105.jpg&#34;)"> <head><meta charset="UTF-8"><meta name="description" content="A modern personal website template for software developers"><meta name="viewport" content="width=device-width"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><meta name="generator" content="Astro v5.2.5"><title>【每日一面】字节面试：加了什么锁，导致死锁的？</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css"><link rel="stylesheet" href="/_astro/_page_.BPQhcvJP.css">
+<style>.twikoo-load-btn[data-astro-cid-7a4jb7ne]{display:inline-block;padding:.6rem 1.8rem;background:var(--twikoo-btn-bg, #3b82f6);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.95rem;transition:opacity .2s}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:hover{opacity:.85}.twikoo-load-btn[data-astro-cid-7a4jb7ne]:disabled{opacity:.6;cursor:not-allowed}#twikoo-comment[data-astro-cid-7a4jb7ne]{margin-top:1rem;min-height:60px}
+</style></head> <body class="bg-apple-gray-50 text-apple-gray-500"> <!-- 导航栏 --> <header class="border-b border-apple-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50"> <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between"> <a href="/" class="text-xl font-semibold text-apple-gray-500 hover:text-apple-gray-400 transition">Kezade</a> <div class="flex gap-8"> <a href="/" class="text-apple-gray-500 hover:text-apple-gray-300 transition">首页</a> <a href="/about" class="text-apple-gray-500 hover:text-apple-gray-300 transition">关于</a> <a href="/blog" class="text-apple-gray-500 hover:text-apple-gray-300 transition">博客</a> <a href="/gallery" class="text-apple-gray-500 hover:text-apple-gray-300 transition">相册</a> <a href="/footprint" class="text-apple-gray-500 hover:text-apple-gray-300 transition">脚印</a> </div> </nav> </header> <!-- <main class="max-w-7xl mx-auto px-6 py-12">
       <div class="bg-white/60 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-10"> -->  <article class="max-w-3xl mx-auto animate-fade-in"> <header class="mb-12"> <h1 class="text-4xl font-bold text-apple-gray-500 leading-tight"> 【每日一面】字节面试：加了什么锁，导致死锁的？ </h1> <div class="flex items-center gap-4 mt-4 text-apple-gray-300"> <time>12/5/2023</time> <ul class="flex flex-wrap gap-2"> <li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#意向锁</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#间隙锁</li><li class="bg-apple-gray-50 px-3 py-1 rounded-full text-xs">#MySQL锁</li> </ul> </div> </header> <!-- 文章正文 - 使用 prose 并套用主题颜色 --> <div class="prose prose-apple-gray max-w-none"> <p>前段时间，一网友进行了字节面试，遇到了一道非常经典的有关MySQL锁相关的问题，咱们来复盘一下，看看这道题怎样才能回答的天衣无缝，能让面试官无地自容。</p>
 <h1 id="1-题目描述">1 题目描述</h1>
 <p>现有数据库表有以下字段：(id, no, name, age, score)，数据如下：</p>
@@ -235,5 +237,60 @@ An Insert intention lock is a type of gap lock set by Insert operations prior to
 <h1 id="4-总结">4 总结</h1>
 <p>两个事务即使生成的间隙锁的范围是一样的，也不会发生冲突，因为间隙锁目的是为了防止其他事务插入数据，因此<strong>间隙锁与间隙锁之间是相互兼容的</strong>。</p>
 <p>在执行<code>插入语句</code>时，如果插入的记录在其他事务持有<code>间隙锁</code>范围内，插入语句就会被阻塞，因为插入语句在碰到间隙锁时，会生成一个插入意向锁，然后<code>插入意向锁</code>和<code>间隙锁</code>之间是<code>互斥</code>的关系。</p>
-<p>如果两个事务分别向对方持有的间隙锁范围内插入一条记录，而插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了循环等待，满足了<code>死锁的四个条件</code>：互斥、占有且等待、不可强占用、循环等待，因此发生了死锁。</p> </div> </article>  <!-- </div>
+<p>如果两个事务分别向对方持有的间隙锁范围内插入一条记录，而插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了循环等待，满足了<code>死锁的四个条件</code>：互斥、占有且等待、不可强占用、循环等待，因此发生了死锁。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+
+  // 这些变量现在可以直接使用，已经被替换为实际值
+  const ENV_ID = envId;
+  const CDN_URL = cdnUrl;
+
+  let isLoaded = false;
+
+  function initTwikoo() {
+    if (typeof twikoo !== 'undefined') {
+      twikoo.init({
+        envId: ENV_ID,
+        el: '#twikoo-comment',
+      });
+      isLoaded = true;
+      document.getElementById('load-comment-btn').style.display = 'none';
+      return true;
+    }
+    return false;
+  }
+
+  function loadTwikooScript() {
+    const btn = document.getElementById('load-comment-btn');
+    btn.textContent = '加载中...';
+    btn.disabled = true;
+
+    const script = document.createElement('script');
+    script.src = CDN_URL;  // 此时 CDN_URL 是正确字符串
+    script.onload = function() {
+      if (!initTwikoo()) {
+        setTimeout(() => initTwikoo(), 300);
+      }
+    };
+    script.onerror = function() {
+      alert('评论加载失败，请刷新重试');
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+    };
+    document.head.appendChild(script);
+  }
+
+  document.getElementById('load-comment-btn').addEventListener('click', loadTwikooScript);
+
+  // 处理 View Transitions 重新绑定
+  document.addEventListener('astro:page-load', function() {
+    const btn = document.getElementById('load-comment-btn');
+    if (btn && !isLoaded) {
+      btn.style.display = 'block';
+      btn.textContent = '加载评论';
+      btn.disabled = false;
+      btn.removeEventListener('click', loadTwikooScript);
+      btn.addEventListener('click', loadTwikooScript);
+    }
+  });
+})();</script>  </div> </main>  <!-- </div>
     </main> --> </body></html>
