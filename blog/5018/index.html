@@ -207,8 +207,8 @@
 <span class="line"><span style="color:#E1E4E8">  }</span></span></code></pre>
 <p>但是，对于AOP代理对象的生成，会违背Spring总体实例化对象的流程，因为代理对象是在初始化bean完全之后，进行该bean的代理。即：
 Spring结合AOP跟Bean的生命周期，是在Bean创建完全之后通过AnnotationAwareAspectJAutoProxyCreator这个后置处理器来完成的，在这个后置处理的postProcessAfterInitialization方法中对初始化后的Bean完成AOP代理。</p>
-<p>若没有第三级缓存，则创建完bean，就得立马创建代理对象，违背了Spring设计原则。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+<p>若没有第三级缓存，则创建完bean，就得立马创建代理对象，违背了Spring设计原则。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

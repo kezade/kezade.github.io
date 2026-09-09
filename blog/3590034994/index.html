@@ -826,8 +826,8 @@
 <p>咋回事儿？</p>
 <p>在 REPEATABLE READ 隔离级别下，T1 第一次执行普通的 SELECT 语句时生成 了一个 ReadView，之后 T2 向 teacher 表中新插入一条记录并提交。</p>
 <p><code>ReadView</code>并不能阻止<code>T1</code>执行<code>UPDATE</code>或者<code>DELETE</code>语句来改动这个新插入的记录(由于<code>T2</code>已经提交，因此改动该记录并不会造成阻塞)，但是这样一来，这条新记录的<code>trx_id</code>隐藏列的值就变成了<code>T1</code>的<code>事务id</code>。之后<code>T1</code>再使用<code>普通的SELECT语句</code>去查询这条记录时就<code>可以看到</code>这条记录了，也就可以把这条记录返回给客户端。</p>
-<p>因为这个特殊现象的存在，我们也可以认为<code>MVCC</code><strong>并不能完全禁止幻读</strong>。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+<p>因为这个特殊现象的存在，我们也可以认为<code>MVCC</code><strong>并不能完全禁止幻读</strong>。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

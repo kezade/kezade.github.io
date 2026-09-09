@@ -237,8 +237,8 @@ An Insert intention lock is a type of gap lock set by Insert operations prior to
 <h1 id="4-总结">4 总结</h1>
 <p>两个事务即使生成的间隙锁的范围是一样的，也不会发生冲突，因为间隙锁目的是为了防止其他事务插入数据，因此<strong>间隙锁与间隙锁之间是相互兼容的</strong>。</p>
 <p>在执行<code>插入语句</code>时，如果插入的记录在其他事务持有<code>间隙锁</code>范围内，插入语句就会被阻塞，因为插入语句在碰到间隙锁时，会生成一个插入意向锁，然后<code>插入意向锁</code>和<code>间隙锁</code>之间是<code>互斥</code>的关系。</p>
-<p>如果两个事务分别向对方持有的间隙锁范围内插入一条记录，而插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了循环等待，满足了<code>死锁的四个条件</code>：互斥、占有且等待、不可强占用、循环等待，因此发生了死锁。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+<p>如果两个事务分别向对方持有的间隙锁范围内插入一条记录，而插入操作为了获取到插入意向锁，都在等待对方事务的间隙锁释放，于是就造成了循环等待，满足了<code>死锁的四个条件</code>：互斥、占有且等待、不可强占用、循环等待，因此发生了死锁。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

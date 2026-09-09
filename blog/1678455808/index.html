@@ -528,8 +528,8 @@
 <li>为了避免单个消息被检查太多次而导致半队列消息累积，MQ默认将<code>单个消息</code>的检查次数限制为 <code>15 次</code>，用户可以通过 <code>transactionCheckMax</code> 参数来修改此限制。如果已经回查某条消息超过 <code>transactionCheckMax</code> 次的话，则Broker将<code>丢弃</code>此消息，并打印错误日志。</li>
 <li>事务消息将在参数 <code>transactionTimeout</code> 指定的时间长度之后被回查。当发送事务消息时，用户还可以通过设置用户属性 <code>CHECK_IMMUNITY_TIME_IN_SECONDS</code> 来改变这个限制，该参数<code>优先于 transactionTimeout</code> 参数。</li>
 <li>事务消息的生产者 ID <strong>不能</strong>与其他类型消息的生产者 ID 共享。与其他类型的消息不同，事务消息允许反向查询、MQ服务器能通过它们的生产者 ID 查询到消费者。</li>
-</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

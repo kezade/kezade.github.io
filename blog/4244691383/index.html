@@ -22,8 +22,8 @@
 <h1 id="3-jvm-整体知识模块">3 JVM 整体知识模块</h1>
 <p>JVM 能涉及非常庞大的一块知识体系，比如<code>内存结构</code>、<code>垃圾回收</code>、<code>类加载</code>、<code>性能调优</code>、<code>JVM 自身优化技术</code>、<code>执行引擎</code>、<code>类文件结构</code>、<code>监控工具</code>等。 但是在所有的知识体系中，都或多或少跟<code>内存结构</code>有一定的关系: 比如<code>垃圾回收</code>回收的就是内存、<code>类加载</code>加载到的地方也是内存、<code>性能优化</code>也涉及到内存优化、<code>执行引擎</code>与内存密不可分、<code>类文件结构</code>与内存的设计有关系，<code>监控工具</code>也会监控内存。所以<code>内存结构</code>处于 JVM 中<code>核心位置</code>。也是属于我们入门 JVM 学习的最好的选择。</p>
 <p>同时 JVM 是一个虚拟化的操作系统，所以除了要<code>虚拟指令</code>之外，最重要的一个事情就是需要<code>虚拟化内存</code>，这个虚拟化内存就是我们马上要讲到的 <code>JVM 的内存区域</code>。下章见分晓。
-<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Hole-of-JVM.png" alt="JVM 整体知识模块"></p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+<img src="https://gcore.jsdelivr.net/gh/zyxelva/picgo/markdown/Hole-of-JVM.png" alt="JVM 整体知识模块"></p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

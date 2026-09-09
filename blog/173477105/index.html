@@ -130,8 +130,8 @@
 <li>高峰期：在系统高峰期（比如双十一、黑五等）时，消息流量和写入操作可能会急剧增加。开启 TransientStorePool 可以帮助应对这种临时的高负载压力，提高整个系统的处理能力。</li>
 <li>异步刷盘：在异步刷盘的场景下，将消息先写入内存缓冲区可以提高响应速度。开启 TransientStorePool 可以使得消息先被写入直接内存，然后通过后台刷盘服务异步写入磁盘，从而降低延迟。</li>
 <li>低延迟要求：对于对延迟有严格要求的场景，开启 TransientStorePool 可以减少磁盘 I/O 操作，降低消息写入的延迟。</li>
-</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

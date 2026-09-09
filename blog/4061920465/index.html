@@ -152,8 +152,8 @@
 <ul>
 <li><code>Message Queue</code> 是无限长的数组。一条消息进来下标就会<code>+1</code>，而这个<code>数组的下标</code>就是 offset，Message Queue 中的 <code>max offset</code> 表示消息的最大 offset；</li>
 <li><code>Consumer offset</code> 可以理解为标记 <code>Consumer Group</code> 在一条逻辑 <code>Message Queue</code> 上，消息消费到哪里，即<code>消费进度</code>。但从源码上看，这个数值是<code>消费过的最新消费的消息 offset + 1</code>，即实际上表示的是<strong>下次拉取的 offset 位置</strong>。</li>
-</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+</ul> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;

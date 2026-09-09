@@ -71,8 +71,8 @@
 <p>使用直接指针访问方式的最大好处就是<code>速度更快</code>，它节省了一次指针定位的时间开销，由于对象的访问在 Java 中非常频繁，因此这类<code>开销积少成多</code>后也是一项非常可观的执行成本。
 对<code>HotSpot</code> 而言，它是使用<code>直接指针访问</code>方式进行对象访问的。</p>
 </blockquote>
-<p>[^1] 强调“理论上”是因为在<code>CMS</code>的实现里面，为了能在多数情况下分配得更快，设计了一个叫作<code>Linear Allocation Buffer</code>的分配缓冲区，通过<code>空闲列表</code>拿到一大块分配缓冲区之后，在它<strong>里面</strong>仍然可以使用<code>指针碰撞</code>方式来分配。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = undefined;
-const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.6.39/dist/twikoo.all.min.js";
+<p>[^1] 强调“理论上”是因为在<code>CMS</code>的实现里面，为了能在多数情况下分配得更快，设计了一个叫作<code>Linear Allocation Buffer</code>的分配缓冲区，通过<code>空闲列表</code>拿到一大块分配缓冲区之后，在它<strong>里面</strong>仍然可以使用<code>指针碰撞</code>方式来分配。</p> </div> </article>  <main class="max-w-7xl mx-auto px-6 py-12"> <div class="animate-fade-in"> <div id="twikoo-comment" data-astro-cid-7a4jb7ne></div> <button id="load-comment-btn" class="twikoo-load-btn" data-astro-cid-7a4jb7ne>加载评论</button> <!-- 使用 define:vars 将变量传递给客户端脚本 --> <script>(function(){const envId = "https://kezadetwikoo.netlify.app/.netlify/functions/twikoo";
+const cdnUrl = "https://cdn.jsdelivr.net/npm/twikoo@1.7.22/dist/twikoo.min.js";
 
   // 这些变量现在可以直接使用，已经被替换为实际值
   const ENV_ID = envId;
