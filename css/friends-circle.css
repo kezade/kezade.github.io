@@ -1,0 +1,145 @@
+/* 页面容器，保持与主题一致的宽度和内边距 */
+.friends-page {
+    width: 100%;
+    max-width: 960px; /* 根据你的主题调整 */
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* --- 顶部统计卡片 --- */
+.stats-card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: var(--color-bg-secondary, #f9f9f9); /* 使用主题变量或回退颜色 */
+    border-radius: 1rem;
+    border: 1px solid var(--color-border, #eaeaea);
+    margin-bottom: 2.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+.stat-item {
+    text-align: center;
+}
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary, #666);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+.stat-value {
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #1a1a1a);
+    line-height: 1;
+    font-feature-settings: "tnum"; /* 数字等宽，防止跳动 */
+}
+
+/* --- 弹幕区域 --- */
+.danmaku-container {
+    position: relative;
+    width: 100%;
+    /* 最小 400px，理想是 65vh，最大 800px */
+    height: clamp(400px, 65vh, 800px);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--color-bg, #fff); /* 与页面背景一致，或留空 */
+    /* 可选：添加一个微妙的边框或背景 */
+    /* border: 1px solid var(--color-border, #eaeaea); */
+}
+
+/* 弹幕条目 */
+.danmaku-item {
+    position: absolute;
+    left: 100%; /* 从右侧开始 */
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px); /* 毛玻璃效果，符合 Apple 风格 */
+    border-radius: 100px; /* 胶囊形状 */
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+    pointer-events: auto; /* 允许点击 */
+    will-change: transform; /* 性能优化 */
+    animation: danmaku-scroll linear forwards; /* 动画名称和时长由 JS 动态设置 */
+}
+
+/* 悬停时稍微突出 */
+.danmaku-item:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.danmaku-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background-color: #eee;
+}
+
+.danmaku-content {
+    font-size: 0.9rem;
+    color: #333;
+    /* 防止内容过长溢出，可配合 JS 截断，或让弹幕宽度自适应 */
+}
+
+/* --- 弹幕滚动动画 --- */
+@keyframes danmaku-scroll {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        /* 负的 100vw + 自身宽度，确保完全移出左侧屏幕 */
+        transform: translateX(calc(-100vw - 100%));
+    }
+}
+
+/* 响应式微调 */
+@media (max-width: 768px) {
+    .stats-card {
+        padding: 1rem 0.5rem;
+    }
+    .stat-value {
+        font-size: 1.8rem;
+    }
+    .danmaku-container {
+        height: 400px;
+    }
+    .danmaku-item {
+        padding: 0.4rem 0.8rem;
+    }
+    .danmaku-avatar {
+        width: 24px;
+        height: 24px;
+    }
+    .danmaku-content {
+        font-size: 0.8rem;
+    }
+}
+
+/* --- 底部信息 --- */
+.friends-footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    color: var(--color-text-secondary, #888); /* 尽量使用主题变量，或者直接用回退色 #888 */
+    font-size: 0.9rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+}
+
+.friends-footer p {
+    margin: 0.25rem 0;
+}
+
+.friends-footer .powered-by {
+    font-size: 0.85rem;
+    color: var(--color-text-tertiary, #aaa); /* 颜色更浅一点 */
+}
