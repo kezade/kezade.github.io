@@ -1,8 +1,8 @@
 /* 页面容器，保持与主题一致的宽度和内边距 */
 .friends-page {
     width: 100%;
-    max-width: 960px; /* 根据你的主题调整 */
-    margin: 0 auto;
+    /*max-width: 960px; !* 根据你的主题调整 *!*/
+    /*margin: 0 auto;*/
     padding: 2rem 1.5rem;
 }
 
@@ -18,15 +18,18 @@
     margin-bottom: 2.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
+
 .stat-item {
     text-align: center;
 }
+
 .stat-label {
     font-size: 0.9rem;
     color: var(--color-text-secondary, #666);
     margin-bottom: 0.5rem;
     letter-spacing: 0.05em;
 }
+
 .stat-value {
     font-size: 2.2rem;
     font-weight: 600;
@@ -35,18 +38,21 @@
     font-feature-settings: "tnum"; /* 数字等宽，防止跳动 */
 }
 
+.page-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1.5rem; /* 这里控制左右内边距 */
+}
+
 /* --- 弹幕区域 --- */
 .danmaku-container {
     position: relative;
-    width: 100%;
-    /* 最小 400px，理想是 65vh，最大 800px */
+    width: 100%; /* 现在它就是全宽的 */
     height: clamp(400px, 65vh, 800px);
-    border-radius: 1rem;
     overflow: hidden;
-    background: var(--color-bg, #fff); /* 与页面背景一致，或留空 */
-    /* 可选：添加一个微妙的边框或背景 */
-    /* border: 1px solid var(--color-border, #eaeaea); */
+    background: transparent; /* 关键：透明背景 */
 }
+
 
 /* 弹幕条目 */
 .danmaku-item {
@@ -107,19 +113,24 @@
     .stats-card {
         padding: 1rem 0.5rem;
     }
+
     .stat-value {
         font-size: 1.8rem;
     }
+
     .danmaku-container {
         height: 400px;
     }
+
     .danmaku-item {
         padding: 0.4rem 0.8rem;
     }
+
     .danmaku-avatar {
         width: 24px;
         height: 24px;
     }
+
     .danmaku-content {
         font-size: 0.8rem;
     }
